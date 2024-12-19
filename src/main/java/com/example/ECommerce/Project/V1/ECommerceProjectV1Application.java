@@ -17,33 +17,33 @@ public class ECommerceProjectV1Application {
 		SpringApplication.run(ECommerceProjectV1Application.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner commandLineRunner(
-		UserRepository userRepository
-	) {
-		return args -> {
-			for (int i = 0; i < 5; i++){
-				Faker faker = new Faker();
-				var user = User.builder()
-						.firstname("faker.name().firstName()")
-						.lastname("faker.name().lastName()")
-						.username(faker.name().username())
-						.email(faker.internet().emailAddress())
-						.password("123")
-						.dob(faker.date().birthday())
-						.phoneNumber(faker.number().digits(11))
-						.gender(true)
-						.bio("Hello this is the " + i + " person")
-						.avatar(null)
-						.role("ADMIN")
-						.createdAt(LocalDateTime.now())
-						.updatedAt(LocalDateTime.now())
-						.createdBy("SYSTEM")
-						.updatedBy("SYSTEM")
-						.isActive(true)
-						.build();
-				userRepository.save(user);
-			}
-		};
-	}
+//	@Bean
+//	public CommandLineRunner commandLineRunner(
+//		UserRepository userRepository
+//	) {
+//		return args -> {
+//			for (int i = 0; i < 5; i++){
+//				Faker faker = new Faker();
+//				var user = User.builder()
+//						.firstname("faker.name().firstName()")
+//						.lastname("faker.name().lastName()")
+//						.username(faker.name().username())
+//						.email(faker.internet().emailAddress())
+//						.password("123")
+//						.dob(faker.date().birthday())
+//						.phoneNumber(faker.number().digits(11))
+//						.gender(true)
+//						.bio("Hello this is the " + i + " person")
+//						.avatar(null)
+//						.role("ADMIN")
+//						.createdAt(LocalDateTime.now())
+//						.updatedAt(LocalDateTime.now())
+//						.createdBy("SYSTEM")
+//						.updatedBy("SYSTEM")
+//						.isActive(true)
+//						.build();
+//				userRepository.save(user);
+//			}
+//		};
+//	}
 }
