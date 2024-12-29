@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+<h1>Register</h1>
+<form id="registerForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br><br>
+    <label for="emailOrPhoneNumber">Email/Phone Number:</label>
+    <input type="text" id="emailOrPhoneNumber" name="emailOrPhoneNumber" required>
+    <br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br><br>
+    <button type="button" onclick="register()">Register</button>
+</form>
+<hr>
+<a href="/oauth2/authorization/google">Login with Google</a><br>
+<a href="/oauth2/authorization/facebook">Login with Facebook</a><br>
+<a href="/oauth2/authorization/github">Login with GitHub</a>
+
+<script>
+    async function register() {
+        const formData = {
+            username: document.getElementById('username').value,
+            emailOrPhoneNumber: document.getElementById('emailOrPhoneNumber').value,
+            password: document.getElementById('password').value
+        };
+
+        const response = await fetch('http://localhost:8080/Authentication/Register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert('Register successful');
+            console.log(result);
+        } else {
+            alert('Register failed');
+            console.error(result);
+        }
+    }
+</script>
+</body>
+</html>
