@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/alphabetsizes")
+@RequestMapping("/Admin/AlphabetSizeManagement")
 public class AlphabetSizeController {
 
     private final IAlphabetSizeService alphabetSizeService;

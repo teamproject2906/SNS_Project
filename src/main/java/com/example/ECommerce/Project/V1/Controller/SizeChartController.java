@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/sizecharts")
+@RequestMapping("/Admin/SizeChartManagement")
 public class SizeChartController {
 
     private final ISizeChartService sizeChartService;
