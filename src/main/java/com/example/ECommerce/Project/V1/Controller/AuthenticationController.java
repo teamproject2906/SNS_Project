@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,5 +44,11 @@ public class AuthenticationController {
             HttpServletResponse response
     ) throws IOException {
         authenticationService.refreshToken(request, response);
+    }
+
+    @GetMapping("/google-login")
+    public void googleLogin(HttpServletResponse response) throws IOException {
+        // Redirect to Google's OAuth2 login URL (managed by Spring Security)
+        response.sendRedirect("/oauth2/authorization/google");
     }
 }

@@ -10,16 +10,16 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "promotion")
+@Table(name = "cartitem")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Promotion extends BaseEntity{
+public class CartItem extends BaseEntity {
 
     @Id
     @GeneratedValue( generator = "uuid2" )
@@ -28,25 +28,17 @@ public class Promotion extends BaseEntity{
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @OneToOne()
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "shopping_session_id")
+    private ShoppingSession shoppingSession;
 
     @Column(nullable = false)
-    private Double discount;
-
-    @Column(length = 100)
-    private String description;
+    private Integer quantity;
 
     @Column(nullable = false)
-    private LocalDateTime startDate;
-
-    @Column(nullable = false)
-    private LocalDateTime endDate;
-
-    private void validateFields() {
-        if (discount > 0 && discount < 1) {
-            throw new IllegalArgumentException("Discount must be between 0 and 1");
-        }
-    }
+    private Double amount;
 }
-

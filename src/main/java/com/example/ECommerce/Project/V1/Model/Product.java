@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -20,7 +23,10 @@ import java.util.UUID;
 public class Product extends BaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue( generator = "uuid2" )
+    @UuidGenerator
+    @Column(columnDefinition = "VARCHAR(36)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(nullable = false, unique = true, length = 20)
@@ -44,6 +50,10 @@ public class Product extends BaseEntity{
     @Column(nullable = false)
     private Integer quantityInventory;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @ManyToOne(optional = false) // constraint enforces that every Product must have a valid SizeChart (no NULL values allowed)
     @JoinColumn(name = "size_chart_id")
     private SizeChart sizeChart;
@@ -51,6 +61,10 @@ public class Product extends BaseEntity{
     @ManyToOne(optional = false)
     @JoinColumn(name = "form_id")
     private FormClothes formClothes;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "promotion_id")
+    private Promotion promotion;
 
     private void validateFields() {
         if (quantityInventory <= 0) {

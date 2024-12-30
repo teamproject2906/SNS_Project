@@ -1,11 +1,14 @@
 package com.example.ECommerce.Project.V1.Controller;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+ import com.example.ECommerce.Project.V1.Model.User;
+ import org.springframework.core.io.ClassPathResource;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.util.StreamUtils;
+ import org.springframework.web.bind.annotation.*;
+ import org.springframework.web.bind.annotation.GetMapping;
+ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,4 +28,14 @@ public class DemoController {
         String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
         return ResponseEntity.ok().body(htmlContent);
     }
+
+     @PostMapping("/LoginJSON")
+     public ResponseEntity<String> login(@RequestBody User user) {
+         // Handle the JSON payload (user is deserialized automatically)
+         if ("admin".equals(user.getUsername()) && "admin123".equals(user.getPassword())) {
+             return ResponseEntity.ok("Login successful!");
+         } else {
+             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials!");
+         }
+     }
 }
