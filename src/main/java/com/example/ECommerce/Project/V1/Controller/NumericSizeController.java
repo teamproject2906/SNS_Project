@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/numericsizes")
+@RequestMapping("/Admin/NumericManagement")
 public class NumericSizeController {
 
     private final INumericSizeService numericSizeService;

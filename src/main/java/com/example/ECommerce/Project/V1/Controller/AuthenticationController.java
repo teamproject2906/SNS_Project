@@ -8,10 +8,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+// <<<<<<< DungLV
+// import org.springframework.web.bind.annotation.*;
+// =======
+// import org.springframework.web.bind.annotation.PostMapping;
+// import org.springframework.web.bind.annotation.RequestBody;
+// import org.springframework.web.bind.annotation.RequestMapping;
+// import org.springframework.web.bind.annotation.RestController;
+// >>>>>>> main
 
 import java.io.IOException;
 
@@ -44,4 +48,13 @@ public class AuthenticationController {
     ) throws IOException {
         authenticationService.refreshToken(request, response);
     }
+// <<<<<<< DungLV
+
+//     @GetMapping("/google-login")
+//     public void googleLogin(HttpServletResponse response) throws IOException {
+//         // Redirect to Google's OAuth2 login URL (managed by Spring Security)
+//         response.sendRedirect("/oauth2/authorization/google");
+//     }
+// =======
+// >>>>>>> main
 }
