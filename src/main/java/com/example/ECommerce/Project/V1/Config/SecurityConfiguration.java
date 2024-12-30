@@ -10,19 +10,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-// <<<<<<< DungLV
-// import org.springframework.security.core.userdetails.User;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.security.core.userdetails.UserDetailsService;
-// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-// import org.springframework.security.crypto.password.PasswordEncoder;
-// import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-// =======
-// >>>>>>> main
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -42,10 +32,6 @@ public class SecurityConfiguration implements AuthenticationProvider {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-// <<<<<<< DungLV
-//                                 "/login","/error",
-// =======
-// >>>>>>> main
                                 "/Authentication/**",
                                 "/v2/api-docs/**",
                                 "/v3/api-docs/**",
@@ -58,15 +44,11 @@ public class SecurityConfiguration implements AuthenticationProvider {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-// <<<<<<< DungLV
-// //                .sessionManagement(session -> session
-// //                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-// //                )
-// =======
-//                 .sessionManagement(session -> session
-//                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                 )
-// >>>>>>> main
+//                .sessionManagement(session -> session
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                )
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                )
                 .authenticationProvider(this)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
@@ -77,24 +59,17 @@ public class SecurityConfiguration implements AuthenticationProvider {
                                 SecurityContextHolder.clearContext();
                             }
                     )
-// <<<<<<< DungLV
-//                 )
-//                 .formLogin(form -> form
-//                         .loginPage("/login")
-//                         .defaultSuccessUrl("/dashboard", true)
-//                         .permitAll()
-//                 )
-//                 .oauth2Login(oauth2 -> oauth2
-//                         .loginPage("/login")
-//                         .defaultSuccessUrl("/dashboard", true)
-//                 )
-// //                .sessionManagement()
-//                 ;
-// =======
-//                 );
-// //                .formLogin(form -> form.loginPage("/Demo/Login").permitAll())
-// //                .oauth2Login(oauth2 -> oauth2.loginPage("/Demo/Login"));
-// >>>>>>> main
+                 )
+                 .formLogin(form -> form
+                         .loginPage("/login")
+                         .defaultSuccessUrl("/dashboard", true)
+                         .permitAll()
+                 )
+                 .oauth2Login(oauth2 -> oauth2
+                         .loginPage("/login")
+                         .defaultSuccessUrl("/dashboard", true)
+                 );
+//                .sessionManagement()
         return http.build();
     }
 
@@ -108,23 +83,4 @@ public class SecurityConfiguration implements AuthenticationProvider {
     public boolean supports(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
-// <<<<<<< DungLV
-
-// //    @Bean
-// //    public UserDetailsService userDetailsService2() {
-// //        UserDetails defaultUser = User.builder()
-// //                .username("admin")
-// //                .password(passwordEncoder2().encode("admin123"))
-// //                .roles("ADMIN")
-// //                .build();
-// //
-// //        return new InMemoryUserDetailsManager(defaultUser);
-// //    }
-
-// //    @Bean
-// //    public PasswordEncoder passwordEncoder2() {
-// //        return new BCryptPasswordEncoder();
-// //    }
-// =======
-// >>>>>>> main
 }
