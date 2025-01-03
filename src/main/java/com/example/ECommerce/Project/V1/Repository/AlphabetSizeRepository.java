@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface AlphabetSizeRepository extends JpaRepository<AlphabetSize, UUID> {
+
+    boolean existsAlphabetSizeByAlphabetSize(String alphabetSize);
 }

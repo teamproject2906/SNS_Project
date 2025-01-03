@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface NumericSizeRepository extends JpaRepository<NumericSize, UUID> {
+    boolean existsByNumericSize(Integer numericSize);
 }
