@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3307/ecommercever1
-    username: root
-    password: 123456
+    url: ${JDBC_CONNECTION_DB}
+    username: ${JDBC_CONNECTION_DB.USERNAME}
+    password: ${JDBC_CONNECTION_DB.PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -17,31 +17,34 @@ spring:
     oauth2:
       client:
         registration:
-          github:
-            client-id: Iv23lipCK7zQ87omxS3N
-            client-secret: 62bf53a5d819be09a0951abf08c4587c0ded273c
-            scope:
-              - user:email
-              - read:user
           google:
-            client-id: 139190595899-14ibovm57qatpko83lf89ovosostpgms.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - email
               - profile
-              - openid
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - user:email
+              - read:user
           facebook:
-            client-id: 871258288105865
-            client-secret: 05eedeb7f7707dd1ce09419f25a3475d
+            client-id: ${FACEBOOK_CLIENT_ID}
+            client-secret: ${FACEBOOK_CLIENT_SECRET}
             scope:
               - email
               - public_profile
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 application:
   security:
     jwt:
-      secret-key: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqRz4bsW8hz8ZjRAZWTN4wZz9Q
-      expiration: 86400000
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: 36000000
       refresh-token:
         expiration: 604800000
 
