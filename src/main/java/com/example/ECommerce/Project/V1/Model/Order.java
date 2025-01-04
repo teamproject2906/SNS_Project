@@ -44,5 +44,6 @@ public class Order extends BaseEntity{
     @ManyToOne(optional = false)
     @JoinColumn(name = "shipping_method_id")
     private ShippingMethod shippingMethod;
+
 }
 
