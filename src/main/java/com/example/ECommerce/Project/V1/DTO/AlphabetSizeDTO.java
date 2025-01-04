@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AlphabetSizeDTO {
-
     private String sizeChart;
     private String alphabetSize;
 }

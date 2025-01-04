@@ -6,36 +6,38 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "shoppingcart")
+@Table(name = "shoppingsession")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class ShoppingCart extends BaseEntity{
+public class ShoppingSession extends BaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue( generator = "uuid2" )
+    @UuidGenerator
+    @Column(columnDefinition = "VARCHAR(36)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "product_id")
-    private Product product;
-
     @Column(nullable = false)
-    private Integer quantityPurchase;
+    private Double totalAmount;
 
     private void validateFields() {
-        if (quantityPurchase <= 0) {
-            throw new IllegalArgumentException("Product quantity must be greater than 0");
+        if (totalAmount < 0) {
+            throw new IllegalArgumentException("Product quantity must be greater or equals 0");
         }
     }
 }

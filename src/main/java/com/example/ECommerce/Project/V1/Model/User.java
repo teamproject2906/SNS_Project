@@ -1,10 +1,20 @@
 package com.example.ECommerce.Project.V1.Model;
 
+import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Token.Token;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -14,43 +24,80 @@ import java.util.UUID;
 @Entity
 @SuperBuilder
 @Table(name = "User")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue( generator = "uuid2" )
+    @UuidGenerator
+    @Column(columnDefinition = "VARCHAR(36)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String firstname;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String lastname;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(unique = true, length = 100)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(unique = true, length = 100)
     private String email;
+
+    @Column(unique = true, length = 11)
+    private String phoneNumber;
 
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(nullable = false)
+    @Column()
     private Date dob;
 
-    @Column(nullable = false, unique = true, length = 11)
-    private String phoneNumber;
-
-    @Column(nullable = false, columnDefinition = "bit default 1")
+    @Column(columnDefinition = "bit default 1")
     private Boolean gender;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String bio;
 
     @Lob
     @Column(nullable = true)
     private byte[] avatar;
 
-    @Column
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Token> tokens;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

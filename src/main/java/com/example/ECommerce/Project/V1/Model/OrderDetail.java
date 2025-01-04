@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,15 +20,21 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Order extends BaseEntity{
+public class OrderDetail extends BaseEntity{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue( generator = "uuid2" )
+    @UuidGenerator
+    @Column(columnDefinition = "VARCHAR(36)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(nullable = false)
+    private Double totalAmount;
 
     @Column(nullable = false)
     private LocalDateTime orderDate;
@@ -41,9 +50,15 @@ public class Order extends BaseEntity{
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
 
+<<<<<<< HEAD:src/main/java/com/example/ECommerce/Project/V1/Model/Order.java
     @ManyToOne(optional = false)
     @JoinColumn(name = "shipping_method_id")
     private ShippingMethod shippingMethod;
 
+=======
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "shipping_method_id")
+//    private ShippingMethod shippingMethod;
+>>>>>>> 56e0f75c34cd5454ea757a65827bd2379c78100c:src/main/java/com/example/ECommerce/Project/V1/Model/OrderDetail.java
 }
 

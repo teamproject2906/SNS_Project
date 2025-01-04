@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface SizeChartRepository extends JpaRepository<SizeChart, UUID> {
+    boolean existsBySizeChartType(String sizeChartType);
+    boolean existsById(UUID id);
 }
