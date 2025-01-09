@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,11 +45,11 @@ public class SecurityConfiguration implements AuthenticationProvider {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-//                .sessionManagement(session -> session
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                )
+                .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authenticationProvider(this)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
@@ -59,16 +60,16 @@ public class SecurityConfiguration implements AuthenticationProvider {
                                 SecurityContextHolder.clearContext();
                             }
                     )
-                 )
-                 .formLogin(form -> form
-                         .loginPage("/login")
-                         .defaultSuccessUrl("/dashboard", true)
-                         .permitAll()
-                 )
-                 .oauth2Login(oauth2 -> oauth2
-                         .loginPage("/login")
-                         .defaultSuccessUrl("/dashboard", true)
                  );
+//                 .formLogin(form -> form
+//                         .loginPage("/login")
+//                         .defaultSuccessUrl("/dashboard", true)
+//                         .permitAll()
+//                 )
+//                 .oauth2Login(oauth2 -> oauth2
+//                         .loginPage("/login")
+//                         .defaultSuccessUrl("/dashboard", true)
+//                 );
 //                .sessionManagement()
         return http.build();
     }

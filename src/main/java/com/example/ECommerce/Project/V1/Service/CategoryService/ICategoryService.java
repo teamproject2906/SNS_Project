@@ -17,4 +17,5 @@ public interface ICategoryService {
     void deleteCategoryById(UUID id);
     Category reActiveCategoryById(UUID id);
     void deleteAllCategories();
+
 }
