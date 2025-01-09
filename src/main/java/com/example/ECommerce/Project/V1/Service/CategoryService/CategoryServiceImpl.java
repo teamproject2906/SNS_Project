@@ -1,11 +1,13 @@
 package com.example.ECommerce.Project.V1.Service.CategoryService;
 
+import com.example.ECommerce.Project.V1.Exception.DuplicateResourceException;
+import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
+import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Category;
 import com.example.ECommerce.Project.V1.Repository.CategoryRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,34 +24,70 @@ public class CategoryServiceImpl implements ICategoryService {
         this.entityManager = entityManager;
     }
 
+    // Validate function of category name
+    private String validateCategoryName(Category categoryRequest) {
+        // Validate category name
+        if(categoryRequest.getCategoryName() == null || categoryRequest.getCategoryName().isBlank()) {
+            throw new InvalidInputException("Category Name Cannot Be Null Or Empty");
+        }
+
+        String categoryName = categoryRequest.getCategoryName().trim();
+
+        if (categoryName.length() > 100) {
+            throw new InvalidInputException("Category Name Cannot Exceed 100 Characters");
+        }
+
+        if (!categoryName.matches("^[a-zA-Z0-9 ']+$")) {
+            throw new InvalidInputException("Category Name Cannot Contain Special Characters");
+        }
+
+        // Global uniqueness check for categories without parent
+        if (repository.existsByCategoryName(categoryName) && categoryRequest.getParentCategoryID() == null) {
+            throw new InvalidInputException("Category Name '" + categoryName + "' Already Exists");
+        }
+
+        return categoryName;
+    }
+
+    private Category validateParentCategory(Category categoryRequest, String categoryName) {
+        // Fetch parent category if parentCategoryID is provided
+        Category parentCategory;
+
+        if (categoryRequest.getParentCategoryID().getId() == null) {
+            throw new InvalidInputException("Parent category ID is required");
+        } else {
+            parentCategory = repository.findById(categoryRequest.getParentCategoryID().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent Category Not Found"));
+
+            // Check uniqueness within the parent category
+            if (repository.existsByCategoryNameAndParentCategoryID(categoryName, parentCategory)) {
+                throw new DuplicateResourceException("Category Name '"+ categoryName +"' already exists under the given parent category");
+            }
+        }
+
+        return parentCategory;
+    }
+
 
     @Override
     public Category createCategory(Category categoryRequest) {
+        try {
 
-        // Fetch parent category if parentCategoryID is provided
-        Category parentCategory = null;
-        if(categoryRequest.getParentCategoryID() != null) {
-            parentCategory = repository.findById(categoryRequest.getParentCategoryID().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Parent Category Not Found"));
+            // Validate category name
+            String categoryName = validateCategoryName(categoryRequest);
+            Category parentCategory = categoryRequest.getParentCategoryID() != null ? validateParentCategory(categoryRequest, categoryName) : null;
+
+            // Create the new category
+            Category category = Category.builder()
+                    .categoryName(categoryName)
+                    .parentCategoryID(parentCategory)
+                    .build();
+
+            return repository.save(category);
         }
-
-        if (parentCategory != null && parentCategory.getCategoryName().equals(categoryRequest.getCategoryName())) {
-            throw new IllegalArgumentException("Category Name Already Exists");
+        catch (DataIntegrityViolationException e) {
+            throw new DuplicateResourceException("Category with the same name already exists");
         }
-
-        if(categoryRequest.getCategoryName().isBlank()) {
-            throw new IllegalArgumentException("Category Name Cannot Be Empty");
-        }
-
-        // Create the new category
-        Category category = Category.builder()
-                .categoryName(categoryRequest.getCategoryName())
-                .parentCategoryID(parentCategory)
-                .build();
-
-        Category savedCategory = repository.save(category);
-
-        return savedCategory;
     }
 
     @Override
@@ -61,13 +99,16 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public Category getCategoryById(UUID id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
     }
 
     @Override
     public List<Category> getAllCategoriesOfParentById(UUID parentCategoryId) {
-        List<Category> childCategories = repository.findByParentCategoryID(parentCategoryId);
-        return childCategories;
+        if (!repository.existsById(parentCategoryId)) {
+            throw new ResourceNotFoundException("Category not found with id: " + parentCategoryId);
+        }
+
+        return repository.findByParentCategoryID(parentCategoryId);
     }
 
     @Override
@@ -75,30 +116,18 @@ public class CategoryServiceImpl implements ICategoryService {
         return repository.findByCategoryNameContainingIgnoreCase(categoryName);
     }
 
-    private boolean isParentCategoryidExist(UUID parentCategoryID) {
-        return repository.findById(parentCategoryID).isPresent();
-    }
-
-
     @Override
     public Category updateCategoryById(UUID id, Category category) {
         Category updatingCategory = getCategoryById(id);
 
         if (updatingCategory != null) {
-
-            if (category.getCategoryName() != null) {
-                if(category.getCategoryName().isBlank()) {
-                    throw new RuntimeException("Category Name Cannot Be Empty");
-                }
-                updatingCategory.setCategoryName(category.getCategoryName());
-            }
+            String updatingCategoryName = validateCategoryName(category);
+            updatingCategory.setCategoryName(updatingCategoryName);
 
             if (category.getParentCategoryID() != null) {
-                if(isParentCategoryidExist(category.getParentCategoryID().getId())) {
-                    updatingCategory.setParentCategoryID(category.getParentCategoryID());
-                } else {
-                    throw new RuntimeException("Parent Category ID Not Found");
-                }
+                System.out.println(category.getParentCategoryID());
+                    Category updatingParentCategory = validateParentCategory(category, updatingCategoryName);
+                    updatingCategory.setParentCategoryID(updatingParentCategory);
             }
 
             repository.save(updatingCategory);
@@ -110,7 +139,10 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public void deleteCategoryById(UUID id) {
         Category category = getCategoryById(id);
-        repository.deActiveCategory(id);
+
+        if (category != null) {
+            repository.deActiveCategory(id);
+        }
     }
 
     @Override
@@ -119,7 +151,7 @@ public class CategoryServiceImpl implements ICategoryService {
         Category category = getCategoryById(id);
 
         if (category != null) {
-            repository.reactiveCategory(id);
+            repository.reActiveCategory(id);
             entityManager.refresh(category);
         }
 

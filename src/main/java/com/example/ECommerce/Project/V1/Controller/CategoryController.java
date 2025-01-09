@@ -3,6 +3,7 @@ package com.example.ECommerce.Project.V1.Controller;
 import com.example.ECommerce.Project.V1.Model.Category;
 import com.example.ECommerce.Project.V1.Model.FormClothes;
 import com.example.ECommerce.Project.V1.Service.CategoryService.ICategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class CategoryController {
     }
 
     @PostMapping()
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+    public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category) {
         Category createdCategory = categoryService.createCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
@@ -63,7 +64,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String> deleteAllCategories(@PathVariable("categoryId") UUID categoryId) {
+    public ResponseEntity<String> deActiveCategoryById(@PathVariable("categoryId") UUID categoryId) {
        categoryService.deleteCategoryById(categoryId);
 
        return ResponseEntity.status(HttpStatus.OK).body("Deactive Category");
