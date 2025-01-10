@@ -16,6 +16,7 @@ import java.util.UUID;
 @RequestMapping("/api/categories")
 public class CategoryController {
 
+    // Declare the category service
     private final ICategoryService categoryService;
 
     public CategoryController(ICategoryService categoryService) {
