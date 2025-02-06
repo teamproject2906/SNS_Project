@@ -27,5 +27,10 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     @Modifying
     @Transactional
     @Query("UPDATE Category c SET c.isActive = true WHERE c.id = :id")
-    void reactiveCategory(@Param("id") UUID id);
+    void reActiveCategory(@Param("id") UUID id);
+
+    boolean existsByCategoryName(String categoryName);
+    boolean existsByCategoryNameAndParentCategoryID(String categoryName, Category parentCategory);
+
+
 }

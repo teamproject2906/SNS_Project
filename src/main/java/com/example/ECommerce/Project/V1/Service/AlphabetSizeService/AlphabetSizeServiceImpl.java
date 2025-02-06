@@ -46,7 +46,7 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
 
         alphabetSize = alphabetSize.trim().toUpperCase();
 
-        if (alphabetSize.length() == 0) {
+        if (alphabetSize.isEmpty()) {
             throw new InvalidInputException("Alphabet Size is required");
         }
 
@@ -119,7 +119,6 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
     @Override
     public void deleteAlphabetSizeById(UUID id) {
         AlphabetSize alphabetSize = getAlphabetSizeById(id);
-
         alphabetSizeRepository.delete(alphabetSize);
     }
 }
