@@ -1,4 +1,4 @@
-package com.example.ECommerce.Project.V1.DTO;
+package com.example.ECommerce.Project.V1.V1.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,4 +12,3 @@ public class AlphabetSizeDTO {
     private String sizeChart;
     private String alphabetSize;
 }
-
