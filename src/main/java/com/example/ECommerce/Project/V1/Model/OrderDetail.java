@@ -11,6 +11,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -33,6 +34,9 @@ public class OrderDetail extends BaseEntity{
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems;
+
     @Column(nullable = false)
     private Double totalAmount;
 
@@ -50,8 +54,7 @@ public class OrderDetail extends BaseEntity{
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
 
-//    @ManyToOne(optional = false)
-//    @JoinColumn(name = "shipping_method_id")
-//    private ShippingMethod shippingMethod;
 }
+
+
 
