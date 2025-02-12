@@ -1,12 +1,14 @@
 package com.example.ECommerce.Project.V1.Service.SizeChartService;
 
 import com.example.ECommerce.Project.V1.DTO.SizeChartResponseDTO;
+import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
+import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.SizeChart;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,11 +37,43 @@ public class SizeChartServiceImpl implements ISizeChartService {
                 .collect(Collectors.toList());
     }
 
+    // Validation function
+    private SizeChart validateSizeChart(SizeChart sizeChart) {
+
+        if (sizeChart == null || sizeChart.getSizeChartType() == null) {
+            throw new InvalidInputException("Size Chart cannot be null");
+        }
+
+        String sizeChartType = sizeChart.getSizeChartType().trim();
+        if (sizeChartType.isBlank()) {
+            throw new InvalidInputException("Size Chart Type is required");
+        }
+
+        if (sizeChartType.length() > 100) {
+            throw new InvalidInputException("Size Chart Type is longer than 100 characters");
+        }
+
+        if(!sizeChartType.matches("^[a-zA-Z0-9\\s']+$")) {
+            System.out.println(sizeChartType);
+            throw new InvalidInputException("Size chart name can only contain alphanumeric characters and spaces.");
+        }
+
+        if(repository.existsBySizeChartType(sizeChartType)) {
+            throw new InvalidInputException("Size Chart Type '" + sizeChartType + "' already exists");
+        }
+
+        System.out.println(sizeChartType);
+
+        // Set the trimmed and validated value back to the SizeChart object
+        sizeChart.setSizeChartType(sizeChartType);
+        return sizeChart;
+    }
 
     // Method to create a SizeChart
     @Override
     public SizeChart createSizeChart(SizeChart sizeChart) {
-        return repository.save(sizeChart);
+        SizeChart validatedSizeChart = validateSizeChart(sizeChart);
+        return repository.save(validatedSizeChart);
     }
 
     @Override
@@ -49,31 +83,26 @@ public class SizeChartServiceImpl implements ISizeChartService {
     }
 
     @Override
-    public SizeChart getSizeChartById(Integer id) {
+    public SizeChart getSizeChartById(UUID id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("SizeChart not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("SizeChart not found with id: " + id));
     }
 
     @Override
-    public SizeChart updateSizeChartById(Integer id, SizeChart sizeChart) {
-        SizeChart updateSizeChart = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("SizeChart not found with id: " + id));
+    public SizeChart updateSizeChartById(UUID id, SizeChart sizeChart) {
+        SizeChart updateSizeChart = getSizeChartById(id);
 
-        if (updateSizeChart != null) {
-            updateSizeChart.setSizeChartType(sizeChart.getSizeChartType());
-            repository.save(updateSizeChart);
-        } else {
-            throw new EntityNotFoundException("SizeChart not found with id: " + id);
-        }
+        SizeChart validatedSizeChart = validateSizeChart(sizeChart);
+
+        updateSizeChart.setSizeChartType(validatedSizeChart.getSizeChartType());
+        repository.save(updateSizeChart);
 
         return updateSizeChart;
     }
 
     @Override
-    public void deleteSizeChartById(Integer id) {
-       SizeChart sizeChart = repository.findById(id)
-               .orElseThrow(() -> new EntityNotFoundException("SizeChart not found with id: " + id));
-
+    public void deleteSizeChartById(UUID id) {
+       SizeChart sizeChart = getSizeChartById(id);
        repository.delete(sizeChart);
     }
 }

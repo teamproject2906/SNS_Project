@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/Admin/SizeChartManagement")
@@ -31,18 +32,18 @@ public class SizeChartController {
     }
 
     @GetMapping("/{sizeChartId}")
-    public ResponseEntity<SizeChart> getSizeChartById(@PathVariable("sizeChartId") Integer id) {
+    public ResponseEntity<SizeChart> getSizeChartById(@PathVariable("sizeChartId") UUID id) {
         SizeChart sizeChart = sizeChartService.getSizeChartById(id);
         return ResponseEntity.ok(sizeChart);
     }
 
     @PatchMapping("/{sizeChartId}")
-    public SizeChart updateSizeChartById(@PathVariable("sizeChartId") Integer id, @RequestBody SizeChart sizeChart) {
+    public SizeChart updateSizeChartById(@PathVariable("sizeChartId") UUID id, @RequestBody SizeChart sizeChart) {
         return sizeChartService.updateSizeChartById(id, sizeChart);
     }
 
     @DeleteMapping("/{sizeChartId}")
-    public ResponseEntity<String> deleteSizeChartById(@PathVariable("sizeChartId") Integer id) {
+    public ResponseEntity<String> deleteSizeChartById(@PathVariable("sizeChartId") UUID id) {
         sizeChartService.deleteSizeChartById(id);
 
 //        return new ResponseEntity<>("SizeChart is  deleted", HttpStatus.OK);

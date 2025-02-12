@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/Admin/AlphabetSizeManagement")
@@ -22,7 +23,7 @@ public class AlphabetSizeController {
 
 //    public ResponseEntity<AlphabetSize> addAlphabetSize(@RequestBody AlphabetSizeDTO alphabetSizeDTO) {
 //        // Get SizeChart by Id
-//        SizeChart sizeChart = sizeChartRepository.findById(Integer
+//        SizeChart sizeChart = sizeChartRepository.findById(UUID
 //                .fromString(alphabetSizeDTO.getSizeChart()))
 //                .orElseThrow(() -> new EntityNotFoundException("Size Chart not found"));
 //
@@ -44,21 +45,21 @@ public class AlphabetSizeController {
     }
 
     @GetMapping("/{alphabetSizeId}")
-    public ResponseEntity<AlphabetSize> getAlphabetSizeById(@PathVariable("alphabetSizeId") Integer id) {
+    public ResponseEntity<AlphabetSize> getAlphabetSizeById(@PathVariable("alphabetSizeId") UUID id) {
 //        return new ResponseEntity<AlphabetSize>(alphabetSizeService.getAlphabetSizeById(id), HttpStatus.OK);
         AlphabetSize alphabetSize = alphabetSizeService.getAlphabetSizeById(id);
         return ResponseEntity.ok(alphabetSize);
     }
 
     @PatchMapping("/{alphabetSizeId}")
-    public ResponseEntity<AlphabetSize> updateAlphabetSize(@PathVariable("alphabetSizeId") Integer id, @RequestBody AlphabetSize alphabetSize) {
+    public ResponseEntity<AlphabetSize> updateAlphabetSize(@PathVariable("alphabetSizeId") UUID id, @RequestBody AlphabetSize alphabetSize) {
         AlphabetSize updatedAlphabetSize = alphabetSizeService.updateAlphabetSize(id, alphabetSize);
 
         return ResponseEntity.ok(updatedAlphabetSize);
     }
 
     @DeleteMapping("/{alphabetSizeId}")
-    public ResponseEntity<String> deleteAlphabetSizeById(@PathVariable("alphabetSizeId") Integer id) {
+    public ResponseEntity<String> deleteAlphabetSizeById(@PathVariable("alphabetSizeId") UUID id) {
         alphabetSizeService.deleteAlphabetSizeById(id);
 
         return ResponseEntity.ok("Deleted AlphabetSize with ID: " + id);
