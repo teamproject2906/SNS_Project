@@ -17,6 +17,7 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
     @Query("SELECT c from Category c WHERE c.parentCategoryID.id = :parentCategoryID")
     List<Category> findByParentCategoryID(@Param("parentCategoryID") UUID parentCategoryID);
 
+
     List<Category> findByCategoryNameContainingIgnoreCase(String categoryName);
 
     @Modifying
