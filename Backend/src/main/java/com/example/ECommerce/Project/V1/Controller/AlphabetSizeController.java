@@ -45,21 +45,21 @@ public class AlphabetSizeController {
     }
 
     @GetMapping("/{alphabetSizeId}")
-    public ResponseEntity<AlphabetSize> getAlphabetSizeById(@PathVariable("alphabetSizeId") UUID id) {
+    public ResponseEntity<AlphabetSize> getAlphabetSizeById(@PathVariable("alphabetSizeId") Integer id) {
 //        return new ResponseEntity<AlphabetSize>(alphabetSizeService.getAlphabetSizeById(id), HttpStatus.OK);
         AlphabetSize alphabetSize = alphabetSizeService.getAlphabetSizeById(id);
         return ResponseEntity.ok(alphabetSize);
     }
 
     @PatchMapping("/{alphabetSizeId}")
-    public ResponseEntity<AlphabetSize> updateAlphabetSize(@PathVariable("alphabetSizeId") UUID id, @RequestBody AlphabetSize alphabetSize) {
+    public ResponseEntity<AlphabetSize> updateAlphabetSize(@PathVariable("alphabetSizeId") Integer id, @RequestBody AlphabetSize alphabetSize) {
         AlphabetSize updatedAlphabetSize = alphabetSizeService.updateAlphabetSize(id, alphabetSize);
 
         return ResponseEntity.ok(updatedAlphabetSize);
     }
 
     @DeleteMapping("/{alphabetSizeId}")
-    public ResponseEntity<String> deleteAlphabetSizeById(@PathVariable("alphabetSizeId") UUID id) {
+    public ResponseEntity<String> deleteAlphabetSizeById(@PathVariable("alphabetSizeId") Integer id) {
         alphabetSizeService.deleteAlphabetSizeById(id);
 
         return ResponseEntity.ok("Deleted AlphabetSize with ID: " + id);

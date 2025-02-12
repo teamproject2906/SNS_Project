@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/Admin/NumericManagement")
@@ -30,17 +29,17 @@ public class NumericSizeController {
     }
 
     @GetMapping("/{numericSizeId}")
-    public NumericSize getNumericSizeById(@PathVariable UUID numericSizeId) {
+    public NumericSize getNumericSizeById(@PathVariable Integer numericSizeId) {
         return numericSizeService.getNumericSizeById(numericSizeId);
     }
 
     @PatchMapping("/{numericSizeId}")
-    public NumericSize updateNumericSizeById(@PathVariable UUID numericSizeId, @RequestBody NumericSize numericSize) {
+    public NumericSize updateNumericSizeById(@PathVariable Integer numericSizeId, @RequestBody NumericSize numericSize) {
         return numericSizeService.updateNumericSize(numericSizeId, numericSize);
     }
 
     @DeleteMapping("/{numericSizeId}")
-    public ResponseEntity<String> deleteNumericSizeById(@PathVariable UUID numericSizeId) {
+    public ResponseEntity<String> deleteNumericSizeById(@PathVariable Integer numericSizeId) {
         numericSizeService.deleteNumericSizeById(numericSizeId);
 
         return ResponseEntity.ok("Deleted numericSize with ID: " + numericSizeId);

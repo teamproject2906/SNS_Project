@@ -9,7 +9,6 @@ import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class NumericSizeServiceImpl implements INumericSizeService {
@@ -69,13 +68,13 @@ public class NumericSizeServiceImpl implements INumericSizeService {
     }
 
     @Override
-    public NumericSize getNumericSizeById(UUID id) {
+    public NumericSize getNumericSizeById(Integer id) {
         return numericSizeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("NumericSize not found with id: " + id));
     }
 
     @Override
-    public NumericSize updateNumericSize(UUID id, NumericSize numericSize) {
+    public NumericSize updateNumericSize(Integer id, NumericSize numericSize) {
         NumericSize updatingNumericSize = getNumericSizeById(id);
 
         if(updatingNumericSize != null) {
@@ -92,7 +91,7 @@ public class NumericSizeServiceImpl implements INumericSizeService {
     }
 
     @Override
-    public void deleteNumericSizeById(UUID id) {
+    public void deleteNumericSizeById(Integer id) {
         NumericSize numericSize = numericSizeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("NumericSize not found with id: " + id));
 

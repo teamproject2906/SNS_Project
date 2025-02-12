@@ -9,10 +9,10 @@ public interface IProductService {
 
     Product addProduct(Product product);
     List<Product> getAllProducts();
-    Product getProductById(UUID id);
+    Product getProductById(Integer id);
     Product getProductByProductCode(String productCode);
     List<Product> getProductByName(String name);
-    Product updateProductById(UUID id, Product product);
-    void deleteProductById(UUID id);
-    Product reActivateProductById(UUID id);
+    Product updateProductById(Integer id, Product product);
+    void deleteProductById(Integer id);
+    Product reActivateProductById(Integer id);
 }

@@ -33,12 +33,12 @@ public class CategoryController {
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable("categoryId") UUID id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable("categoryId") Integer id) {
         return ResponseEntity.status(HttpStatus.OK).body(categoryService.getCategoryById(id));
     }
 
     @GetMapping("/parent/{parentCategoryId}")
-    public ResponseEntity<List<Category>> getCategoryByParentCategoryId(@PathVariable("parentCategoryId") UUID parentId) {
+    public ResponseEntity<List<Category>> getCategoryByParentCategoryId(@PathVariable("parentCategoryId") Integer parentId) {
         return ResponseEntity.status(HttpStatus.OK).body(categoryService.getAllCategoriesOfParentById(parentId));
     }
 
@@ -53,17 +53,17 @@ public class CategoryController {
     }
 
     @PatchMapping("/{categoryId}")
-    public ResponseEntity<Category> updateCategory(@PathVariable("categoryId") UUID categoryId, @RequestBody Category category) {
+    public ResponseEntity<Category> updateCategory(@PathVariable("categoryId") Integer categoryId, @RequestBody Category category) {
         return ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategoryById(categoryId, category));
     }
 
     @PatchMapping("/reactive/{categoryId}")
-    public ResponseEntity<Category> reactiveCategoryById(@PathVariable("categoryId") UUID categoryId) {
+    public ResponseEntity<Category> reactiveCategoryById(@PathVariable("categoryId") Integer categoryId) {
         return ResponseEntity.status(HttpStatus.OK).body(categoryService.reActiveCategoryById(categoryId));
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String> deActiveCategoryById(@PathVariable("categoryId") UUID categoryId) {
+    public ResponseEntity<String> deActiveCategoryById(@PathVariable("categoryId") Integer categoryId) {
        categoryService.deleteCategoryById(categoryId);
 
        return ResponseEntity.status(HttpStatus.OK).body("Deactive Category");

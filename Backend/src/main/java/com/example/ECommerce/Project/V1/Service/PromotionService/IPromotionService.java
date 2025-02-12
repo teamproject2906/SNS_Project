@@ -9,8 +9,8 @@ public interface IPromotionService {
 
     Promotion addPromotion(Promotion promotion);
     List<Promotion> getAllPromotions();
-    Promotion getPromotionById(UUID id);
-    Promotion updatePromotionById(UUID id ,Promotion promotion);
-    void  deletePromotionById(UUID id);
-    Promotion reActivatePromotionById(UUID id);
+    Promotion getPromotionById(Integer id);
+    Promotion updatePromotionById(Integer id ,Promotion promotion);
+    void  deletePromotionById(Integer id);
+    Promotion reActivatePromotionById(Integer id);
 }

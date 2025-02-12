@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/promotions")
@@ -29,22 +28,22 @@ public class PromotionController {
     }
 
     @GetMapping("/{promotionId}")
-    public ResponseEntity<Promotion> getPromotion(@PathVariable UUID promotionId) {
+    public ResponseEntity<Promotion> getPromotion(@PathVariable Integer promotionId) {
         return new ResponseEntity<>(promotionService.getPromotionById(promotionId), HttpStatus.OK);
     }
 
     @PatchMapping("/{promotionId}")
-    public ResponseEntity<Promotion> updatePromotion(@PathVariable UUID promotionId, @RequestBody Promotion promotion) {
+    public ResponseEntity<Promotion> updatePromotion(@PathVariable Integer promotionId, @RequestBody Promotion promotion) {
         return new ResponseEntity<>(promotionService.updatePromotionById(promotionId, promotion), HttpStatus.OK);
     }
 
     @PatchMapping("/reactive/{promotionId}")
-    public ResponseEntity<Promotion> reActivePromotion(@PathVariable UUID promotionId) {
+    public ResponseEntity<Promotion> reActivePromotion(@PathVariable Integer promotionId) {
         return new ResponseEntity<>(promotionService.reActivatePromotionById(promotionId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{promotionId}")
-    public ResponseEntity<String> deletePromotion(@PathVariable UUID promotionId) {
+    public ResponseEntity<String> deletePromotion(@PathVariable Integer promotionId) {
         promotionService.deletePromotionById(promotionId);
         return new ResponseEntity<>("Promotion deactive successfully ", HttpStatus.OK);
     }
