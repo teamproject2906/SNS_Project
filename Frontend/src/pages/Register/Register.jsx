@@ -1,0 +1,141 @@
+import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FaGoogle, FaFacebook } from "react-icons/fa";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const Register = () => {
+  const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const handleRegister = async () => {
+    if (loading) return;
+    setLoading(true);
+
+    const trimmedEmail = email.toLowerCase().trim();
+    if (!fullname || !trimmedEmail || !password) {
+      toast.error("Vui lòng điền đầy đủ thông tin!");
+      setLoading(false);
+      return;
+    }
+    if (!emailPattern.test(trimmedEmail)) {
+      toast.error("Email không hợp lệ!");
+      setLoading(false);
+      return;
+    }
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/Authentication/Register",
+        {
+          fullname,
+          email: trimmedEmail,
+          password,
+        }
+      );
+      // const res = await axios.post("https://6785f704f80b78923aa4e3be.mockapi.io/product", {
+      //   fullname,
+      //   email: trimmedEmail,
+      //   password,
+      // });
+      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+      navigate("/login");
+      console.log(res.data);
+    } catch (error) {
+      if (error.response) {
+        switch (error.response.status) {
+          case 409:
+            toast.error("Email hoặc tên người dùng đã tồn tại!");
+            break;
+          case 500:
+            toast.error("Lỗi máy chủ, vui lòng thử lại sau!");
+            break;
+          default:
+            toast.error(error.response.data.message || "Có lỗi xảy ra!");
+        }
+      } else {
+        toast.error("Không thể kết nối đến máy chủ, vui lòng kiểm tra mạng!");
+      }
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-12">
+      <ToastContainer />
+      <h1 className="text-xl font-bold mb-6 border-b-2 border-black pb-2">
+        Đăng ký
+      </h1>
+      <div className="max-w-lg mx-auto p-8 shadow-lg border border-gray-200 rounded-md bg-white">
+        <h2 className="text-lg font-medium mb-6 text-center">Thông tin</h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleRegister();
+          }}
+        >
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Họ và tên"
+              className="w-full border rounded px-4 py-3 shadow-md"
+              onChange={(e) => setFullname(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full border rounded px-4 py-3 shadow-md"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <input
+              type="password"
+              placeholder="Mật khẩu"
+              className="w-full border rounded px-4 py-3 shadow-md"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button
+            aria-label="Register"
+            disabled={loading}
+            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-black text-white hover:bg-gray-800"
+            }`}
+          >
+            {loading ? "Đang xử lý..." : "ĐĂNG KÝ"}
+          </button>
+        </form>
+        <div className="mt-8">
+          <p className="text-center text-sm mb-4 text-gray-500">
+            Hoặc đăng nhập với
+          </p>
+          <div className="flex justify-center space-x-4">
+            <button className="flex items-center bg-red-600 text-white px-4 py-2 rounded shadow-lg hover:bg-red-500">
+              <FaGoogle className="mr-2" />
+              Google
+            </button>
+            <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-500">
+              <FaFacebook className="mr-2" />
+              Facebook
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
