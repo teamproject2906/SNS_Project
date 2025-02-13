@@ -1,0 +1,62 @@
+spring:
+  datasource:
+    url: ${JDBC_CONNECTION_DB}
+    username: ${JDBC_CONNECTION_DB.USERNAME}
+    password: ${JDBC_CONNECTION_DB.PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: mysql
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - user:email
+              - read:user
+          facebook:
+            client-id: ${FACEBOOK_CLIENT_ID}
+            client-secret: ${FACEBOOK_CLIENT_SECRET}
+            scope:
+              - email
+              - public_profile
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: 36000000
+      refresh-token:
+        expiration: 604800000
+
+gg:
+  jte:
+    developmentMode: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+server:
+  servlet:
+    session:
+      timeout: 30m
