@@ -1,0 +1,42 @@
+package com.example.ECommerce.Project.V1.Controller;
+
+import com.example.ECommerce.Project.V1.DTO.OrderDetailDTO;
+import com.example.ECommerce.Project.V1.Service.OrderDetailService.OrderDetailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/v1/order-details")
+public class OrderDetailController {
+
+    @Autowired
+    private OrderDetailService orderDetailService;
+
+    @GetMapping
+    public List<OrderDetailDTO> getAllOrders() {
+        return orderDetailService.getAllOrders();
+    }
+
+    @GetMapping("/{id}")
+    public OrderDetailDTO getOrderById(@PathVariable Integer id) {
+        return orderDetailService.getOrderById(id);
+    }
+
+    @PostMapping
+    public OrderDetailDTO createOrder(@RequestBody OrderDetailDTO orderDetailDTO) {
+        return orderDetailService.createOrder(orderDetailDTO);
+    }
+
+    @PutMapping("/{id}")
+    public OrderDetailDTO updateOrder(@PathVariable Integer id, @RequestBody OrderDetailDTO orderDetailDTO) {
+        return orderDetailService.updateOrder(id, orderDetailDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteOrder(@PathVariable Integer id) {
+        orderDetailService.deleteOrder(id);
+    }
+}
