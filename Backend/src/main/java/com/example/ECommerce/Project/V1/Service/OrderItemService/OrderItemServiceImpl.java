@@ -47,8 +47,8 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .orElseThrow(() -> new RuntimeException("OrderItem not found with id: " + id));
 
         existingOrderItem.setQuantity(orderItemDTO.getQuantity());
-        existingOrderItem.setProduct(modelMapper.map(orderItemDTO.getProductId(), OrderItem.class).getProduct());
-        existingOrderItem.setOrderDetail(modelMapper.map(orderItemDTO.getOrderId(), OrderItem.class).getOrderDetail());
+//        existingOrderItem.setProduct(modelMapper.map(orderItemDTO.getProductId(), OrderItem.class).getProduct());
+//        existingOrderItem.setOrderDetail(modelMapper.map(orderItemDTO.getOrderId(), OrderItem.class).getOrderDetail());
 
         OrderItem updatedOrderItem = orderItemRepository.save(existingOrderItem);
         return modelMapper.map(updatedOrderItem, OrderItemDTO.class);

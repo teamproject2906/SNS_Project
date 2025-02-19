@@ -8,6 +8,7 @@ import com.example.ECommerce.Project.V1.Model.Product;
 import com.example.ECommerce.Project.V1.Repository.OrderDetailRepository;
 import com.example.ECommerce.Project.V1.Repository.OrderItemRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
+import com.example.ECommerce.Project.V1.Service.OrderItemService.OrderItemService;
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     @Autowired
     private IProductService productService;
 
+    @Autowired
+    private OrderItemService orderItemService;
+
     @Override
     public List<OrderDetailDTO> getAllOrders() {
         return orderDetailRepository.findAll()
@@ -56,41 +60,56 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         modelMapper.typeMap(OrderDetailDTO.class, OrderDetail.class)
                 .addMappings(mapper -> {
                     mapper.skip(OrderDetail::setId); // Skip setId
-//                    mapper.skip(OrderDetail::setOrderItems); // Skip setOrderItems
+                    mapper.skip(OrderDetail::setOrderItems); // Skip setOrderItems
                 });
-//        modelMapper.typeMap(OrderItemDTO.class, OrderItem.class)
-//                .addMappings(mapper -> {
-//                    mapper.skip(OrderItem::setOrderDetail); // Skip set id orderdetail
-//                    mapper.skip(OrderItem::setProduct);
-//                });
+        modelMapper.typeMap(OrderItemDTO.class, OrderItem.class)
+                .addMappings(mapper -> {
+                    mapper.skip(OrderItem::setOrderDetail); // Skip set id orderdetail
+                });
         OrderDetail orderDetail = modelMapper.map(orderDetailDTO, OrderDetail.class);
+        if (orderDetail.getOrderItems() == null) {
+            orderDetail.setOrderItems(new ArrayList<>());
+        }
+        for (OrderItemDTO orderItemDTO: orderDetailDTO.getOrderItems()){
+            OrderItem orderItem = modelMapper.map(orderItemDTO, OrderItem.class);
+            orderItem.setOrderDetail(orderDetail);
+            orderDetail.getOrderItems().add(orderItem);
+        }
         orderDetail = orderDetailRepository.save(orderDetail);
 
-//        List <OrderItem> listNewOrderItems = new ArrayList<>();
-//        OrderDetail newOrder = orderDetailRepository.findLastInsertedOrder();
-//        for (OrderItemDTO orderItemDTO: orderDetailDTO.getOrderItems()){
-//            OrderItem orderItem = new OrderItem();
-//            Product orderProduct = productRepository.findProductById(orderItemDTO.getProductId());
-//            orderItem.setId(orderItemDTO.getId());
-//            orderItem.setProduct(orderProduct);
-//            orderItem.setOrderDetail(newOrder);
-//            orderItem.setQuantity(orderItemDTO.getQuantity());
-//            orderItemRepository.save(orderItem);
-//            listNewOrderItems.add(orderItem);
-//        }
-//        newOrder.setOrderItems(listNewOrderItems);
-//        orderDetailRepository.save(newOrder);
         return modelMapper.map(orderDetail, OrderDetailDTO.class);
     }
 
     @Override
     public OrderDetailDTO updateOrder(Integer id, OrderDetailDTO orderDetailDTO) {
         OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+        Integer originalId = orderDetail.getId();
+
         modelMapper.map(orderDetailDTO, orderDetail);
+
+        for (OrderItemDTO orderItemDTO: orderDetailDTO.getOrderItems()){
+            System.out.println(orderItemDTO);  // Kiểm tra xem orderItem có dữ liệu hay không
+            System.out.println(orderItemDTO.getProductId()); // Kiểm tra Product có null không
+            orderItemService.updateOrderItem(orderItemDTO.getId(), orderItemDTO);
+        }
+
+        // Đảm bảo ID không bị thay đổi
+        orderDetail.setId(originalId);
+
         orderDetail = orderDetailRepository.save(orderDetail);
         return modelMapper.map(orderDetail, OrderDetailDTO.class);
     }
 
+    public void deactivateOrder(Integer id) {
+        OrderDetail orderDetail = orderDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Đảo ngược trạng thái isActive
+        orderDetail.setIsActive(false);
+
+        // Lưu lại vào database
+        orderDetailRepository.save(orderDetail);
+    }
     @Override
     public void deleteOrder(Integer id) {
         orderDetailRepository.deleteById(id);

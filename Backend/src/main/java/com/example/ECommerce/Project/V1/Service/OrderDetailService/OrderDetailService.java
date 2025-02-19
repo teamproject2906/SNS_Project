@@ -11,4 +11,5 @@ public interface OrderDetailService {
     OrderDetailDTO createOrder(OrderDetailDTO orderDetailDTO);
     OrderDetailDTO updateOrder(Integer id, OrderDetailDTO orderDetailDTO);
     void deleteOrder(Integer id);
+    void deactivateOrder(Integer id);
 }

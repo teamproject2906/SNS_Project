@@ -3,6 +3,7 @@ package com.example.ECommerce.Project.V1.Controller;
 import com.example.ECommerce.Project.V1.DTO.OrderDetailDTO;
 import com.example.ECommerce.Project.V1.Service.OrderDetailService.OrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,5 +39,11 @@ public class OrderDetailController {
     @DeleteMapping("/{id}")
     public void deleteOrder(@PathVariable Integer id) {
         orderDetailService.deleteOrder(id);
+    }
+
+    @PutMapping("/deactivate/{id}")
+    public ResponseEntity<String> deactivateOrder(@PathVariable Integer id) {
+        orderDetailService.deactivateOrder(id);
+        return ResponseEntity.ok("OrderDetail has been deactivated successfully");
     }
 }

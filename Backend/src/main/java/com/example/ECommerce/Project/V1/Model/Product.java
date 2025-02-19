@@ -61,7 +61,7 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "form_id")
     private FormClothes formClothes;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "promotion_id")
     private Promotion promotion;
 
