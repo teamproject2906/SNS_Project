@@ -74,6 +74,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
             OrderItem orderItem = modelMapper.map(orderItemDTO, OrderItem.class);
             orderItem.setOrderDetail(orderDetail);
             orderDetail.getOrderItems().add(orderItem);
+            productService.updateProductForOrder(orderItemDTO.getProductId(), orderItemDTO.getQuantity());
         }
         orderDetail = orderDetailRepository.save(orderDetail);
 
@@ -85,11 +86,15 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
         Integer originalId = orderDetail.getId();
 
+
         modelMapper.map(orderDetailDTO, orderDetail);
 
+
         for (OrderItemDTO orderItemDTO: orderDetailDTO.getOrderItems()){
-            System.out.println(orderItemDTO);  // Kiểm tra xem orderItem có dữ liệu hay không
-            System.out.println(orderItemDTO.getProductId()); // Kiểm tra Product có null không
+            OrderItem orderItem = orderItemRepository.findById(orderItemDTO.getId()).orElseThrow(() -> new RuntimeException("Order item not found"));
+            Integer originalOrderQuantity = orderItem.getQuantity();
+            productService.updateProductForOrder(orderItemDTO.getProductId(),orderItemDTO.getQuantity()-originalOrderQuantity);
+
             orderItemService.updateOrderItem(orderItemDTO.getId(), orderItemDTO);
         }
 

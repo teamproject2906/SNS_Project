@@ -291,4 +291,13 @@ public class ProductServiceImpl implements IProductService {
 
         return product;
     }
+    @Override
+    public void updateProductForOrder (Integer id, Integer orderQuantity){
+        Product product =  getProductById(id);
+
+        if(product != null){
+            product.setQuantityInventory(product.getQuantityInventory()- orderQuantity);
+            repository.save(product);
+        }
+    }
 }
