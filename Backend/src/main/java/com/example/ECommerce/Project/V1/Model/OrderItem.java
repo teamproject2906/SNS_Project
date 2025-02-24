@@ -25,14 +25,17 @@ public class OrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_item_id", nullable = false, unique = true)
+    @Column(name = "order_item_id", nullable = false)
     private Integer id;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "order_id")
     private OrderDetail orderDetail;
+
+    @Column(nullable = false)
+    private Integer quantity;
 }

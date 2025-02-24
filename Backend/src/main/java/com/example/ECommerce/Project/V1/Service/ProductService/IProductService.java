@@ -15,4 +15,5 @@ public interface IProductService {
     Product updateProductById(Integer id, Product product);
     void deleteProductById(Integer id);
     Product reActivateProductById(Integer id);
+    void  updateProductForOrder (Integer id, Integer orderQuantity );
 }
