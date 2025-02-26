@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import CommentsSection from "../../components/CommentsSection/CommentsSection";
 
 const ProductDetail = () => {
   const [product, setProduct] = useState({});
@@ -53,8 +54,8 @@ const ProductDetail = () => {
   };
 
   const formatPrice = (price) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-};
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   if (loading) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
@@ -152,6 +153,9 @@ const ProductDetail = () => {
           </div>
         </div>
       )}
+      <div className="container mx-auto px-6 py-8">
+        <CommentsSection />
+      </div>
     </div>
   );
 };
