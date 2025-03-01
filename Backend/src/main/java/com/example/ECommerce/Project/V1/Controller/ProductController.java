@@ -24,6 +24,11 @@ public class ProductController {
         return new ResponseEntity<>(productService.addProduct(product),HttpStatus.CREATED);
     }
 
+    @PostMapping("/multiple")
+    public ResponseEntity<List<Product>> createMultipleProducts(@Valid @RequestBody List<Product> products) {
+        return new ResponseEntity<>(productService.addMultipleProducts(products),HttpStatus.CREATED);
+    }
+
     @GetMapping()
     public ResponseEntity<Object> getAllProducts() {
         List<Product> products = productService.getAllProducts();
