@@ -32,8 +32,8 @@ public class ProductGallery extends BaseEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Lob
-    private byte[] imageUrl;
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;    // Store Cloudinary image URL instead of byte[]
 
     @Column(nullable = false, columnDefinition = "bit default 0")
     private Boolean isThumbnail;
