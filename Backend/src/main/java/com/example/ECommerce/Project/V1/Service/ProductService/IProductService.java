@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface IProductService {
 
     Product addProduct(Product product);
+    List<Product> addMultipleProducts(List<Product> products);
     List<Product> getAllProducts();
     Product getProductById(Integer id);
     Product getProductByProductCode(String productCode);
