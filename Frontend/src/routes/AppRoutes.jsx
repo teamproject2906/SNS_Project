@@ -14,6 +14,7 @@ import Breadcrumb from "../components/share/breadcrumb";
 import ProductDetail from "../pages/Product/ProductDetail";
 import DashBoardPage from "../pages/DashBoard/DashBoardPage";
 import Cart from "../pages/Cart/Cart";
+import Checkout from "../pages/Checkout/Checkout";
 
 // Giả lập trạng thái Auth
 const isAuthenticated = false; // Kiểm tra trạng thái đăng nhập
@@ -82,6 +83,15 @@ const routes = [
       <MainLayout>
         <Breadcrumb />
         <Cart />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/checkout",
+    element: (
+      <MainLayout>
+        <Breadcrumb />
+        <Checkout />
       </MainLayout>
     ),
   },
