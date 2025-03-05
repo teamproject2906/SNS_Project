@@ -12,6 +12,7 @@ import Register from "../pages/Register/Register";
 import Product from "../pages/Product/Product";
 import Breadcrumb from "../components/share/breadcrumb";
 import ProductDetail from "../pages/Product/ProductDetail";
+import DashBoardPage from "../pages/DashBoard/DashBoardPage";
 
 // Giả lập trạng thái Auth
 const isAuthenticated = false; // Kiểm tra trạng thái đăng nhập
@@ -69,6 +70,10 @@ const routes = [
         <ProductDetail />
       </MainLayout>
     ),
+  },
+  {
+    path: "/dashboard",
+    element: <DashBoardPage />,
   },
 ];
 
