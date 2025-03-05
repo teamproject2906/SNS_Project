@@ -12,6 +12,7 @@ import Register from "../pages/Register/Register";
 import Product from "../pages/Product/Product";
 import Breadcrumb from "../components/share/breadcrumb";
 import ProductDetail from "../pages/Product/ProductDetail";
+import DashBoardPage from "../pages/DashBoard/DashBoardPage";
 import Cart from "../pages/Cart/Cart";
 import Checkout from "../pages/Checkout/Checkout";
 
@@ -71,6 +72,10 @@ const routes = [
         <ProductDetail />
       </MainLayout>
     ),
+  },
+  {
+    path: "/dashboard",
+    element: <DashBoardPage />,
   },
   {
     path: "/cart",

@@ -4,10 +4,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { setToken, setUserInfo } from "../Login/app/static";
 
 const Register = () => {
-  const [fullname, setFullname] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [emailOrPhoneNumber, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,8 +19,8 @@ const Register = () => {
     if (loading) return;
     setLoading(true);
 
-    const trimmedEmail = email.toLowerCase().trim();
-    if (!fullname || !trimmedEmail || !password) {
+    const trimmedEmail = emailOrPhoneNumber.toLowerCase().trim();
+    if (!username || !trimmedEmail || !password) {
       toast.error("Vui lòng điền đầy đủ thông tin!");
       setLoading(false);
       return;
@@ -33,18 +34,34 @@ const Register = () => {
       const res = await axios.post(
         "http://localhost:8080/Authentication/Register",
         {
-          fullname,
-          email: trimmedEmail,
+          username,
+          emailOrPhoneNumber: trimmedEmail,
           password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
         }
       );
+      
       // const res = await axios.post("https://6785f704f80b78923aa4e3be.mockapi.io/product", {
-      //   fullname,
+      //   username,
       //   email: trimmedEmail,
       //   password,
       // });
+      if (res.data) {
+        setToken(res.data);
+        setUserInfo(res.data);
+        console.log("user info:", res.data);
+        console.log("Token: " + res.data);
+        navigate("/");
+      } else {
+        throw new Error("Token not found in response.");
+      }
       toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
-      navigate("/login");
+      navigate("/");
       console.log(res.data);
     } catch (error) {
       if (error.response) {
@@ -84,7 +101,7 @@ const Register = () => {
               type="text"
               placeholder="Họ và tên"
               className="w-full border rounded px-4 py-3 shadow-md"
-              onChange={(e) => setFullname(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
