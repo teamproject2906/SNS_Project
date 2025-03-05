@@ -8,7 +8,6 @@ import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,13 +82,13 @@ public class SizeChartServiceImpl implements ISizeChartService {
     }
 
     @Override
-    public SizeChart getSizeChartById(UUID id) {
+    public SizeChart getSizeChartById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SizeChart not found with id: " + id));
     }
 
     @Override
-    public SizeChart updateSizeChartById(UUID id, SizeChart sizeChart) {
+    public SizeChart updateSizeChartById(Integer id, SizeChart sizeChart) {
         SizeChart updateSizeChart = getSizeChartById(id);
 
         SizeChart validatedSizeChart = validateSizeChart(sizeChart);
@@ -101,7 +100,7 @@ public class SizeChartServiceImpl implements ISizeChartService {
     }
 
     @Override
-    public void deleteSizeChartById(UUID id) {
+    public void deleteSizeChartById(Integer id) {
        SizeChart sizeChart = getSizeChartById(id);
        repository.delete(sizeChart);
     }

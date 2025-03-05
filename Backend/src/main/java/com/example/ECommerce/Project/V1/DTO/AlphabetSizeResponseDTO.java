@@ -10,8 +10,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AlphabetSizeResponseDTO {
-
-    private UUID id;
+    private Integer id;
     private String alphabetSize;
     private SizeChartResponseDTO sizeChart;
 }

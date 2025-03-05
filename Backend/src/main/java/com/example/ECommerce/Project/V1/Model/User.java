@@ -5,9 +5,6 @@ import com.example.ECommerce.Project.V1.Token.Token;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
@@ -26,12 +22,17 @@ import java.util.UUID;
 @Table(name = "User")
 public class User extends BaseEntity implements UserDetails {
 
+//    @Id
+//    @GeneratedValue( generator = "uuid2" )
+//    @UuidGenerator
+//    @Column(columnDefinition = "VARCHAR(36)")
+//    @JdbcTypeCode(SqlTypes.VARCHAR)
+//    private UUID id;
+
     @Id
-    @GeneratedValue( generator = "uuid2" )
-    @UuidGenerator
-    @Column(columnDefinition = "VARCHAR(36)")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Integer id;
 
     @Column(length = 50)
     private String firstname;

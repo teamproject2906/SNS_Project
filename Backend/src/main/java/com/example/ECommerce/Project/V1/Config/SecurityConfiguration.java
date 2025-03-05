@@ -70,10 +70,9 @@ public class SecurityConfiguration implements AuthenticationProvider {
 //                         .loginPage("/login")
 //                         .defaultSuccessUrl("/dashboard", true)
 //                 );
-//                .sessionManagement()
+//                .sessionManagement();
         return http.build();
     }
-
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

@@ -3,10 +3,10 @@ package com.example.ECommerce.Project.V1.Service;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationRequest;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationResponse;
 import com.example.ECommerce.Project.V1.DTO.RegisterRequest;
-import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
+import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.example.ECommerce.Project.V1.Token.Token;
 import com.example.ECommerce.Project.V1.Token.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +49,6 @@ public class AuthenticationService {
         var savedUser = userRepository.save(user); // Save user in DB
         var jwtToken = jwtService.generateToken(user); // 4. Generates a new JWT for new user
         var refreshToken = jwtService.generateRefreshToken(user);
-        revokeAllUserToken(savedUser);
         saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder() // 5. Return the token in the response
                 .accessToken(jwtToken)

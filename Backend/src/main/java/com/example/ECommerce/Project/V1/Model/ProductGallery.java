@@ -6,11 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -19,21 +14,26 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class ProductGallery extends BaseEntity{
+public class ProductGallery extends BaseEntity {
+
+//    @Id
+//    @GeneratedValue( generator = "uuid2" )
+//    @UuidGenerator
+//    @Column(columnDefinition = "VARCHAR(36)")
+//    @JdbcTypeCode(SqlTypes.VARCHAR)
+//    private UUID id;
 
     @Id
-    @GeneratedValue( generator = "uuid2" )
-    @UuidGenerator
-    @Column(columnDefinition = "VARCHAR(36)")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_gallery_id", nullable = false, unique = true)
+    private Integer id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Lob
-    private byte[] imageUrl;
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;    // Store Cloudinary image URL instead of byte[]
 
     @Column(nullable = false, columnDefinition = "bit default 0")
     private Boolean isThumbnail;

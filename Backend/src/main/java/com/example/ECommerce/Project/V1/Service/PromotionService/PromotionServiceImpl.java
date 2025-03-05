@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class PromotionServiceImpl implements IPromotionService {
@@ -95,12 +94,12 @@ public class PromotionServiceImpl implements IPromotionService {
     }
 
     @Override
-    public Promotion getPromotionById(UUID id) {
+    public Promotion getPromotionById(Integer id) {
         return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
     }
 
     @Override
-    public Promotion updatePromotionById(UUID id, Promotion promotion) {
+    public Promotion updatePromotionById(Integer id, Promotion promotion) {
         Promotion updatingPromotion = getPromotionById(id);
 
         if(updatingPromotion != null) {
@@ -137,7 +136,7 @@ public class PromotionServiceImpl implements IPromotionService {
     }
 
     @Override
-    public void deletePromotionById(UUID id) {
+    public void deletePromotionById(Integer id) {
         Promotion promotion = getPromotionById(id);
 
         if(promotion != null) {
@@ -147,7 +146,7 @@ public class PromotionServiceImpl implements IPromotionService {
 
     @Override
     @Transactional
-    public Promotion reActivatePromotionById(UUID id) {
+    public Promotion reActivatePromotionById(Integer id) {
         Promotion promotion = getPromotionById(id);
 
         if (promotion != null) {

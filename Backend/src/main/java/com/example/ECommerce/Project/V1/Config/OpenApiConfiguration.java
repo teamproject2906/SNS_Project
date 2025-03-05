@@ -42,6 +42,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 )
         }
 )
+
 @SecurityScheme(
         name = "bearerAuth",
         description = "JWT Auth description",
@@ -50,5 +51,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
         bearerFormat = "JWT",
         in = SecuritySchemeIn.DEFAULT
 )
+
 public class OpenApiConfiguration {
+
 }

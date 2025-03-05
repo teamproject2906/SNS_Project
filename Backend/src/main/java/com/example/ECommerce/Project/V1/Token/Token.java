@@ -20,12 +20,17 @@ import java.util.UUID;
 @Table(name = "token_table")
 public class Token {
 
+//    @Id
+//    @GeneratedValue( generator = "uuid2" )
+//    @UuidGenerator
+//    @Column(columnDefinition = "VARCHAR(36)")
+//    @JdbcTypeCode(SqlTypes.VARCHAR)
+//    private UUID id;
+
     @Id
-    @GeneratedValue( generator = "uuid2" )
-    @UuidGenerator
-    @Column(columnDefinition = "VARCHAR(36)")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "token_id", nullable = false, unique = true)
+    private Integer id;
 
     private String token;
 

@@ -10,12 +10,12 @@ public interface ICategoryService {
 
     Category createCategory(Category category);
     List<Category> getAllCategories();
-    Category getCategoryById(UUID id);
-    List<Category> getAllCategoriesOfParentById(UUID parentCategoryId);
+    Category getCategoryById(Integer id);
+    List<Category> getAllCategoriesOfParentById(Integer parentCategoryId);
     List<Category> getAllCategoriesByName(String categoryName);
-    Category updateCategoryById(UUID id, Category category);
-    void deleteCategoryById(UUID id);
-    Category reActiveCategoryById(UUID id);
+    Category updateCategoryById(Integer id, Category category);
+    void deleteCategoryById(Integer id);
+    Category reActiveCategoryById(Integer id);
     void deleteAllCategories();
 
 }

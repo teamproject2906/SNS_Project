@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface SizeChartRepository extends JpaRepository<SizeChart, UUID> {
+public interface SizeChartRepository extends JpaRepository<SizeChart, Integer> {
     boolean existsBySizeChartType(String sizeChartType);
-    boolean existsById(UUID id);
+    boolean existsById(Integer id);
 }

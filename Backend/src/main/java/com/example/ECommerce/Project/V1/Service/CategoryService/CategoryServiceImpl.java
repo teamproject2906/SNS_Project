@@ -41,6 +41,9 @@ public class CategoryServiceImpl implements ICategoryService {
             throw new InvalidInputException("Category Name Cannot Contain Special Characters");
         }
 
+        boolean exists = repository.existsByCategoryName(categoryName);
+        System.out.println("Checking if category name exists: " + categoryName + " -> " + exists);
+
         // Global uniqueness check for categories without parent
         if (repository.existsByCategoryName(categoryName) && categoryRequest.getParentCategoryID() == null) {
             throw new InvalidInputException("Category Name '" + categoryName + "' Already Exists");
@@ -97,13 +100,13 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public Category getCategoryById(UUID id) {
+    public Category getCategoryById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
     }
 
     @Override
-    public List<Category> getAllCategoriesOfParentById(UUID parentCategoryId) {
+    public List<Category> getAllCategoriesOfParentById(Integer parentCategoryId) {
         if (!repository.existsById(parentCategoryId)) {
             throw new ResourceNotFoundException("Category not found with id: " + parentCategoryId);
         }
@@ -117,7 +120,7 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public Category updateCategoryById(UUID id, Category category) {
+    public Category updateCategoryById(Integer id, Category category) {
         Category updatingCategory = getCategoryById(id);
 
         if (updatingCategory != null) {
@@ -137,7 +140,7 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public void deleteCategoryById(UUID id) {
+    public void deleteCategoryById(Integer id) {
         Category category = getCategoryById(id);
 
         if (category != null) {
@@ -147,7 +150,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     @Transactional
-    public Category reActiveCategoryById(UUID id) {
+    public Category reActiveCategoryById(Integer id) {
         Category category = getCategoryById(id);
 
         if (category != null) {

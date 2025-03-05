@@ -10,7 +10,7 @@ public interface ISizeChartService {
 
     SizeChart createSizeChart(SizeChart sizeChart);
     List<SizeChartResponseDTO> getAllSizeChart();
-    SizeChart getSizeChartById(UUID id);
-    SizeChart updateSizeChartById(UUID id, SizeChart sizeChart);
-    void deleteSizeChartById(UUID id);
+    SizeChart getSizeChartById(Integer id);
+    SizeChart updateSizeChartById(Integer id, SizeChart sizeChart);
+    void deleteSizeChartById(Integer id);
 }

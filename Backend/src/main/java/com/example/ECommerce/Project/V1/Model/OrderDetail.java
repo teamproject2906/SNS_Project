@@ -6,12 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -20,18 +17,26 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class OrderDetail extends BaseEntity{
+public class OrderDetail extends BaseEntity {
+
+//    @Id
+//    @GeneratedValue( generator = "uuid2" )
+//    @UuidGenerator
+//    @Column(columnDefinition = "VARCHAR(36)")
+//    @JdbcTypeCode(SqlTypes.VARCHAR)
+//    private UUID id;
 
     @Id
-    @GeneratedValue( generator = "uuid2" )
-    @UuidGenerator
-    @Column(columnDefinition = "VARCHAR(36)")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_detail_id", nullable = false, unique = true)
+    private Integer id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems;
 
     @Column(nullable = false)
     private Double totalAmount;
@@ -42,12 +47,18 @@ public class OrderDetail extends BaseEntity{
     @Column(nullable = false)
     private LocalDateTime shippingDate;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "order_status_id")
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "order_status_id")
+//    private OrderStatus orderStatus;
+
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "payment_method_id")
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "payment_method_id")
+//    private PaymentMethod paymentMethod;
+
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
 //    @ManyToOne(optional = false)

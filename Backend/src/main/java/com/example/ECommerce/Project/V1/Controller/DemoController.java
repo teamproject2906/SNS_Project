@@ -1,14 +1,11 @@
 package com.example.ECommerce.Project.V1.Controller;
 
- import com.example.ECommerce.Project.V1.Model.User;
- import org.springframework.core.io.ClassPathResource;
- import org.springframework.http.HttpStatus;
- import org.springframework.http.ResponseEntity;
- import org.springframework.util.StreamUtils;
- import org.springframework.web.bind.annotation.*;
- import org.springframework.web.bind.annotation.GetMapping;
- import org.springframework.web.bind.annotation.RequestMapping;
- import org.springframework.web.bind.annotation.RestController;
+import com.example.ECommerce.Project.V1.Model.User;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

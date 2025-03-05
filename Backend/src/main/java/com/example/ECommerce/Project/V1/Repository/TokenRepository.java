@@ -13,12 +13,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface TokenRepository extends JpaRepository<Token, UUID> {
+public interface TokenRepository extends JpaRepository<Token, Integer> {
     @Query("""
     SELECT T FROM Token T INNER JOIN User U ON U.id = T.user.id
     WHERE U.id = :userId AND (T.expired = FALSE OR T.revoked = FALSE)
     """)
-    List<Token> findAllTokenByUser(UUID userId);
+    List<Token> findAllTokenByUser(Integer userId);
 
     Optional<Token> findByToken(String token);
 
@@ -27,11 +27,16 @@ public interface TokenRepository extends JpaRepository<Token, UUID> {
     """)
     Optional<Token> findTokenByToken(@Param("token") String token);
 
+    @Query("""
+    SELECT t FROM Token t WHERE t.user.id = :id and t.expired = FALSE
+""")
+    Optional<Token> findTokenByUserId(@Param("id") Integer id);
+
     @Modifying
     @Transactional
     @Query("""
     DELETE FROM Token T
     WHERE T.user.id = :userId AND T.expired = FALSE AND T.revoked = FALSE
     """)
-    void deleteExpiredAndRevokedTokensByUserId(@Param("userId") UUID userId);
+    void deleteExpiredAndRevokedTokensByUserId(@Param("userId") Integer userId);
 }
