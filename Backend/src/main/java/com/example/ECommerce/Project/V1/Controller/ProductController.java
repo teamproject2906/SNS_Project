@@ -1,17 +1,13 @@
 package com.example.ECommerce.Project.V1.Controller;
 
 import com.example.ECommerce.Project.V1.Model.Product;
-import com.example.ECommerce.Project.V1.Repository.ProductRepository;
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
@@ -28,6 +24,11 @@ public class ProductController {
         return new ResponseEntity<>(productService.addProduct(product),HttpStatus.CREATED);
     }
 
+    @PostMapping("/multiple")
+    public ResponseEntity<List<Product>> createMultipleProducts(@Valid @RequestBody List<Product> products) {
+        return new ResponseEntity<>(productService.addMultipleProducts(products),HttpStatus.CREATED);
+    }
+
     @GetMapping()
     public ResponseEntity<Object> getAllProducts() {
         List<Product> products = productService.getAllProducts();
@@ -39,7 +40,7 @@ public class ProductController {
     }
     
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductDetailById(@PathVariable UUID productId) {
+    public ResponseEntity<Product> getProductDetailById(@PathVariable Integer productId) {
         return new ResponseEntity<>(productService.getProductById(productId),HttpStatus.OK);
     }
 
@@ -59,17 +60,17 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}")
-    public ResponseEntity<Product> updateProduct(@PathVariable UUID productId, @Valid @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Integer productId, @Valid @RequestBody Product product) {
         return new ResponseEntity<>(productService.updateProductById(productId, product),HttpStatus.OK);
     }
 
     @PatchMapping("/reactive/{productId}")
-    public ResponseEntity<Product> updateProductReactive(@PathVariable UUID productId) {
+    public ResponseEntity<Product> updateProductReactive(@PathVariable Integer productId) {
         return ResponseEntity.status(HttpStatus.OK).body(productService.reActivateProductById(productId));
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable UUID productId) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Integer productId) {
         productService.deleteProductById(productId);
 
         return new ResponseEntity<>("Product deactive successfully",HttpStatus.OK);

@@ -9,7 +9,7 @@ public interface INumericSizeService {
 
     NumericSize createNumericSize(NumericSize numericSize);
     List<NumericSize> getAllNumericSizes();
-    NumericSize getNumericSizeById(UUID id);
-    NumericSize updateNumericSize(UUID id, NumericSize numericSize);
-    void deleteNumericSizeById(UUID id);
+    NumericSize getNumericSizeById(Integer id);
+    NumericSize updateNumericSize(Integer id, NumericSize numericSize);
+    void deleteNumericSizeById(Integer id);
 }

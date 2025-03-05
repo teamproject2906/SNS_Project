@@ -33,8 +33,8 @@ public class FormClothesServiceImpl implements IFormClothesService {
             throw new InvalidInputException("FormClothes cannot exceed 100 characters");
         }
 
-        if (!formClothes.matches("^[a-zA-Z\\s]+$")) {
-            throw new InvalidInputException("Form Clothes can only contain lowercase or uppercase letters from 'a' to 'z'");
+        if (!formClothes.matches("^[a-zA-Z\\s-]+$")) {
+            throw new InvalidInputException("Form Clothes can only contain letters (a-z, A-Z), spaces, and hyphens (-).");
         }
 
         if(repository.existsFormClothesByFormClothes(formClothes)) {
@@ -58,13 +58,13 @@ public class FormClothesServiceImpl implements IFormClothesService {
     }
 
     @Override
-    public FormClothes getFormClothesById(UUID id) {
+    public FormClothes getFormClothesById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("FormClothes with id: " + id + " not found"));
     }
 
     @Override
-    public FormClothes updateFormClothes(UUID id, FormClothes formClothes) {
+    public FormClothes updateFormClothes(Integer id, FormClothes formClothes) {
         FormClothes updatingFormClothes = getFormClothesById(id);
 
         if(updatingFormClothes != null) {
@@ -77,7 +77,7 @@ public class FormClothesServiceImpl implements IFormClothesService {
     }
 
     @Override
-    public void deleteFormClothesById(UUID id) {
+    public void deleteFormClothesById(Integer id) {
         FormClothes formClothes = getFormClothesById(id);
 
         if(formClothes != null) {

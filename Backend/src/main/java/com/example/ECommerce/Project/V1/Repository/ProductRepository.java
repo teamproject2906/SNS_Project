@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ProductRepository extends JpaRepository<Product, UUID> {
+public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Optional<Product> findProductByProductCode(String productCode);
     List<Product> findProductsByProductNameContainingIgnoreCase(String productName);
@@ -19,10 +19,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Modifying
     @Transactional
     @Query("UPDATE Product p SET p.isActive = false WHERE p.id = :id")
-    void deActivateProduct(@Param("id") UUID id);
+    void deActivateProduct(@Param("id") Integer id);
 
     @Modifying
     @Transactional
     @Query("UPDATE Product p SET p.isActive = true WHERE p.id = :id")
-    void reActivateProduct(@Param("id") UUID id);
+    void reActivateProduct(@Param("id") Integer id);
 }

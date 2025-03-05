@@ -30,18 +30,18 @@ public class FormClothesController {
     }
 
     @GetMapping("/{formClothesId}")
-    public ResponseEntity<FormClothes> getFormClothesDetail(@PathVariable("formClothesId")UUID formClothesId) {
+    public ResponseEntity<FormClothes> getFormClothesDetail(@PathVariable("formClothesId")Integer formClothesId) {
         return new ResponseEntity<FormClothes>(formClothesService.getFormClothesById(formClothesId), HttpStatus.OK);
     }
 
     @PatchMapping("/{formClothesId}")
-    public ResponseEntity<FormClothes> updateFormClothesById(@PathVariable("formClothesId")UUID formClothesId,
+    public ResponseEntity<FormClothes> updateFormClothesById(@PathVariable("formClothesId")Integer formClothesId,
                                                              @RequestBody FormClothes formClothes) {
         return new ResponseEntity<FormClothes>(formClothesService.updateFormClothes(formClothesId, formClothes), HttpStatus.OK);
     }
 
     @DeleteMapping("/{formClothesId}")
-    public ResponseEntity<String> deleteFormClothesById(@PathVariable("formClothesId")UUID formClothesId) {
+    public ResponseEntity<String> deleteFormClothesById(@PathVariable("formClothesId")Integer formClothesId) {
         formClothesService.deleteFormClothesById(formClothesId);
         return new ResponseEntity<String>("Delete FormClothes with id: " + formClothesId, HttpStatus.OK);
     }

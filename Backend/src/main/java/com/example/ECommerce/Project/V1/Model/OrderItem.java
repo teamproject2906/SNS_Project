@@ -6,11 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -21,18 +16,26 @@ import java.util.UUID;
 @SuperBuilder
 public class OrderItem extends BaseEntity {
 
-    @Id
-    @GeneratedValue( generator = "uuid2" )
-    @UuidGenerator
-    @Column(columnDefinition = "VARCHAR(36)")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private UUID id;
+//    @Id
+//    @GeneratedValue( generator = "uuid2" )
+//    @UuidGenerator
+//    @Column(columnDefinition = "VARCHAR(36)")
+//    @JdbcTypeCode(SqlTypes.VARCHAR)
+//    private UUID id;
 
-    @OneToOne(optional = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_item_id", nullable = false)
+    private Integer id;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "order_id")
     private OrderDetail orderDetail;
+
+    @Column(nullable = false)
+    private Integer quantity;
 }

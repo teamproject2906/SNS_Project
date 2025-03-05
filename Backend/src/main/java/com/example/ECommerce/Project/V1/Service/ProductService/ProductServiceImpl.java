@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements IProductService {
@@ -188,12 +187,21 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    public List<Product> addMultipleProducts(List<Product> products) {
+        for (Product product : products) {
+            validateProduct(product);
+        }
+
+        return repository.saveAll(products);
+    }
+
+    @Override
     public List<Product> getAllProducts() {
         return repository.findAll();
     }
 
     @Override
-    public Product getProductById(UUID id) {
+    public Product getProductById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id: " + id + " not found!"));
     }
@@ -210,7 +218,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public Product updateProductById(UUID id, Product product) {
+    public Product updateProductById(Integer id, Product product) {
         Product updatingProduct = getProductById(id);
 
         if (updatingProduct != null) {
@@ -272,7 +280,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public void deleteProductById(UUID id) {
+    public void deleteProductById(Integer id) {
         Product product = getProductById(id);
 
         if (product != null) {
@@ -282,7 +290,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional
-    public Product reActivateProductById(UUID id) {
+    public Product reActivateProductById(Integer id) {
         Product product = getProductById(id);
 
         if (product != null) {
@@ -291,5 +299,14 @@ public class ProductServiceImpl implements IProductService {
         }
 
         return product;
+    }
+    @Override
+    public void updateProductForOrder (Integer id, Integer orderQuantity){
+        Product product =  getProductById(id);
+
+        if(product != null){
+            product.setQuantityInventory(product.getQuantityInventory()- orderQuantity);
+            repository.save(product);
+        }
     }
 }

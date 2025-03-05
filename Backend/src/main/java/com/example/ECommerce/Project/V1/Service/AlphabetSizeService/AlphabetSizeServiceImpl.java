@@ -95,13 +95,13 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
     }
 
     @Override
-    public AlphabetSize getAlphabetSizeById(UUID id) {
+    public AlphabetSize getAlphabetSizeById(Integer id) {
         return alphabetSizeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("AlphabetSize not found with id: " + id));
     }
 
     @Override
-    public AlphabetSize updateAlphabetSize(UUID id, AlphabetSize alphabetSize) {
+    public AlphabetSize updateAlphabetSize(Integer id, AlphabetSize alphabetSize) {
         // Check if the AllphabetSize exists
         AlphabetSize updatingAlphabetSize = getAlphabetSizeById(id);
 
@@ -117,7 +117,7 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
     }
 
     @Override
-    public void deleteAlphabetSizeById(UUID id) {
+    public void deleteAlphabetSizeById(Integer id) {
         AlphabetSize alphabetSize = getAlphabetSizeById(id);
         alphabetSizeRepository.delete(alphabetSize);
     }

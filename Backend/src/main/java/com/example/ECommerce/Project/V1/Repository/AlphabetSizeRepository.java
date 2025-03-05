@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface AlphabetSizeRepository extends JpaRepository<AlphabetSize, UUID> {
+public interface AlphabetSizeRepository extends JpaRepository<AlphabetSize, Integer> {
 
     boolean existsAlphabetSizeByAlphabetSize(String alphabetSize);
 }

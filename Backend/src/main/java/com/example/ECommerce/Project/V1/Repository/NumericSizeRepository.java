@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface NumericSizeRepository extends JpaRepository<NumericSize, UUID> {
+public interface NumericSizeRepository extends JpaRepository<NumericSize, Integer> {
     boolean existsByNumericSize(Integer numericSize);
 }

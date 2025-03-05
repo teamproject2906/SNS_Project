@@ -9,7 +9,7 @@ public interface IFormClothesService {
 
     FormClothes createFormClothes(FormClothes formClothes);
     List<FormClothes> getAllFormClothes();
-    FormClothes getFormClothesById(UUID id);
-    FormClothes updateFormClothes(UUID id, FormClothes formClothes);
-    void deleteFormClothesById(UUID id);
+    FormClothes getFormClothesById(Integer id);
+    FormClothes updateFormClothes(Integer id, FormClothes formClothes);
+    void deleteFormClothesById(Integer id);
 }

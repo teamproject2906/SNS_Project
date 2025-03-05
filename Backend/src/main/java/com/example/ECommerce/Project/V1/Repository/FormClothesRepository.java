@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface FormClothesRepository extends JpaRepository<FormClothes, UUID> {
+public interface FormClothesRepository extends JpaRepository<FormClothes, Integer> {
 
     boolean existsFormClothesByFormClothes(String formClothes);
 }

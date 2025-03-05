@@ -10,8 +10,8 @@ public interface IAlphabetSizeService {
 
     AlphabetSizeResponseDTO createAlphabetSize(AlphabetSize alphabetSize);
     List<AlphabetSize> getAllAlphabetSize();
-    AlphabetSize getAlphabetSizeById(UUID id);
-    AlphabetSize updateAlphabetSize(UUID id, AlphabetSize alphabetSize);
-    void deleteAlphabetSizeById(UUID id);
+    AlphabetSize getAlphabetSizeById(Integer id);
+    AlphabetSize updateAlphabetSize(Integer id, AlphabetSize alphabetSize);
+    void deleteAlphabetSizeById(Integer id);
 
 }

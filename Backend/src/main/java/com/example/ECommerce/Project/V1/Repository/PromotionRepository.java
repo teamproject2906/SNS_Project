@@ -9,15 +9,15 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.UUID;
 
-public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
+public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
 
     @Modifying
     @Transactional
     @Query("UPDATE Promotion p SET p.isActive = false WHERE p.id=:id")
-    void deActivatePromotion(@Param("id") UUID promotionId);
+    void deActivatePromotion(@Param("id") Integer promotionId);
 
     @Modifying
     @Transactional
     @Query("UPDATE Promotion p SET p.isActive = true WHERE p.id=:id")
-    void reActivatePromotion(@Param("id") UUID promotionId);
+    void reActivatePromotion(@Param("id") Integer promotionId);
 }
