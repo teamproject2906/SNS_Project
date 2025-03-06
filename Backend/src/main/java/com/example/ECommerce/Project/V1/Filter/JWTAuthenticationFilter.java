@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Filter;
 
+import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Service.JWTService;
 import com.example.ECommerce.Project.V1.Token.Token;
