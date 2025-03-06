@@ -49,7 +49,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(unique = true, length = 11)
     private String phoneNumber;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String password;
 
     @Column()
@@ -61,9 +61,11 @@ public class User extends BaseEntity implements UserDetails {
     @Column(length = 255)
     private String bio;
 
-    @Lob
     @Column(nullable = true)
-    private byte[] avatar;
+    private String avatar;
+
+    @Column
+    private String provider;
 
     @Enumerated(EnumType.STRING)
     private Role role;
