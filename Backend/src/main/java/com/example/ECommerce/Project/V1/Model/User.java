@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Model;
 
+import com.example.ECommerce.Project.V1.Model.BaseEntity;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.example.ECommerce.Project.V1.Token.Token;
 import jakarta.persistence.*;

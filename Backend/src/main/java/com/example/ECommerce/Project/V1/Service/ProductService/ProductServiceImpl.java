@@ -10,6 +10,7 @@ import com.example.ECommerce.Project.V1.Repository.CategoryRepository;
 import com.example.ECommerce.Project.V1.Repository.FormClothesRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
+import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,9 @@
 package com.example.ECommerce.Project.V1.Model;
 
+import com.example.ECommerce.Project.V1.Model.BaseEntity;
+import com.example.ECommerce.Project.V1.Model.OrderStatus;
+import com.example.ECommerce.Project.V1.Model.PaymentMethod;
+import com.example.ECommerce.Project.V1.Model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

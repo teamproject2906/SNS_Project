@@ -2,6 +2,7 @@ package com.example.ECommerce.Project.V1.Service.ProductGalleryService;
 
 import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Repository.ProductGalleryRepository;
+import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

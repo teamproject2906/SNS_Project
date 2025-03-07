@@ -1,5 +1,8 @@
 package com.example.ECommerce.Project.V1.Model;
 
+import com.example.ECommerce.Project.V1.Model.BaseEntity;
+import com.example.ECommerce.Project.V1.Model.Product;
+import com.example.ECommerce.Project.V1.Model.ShoppingSession;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,5 +1,9 @@
 package com.example.ECommerce.Project.V1.Exception;
 
+import com.example.ECommerce.Project.V1.Exception.DuplicateResourceException;
+import com.example.ECommerce.Project.V1.Exception.ErrorResponse;
+import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
+import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,7 +32,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(DuplicateResourceException.class)
+    @ExceptionHandler(com.example.ECommerce.Project.V1.Exception.DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException ex) {
         ErrorResponse error = new ErrorResponse(400 ,ex.getMessage(), "Duplicate Entry Resource");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
