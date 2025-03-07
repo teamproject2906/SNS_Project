@@ -31,7 +31,7 @@ public class Category extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String categoryName;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "parent_category_id")
     private Category parentCategoryID;
 }
