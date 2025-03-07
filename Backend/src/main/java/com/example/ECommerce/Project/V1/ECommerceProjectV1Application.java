@@ -1,6 +1,9 @@
 package com.example.ECommerce.Project.V1;
 
+import com.example.ECommerce.Project.V1.Model.Address;
+import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.AddressRepository;
+import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.github.javafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
