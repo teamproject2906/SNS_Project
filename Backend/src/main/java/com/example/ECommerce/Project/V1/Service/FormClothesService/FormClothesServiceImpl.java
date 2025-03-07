@@ -33,8 +33,8 @@ public class FormClothesServiceImpl implements IFormClothesService {
             throw new InvalidInputException("FormClothes cannot exceed 100 characters");
         }
 
-        if (!formClothes.matches("^[a-zA-Z\\s]+$")) {
-            throw new InvalidInputException("Form Clothes can only contain lowercase or uppercase letters from 'a' to 'z'");
+        if (!formClothes.matches("^[a-zA-Z\\s-]+$")) {
+            throw new InvalidInputException("Form Clothes can only contain letters (a-z, A-Z), spaces, and hyphens (-).");
         }
 
         if(repository.existsFormClothesByFormClothes(formClothes)) {
