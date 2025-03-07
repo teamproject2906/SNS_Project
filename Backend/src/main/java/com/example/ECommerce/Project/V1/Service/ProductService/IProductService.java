@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface IProductService {
 
     Product addProduct(Product product);
+    List<Product> addMultipleProducts(List<Product> products);
     List<Product> getAllProducts();
     Product getProductById(Integer id);
     Product getProductByProductCode(String productCode);
@@ -15,4 +16,5 @@ public interface IProductService {
     Product updateProductById(Integer id, Product product);
     void deleteProductById(Integer id);
     Product reActivateProductById(Integer id);
+    void  updateProductForOrder (Integer id, Integer orderQuantity );
 }

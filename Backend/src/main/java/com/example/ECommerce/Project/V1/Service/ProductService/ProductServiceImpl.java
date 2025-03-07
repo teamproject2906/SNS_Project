@@ -188,6 +188,15 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    public List<Product> addMultipleProducts(List<Product> products) {
+        for (Product product : products) {
+            validateProduct(product);
+        }
+
+        return repository.saveAll(products);
+    }
+
+    @Override
     public List<Product> getAllProducts() {
         return repository.findAll();
     }
@@ -291,5 +300,14 @@ public class ProductServiceImpl implements IProductService {
         }
 
         return product;
+    }
+    @Override
+    public void updateProductForOrder (Integer id, Integer orderQuantity){
+        Product product =  getProductById(id);
+
+        if(product != null){
+            product.setQuantityInventory(product.getQuantityInventory()- orderQuantity);
+            repository.save(product);
+        }
     }
 }

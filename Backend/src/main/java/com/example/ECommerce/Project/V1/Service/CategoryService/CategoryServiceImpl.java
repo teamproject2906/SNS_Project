@@ -42,6 +42,9 @@ public class CategoryServiceImpl implements ICategoryService {
             throw new InvalidInputException("Category Name Cannot Contain Special Characters");
         }
 
+        boolean exists = repository.existsByCategoryName(categoryName);
+        System.out.println("Checking if category name exists: " + categoryName + " -> " + exists);
+
         // Global uniqueness check for categories without parent
         if (repository.existsByCategoryName(categoryName) && categoryRequest.getParentCategoryID() == null) {
             throw new InvalidInputException("Category Name '" + categoryName + "' Already Exists");

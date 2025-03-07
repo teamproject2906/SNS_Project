@@ -16,6 +16,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query("SELECT c from Category c WHERE c.parentCategoryID.id = :parentCategoryID")
     List<Category> findByParentCategoryID(@Param("parentCategoryID") Integer parentCategoryID);
 
+
     List<Category> findByCategoryNameContainingIgnoreCase(String categoryName);
 
     @Modifying
