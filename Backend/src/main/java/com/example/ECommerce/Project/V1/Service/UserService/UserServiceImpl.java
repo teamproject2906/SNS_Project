@@ -5,6 +5,7 @@ import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
+import com.example.ECommerce.Project.V1.Service.UserService.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

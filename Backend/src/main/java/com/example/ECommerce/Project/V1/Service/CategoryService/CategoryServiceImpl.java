@@ -5,6 +5,7 @@ import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Category;
 import com.example.ECommerce.Project.V1.Repository.CategoryRepository;
+import com.example.ECommerce.Project.V1.Service.CategoryService.ICategoryService;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;

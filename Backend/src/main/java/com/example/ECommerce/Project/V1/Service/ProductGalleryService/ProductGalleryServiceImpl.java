@@ -5,6 +5,7 @@ import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Product;
 import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Repository.ProductGalleryRepository;
+import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;

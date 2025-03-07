@@ -4,6 +4,7 @@ import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Promotion;
 import com.example.ECommerce.Project.V1.Repository.PromotionRepository;
+import com.example.ECommerce.Project.V1.Service.PromotionService.IPromotionService;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.RoleAndPermission;
 
+import com.example.ECommerce.Project.V1.RoleAndPermission.Permission;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,6 +1,9 @@
 package com.example.ECommerce.Project.V1;
 
+import com.example.ECommerce.Project.V1.Model.Address;
+import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.AddressRepository;
+import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.github.javafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
@@ -23,7 +26,7 @@ public class ECommerceProjectV1Application {
 			AddressRepository addressRepository
 	) {
 		return args -> {
-			for (int i = 0; i < 2; i++){
+			for (int i = 0; i < 1; i++){
 				Faker faker = new Faker();
 
 				// Create user

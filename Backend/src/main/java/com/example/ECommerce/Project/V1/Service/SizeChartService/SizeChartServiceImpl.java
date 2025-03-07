@@ -5,6 +5,7 @@ import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.SizeChart;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
+import com.example.ECommerce.Project.V1.Service.SizeChartService.ISizeChartService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

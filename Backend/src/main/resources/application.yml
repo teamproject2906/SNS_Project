@@ -8,7 +8,7 @@ spring:
     hibernate:
       ddl-auto: update
     database: mysql
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: false
@@ -23,6 +23,9 @@ spring:
             scope:
               - email
               - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+            client-name: Google
           github:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
@@ -35,6 +38,12 @@ spring:
             scope:
               - email
               - public_profile
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
   data:
     redis:
       host: localhost
@@ -44,7 +53,7 @@ application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      expiration: 36000000
+      expiration: 3600000
       refresh-token:
         expiration: 604800000
 
