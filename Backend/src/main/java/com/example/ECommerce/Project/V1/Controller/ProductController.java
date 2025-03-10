@@ -1,11 +1,17 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.Config.TextFileHelper;
+import com.example.ECommerce.Project.V1.DTO.ProductResponseDTO;
 import com.example.ECommerce.Project.V1.Model.Product;
+import com.example.ECommerce.Project.V1.Service.FileUploadService;
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,14 +20,30 @@ import java.util.List;
 public class ProductController {
 
     private final IProductService productService;
+    private final FileUploadService fileUploadService;
 
-    public ProductController(IProductService productService) {
+
+    public ProductController(IProductService productService, FileUploadService fileUploadService) {
         this.productService = productService;
+        this.fileUploadService = fileUploadService;
+
     }
 
     @PostMapping()
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         return new ResponseEntity<>(productService.addProduct(product),HttpStatus.CREATED);
+    }
+
+    @PostMapping("/upload-file")
+    public ResponseEntity<String> uploadProducts(@RequestParam("file")MultipartFile file) {
+        try {
+
+        fileUploadService.saveProductsFromTextFile(file);
+        return ResponseEntity.ok("File uploaded successfully. New products were added.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("File upload failed: " + e.getMessage());
+        }
     }
 
     @PostMapping("/multiple")
@@ -31,12 +53,29 @@ public class ProductController {
 
     @GetMapping()
     public ResponseEntity<Object> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
+        List<ProductResponseDTO> products = productService.getAllProducts();
 
         // Return a custom message when no product are available
         if (products.isEmpty()) return new ResponseEntity<>("There is no product. Please add new one.",HttpStatus.OK);
 
         return new ResponseEntity<>(productService.getAllProducts(),HttpStatus.OK);
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<Product>> getProductsPaginated(@RequestParam(defaultValue = "0") int page,   // Default to page 0
+                                                              @RequestParam(defaultValue = "5") int size,    // Default to 5 items per page
+                                                              @RequestParam(defaultValue = "id") String sortBy,
+                                                              @RequestParam(defaultValue = "asc") String order
+    ) {
+        // Convert order to Spring's Sort.Direction safely
+        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        List<String> validSortFileds = List.of("id", "price", "productName", "quantityInventory");
+        if(!validSortFileds.contains(sortBy)) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        return ResponseEntity.ok(productService.getProducts(page,size, sortBy, direction));
     }
     
     @GetMapping("/{productId}")

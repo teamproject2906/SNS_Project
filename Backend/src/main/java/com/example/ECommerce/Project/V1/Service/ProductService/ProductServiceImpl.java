@@ -1,21 +1,24 @@
 package com.example.ECommerce.Project.V1.Service.ProductService;
 
+import com.example.ECommerce.Project.V1.DTO.*;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
-import com.example.ECommerce.Project.V1.Model.Category;
-import com.example.ECommerce.Project.V1.Model.FormClothes;
-import com.example.ECommerce.Project.V1.Model.Product;
-import com.example.ECommerce.Project.V1.Model.SizeChart;
+import com.example.ECommerce.Project.V1.Model.*;
 import com.example.ECommerce.Project.V1.Repository.CategoryRepository;
 import com.example.ECommerce.Project.V1.Repository.FormClothesRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements IProductService {
@@ -24,13 +27,15 @@ public class ProductServiceImpl implements IProductService {
     private final FormClothesRepository formClothesRepository;
     private final CategoryRepository categoryRepository;
     private final EntityManager entityManager;
+    private final ProductRepository productRepository;
 
-    public ProductServiceImpl(ProductRepository repository, SizeChartRepository sizeChartRepository, FormClothesRepository formClothesRepository, CategoryRepository categoryRepository, EntityManager entityManager) {
+    public ProductServiceImpl(ProductRepository repository, SizeChartRepository sizeChartRepository, FormClothesRepository formClothesRepository, CategoryRepository categoryRepository, EntityManager entityManager, ProductRepository productRepository) {
         this.repository = repository;
         this.sizeChartRepository = sizeChartRepository;
         this.formClothesRepository = formClothesRepository;
         this.categoryRepository = categoryRepository;
         this.entityManager = entityManager;
+        this.productRepository = productRepository;
     }
 
     // Validate product code
@@ -179,6 +184,77 @@ public class ProductServiceImpl implements IProductService {
         validateCategory(product.getCategory(), categoryRepository);
     }
 
+    private CategoryResponseDTO convertCategoryEntityToCategoryResponseDTO(Category category) {
+        ParentCategoryResponseDTO parentCategoryDTO = null;
+        if (category.getParentCategoryID() != null) {
+            parentCategoryDTO = new ParentCategoryResponseDTO(
+                    category.getParentCategoryID().getId(),
+                    category.getParentCategoryID().getCategoryName()
+            );
+        }
+
+        return new CategoryResponseDTO(
+                category.getId(),
+                category.getCategoryName(),
+                parentCategoryDTO
+        );
+    }
+
+    private SizeChartResponseDTO convertSizeChartEntityToDTO(SizeChart entity) {
+        SizeChartResponseDTO dto = new SizeChartResponseDTO();
+
+        dto.setId(entity.getId());
+        dto.setSizeChartType(entity.getSizeChartType());
+
+        return dto;
+    }
+
+    private FormClothesResponseDTO convertFormClothesEntityToDTO(FormClothes entity) {
+        FormClothesResponseDTO dto = new FormClothesResponseDTO();
+        dto.setId(entity.getId());
+        dto.setFormClothes(entity.getFormClothes());
+
+        return dto;
+    }
+
+    private PromotionResponseDTO convertEntityPromotionToResponseDTO(Promotion promotion) {
+        PromotionResponseDTO promotionResponseDTO = new PromotionResponseDTO();
+
+        promotionResponseDTO.setId(promotion.getId());
+        promotionResponseDTO.setName(promotion.getName());
+        promotionResponseDTO.setDiscount(promotion.getDiscount());
+        promotionResponseDTO.setDescription(promotion.getDescription());
+        promotionResponseDTO.setStartDate(promotion.getStartDate());
+        promotionResponseDTO.setEndDate(promotion.getEndDate());
+
+        return promotionResponseDTO;
+    }
+
+
+    private ProductResponseDTO convertProductEntityToDTO(Product product) {
+        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+
+        productResponseDTO.setId(product.getId());
+        productResponseDTO.setProductCode(product.getProductCode());
+        productResponseDTO.setProductName(product.getProductName());
+        productResponseDTO.setPrice(product.getPrice());
+        productResponseDTO.setColor(product.getColor());
+        productResponseDTO.setMaterial(product.getMaterial());
+        productResponseDTO.setDescription(product.getDescription());
+        productResponseDTO.setQuantityInventory(product.getQuantityInventory());
+        productResponseDTO.setCategory(convertCategoryEntityToCategoryResponseDTO(product.getCategory()));
+        productResponseDTO.setSizeChart(convertSizeChartEntityToDTO(product.getSizeChart()));
+        productResponseDTO.setFormClothes(convertFormClothesEntityToDTO(product.getFormClothes()));
+        productResponseDTO.setPromotion(product.getPromotion() != null ? convertEntityPromotionToResponseDTO(product.getPromotion()) : null);
+
+        return productResponseDTO;
+    }
+
+    private List<ProductResponseDTO> convertEntityListToDTOList(List<Product> products) {
+        return products.stream().map(this::convertProductEntityToDTO).collect(Collectors.toList());
+    }
+
+
     @Override
     public Product addProduct(Product newProduct) {
         validateProduct(newProduct);
@@ -196,9 +272,16 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return repository.findAll();
+    public List<ProductResponseDTO> getAllProducts() {
+        return convertEntityListToDTOList(productRepository.findAll());
     }
+
+    @Override
+    public Page<Product> getProducts(int page, int size, String sortBy, Sort.Direction sortDirection) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        return productRepository.findAll(pageable);
+    }
+
 
     @Override
     public Product getProductById(Integer id) {
