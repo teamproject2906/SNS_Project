@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
@@ -37,6 +38,10 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
         dto.setSizeChart(sizeChartDTO);
 
         return dto;
+   }
+
+   private List<AlphabetSizeResponseDTO> mapAlphabetSizeListToDTOList(List<AlphabetSize> entityList) {
+        return entityList.stream().map(this::mapAlphabetSizeToDTO).collect(Collectors.toList());
    }
 
    private String validateAlphabetSize(String alphabetSize) {
@@ -89,9 +94,9 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
     }
 
     @Override
-    public List<AlphabetSize> getAllAlphabetSize() {
+    public List<AlphabetSizeResponseDTO> getAllAlphabetSize() {
         List<AlphabetSize> alphabetSizeList = alphabetSizeRepository.findAll();
-        return alphabetSizeList;
+        return mapAlphabetSizeListToDTOList(alphabetSizeList);
     }
 
     @Override
