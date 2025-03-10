@@ -1,5 +1,7 @@
 package com.example.ECommerce.Project.V1.Service.NumericSizeService;
 
+import com.example.ECommerce.Project.V1.DTO.NumericSizeResponseDTO;
+import com.example.ECommerce.Project.V1.DTO.SizeChartResponseDTO;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.NumericSize;
@@ -9,6 +11,7 @@ import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NumericSizeServiceImpl implements INumericSizeService {
@@ -49,6 +52,25 @@ public class NumericSizeServiceImpl implements INumericSizeService {
         }
     }
 
+    private NumericSizeResponseDTO mapEntityToDTO(NumericSize entity) {
+        NumericSizeResponseDTO dto = new NumericSizeResponseDTO();
+        dto.setId(entity.getId());
+        dto.setNumericSize(entity.getNumericSize());
+
+        SizeChart sizeChart = entity.getSizeChart();
+        SizeChartResponseDTO sizeChartDTO = new SizeChartResponseDTO();
+        sizeChartDTO.setId(sizeChart.getId());
+        sizeChartDTO.setSizeChartType(sizeChart.getSizeChartType());
+
+        dto.setSizeChart(sizeChartDTO);
+
+        return dto;
+    }
+
+    private List<NumericSizeResponseDTO> mapEntityListToDTOList(List<NumericSize> entityList) {
+        return entityList.stream().map(this::mapEntityToDTO).collect(Collectors.toList());
+    }
+
 
     @Override
     public NumericSize createNumericSize(NumericSize numericSize) {
@@ -62,9 +84,9 @@ public class NumericSizeServiceImpl implements INumericSizeService {
     }
 
     @Override
-    public List<NumericSize> getAllNumericSizes() {
+    public List<NumericSizeResponseDTO> getAllNumericSizes() {
         List<NumericSize> numericSizeList = numericSizeRepository.findAll();
-        return numericSizeList;
+        return mapEntityListToDTOList(numericSizeList);
     }
 
     @Override

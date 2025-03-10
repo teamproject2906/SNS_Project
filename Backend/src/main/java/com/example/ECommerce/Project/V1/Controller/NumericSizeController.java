@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.DTO.NumericSizeResponseDTO;
 import com.example.ECommerce.Project.V1.Model.NumericSize;
 import com.example.ECommerce.Project.V1.Service.NumericSizeService.INumericSizeService;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class NumericSizeController {
     }
 
     @GetMapping()
-    public List<NumericSize> getAllNumericSizes() {
+    public List<NumericSizeResponseDTO> getAllNumericSizes() {
         return numericSizeService.getAllNumericSizes();
     }
 
