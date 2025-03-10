@@ -1,5 +1,7 @@
 package com.example.ECommerce.Project.V1.Service.PromotionService;
 
+import com.example.ECommerce.Project.V1.DTO.ProductResponseDTO;
+import com.example.ECommerce.Project.V1.DTO.PromotionResponseDTO;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Promotion;
@@ -9,7 +11,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PromotionServiceImpl implements IPromotionService {
@@ -46,7 +50,7 @@ public class PromotionServiceImpl implements IPromotionService {
         if (description != null) {
             if (description.length() > 100) {
                 throw new InvalidInputException("Description cannot exceed 100 characters");
-            } else if(!description.matches("^[a-zA-Z0-9 '!]+$")) {
+            } else if(!description.matches("^[a-zA-Z0-9% '!]+$")) {
                 throw new InvalidInputException("Description cannot contain special characters");
             }
         }
@@ -73,6 +77,23 @@ public class PromotionServiceImpl implements IPromotionService {
         validateDates(promotion.getStartDate(), promotion.getEndDate());
     }
 
+    private PromotionResponseDTO convertEntityToResponseDTO(Promotion promotion) {
+        PromotionResponseDTO promotionResponseDTO = new PromotionResponseDTO();
+
+        promotionResponseDTO.setId(promotion.getId());
+        promotionResponseDTO.setName(promotion.getName());
+        promotionResponseDTO.setDiscount(promotion.getDiscount());
+        promotionResponseDTO.setDescription(promotion.getDescription());
+        promotionResponseDTO.setStartDate(promotion.getStartDate());
+        promotionResponseDTO.setEndDate(promotion.getEndDate());
+
+        return promotionResponseDTO;
+    }
+
+    private List<PromotionResponseDTO> convertEntityListToResponseDTOList(List<Promotion> promotions) {
+        return promotions.stream().map(this::convertEntityToResponseDTO).collect(Collectors.toList());
+    }
+
     @Override
     public Promotion addPromotion(Promotion promotion) {
         validatePromotion(promotion);
@@ -89,8 +110,9 @@ public class PromotionServiceImpl implements IPromotionService {
     }
 
     @Override
-    public List<Promotion> getAllPromotions() {
-        return repository.findAll();
+    public List<PromotionResponseDTO> getAllPromotions() {
+        List<Promotion> promotions = repository.findAll();
+        return convertEntityListToResponseDTOList(promotions);
     }
 
     @Override

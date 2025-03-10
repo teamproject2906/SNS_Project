@@ -1,5 +1,7 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.DTO.ProductResponseDTO;
+import com.example.ECommerce.Project.V1.DTO.PromotionResponseDTO;
 import com.example.ECommerce.Project.V1.Model.Promotion;
 import com.example.ECommerce.Project.V1.Service.PromotionService.IPromotionService;
 import org.springframework.http.HttpStatus;
@@ -23,7 +25,7 @@ public class PromotionController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Promotion>> getAllPromotions() {
+    public ResponseEntity<List<PromotionResponseDTO>> getAllPromotions() {
         return new ResponseEntity<>(promotionService.getAllPromotions(), HttpStatus.OK);
     }
 
