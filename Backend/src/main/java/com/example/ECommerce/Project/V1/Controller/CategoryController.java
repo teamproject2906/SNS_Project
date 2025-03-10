@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.DTO.CategoryResponseDTO;
 import com.example.ECommerce.Project.V1.Model.Category;
 import com.example.ECommerce.Project.V1.Service.CategoryService.ICategoryService;
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<CategoryResponseDTO>> getAllCategories() {
         return ResponseEntity.status(HttpStatus.OK).body(categoryService.getAllCategories());
     }
 
