@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Service.FormClothesService;
 
+import com.example.ECommerce.Project.V1.DTO.FormClothesResponseDTO;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.FormClothes;
@@ -7,8 +8,10 @@ import com.example.ECommerce.Project.V1.Repository.FormClothesRepository;
 import com.example.ECommerce.Project.V1.Service.FormClothesService.IFormClothesService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FormClothesServiceImpl implements IFormClothesService {
@@ -45,6 +48,18 @@ public class FormClothesServiceImpl implements IFormClothesService {
         return formClothes;
     }
 
+    private FormClothesResponseDTO convertEntityToDTO(FormClothes entity) {
+        FormClothesResponseDTO dto = new FormClothesResponseDTO();
+        dto.setId(entity.getId());
+        dto.setFormClothes(entity.getFormClothes());
+
+        return dto;
+    }
+
+    private List<FormClothesResponseDTO> convertEntityListToDTOList(List<FormClothes> entityList) {
+        return entityList.stream().map(this :: convertEntityToDTO).collect(Collectors.toList());
+    }
+
     @Override
     public FormClothes createFormClothes(FormClothes formClothes) {
         String validatedFormClothes = validateFormClothes(formClothes.getFormClothes());
@@ -53,9 +68,9 @@ public class FormClothesServiceImpl implements IFormClothesService {
     }
 
     @Override
-    public List<FormClothes> getAllFormClothes() {
+    public List<FormClothesResponseDTO> getAllFormClothes() {
         List<FormClothes> formClothesList = repository.findAll();
-        return formClothesList;
+        return convertEntityListToDTOList(formClothesList);
     }
 
     @Override

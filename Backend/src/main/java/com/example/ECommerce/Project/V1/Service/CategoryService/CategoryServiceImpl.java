@@ -1,5 +1,7 @@
 package com.example.ECommerce.Project.V1.Service.CategoryService;
 
+import com.example.ECommerce.Project.V1.DTO.CategoryResponseDTO;
+import com.example.ECommerce.Project.V1.DTO.ParentCategoryResponseDTO;
 import com.example.ECommerce.Project.V1.Exception.DuplicateResourceException;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
@@ -12,7 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements ICategoryService {
@@ -72,6 +74,25 @@ public class CategoryServiceImpl implements ICategoryService {
         return parentCategory;
     }
 
+    private CategoryResponseDTO convertEntityToDTO(Category category) {
+        ParentCategoryResponseDTO parentCategoryDTO = null;
+        if (category.getParentCategoryID() != null) {
+            parentCategoryDTO = new ParentCategoryResponseDTO(
+                    category.getParentCategoryID().getId(),
+                    category.getParentCategoryID().getCategoryName()
+            );
+        }
+
+        return new CategoryResponseDTO(
+                category.getId(),
+                category.getCategoryName(),
+                parentCategoryDTO
+        );
+    }
+
+    private List<CategoryResponseDTO> convertEntityListToDTOList(List<Category> categoryList) {
+        return categoryList.stream().map(this::convertEntityToDTO).collect(Collectors.toList());
+    }
 
     @Override
     public Category createCategory(Category categoryRequest) {
@@ -95,9 +116,9 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public List<Category> getAllCategories() {
+    public List<CategoryResponseDTO> getAllCategories() {
         List<Category> categories = repository.findAll();
-        return categories;
+        return convertEntityListToDTOList(categories);
     }
 
     @Override

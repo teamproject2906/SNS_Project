@@ -2,6 +2,8 @@ package com.example.ECommerce.Project.V1.Repository;
 
 import com.example.ECommerce.Project.V1.Model.Product;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +26,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Transactional
     @Query("UPDATE Product p SET p.isActive = true WHERE p.id = :id")
     void reActivateProduct(@Param("id") Integer id);
+
+    // Supports pagination & sorting
+    Page<Product> findAll(Pageable pageable);
 }

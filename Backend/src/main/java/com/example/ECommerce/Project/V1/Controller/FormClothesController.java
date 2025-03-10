@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.DTO.FormClothesResponseDTO;
 import com.example.ECommerce.Project.V1.Model.FormClothes;
 import com.example.ECommerce.Project.V1.Service.FormClothesService.IFormClothesService;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,8 @@ public class FormClothesController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<FormClothes>> getAllFormClothes() {
-        return new ResponseEntity<List<FormClothes>>(formClothesService.getAllFormClothes(), HttpStatus.OK);
+    public ResponseEntity<List<FormClothesResponseDTO>> getAllFormClothes() {
+        return new ResponseEntity<>(formClothesService.getAllFormClothes(), HttpStatus.OK);
     }
 
     @GetMapping("/{formClothesId}")

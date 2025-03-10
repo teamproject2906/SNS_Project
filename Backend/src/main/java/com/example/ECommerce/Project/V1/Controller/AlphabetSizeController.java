@@ -39,7 +39,7 @@ public class AlphabetSizeController {
     }
 
     @GetMapping()
-    public List<AlphabetSize> getAllAlphabetSizes() {
+    public List<AlphabetSizeResponseDTO> getAllAlphabetSizes() {
         return alphabetSizeService.getAllAlphabetSize();
     }
 

@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface IAlphabetSizeService {
 
     AlphabetSizeResponseDTO createAlphabetSize(AlphabetSize alphabetSize);
-    List<AlphabetSize> getAllAlphabetSize();
+    List<AlphabetSizeResponseDTO> getAllAlphabetSize();
     AlphabetSize getAlphabetSizeById(Integer id);
     AlphabetSize updateAlphabetSize(Integer id, AlphabetSize alphabetSize);
     void deleteAlphabetSizeById(Integer id);
