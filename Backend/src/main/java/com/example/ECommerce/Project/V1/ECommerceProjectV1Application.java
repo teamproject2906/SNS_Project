@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -23,8 +24,8 @@ public class ECommerceProjectV1Application {
 	@Bean
 	public CommandLineRunner commandLineRunner(
 			UserRepository userRepository,
-			AddressRepository addressRepository
-	) {
+			AddressRepository addressRepository,
+			PasswordEncoder passwordEncoder) {
 		return args -> {
 			for (int i = 0; i < 1; i++){
 				Faker faker = new Faker();
@@ -35,13 +36,13 @@ public class ECommerceProjectV1Application {
 						.lastname(faker.name().lastName())
 						.username(faker.name().username())
 						.email(faker.internet().emailAddress())
-						.password("123")
+						.password(passwordEncoder.encode("123"))
 						.dob(faker.date().birthday())
 						.phoneNumber(faker.number().digits(11))
 						.gender(true)
 						.bio("Hello this is the " + i + " person")
 						.avatar(null)
-						.role(Role.USER)
+						.role(Role.ADMIN)
 						.createdAt(LocalDateTime.now())
 						.updatedAt(LocalDateTime.now())
 						.createdBy("SYSTEM")
