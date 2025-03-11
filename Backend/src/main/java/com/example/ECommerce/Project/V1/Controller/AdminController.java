@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/Admin/AdminManagement")
 @PreAuthorize(value = "hasRole('ADMIN')")
 @SecurityRequirement(name = "bearerAuth")
-//@Hidden
+@Hidden
 public class AdminController {
     @GetMapping
     @PreAuthorize("hasAuthority('admin:viewData')")
