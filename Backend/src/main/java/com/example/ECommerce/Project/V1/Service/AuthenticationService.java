@@ -7,6 +7,7 @@ import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Service.CartService.ICartService;
 import com.example.ECommerce.Project.V1.Token.Token;
 import com.example.ECommerce.Project.V1.Token.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +32,7 @@ public class AuthenticationService {
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+    private final ICartService cartService;
 
     // 2. Handle the business logic code for registration
     public AuthenticationResponse register(RegisterRequest request) {
@@ -50,6 +52,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user); // 4. Generates a new JWT for new user
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
+        cartService.initializeCartForUser(savedUser.getId());
         return AuthenticationResponse.builder() // 5. Return the token in the response
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
