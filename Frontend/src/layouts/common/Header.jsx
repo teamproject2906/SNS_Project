@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FaShoppingBag, FaUser, FaSignInAlt, FaSearch, FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import { useSpring, animated } from "@react-spring/web";
-
+import { CgProfile } from "react-icons/cg";
+import { FaEarthAmericas } from "react-icons/fa6";
+import { FaNewspaper } from "react-icons/fa";
+import { CiSettings } from "react-icons/ci";
+import { BsChatDots } from "react-icons/bs";
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -76,11 +80,21 @@ const Header = () => {
                                 {isDropdownOpen && (
                                     <div ref={dropdownRef} className="absolute right-0 mt-2 bg-white shadow-md rounded-lg w-48">
                                         <ul className="space-y-2 p-2 text-sm text-gray-700">
-                                            <li>
-                                                <button className="w-full text-left hover:bg-gray-100 px-2 py-1">Change Language</button>
+                                        <li>
+                                                <Link to={`/profile-page`} className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"><CgProfile className="mr-3 mt-1" />Profile</Link>
                                             </li>
                                             <li>
-                                                <button className="w-full text-left hover:bg-gray-100 px-2 py-1">Change Theme</button>
+                                                <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"><FaEarthAmericas className="mr-3 mt-1" />Change Language</button>
+                                            </li>
+                                            <li>
+                                                <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"><FaNewspaper className="mr-3 mt-1" />Change Theme</button>
+                                            </li>
+                                            <li>
+                                                <Link to={`/setting-page`} className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"><CiSettings className="mr-3 mt-1" />Setting</Link>
+                                            </li>
+                                     
+                                            <li>
+                                                <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"><BsChatDots className="mr-3 mt-1" />Message</button>
                                             </li>
                                             <li>
                                                 <button

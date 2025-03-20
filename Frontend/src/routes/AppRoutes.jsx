@@ -15,9 +15,11 @@ import ProductDetail from "../pages/Product/ProductDetail";
 import DashBoardPage from "../pages/DashBoard/DashBoardPage";
 import Cart from "../pages/Cart/Cart";
 import Checkout from "../pages/Checkout/Checkout";
-import SocialFeedPage from "../../../../../Frontend1231231/Frontend/src/pages/SocialFeedPage/SocialFeedPage";
-import ProfileSocial from "../../../../../Frontend1231231/Frontend/src/pages/ProfileSocial/ProfileSocial";
-import SearchPage from "../../../../../Frontend1231231/Frontend/src/pages/SearchPage/SearchPage";
+import SocialFeedPage from "../pages/SocialFeedPage/SocialFeedPage";
+import ProfileSocial from "../../../Frontend/src/pages/ProfileSocial/ProfileSocial";
+import SearchPage from "../../../Frontend/src/pages/SearchPage/SearchPage";
+import Setting from "../pages/setting/Setting";
+import Profile from "../pages/Profile/Profile";
 
 // Giả lập trạng thái Auth
 const isAuthenticated = false; // Kiểm tra trạng thái đăng nhập
@@ -114,6 +116,22 @@ const routes = [
     path: "/search-page",
     element: (
       <SearchPage />
+    ),
+  },
+  {
+    path: "/setting-page",
+    element: (
+      <MainLayout>
+      <Setting />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/profile-page",
+    element: (
+      <MainLayout>
+      <Profile />
+      </MainLayout>
     ),
   },
 ];
