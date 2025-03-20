@@ -7,7 +7,7 @@ import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
-import com.example.ECommerce.Project.V1.Service.JWTService;
+import com.example.ECommerce.Project.V1.Service.CartService.ICartService;
 import com.example.ECommerce.Project.V1.Token.Token;
 import com.example.ECommerce.Project.V1.Token.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +18,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -33,6 +32,7 @@ public class AuthenticationService {
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+    private final ICartService cartService;
 
     // 2. Handle the business logic code for registration
     public AuthenticationResponse register(RegisterRequest request) {
@@ -52,6 +52,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user); // 4. Generates a new JWT for new user
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
+        cartService.initializeCartForUser(savedUser.getId());
         return AuthenticationResponse.builder() // 5. Return the token in the response
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -131,29 +132,13 @@ public class AuthenticationService {
         }
     }
 
-    public void registerByGoogle(String jwt) {
-        Jwt decodedJwt = jwtService.jwtDecoder.decode(jwt);
-        String email = decodedJwt.getClaim("email");
-        var userEmail = userRepository.findByEmail(email);
-        if(userEmail == null) {
-            var user = User.builder()
-                    .firstname(decodedJwt.getClaim("given_name"))
-                    .lastname(decodedJwt.getClaim("family_name"))
-                    .username(decodedJwt.getClaim("email"))
-                    .email(decodedJwt.getClaim("email"))
-                    .avatar(decodedJwt.getClaim("picture"))
-                    .provider("GOOGLE")
-                    .role(Role.USER)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .createdBy("SYSTEM")
-                    .updatedBy("SYSTEM")
-                    .isActive(true)
-                    .build();
-            var savedUser = userRepository.save(user);
-            saveUserToken(savedUser, jwt);
-        } else {
-            saveUserToken(userEmail, jwt);
-        }
-    }
+    /*
+    I'm knowledgable at the Register and Authenticate, but I have try something about Authenticate and got
+    some question. Everytime the user authenticate, the new token is created and I can collect the token
+    into a list, the first time user register have a new token, it can be authorized, then the next visit
+    the user just authenticate, another new token is created, then the third time visit, user also get a
+    new different token. I have set the expiration of the token within one day (60*60*24).
+    The question is have authorize with 3 dishtinguish token, all of it are authorize. I have no idea how it work
+    See the reference in Security API docs
+     */
 }
