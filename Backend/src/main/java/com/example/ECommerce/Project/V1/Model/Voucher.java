@@ -33,13 +33,13 @@ public class Voucher extends BaseEntity {
     @Column(name = "voucher_id", nullable = false, unique = true)
     private Integer id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id")
-    private User user;
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "user_id")
+//    private User user;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "product_id")
-    private Product product;
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "product_id")
+//    private Product product;
 
     @Column(nullable = false, unique = true, length = 50)
     private String voucherCode;
@@ -51,12 +51,21 @@ public class Voucher extends BaseEntity {
     private LocalDateTime endDate;
 
     @Column(nullable = false)
-    private Integer usageLimit;
+    private Double discount;
 
     private void validateFields() {
-        if (usageLimit <= 0) {
-            throw new IllegalArgumentException("Usage limit must be greater than 0");
+        if (discount > 0 && discount < 1) {
+            throw new IllegalArgumentException("Discount must be between 0 and 1");
         }
     }
+
+    @Column(nullable = false)
+    private Integer usageLimit;
+
+//    private void validateFields() {
+//        if (usageLimit <= 0) {
+//            throw new IllegalArgumentException("Usage limit must be greater than 0");
+//        }
+//    }
 }
 
