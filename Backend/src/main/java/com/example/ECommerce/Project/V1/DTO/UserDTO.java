@@ -46,4 +46,6 @@ public class UserDTO {
 
 //    @Pattern(regexp = "^(http|https)://.*$", message = "Avatar must be a valid URL")
     private String avatar;
+
+    private boolean isActive;
 }

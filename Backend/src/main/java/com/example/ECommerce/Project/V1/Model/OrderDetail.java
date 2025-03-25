@@ -39,6 +39,10 @@ public class OrderDetail extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "voucher_id")
+    private Voucher voucher;
+
     @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 

@@ -51,6 +51,9 @@ public class AuditLog extends BaseEntity {
     @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String newValue;
 
+    @Column(nullable = false)
+    private LocalDateTime changedDate;
+
     @Column(length = 100)
     private String ipAddress;
 }
