@@ -117,9 +117,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>3.1.1</version> <!-- Use the latest version -->
 		</dependency>
 		<!--	Cloudinary Java SDK	-->
 		<dependency>
