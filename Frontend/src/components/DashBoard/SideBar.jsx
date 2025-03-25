@@ -1,5 +1,8 @@
 import { CiUser } from "react-icons/ci";
 import { MdShoppingCart, MdProductionQuantityLimits } from "react-icons/md";
+import { BiCategory } from "react-icons/bi";
+import { TbNumber } from "react-icons/tb";
+import { BsAlphabetUppercase } from "react-icons/bs";
 
 const SideBar = ({ activeTab, handleTabChange }) => {
   return (
@@ -35,7 +38,31 @@ const SideBar = ({ activeTab, handleTabChange }) => {
         }`}
         onClick={() => handleTabChange("category")}
       >
-        <MdShoppingCart className="mr-2" /> Category List
+        <BiCategory className="mr-2" /> Category List
+      </button>
+      <button
+        className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
+          activeTab === "size" ? "bg-purple-100 text-purple-600" : "hover:bg-gray-100"
+        }`}
+        onClick={() => handleTabChange("size")}
+      >
+        <MdShoppingCart className="mr-2" /> Size Chart
+      </button>
+      <button
+        className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
+          activeTab === "alphabet" ? "bg-purple-100 text-purple-600" : "hover:bg-gray-100"
+        }`}
+        onClick={() => handleTabChange("alphabet")}
+      >
+        <BsAlphabetUppercase className="mr-2" /> Alphabet Chart
+      </button>
+      <button
+        className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
+          activeTab === "numeric" ? "bg-purple-100 text-purple-600" : "hover:bg-gray-100"
+        }`}
+        onClick={() => handleTabChange("numeric")}
+      >
+        <TbNumber className="mr-2" /> Numeric Chart
       </button>
     </div>
   );
