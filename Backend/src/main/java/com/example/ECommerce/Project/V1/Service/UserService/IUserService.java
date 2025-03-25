@@ -1,9 +1,12 @@
 package com.example.ECommerce.Project.V1.Service.UserService;
 
 import com.example.ECommerce.Project.V1.DTO.ChangePasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.PageableResponse;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 
 public interface IUserService {
@@ -13,9 +16,17 @@ public interface IUserService {
 
     UserDTO updateUsernameByCustomer(@Valid UserDTO userDTO, Integer userId);
 
-    UserDTO updateUserAvatar(@Valid UserDTO userDTO, Integer userId);
+    UserDTO updateUserAvatar(Integer userId, MultipartFile file) throws IOException;
 
     UserDTO changeEmail(@Valid UserDTO userDTO, Integer userId);
 
     UserDTO changePhoneNumber(@Valid UserDTO userDTO, Integer userId);
+
+    UserDTO getUserProfile(Integer userId);
+
+    PageableResponse<UserDTO> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir);
+
+    UserDTO banOrUbanUser(UserDTO userDTO, Integer userId);
+
+    PageableResponse<UserDTO> searchUserByUsername(String keyword, int pageNumber, int pageSize, String sortBy, String sortDir);
 }

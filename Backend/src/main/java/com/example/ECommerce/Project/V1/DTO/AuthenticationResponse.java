@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.DTO;
 
+import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,4 +17,6 @@ public class AuthenticationResponse {
 
     @JsonProperty("refresh_token")
     private String refreshToken;
+
+    private Role role;
 }
