@@ -118,6 +118,19 @@ public class NumericSizeServiceImpl implements INumericSizeService {
         NumericSize numericSize = numericSizeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("NumericSize not found with id: " + id));
 
-        numericSizeRepository.delete(numericSize);
+        numericSize.setIsActive(false);
+       numericSizeRepository.save(numericSize);
+    }
+
+    @Override
+    public NumericSize reActivateNumericSizeById(Integer id) {
+        NumericSize numericSize = getNumericSizeById(id);
+
+        if (numericSize != null) {
+            numericSize.setIsActive(true);
+            numericSizeRepository.save(numericSize);
+        }
+
+        return numericSize;
     }
 }

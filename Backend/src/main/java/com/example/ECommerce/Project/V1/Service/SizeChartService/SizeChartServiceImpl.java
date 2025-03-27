@@ -103,6 +103,22 @@ public class SizeChartServiceImpl implements ISizeChartService {
     @Override
     public void deleteSizeChartById(Integer id) {
        SizeChart sizeChart = getSizeChartById(id);
-       repository.delete(sizeChart);
+
+       if (sizeChart != null) {
+           sizeChart.setIsActive(false);
+           repository.save(sizeChart);
+       }
+    }
+
+    @Override
+    public SizeChart reActivateSizeChartById(Integer id) {
+        SizeChart sizeChart = getSizeChartById(id);
+
+        if (sizeChart != null) {
+            sizeChart.setIsActive(true);
+            repository.save(sizeChart);
+        }
+
+        return sizeChart;
     }
 }

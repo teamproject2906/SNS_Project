@@ -125,6 +125,21 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
     @Override
     public void deleteAlphabetSizeById(Integer id) {
         AlphabetSize alphabetSize = getAlphabetSizeById(id);
-        alphabetSizeRepository.delete(alphabetSize);
+        if (alphabetSize != null) {
+            alphabetSize.setIsActive(false);
+            alphabetSizeRepository.save(alphabetSize);
+        }
+    }
+
+    @Override
+    public AlphabetSize reActivateAlphabetSizeById(Integer id) {
+        AlphabetSize alphabetSize = getAlphabetSizeById(id);
+
+        if (alphabetSize != null) {
+            alphabetSize.setIsActive(true);
+            alphabetSizeRepository.save(alphabetSize);
+        }
+
+        return alphabetSize;
     }
 }

@@ -13,4 +13,5 @@ public interface INumericSizeService {
     NumericSize getNumericSizeById(Integer id);
     NumericSize updateNumericSize(Integer id, NumericSize numericSize);
     void deleteNumericSizeById(Integer id);
+    NumericSize reActivateNumericSizeById(Integer id);
 }
