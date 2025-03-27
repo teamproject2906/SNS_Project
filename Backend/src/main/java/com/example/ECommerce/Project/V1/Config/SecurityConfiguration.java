@@ -24,7 +24,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -37,6 +39,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.List;
 
+import static com.example.ECommerce.Project.V1.RoleAndPermission.Permission.ADMIN_VIEW;
+import static org.springframework.http.HttpMethod.GET;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -48,6 +53,17 @@ public class SecurityConfiguration implements AuthenticationProvider {
 
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
     private final LogoutHandler logoutHandler;
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+        converter.setAuthorityPrefix("");
+        converter.setAuthoritiesClaimName("authorities");
+
+        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+        jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
+        return jwtConverter;
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -95,6 +111,8 @@ public class SecurityConfiguration implements AuthenticationProvider {
                                 "/webjars/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers("/Admin/AdminManagement/**").hasRole("ADMIN")
+                        .requestMatchers(GET, "/Admin/AdminManagement/**").hasAuthority(ADMIN_VIEW.name())
                         .anyRequest().authenticated()
                 )
 //                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -130,15 +148,25 @@ public class SecurityConfiguration implements AuthenticationProvider {
 
     private AuthenticationManager googleAuthenticationManager() {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri("https://www.googleapis.com/oauth2/v3/certs").build();
-        return new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
+
+        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
+        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
+
+        return new ProviderManager(provider);
     }
+
 
     private AuthenticationManager internalAuthenticationManager() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         SecretKey hmacKey = Keys.hmacShaKeyFor(keyBytes);
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(hmacKey).build();
-        return new ProviderManager(new JwtAuthenticationProvider(jwtDecoder));
+
+        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
+        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
+
+        return new ProviderManager(provider);
     }
+
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
