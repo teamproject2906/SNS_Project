@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/User")
@@ -97,13 +98,13 @@ public class UserController {
     }
 
     @GetMapping("/getAllUser")
-    public ResponseEntity<PageableResponse<UserDTO>> getAllUser(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+    public ResponseEntity<List<UserDTO>> getAllUser(
+//            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+//            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+//            @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy,
+//            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
     ){
-        PageableResponse<UserDTO> pageableResponse = userService.getAllUsers(pageNumber, pageSize, sortBy, sortDir);
+        List<UserDTO> pageableResponse = userService.getAllUsers();
         return new ResponseEntity<>(pageableResponse, HttpStatus.OK);
     }
 
@@ -119,13 +120,13 @@ public class UserController {
 
     @GetMapping("/search/{keyword}")
     public ResponseEntity<?> searchUserByUsername(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "username", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir,
+//            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+//            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+//            @RequestParam(value = "sortBy", defaultValue = "username", required = false) String sortBy,
+//            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir,
             @PathVariable String keyword
     ){
-        PageableResponse<UserDTO> pageableResponse = userService.searchUserByUsername(keyword, pageNumber, pageSize, sortBy, sortDir);
+        List<UserDTO> pageableResponse = userService.searchUserByUsername(keyword);
         return new ResponseEntity<>(pageableResponse, HttpStatus.OK);
     }
 }
