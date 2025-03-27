@@ -18,7 +18,7 @@ const CategoryList = () => {
       id: "",
     },
   });
-  const [deleteId, setDeleteId] = useState(null);
+  const [categoryId, setCategoryId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const fetchCategories = async () => {
@@ -57,7 +57,8 @@ const CategoryList = () => {
   };
 
   const openDeleteModal = (id) => {
-    setDeleteId(id);
+    console.log("Category ID to delete:", id);
+    setCategoryId(id);
     setIsDeleteModalOpen(true);
   };
 
@@ -117,17 +118,18 @@ const CategoryList = () => {
   const confirmDelete = async () => {
     try {
       const token = getToken();
-      await axios.delete(`http://localhost:8080/api/categories/${deleteId}`, {
+      await axios.delete(`http://localhost:8080/api/categories/${categoryId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCategories(categories.filter((cat) => cat.id !== deleteId));
+      setCategories(categories.filter((cat) => cat.id !== categoryId));
+      console.log("Deleting category ID:", categoryId);
       toast.success("Xóa danh mục thành công!");
     } catch (error) {
       console.error("Error deleting category:", error);
       toast.error("Lỗi khi xóa danh mục");
     } finally {
       setIsDeleteModalOpen(false);
-      setDeleteId(null);
+      setCategoryId(null);
     }
   };
 
