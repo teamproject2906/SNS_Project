@@ -39,6 +39,11 @@ public class NumericSizeController {
         return numericSizeService.updateNumericSize(numericSizeId, numericSize);
     }
 
+    @PatchMapping("/reactive/{numericSizeId}")
+    public NumericSize reActiveNumericSizeById(@PathVariable Integer numericSizeId) {
+        return numericSizeService.reActivateNumericSizeById(numericSizeId);
+    }
+
     @DeleteMapping("/{numericSizeId}")
     public ResponseEntity<String> deleteNumericSizeById(@PathVariable Integer numericSizeId) {
         numericSizeService.deleteNumericSizeById(numericSizeId);

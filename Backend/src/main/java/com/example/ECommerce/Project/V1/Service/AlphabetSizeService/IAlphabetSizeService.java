@@ -13,5 +13,5 @@ public interface IAlphabetSizeService {
     AlphabetSize getAlphabetSizeById(Integer id);
     AlphabetSize updateAlphabetSize(Integer id, AlphabetSize alphabetSize);
     void deleteAlphabetSizeById(Integer id);
-
+    AlphabetSize reActivateAlphabetSizeById(Integer id);
 }

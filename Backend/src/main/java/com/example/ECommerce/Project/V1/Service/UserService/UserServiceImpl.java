@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,11 +124,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public PageableResponse<UserDTO> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<User> page = userRepository.findAll(pageable);
-        return Helper.getPageableResponse(page, UserDTO.class);
+    public List<UserDTO> getAllUsers() {
+//        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+//        Page<User> page = userRepository.findAll(pageable);
+//        return Helper.getPageableResponse(page, UserDTO.class);
+
+        List<User> users = userRepository.findAll();
+        return Collections.singletonList(mapper.map(users, UserDTO.class));
     }
 
     @Override
@@ -141,10 +145,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public PageableResponse<UserDTO> searchUserByUsername(String keyword, int pageNumber, int pageSize, String sortBy, String sortDir) {
-        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<User> page = userRepository.findByUsernameContaining(keyword, pageable);
-        return Helper.getPageableResponse(page, UserDTO.class);
+    public List<UserDTO> searchUserByUsername(String keyword) {
+//        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+//        Page<User> page = userRepository.findByUsernameContaining(keyword, pageable);
+//        return Helper.getPageableResponse(page, UserDTO.class);
+        List<User> users = userRepository.findByUsernameContaining(keyword);
+        return Collections.singletonList(mapper.map(users, UserDTO.class));
     }
 }

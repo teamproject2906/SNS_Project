@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 public interface IUserService {
     void changePassword(ChangePasswordRequest request, Principal connectedUser);
@@ -24,9 +25,9 @@ public interface IUserService {
 
     UserDTO getUserProfile(Integer userId);
 
-    PageableResponse<UserDTO> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir);
+    List<UserDTO> getAllUsers();
 
     UserDTO banOrUbanUser(UserDTO userDTO, Integer userId);
 
-    PageableResponse<UserDTO> searchUserByUsername(String keyword, int pageNumber, int pageSize, String sortBy, String sortDir);
+    List<UserDTO> searchUserByUsername(String keyword);
 }

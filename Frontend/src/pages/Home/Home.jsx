@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import BackgroundImage from "../../assets/images/Homepage Background.png";
 import "../../assets/styles/HomePage.module.css";
 import { Link } from "react-router-dom";
+import { getToken } from "../Login/app/static";
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [product, setProduct] = useState([]);
@@ -161,6 +162,7 @@ const HomePage = () => {
 
         const data = await response.json(); // Parse the JSON response
         setProduct(data); // Use parsed data
+        console.log("Token:", getToken());
       } catch (err) {
         setError(err.message);
       } finally {

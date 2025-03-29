@@ -4,6 +4,9 @@ import UserTable from "../../components/DashBoard/UserTable";
 import ProductTable from "../../components/DashBoard/ProductTable";
 import OrderTable from "../../components/DashBoard/OrderTable";
 import CategoryList from "../../components/DashBoard/CategoryList";
+import SizeChart from "../../components/DashBoard/SizeChart";
+import AlphabetChart from "../../components/DashBoard/AlphabetChart";
+import NumericChart from "../../components/DashBoard/NumericChart";
 
 const DashBoardPage = () => {
   const [activeTab, setActiveTab] = useState(() => {
@@ -27,6 +30,9 @@ const DashBoardPage = () => {
         {activeTab === "products" && <ProductTable />}
         {activeTab === "orders" && <OrderTable />}
         {activeTab === "category" && <CategoryList />}
+        {activeTab === "size" && <SizeChart />}
+        {activeTab === "alphabet" && <AlphabetChart />}
+        {activeTab === "numeric" && <NumericChart />}
       </div>
     </div>
   );

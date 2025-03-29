@@ -41,6 +41,11 @@ public class SizeChartController {
         return sizeChartService.updateSizeChartById(id, sizeChart);
     }
 
+    @PatchMapping("/reactive/{sizeChartId}")
+    public SizeChart reActiveSizeChartById(@PathVariable("sizeChartId") Integer id) {
+        return sizeChartService.reActivateSizeChartById(id);
+    }
+
     @DeleteMapping("/{sizeChartId}")
     public ResponseEntity<String> deleteSizeChartById(@PathVariable("sizeChartId") Integer id) {
         sizeChartService.deleteSizeChartById(id);

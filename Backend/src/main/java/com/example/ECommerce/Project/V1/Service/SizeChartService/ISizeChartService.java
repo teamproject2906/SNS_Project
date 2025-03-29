@@ -13,4 +13,5 @@ public interface ISizeChartService {
     SizeChart getSizeChartById(Integer id);
     SizeChart updateSizeChartById(Integer id, SizeChart sizeChart);
     void deleteSizeChartById(Integer id);
+    SizeChart reActivateSizeChartById(Integer id);
 }
