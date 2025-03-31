@@ -8,6 +8,7 @@ import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Helper.Helper;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
+import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.example.ECommerce.Project.V1.Service.UserService.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -131,7 +133,9 @@ public class UserServiceImpl implements IUserService {
 //        return Helper.getPageableResponse(page, UserDTO.class);
 
         List<User> users = userRepository.findAll();
-        return Collections.singletonList(mapper.map(users, UserDTO.class));
+        return users.stream()
+                .map(user -> mapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -151,6 +155,17 @@ public class UserServiceImpl implements IUserService {
 //        Page<User> page = userRepository.findByUsernameContaining(keyword, pageable);
 //        return Helper.getPageableResponse(page, UserDTO.class);
         List<User> users = userRepository.findByUsernameContaining(keyword);
-        return Collections.singletonList(mapper.map(users, UserDTO.class));
+        return users.stream()
+                .map(user -> mapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDTO setUserRole(UserDTO userDTO, Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
+        if(userDTO.getRole().equals("CUSTOMER")) {user.setRole(Role.USER);}
+        if(userDTO.getRole().equals("STAFF")) {user.setRole(Role.STAFF);}
+        if(userDTO.getRole().equals("MODERATOR")) {user.setRole(Role.MODERATOR);}
+        return mapper.map(user, UserDTO.class);
     }
 }

@@ -30,4 +30,6 @@ public interface IUserService {
     UserDTO banOrUbanUser(UserDTO userDTO, Integer userId);
 
     List<UserDTO> searchUserByUsername(String keyword);
+
+    UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
 }

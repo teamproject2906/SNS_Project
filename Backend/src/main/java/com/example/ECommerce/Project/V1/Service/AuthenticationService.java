@@ -16,6 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +37,38 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
 
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,50}$");
+
     // 2. Handle the business logic code for registration
     public AuthenticationResponse register(RegisterRequest request) {
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        if (request.getEmailOrPhoneNumber().contains("@")) {
+            if (userRepository.findByEmail(request.getEmailOrPhoneNumber()) != null ) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+        } else {
+            if (userRepository.findByPhoneNumber(request.getEmailOrPhoneNumber()).isPresent()) {
+                throw new IllegalArgumentException("Phone number already exists");
+            }
+        }
+
+        if (!USERNAME_PATTERN.matcher(request.getUsername()).matches()) {
+            throw new IllegalArgumentException("Invalid username. Only alphanumeric characters and underscores are allowed (3-50 characters).");
+        }
+
+        if (!EMAIL_PATTERN.matcher(request.getEmailOrPhoneNumber()).matches()) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
+
+        if (request.getPassword().length() < 8 || request.getPassword().length() > 50) {
+            throw new IllegalArgumentException("Password must be between 8 and 50 characters");
+        }
+
         var user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmailOrPhoneNumber().contains("@")?request.getEmailOrPhoneNumber():null)
@@ -62,13 +95,25 @@ public class AuthenticationService {
     // 9. Validates the user's credentials (thông tin đăng nhập) and generates a JWT if successful.
     // Next, start with the JWTAuthenticationFilter
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+
+        var user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+
+        if (!user.getIsActive()) {
+            throw new DisabledException("User account is inactive or disabled");
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserToken(user);
