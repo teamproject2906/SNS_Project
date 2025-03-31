@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaLock } from "react-icons/fa";
 import axios from "axios";
-import { setToken, setUserInfo } from "./app/static";
+import { getToken, setToken, setUserInfo } from "./app/static";
 import { toast, ToastContainer } from "react-toastify";
 
 const Login = () => {
@@ -24,15 +24,15 @@ const Login = () => {
       );
       console.log("Login Response:", res.data);
 
-      if (res.data) {
-        setToken(res.data);
-        setUserInfo(res.data);
-        console.log("user info:", res.data);
-        console.log("Token: " + res.data);
-        console.log("Login Success!");
+      if (res.data && res.data.access_token) {
+        setToken(res.data.access_token); // Lưu access_token vào localStorage
+        setUserInfo(res.data); // Nếu có thêm thông tin user, bạn có thể lưu tại đây
+        console.log("Token:", res.data.access_token);
+        console.log("Saved token:", getToken());
+        toast.success("Đăng nhập thành công!");
         navigate("/");
       } else {
-        throw new Error("Token not found in response.");
+        throw new Error("Access token not found in response.");
       }
     } catch (error) {
       console.error("Lỗi đăng nhập:", error.response?.data || error.message);

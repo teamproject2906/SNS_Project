@@ -2,9 +2,7 @@ package com.example.ECommerce.Project.V1.Service.OrderDetailService;
 
 import com.example.ECommerce.Project.V1.DTO.OrderDetailDTO;
 import com.example.ECommerce.Project.V1.DTO.OrderItemDTO;
-import com.example.ECommerce.Project.V1.Model.OrderDetail;
-import com.example.ECommerce.Project.V1.Model.OrderItem;
-import com.example.ECommerce.Project.V1.Model.Product;
+import com.example.ECommerce.Project.V1.Model.*;
 import com.example.ECommerce.Project.V1.Repository.OrderDetailRepository;
 import com.example.ECommerce.Project.V1.Repository.OrderItemRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
@@ -83,25 +81,39 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     public OrderDetailDTO updateOrder(Integer id, OrderDetailDTO orderDetailDTO) {
-        OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
-        Integer originalId = orderDetail.getId();
+        // Lấy đối tượng OrderDetail từ cơ sở dữ liệu
+        OrderDetail orderDetail = orderDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
+        // Cập nhật các trường của OrderDetail ngoại trừ orderItems để tránh ghi đè collection ban đầu
+        orderDetail.setTotalAmount(orderDetailDTO.getTotalAmount());
+        orderDetail.setOrderDate(orderDetailDTO.getOrderDate());
+        orderDetail.setShippingDate(orderDetailDTO.getShippingDate());
+        orderDetail.setOrderStatus(OrderStatus.valueOf(orderDetailDTO.getOrderStatus()));
+        orderDetail.setPaymentMethod(PaymentMethod.valueOf(orderDetailDTO.getPaymentMethod()));
+        // Nếu có các trường khác cần cập nhật, hãy làm tương tự
 
-        modelMapper.map(orderDetailDTO, orderDetail);
+        // Cập nhật từng OrderItem đã có trong OrderDetail
+        for (OrderItemDTO orderItemDTO : orderDetailDTO.getOrderItems()) {
+            // Tìm OrderItem tương ứng trong collection hiện có của OrderDetail
+            OrderItem orderItem = orderDetail.getOrderItems().stream()
+                    .filter(item -> item.getId().equals(orderItemDTO.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Order item not found in OrderDetail"));
 
+            // Tính toán sự thay đổi số lượng và cập nhật sản phẩm tương ứng
+            int originalOrderQuantity = orderItem.getQuantity();
+            productService.updateProductForOrder(orderItemDTO.getProductId(),
+                    orderItemDTO.getQuantity() - originalOrderQuantity);
 
-        for (OrderItemDTO orderItemDTO: orderDetailDTO.getOrderItems()){
-            OrderItem orderItem = orderItemRepository.findById(orderItemDTO.getId()).orElseThrow(() -> new RuntimeException("Order item not found"));
-            Integer originalOrderQuantity = orderItem.getQuantity();
-            productService.updateProductForOrder(orderItemDTO.getProductId(),orderItemDTO.getQuantity()-originalOrderQuantity);
-
+            // Cập nhật OrderItem theo DTO (bạn có thể tự cập nhật các thuộc tính cần thiết tại đây)
             orderItemService.updateOrderItem(orderItemDTO.getId(), orderItemDTO);
         }
 
-        // Đảm bảo ID không bị thay đổi
-        orderDetail.setId(originalId);
-
+        // Lưu lại các thay đổi của OrderDetail (vẫn giữ nguyên tham chiếu của collection orderItems)
         orderDetail = orderDetailRepository.save(orderDetail);
+
+        // Chuyển đổi entity thành DTO để trả về
         return modelMapper.map(orderDetail, OrderDetailDTO.class);
     }
 

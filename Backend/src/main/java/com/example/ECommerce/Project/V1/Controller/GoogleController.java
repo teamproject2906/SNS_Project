@@ -92,7 +92,7 @@ public class GoogleController {
             JsonNode jsonResponse = objectMapper.readTree(response.getBody());
             String jwt = jsonResponse.has("id_token") ? jsonResponse.get("id_token").asText() : "No access token found";
 
-            authenticationService.registerByGoogle(jwt);
+//            authenticationService.registerByGoogle(jwt);
             System.out.println(response.getBody());
             return ResponseEntity.ok(response.getBody());
         } catch (Exception e) {
@@ -121,7 +121,7 @@ public class GoogleController {
             JsonNode jsonResponse = objectMapper.readTree(response.getBody());
             String jwt = jsonResponse.has("id_token") ? jsonResponse.get("id_token").asText() : "No access token found";
 
-            authenticationService.registerByGoogle(jwt);
+//            authenticationService.registerByGoogle(jwt);
             return ResponseEntity.ok(response.getBody());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

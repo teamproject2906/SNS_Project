@@ -1,14 +1,14 @@
 package com.example.ECommerce.Project.V1.Model;
 
-import com.example.ECommerce.Project.V1.Model.BaseEntity;
-import com.example.ECommerce.Project.V1.Model.Product;
-import com.example.ECommerce.Project.V1.Model.ShoppingSession;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -31,17 +31,22 @@ public class CartItem extends BaseEntity {
     @Column(name = "cart_item_id", nullable = false, unique = true)
     private Integer id;
 
-    @OneToOne()
+    private int quantity;
+
+    private double unitPrice;
+
+    private double totalPrice;
+
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "shopping_session_id")
-    private ShoppingSession shoppingSession;
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
-    @Column(nullable = false)
-    private Integer quantity;
-
-    @Column(nullable = false)
-    private Double amount;
+    public void setTotalPrice() {
+        this.totalPrice = this.unitPrice * quantity;
+    }
 }

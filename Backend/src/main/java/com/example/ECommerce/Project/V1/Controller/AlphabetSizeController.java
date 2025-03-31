@@ -57,6 +57,11 @@ public class AlphabetSizeController {
         return ResponseEntity.ok(updatedAlphabetSize);
     }
 
+    @PatchMapping("/reactive/{alphabetSizeId}")
+    public AlphabetSize reActiveAlphabetSizeById(@PathVariable("alphabetSizeId") Integer id) {
+        return alphabetSizeService.reActivateAlphabetSizeById(id);
+    }
+
     @DeleteMapping("/{alphabetSizeId}")
     public ResponseEntity<String> deleteAlphabetSizeById(@PathVariable("alphabetSizeId") Integer id) {
         alphabetSizeService.deleteAlphabetSizeById(id);

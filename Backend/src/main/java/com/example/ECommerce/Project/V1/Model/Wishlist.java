@@ -9,12 +9,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(
-        name = "wishlist",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "productId"})
-)
+@Table(name = "wishlist")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,11 +32,15 @@ public class Wishlist extends BaseEntity {
     @Column(name = "wishlist_id", nullable = false, unique = true)
     private Integer id;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @ManyToMany
+    @JoinTable(
+            name = "wishlist_products",
+            joinColumns = @JoinColumn(name = "wishlist_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<Product> products;
 }

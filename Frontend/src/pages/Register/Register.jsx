@@ -52,8 +52,8 @@ const Register = () => {
       //   password,
       // });
       if (res.data) {
-        setToken(res.data);
-        setUserInfo(res.data);
+        setToken(res.data.access_token); // Lưu access_token vào localStorage
+        setUserInfo(res.data); // Nếu có thêm thông tin user, bạn có thể lưu tại đây
         console.log("user info:", res.data);
         console.log("Token: " + res.data);
         navigate("/");
