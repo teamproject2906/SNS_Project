@@ -118,6 +118,16 @@ public class UserController {
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
+    @PatchMapping("/setUserRole/{userId}")
+    public ResponseEntity<?> setUserRole(
+            @PathVariable Integer userId,
+            @Valid @RequestBody UserDTO userDTO,
+            Principal connectedUser
+    ){
+        UserDTO userDto = userService.setUserRole(userDTO, userId);
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
+    }
+
     @GetMapping("/search/{keyword}")
     public ResponseEntity<?> searchUserByUsername(
 //            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,

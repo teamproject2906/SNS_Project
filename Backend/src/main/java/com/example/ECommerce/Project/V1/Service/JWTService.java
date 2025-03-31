@@ -1,5 +1,7 @@
 package com.example.ECommerce.Project.V1.Service;
 
+import com.example.ECommerce.Project.V1.Model.User;
+import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JWTService {
 
+    private final UserRepository userRepository;
+
     @Value("${application.security.jwt.secret-key}") // Secret key cho HMAC
     private String secretKey;
 
@@ -39,10 +43,12 @@ public class JWTService {
     }
 
     public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails) {
+        var user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         extractClaims.put("authorities", userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
+        extractClaims.put("userId", user.getId()); // Use "userId" instead of "username"
         return buildToken(extractClaims, userDetails, jwtExpiration);
     }
 
