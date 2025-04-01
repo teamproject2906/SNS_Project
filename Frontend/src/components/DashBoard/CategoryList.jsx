@@ -94,18 +94,23 @@ const CategoryList = () => {
     e.preventDefault();
     try {
       const token = getToken();
+      const requestData = {
+        categoryName: formData.categoryName,
+      };
+  
+      // Chỉ thêm parentCategoryID nếu có giá trị hợp lệ
+      if (formData.parentCategoryID.id.trim() !== "") {
+        requestData.parentCategoryID = { id: formData.parentCategoryID.id };
+      }
+  
       const res = await axios.post(
         "http://localhost:8080/api/categories",
-        {
-          categoryName: formData.categoryName,
-          parentCategoryID: formData.parentCategoryID.id
-            ? formData.parentCategoryID
-            : null,
-        },
+        requestData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      
       setCategories([...categories, res.data]);
       closeAddModal();
       toast.success("Thêm danh mục thành công!");
@@ -114,6 +119,7 @@ const CategoryList = () => {
       toast.error("Lỗi khi thêm danh mục");
     }
   };
+  
 
   const confirmDelete = async () => {
     try {
@@ -142,7 +148,8 @@ const CategoryList = () => {
     },
     {
       name: "Parent Category",
-      selector: (row) => row.parentCategoryID || "Null",
+      selector: (row) =>
+        row.parentCategoryID ? row.parentCategoryID.id : "Null",
       sortable: true,
     },
     {
@@ -198,9 +205,12 @@ const CategoryList = () => {
           type="text"
           placeholder="Parent Category ID"
           className="w-full p-2 border mt-2"
-          value={formData.parentCategoryID.id || "Null"}
+          value={formData.parentCategoryID? formData.parentCategoryID.id : "Null"}
           onChange={(e) =>
-            setFormData({ ...formData, parentCategoryID: e.target.value })
+            setFormData({
+              ...formData,
+              parentCategoryID: { id: e.target.value },
+            })
           }
         />
       </ModalUpdate>
@@ -223,7 +233,10 @@ const CategoryList = () => {
           placeholder="Parent Category ID"
           className="w-full p-2 border mt-2"
           onChange={(e) =>
-            setFormData({ ...formData, parentCategoryID: e.target.value })
+            setFormData({
+              ...formData,
+              parentCategoryID: { id: e.target.value },
+            })
           }
         />
       </ModalAdd>

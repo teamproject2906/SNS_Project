@@ -5,8 +5,26 @@ import { TbNumber } from "react-icons/tb";
 import { BsAlphabetUppercase } from "react-icons/bs";
 import { IoLogOutOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
+import { getToken, getUserInfo, removeToken, removeUserInfo } from "../../pages/Login/app/static";
+import { useNavigate } from "react-router-dom";
 
 const SideBar = ({ activeTab, handleTabChange }) => {
+  const navigate = useNavigate();
+
+  const userInfo = getUserInfo();
+  console.log("User Info:", userInfo);
+
+  const handleLogout = () => {
+      // Gọi các hàm để xóa token và user info
+      removeToken();
+      removeUserInfo();
+  
+      // Kiểm tra lại sau khi xóa
+      console.log("Token sau khi xóa:", getToken());
+      console.log("User sau khi xóa:", getUserInfo());
+      navigate("/");
+    };
+
   return (
     <div className="w-1/5 p-4 bg-white min-h-screen shadow-lg flex flex-col justify-between">
       <header className="">
@@ -53,6 +71,26 @@ const SideBar = ({ activeTab, handleTabChange }) => {
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
+            activeTab === "formClothes"
+              ? "bg-purple-100 text-purple-600"
+              : "hover:bg-gray-100"
+          }`}
+          onClick={() => handleTabChange("formClothes")}
+        >
+          <BiCategory className="mr-2" /> Form Clothes
+        </button>
+        <button
+          className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
+            activeTab === "promotion"
+              ? "bg-purple-100 text-purple-600"
+              : "hover:bg-gray-100"
+          }`}
+          onClick={() => handleTabChange("promotion")}
+        >
+          <BiCategory className="mr-2" /> Promotion
+        </button>
+        <button
+          className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
             activeTab === "size"
               ? "bg-purple-100 text-purple-600"
               : "hover:bg-gray-100"
@@ -93,7 +131,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
               />
 
               <div className="ml-2">
-                <p className="font-bold">John Doe</p>
+                <p className="font-bold">{userInfo.sub}</p>
                 <p className="text-sm">Admin</p>
               </div>
             </div>
@@ -101,7 +139,10 @@ const SideBar = ({ activeTab, handleTabChange }) => {
               <button className="text-white px-2 py-1 rounded-lg">
                 <IoSettingsOutline />
               </button>
-              <button className="text-white px-2 py-1 rounded-lg">
+              <button
+                className="text-white px-2 py-1 rounded-lg"
+                onClick={handleLogout}
+              >
                 <IoLogOutOutline />
               </button>
             </div>

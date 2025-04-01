@@ -10,77 +10,47 @@ import ModalDelete from "../share/ModalDelete";
 
 Modal.setAppElement("#root");
 
-const ProductTable = () => {
-  const [products, setProducts] = useState([]);
+const FormClothesChart = () => {
+  const [formClothes, setFormClothes] = useState([]);
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
-  const [editSize, setEditProduct] = useState(null);
-  const [formData, setFormData] = useState({
-    productCode: "",
-    productName: "",
-    price: "",
-    color: "",
-    material: "",
-    description: "",
-    quantityInventory: "",
-    category: {
-      id: "",
-      categoryName: "",
-      parentCategoryID: {
-        id: "",
-      },
-    },
-    sizeChart: {
-      id: "",
-      sizeChartType: "",
-    },
-    formClothes: {
-      id: "",
-      formClothesType: "",
-    },
-    promotion: {
-      id: "",
-      discount: "",
-      description: "",
-      startDate: "",
-      endDate: "",
-    },
-  });
+  const [editFormClothes, setEditFormClothes] = useState(null);
+  const [formData, setFormData] = useState({ formClothes: "" });
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleGetProduct = async () => {
+  const handleGetFormClothes = async () => {
     try {
       const token = getToken();
       const res = await axios.get(
-        "http://localhost:8080/Admin/SizeChartManagement",
+        "http://localhost:8080/api/formclothes",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setProducts(res.data);
+      setFormClothes(res.data);
       console.log("Token:", token);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("Error fetching formClothes:", error);
     }
   };
 
   useEffect(() => {
-    handleGetProduct();
+    handleGetFormClothes();
   }, []);
 
-  const openEditModal = (size) => {
-    setEditProduct(size.id);
+  const openEditModal = (form) => {
+    setEditFormClothes(form.id);
     setFormData(
-      size
-        ? { id: size.id, sizeChartType: size.sizeChartType }
-        : { id: "", sizeChartType: "" }
+      form
+        ? { id: form.id, formClothes: form.formClothes }
+        : { id: "", formClothes: "" }
     );
     setModalEditIsOpen(true);
   };
 
   const openAddModal = () => {
-    setFormData({ sizeChartType: "" });
+    setFormData({ formClothes: "" });
     setModalAddIsOpen(true);
   };
 
@@ -99,21 +69,21 @@ const ProductTable = () => {
     try {
       const token = getToken();
       const res = await axios.patch(
-        `http://localhost:8080/Admin/SizeChartManagement/${editSize}`,
-        { sizeChartType: formData.sizeChartType },
+        `http://localhost:8080/api/formclothes/${editFormClothes}`,
+        { formClothes: formData.formClothes },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      setProducts(
-        products.map((size) => (size.id === formData.id ? res.data : size))
+      setFormClothes(
+        formClothes.map((form) => (form.id === formData.id ? res.data : form))
       );
       closeEditModal();
       toast.success("Cập nhật thành công!");
     } catch (error) {
-      console.error("Error updating size:", error);
-      toast.error("Error updating size");
+      console.error("Error updating form:", error);
+      toast.error("Error updating form");
     }
   };
 
@@ -122,17 +92,17 @@ const ProductTable = () => {
     try {
       const token = getToken();
       const res = await axios.post(
-        "http://localhost:8080/Admin/SizeChartManagement",
+        "http://localhost:8080/api/formclothes",
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setProducts([...products, res.data]);
+      setFormClothes([...formClothes, res.data]);
       closeAddModal();
     } catch (error) {
-      console.error("Error adding size:", error);
-      toast.error("Error adding size");
+      console.error("Error adding form:", error);
+      toast.error("Error adding form");
     }
   };
 
@@ -142,16 +112,16 @@ const ProductTable = () => {
     try {
       const token = getToken();
       await axios.delete(
-        `http://localhost:8080/Admin/SizeChartManagement/${deleteId}`,
+        `http://localhost:8080/api/formclothes/${deleteId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setProducts(products.filter((size) => size.id !== deleteId));
+      setFormClothes(formClothes.filter((form) => form.id !== deleteId));
       toast.success("Xóa thành công!");
     } catch (error) {
-      console.error("Lỗi khi xóa size:", error);
-      toast.error("Lỗi khi xóa size");
+      console.error("Lỗi khi xóa form:", error);
+      toast.error("Lỗi khi xóa form");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteId(null);
@@ -160,7 +130,7 @@ const ProductTable = () => {
 
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "Size Type", selector: (row) => row.sizeChartType, sortable: true },
+    { name: "form Type", selector: (row) => row.formClothes, sortable: true },
     {
       name: "Actions",
       cell: (row) => (
@@ -186,44 +156,44 @@ const ProductTable = () => {
     <div>
       <ToastContainer />
       <div className="flex justify-between my-4">
-        <h3 className="text-lg font-semibold">Size Chart</h3>
+        <h3 className="text-lg font-semibold">Form Clothes Chart</h3>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
           onClick={openAddModal}
         >
-          Add size
+          Add form
         </button>
       </div>
-      <DataTable columns={columns} data={products} pagination />
+      <DataTable columns={columns} data={formClothes} pagination />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
-        title="Edit size"
+        title="Edit Form"
         onSubmit={handleEditSubmit}
       >
         <input
           type="text"
-          placeholder="Size chart type"
+          placeholder="Form chart type"
           className="w-full p-2 border"
-          value={formData.sizeChartType}
+          value={formData.formClothes}
           onChange={(e) =>
-            setFormData({ ...formData, sizeChartType: e.target.value })
+            setFormData({ ...formData, formClothes: e.target.value })
           }
         />
       </ModalUpdate>
       <ModalAdd
         isOpen={modalAddIsOpen}
         onClose={closeAddModal}
-        title="Add size"
+        title="Add form"
         onSubmit={handleAddSubmit}
       >
         <input
           type="text"
-          placeholder="Size chart type"
+          placeholder="Form chart type"
           className="w-full p-2 border"
-          value={formData.sizeChartType}
+          value={formData.formClothes}
           onChange={(e) =>
-            setFormData({ ...formData, sizeChartType: e.target.value })
+            setFormData({ ...formData, formClothes: e.target.value })
           }
         />
       </ModalAdd>
@@ -236,4 +206,4 @@ const ProductTable = () => {
   );
 };
 
-export default ProductTable;
+export default FormClothesChart;
