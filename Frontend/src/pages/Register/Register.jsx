@@ -5,8 +5,11 @@ import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { setToken, setUserInfo } from "../Login/app/static";
+import { jwtDecode } from "jwt-decode";
+import { useUser } from "../../context/UserContext";
 
 const Register = () => {
+  const { setUser } = useUser(); // Lấy setUser để cập nhật thông tin user
   const [username, setUsername] = useState("");
   const [emailOrPhoneNumber, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,17 +48,26 @@ const Register = () => {
           withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
         }
       );
-      
+
       // const res = await axios.post("https://6785f704f80b78923aa4e3be.mockapi.io/product", {
       //   username,
       //   email: trimmedEmail,
       //   password,
       // });
-      if (res.data) {
-        setToken(res.data.access_token); // Lưu access_token vào localStorage
-        setUserInfo(res.data); // Nếu có thêm thông tin user, bạn có thể lưu tại đây
+      console.log("Response from server:", res.data);
+
+      if (res.data && res.data.access_token) {
+        const token = res.data.access_token;
+        setToken(`${token}`); // Lưu token với định dạng Bearer
+        console.log("Token: " + token);
         console.log("user info:", res.data);
-        console.log("Token: " + res.data);
+
+        // Giải mã token để lấy thông tin user
+        const decodedUser = jwtDecode(token);
+        setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
+
+        console.log("Decoded User:", decodedUser);
+        setUser(decodedUser); // Cập nhật thông tin user trong context
         navigate("/");
       } else {
         throw new Error("Token not found in response.");
@@ -66,8 +78,8 @@ const Register = () => {
     } catch (error) {
       if (error.response) {
         switch (error.response.status) {
-          case 409:
-            toast.error("Email hoặc tên người dùng đã tồn tại!");
+          case 400:
+            toast.error("Username already exists!");
             break;
           case 500:
             toast.error("Lỗi máy chủ, vui lòng thử lại sau!");

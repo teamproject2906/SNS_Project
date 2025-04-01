@@ -5,7 +5,7 @@ const ModalAdd = ({ isOpen, onClose, title, children, onSubmit }) => {
     <Modal 
       isOpen={isOpen} 
       onRequestClose={onClose} 
-      className="p-6 mt-[4%] bg-white rounded-lg shadow-lg max-w-md mx-auto"
+      className="p-6 mt-[5%] bg-white rounded-lg shadow-lg max-w-md mx-auto"
     >
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       {children}

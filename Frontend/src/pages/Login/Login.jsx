@@ -4,14 +4,17 @@ import { FaLock } from "react-icons/fa";
 import axios from "axios";
 import { getToken, setToken, setUserInfo } from "./app/static";
 import { toast, ToastContainer } from "react-toastify";
+import { jwtDecode } from "jwt-decode"; // Import thư viện decode token
+import { useUser } from "../../context/UserContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { setUser } = useUser(); // Lấy setUser để cập nhật thông tin user
   const navigate = useNavigate();
 
   const handleLoginUser = async (event) => {
-    event.preventDefault(); // Ngăn reload trang
+    event.preventDefault();
     if (!username || !password) {
       toast.error("Email hoặc mật khẩu không hợp lệ.");
       return;
@@ -22,22 +25,33 @@ const Login = () => {
         "http://localhost:8080/Authentication/Authenticate",
         { username, password }
       );
-      console.log("Login Response:", res.data);
 
       if (res.data && res.data.access_token) {
-        setToken(res.data.access_token); // Lưu access_token vào localStorage
-        setUserInfo(res.data); // Nếu có thêm thông tin user, bạn có thể lưu tại đây
-        console.log("Token:", res.data.access_token);
-        console.log("Saved token:", getToken());
+        const token = res.data.access_token;
+        setToken(`${token}`); // Lưu token với định dạng Bearer
+        console.log("Token: " + token);
+        console.log("user info:", res.data);
+
+        // Giải mã token để lấy thông tin user
+        const decodedUser = jwtDecode(token);
+        setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
+
+        console.log("Decoded User:", decodedUser);
+        setUser(decodedUser); // Cập nhật thông tin user trong Context
+
         toast.success("Đăng nhập thành công!");
-        navigate("/");
+
+        // Điều hướng theo role
+        if (res.data.role === "ADMIN") {
+          navigate("/dashboard");
+        } else {
+          navigate("/");
+        }
       } else {
-        throw new Error("Access token not found in response.");
+        throw new Error("Access token không hợp lệ.");
       }
     } catch (error) {
       console.error("Lỗi đăng nhập:", error.response?.data || error.message);
-
-      // Luôn hiển thị thông báo lỗi khi đăng nhập thất bại
       toast.error("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
     }
   };
