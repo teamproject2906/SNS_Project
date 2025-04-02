@@ -9,9 +9,10 @@ import java.util.UUID;
 public interface IPromotionService {
 
     Promotion addPromotion(Promotion promotion);
+    List<PromotionResponseDTO> getActivePromotions();
     List<PromotionResponseDTO> getAllPromotions();
     Promotion getPromotionById(Integer id);
     Promotion updatePromotionById(Integer id ,Promotion promotion);
     void  deletePromotionById(Integer id);
-    Promotion reActivatePromotionById(Integer id);
+    Promotion togglePromotionStatus(Integer id);
 }

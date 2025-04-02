@@ -11,9 +11,11 @@ public interface ICategoryService {
 
     Category createCategory(Category category);
     List<CategoryResponseDTO> getAllCategories();
+    List<CategoryResponseDTO> getActiveCategories();
     Category getCategoryById(Integer id);
     List<Category> getAllCategoriesOfParentById(Integer parentCategoryId);
-    List<Category> getAllCategoriesByName(String categoryName);
+    List<Category> getCategoriesByName(String categoryName);
+    List<Category> getActiveCategoriesByName(String categoryName);
     Category updateCategoryById(Integer id, Category category);
     void deleteCategoryById(Integer id);
     Category reActiveCategoryById(Integer id);

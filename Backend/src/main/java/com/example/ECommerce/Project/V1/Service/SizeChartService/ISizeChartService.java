@@ -9,9 +9,10 @@ import java.util.UUID;
 public interface ISizeChartService {
 
     SizeChart createSizeChart(SizeChart sizeChart);
+    List<SizeChartResponseDTO> getActiveSizeChart();
     List<SizeChartResponseDTO> getAllSizeChart();
     SizeChart getSizeChartById(Integer id);
     SizeChart updateSizeChartById(Integer id, SizeChart sizeChart);
     void deleteSizeChartById(Integer id);
-    SizeChart reActivateSizeChartById(Integer id);
+    SizeChart toggleSizeChartStatus(Integer id);
 }
