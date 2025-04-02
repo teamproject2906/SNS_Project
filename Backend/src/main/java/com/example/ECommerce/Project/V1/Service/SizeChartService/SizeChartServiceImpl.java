@@ -3,6 +3,7 @@ package com.example.ECommerce.Project.V1.Service.SizeChartService;
 import com.example.ECommerce.Project.V1.DTO.SizeChartResponseDTO;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
+import com.example.ECommerce.Project.V1.Model.AlphabetSize;
 import com.example.ECommerce.Project.V1.Model.SizeChart;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
 import com.example.ECommerce.Project.V1.Service.SizeChartService.ISizeChartService;
@@ -53,7 +54,7 @@ public class SizeChartServiceImpl implements ISizeChartService {
             throw new InvalidInputException("Size Chart Type is longer than 100 characters");
         }
 
-        if(!sizeChartType.matches("^[a-zA-Z0-9\\s']+$")) {
+        if(!sizeChartType.matches("^[a-zA-Z0-9-_\\s']+$")) {
             System.out.println(sizeChartType);
             throw new InvalidInputException("Size chart name can only contain alphanumeric characters and spaces.");
         }
@@ -74,6 +75,12 @@ public class SizeChartServiceImpl implements ISizeChartService {
     public SizeChart createSizeChart(SizeChart sizeChart) {
         SizeChart validatedSizeChart = validateSizeChart(sizeChart);
         return repository.save(validatedSizeChart);
+    }
+
+    @Override
+    public List<SizeChartResponseDTO> getActiveSizeChart() {
+        List<SizeChart> sizeChartList = repository.getActiveSizeChart();
+        return mapEntityListToDTOList(sizeChartList);
     }
 
     @Override
@@ -111,11 +118,11 @@ public class SizeChartServiceImpl implements ISizeChartService {
     }
 
     @Override
-    public SizeChart reActivateSizeChartById(Integer id) {
+    public SizeChart toggleSizeChartStatus(Integer id) {
         SizeChart sizeChart = getSizeChartById(id);
 
         if (sizeChart != null) {
-            sizeChart.setIsActive(true);
+            sizeChart.setIsActive(!sizeChart.getIsActive());
             repository.save(sizeChart);
         }
 

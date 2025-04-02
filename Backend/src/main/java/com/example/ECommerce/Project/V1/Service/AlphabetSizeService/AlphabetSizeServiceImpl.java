@@ -95,6 +95,12 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
     }
 
     @Override
+    public List<AlphabetSizeResponseDTO> getActiveAlphabetSize() {
+        List<AlphabetSize> alphabetSizeList = alphabetSizeRepository.getActiveAlphabetSize();
+        return mapAlphabetSizeListToDTOList(alphabetSizeList);
+    }
+
+    @Override
     public List<AlphabetSizeResponseDTO> getAllAlphabetSize() {
         List<AlphabetSize> alphabetSizeList = alphabetSizeRepository.findAll();
         return mapAlphabetSizeListToDTOList(alphabetSizeList);
@@ -132,14 +138,16 @@ public class AlphabetSizeServiceImpl implements IAlphabetSizeService {
     }
 
     @Override
-    public AlphabetSize reActivateAlphabetSizeById(Integer id) {
+    public AlphabetSize toggleAlphabetSizeStatus(Integer id) {
         AlphabetSize alphabetSize = getAlphabetSizeById(id);
 
         if (alphabetSize != null) {
-            alphabetSize.setIsActive(true);
+            alphabetSize.setIsActive(!alphabetSize.getIsActive());
             alphabetSizeRepository.save(alphabetSize);
         }
 
         return alphabetSize;
     }
+
+
 }

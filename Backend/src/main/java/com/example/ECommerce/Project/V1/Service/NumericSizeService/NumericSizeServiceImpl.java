@@ -85,6 +85,12 @@ public class NumericSizeServiceImpl implements INumericSizeService {
     }
 
     @Override
+    public List<NumericSizeResponseDTO> getActiveNumericSize() {
+        List<NumericSize> numericSizeList = numericSizeRepository.getActiveNumericSizes();
+        return mapEntityListToDTOList(numericSizeList);
+    }
+
+    @Override
     public List<NumericSizeResponseDTO> getAllNumericSizes() {
         List<NumericSize> numericSizeList = numericSizeRepository.findAll();
         return mapEntityListToDTOList(numericSizeList);
@@ -123,11 +129,11 @@ public class NumericSizeServiceImpl implements INumericSizeService {
     }
 
     @Override
-    public NumericSize reActivateNumericSizeById(Integer id) {
+    public NumericSize toggleNumericSizeStatus(Integer id) {
         NumericSize numericSize = getNumericSizeById(id);
 
         if (numericSize != null) {
-            numericSize.setIsActive(true);
+            numericSize.setIsActive(!numericSize.getIsActive());
             numericSizeRepository.save(numericSize);
         }
 

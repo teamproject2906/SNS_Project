@@ -19,11 +19,9 @@ import java.util.stream.Collectors;
 @Service
 public class PromotionServiceImpl implements IPromotionService {
     private final PromotionRepository repository;
-    private final EntityManager entityManager;
 
-    public PromotionServiceImpl(PromotionRepository repository, EntityManager entityManager) {
+    public PromotionServiceImpl(PromotionRepository repository) {
         this.repository = repository;
-        this.entityManager = entityManager;
     }
 
     private void validatePromotionName(String name) {
@@ -111,6 +109,11 @@ public class PromotionServiceImpl implements IPromotionService {
     }
 
     @Override
+    public List<PromotionResponseDTO> getActivePromotions() {
+        return convertEntityListToResponseDTOList(repository.getActivePromotions());
+    }
+
+    @Override
     public List<PromotionResponseDTO> getAllPromotions() {
         List<Promotion> promotions = repository.findAll();
         return convertEntityListToResponseDTOList(promotions);
@@ -168,13 +171,12 @@ public class PromotionServiceImpl implements IPromotionService {
     }
 
     @Override
-    @Transactional
-    public Promotion reActivatePromotionById(Integer id) {
+    public Promotion togglePromotionStatus(Integer id) {
         Promotion promotion = getPromotionById(id);
 
         if (promotion != null) {
-            repository.reActivatePromotion(id);
-            entityManager.refresh(promotion);
+            promotion.setIsActive(!promotion.getIsActive());
+            repository.save(promotion);
         }
 
         return promotion;

@@ -1,7 +1,10 @@
 package com.example.ECommerce.Project.V1.Repository;
 
+import com.example.ECommerce.Project.V1.Model.AlphabetSize;
 import com.example.ECommerce.Project.V1.Model.Category;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +21,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
 
     List<Category> findByCategoryNameContainingIgnoreCase(String categoryName);
+    List<Category> findByIsActiveAndCategoryNameContainingIgnoreCase(Boolean isActive, String categoryName);
 
     @Modifying
     @Transactional
@@ -32,5 +36,11 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     boolean existsByCategoryName(String categoryName);
     boolean existsByCategoryNameAndParentCategoryID(String categoryName, Category parentCategory);
 
+    @Query("SELECT c FROM Category c WHERE c.isActive = true")
+    List<Category> getActiveCategories();
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE Category c SET c.isActive = false WHERE c.parentCategoryID.id = :parentCategory")
+    void deactivateChildCategories(@Param("parentCategory") Integer parentCategory);
 }

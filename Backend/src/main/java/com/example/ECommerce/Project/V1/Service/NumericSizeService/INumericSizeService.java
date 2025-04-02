@@ -9,9 +9,10 @@ import java.util.UUID;
 public interface INumericSizeService {
 
     NumericSize createNumericSize(NumericSize numericSize);
+    List<NumericSizeResponseDTO> getActiveNumericSize();
     List<NumericSizeResponseDTO> getAllNumericSizes();
     NumericSize getNumericSizeById(Integer id);
     NumericSize updateNumericSize(Integer id, NumericSize numericSize);
     void deleteNumericSizeById(Integer id);
-    NumericSize reActivateNumericSizeById(Integer id);
+    NumericSize toggleNumericSizeStatus(Integer id);
 }
