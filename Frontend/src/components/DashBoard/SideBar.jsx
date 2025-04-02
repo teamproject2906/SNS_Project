@@ -5,25 +5,28 @@ import { TbNumber } from "react-icons/tb";
 import { BsAlphabetUppercase } from "react-icons/bs";
 import { IoLogOutOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
-import { getToken, getUserInfo, removeToken, removeUserInfo } from "../../pages/Login/app/static";
+import {
+  getUserInfo,
+  removeToken,
+  removeUserInfo,
+} from "../../pages/Login/app/static";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext";
 
 const SideBar = ({ activeTab, handleTabChange }) => {
   const navigate = useNavigate();
+  const { setUser } = useUser(); // Lấy setUser từ UserContext
 
   const userInfo = getUserInfo();
   console.log("User Info:", userInfo);
 
   const handleLogout = () => {
-      // Gọi các hàm để xóa token và user info
-      removeToken();
-      removeUserInfo();
-  
-      // Kiểm tra lại sau khi xóa
-      console.log("Token sau khi xóa:", getToken());
-      console.log("User sau khi xóa:", getUserInfo());
-      navigate("/");
-    };
+    removeToken();
+    removeUserInfo();
+    localStorage.removeItem("user"); // Xóa user khỏi localStorage
+    setUser(null); // Xóa user trong context
+    navigate("/");
+  };
 
   return (
     <div className="w-1/5 p-4 bg-white min-h-screen shadow-lg flex flex-col justify-between">
