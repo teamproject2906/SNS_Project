@@ -11,7 +11,7 @@ import ModalDelete from "../share/ModalDelete";
 Modal.setAppElement("#root");
 
 const PromotionChart = () => {
-  const [promotion, setPromotion] = useState([]);
+  const [promotions, setPromotions] = useState([]);
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editPromotion, setEditPromotion] = useState(null);
@@ -42,7 +42,7 @@ const PromotionChart = () => {
       const res = await axios.get("http://localhost:8080/api/promotions", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPromotion(res.data);
+      setPromotions(res.data);
       console.log("Token:", token);
     } catch (error) {
       console.error("Error fetching promotion:", error);
@@ -57,17 +57,27 @@ const PromotionChart = () => {
     setEditPromotion(promotion.id);
     setFormData({
       id: promotion.id,
-      name: promotion.name,
-      discount: promotion.discount,
-      description: promotion.description,
-      startDate: promotion.startDate,
-      endDate: promotion.endDate,
+      name: promotion.name || "",
+      discount: promotion.discount || "",
+      description: promotion.description || "",
+      startDate: promotion.startDate
+        ? new Date(promotion.startDate).toISOString().split("T")[0]
+        : "",
+      endDate: promotion.endDate
+        ? new Date(promotion.endDate).toISOString().split("T")[0]
+        : "",
     });
     setModalEditIsOpen(true);
   };
 
   const openAddModal = () => {
-    setFormData({ promotionChartType: "" });
+    setFormData({
+      name: "",
+      discount: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+    });
     setModalAddIsOpen(true);
   };
 
@@ -81,17 +91,24 @@ const PromotionChart = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.id) return;
     try {
       const token = getToken();
       await axios.patch(
         `http://localhost:8080/api/promotions/${editPromotion}`,
-        formData,
+        {
+          ...formData,
+          startDate: formData.startDate
+            ? new Date(formData.startDate).toISOString()
+            : null,
+          endDate: formData.endDate
+            ? new Date(formData.endDate).toISOString()
+            : null,
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       closeEditModal();
       toast.success("Cập nhật thành công!");
-      handleGetPromotion(); // Gọi lại API để cập nhật dữ liệu
+      handleGetPromotion();
     } catch (error) {
       console.error("Error updating promotion:", error);
       toast.error("Error updating promotion");
@@ -102,17 +119,27 @@ const PromotionChart = () => {
     e.preventDefault();
     try {
       const token = getToken();
+      const formattedData = {
+        ...formData,
+        startDate: formData.startDate ? `${formData.startDate}T00:00:00` : null,
+        endDate: formData.endDate ? `${formData.endDate}T00:00:00` : null,
+      };
+
+      console.log("Sending data:", formattedData);
+
       const res = await axios.post(
         "http://localhost:8080/api/promotions",
-        formData,
+        formattedData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setPromotion([...promotion, res.data]);
+
+      setPromotions([...promotions, res.data]);
       closeAddModal();
+      toast.success("Thêm thành công!");
     } catch (error) {
-      console.error("Error adding promotion:", error);
+      console.error("Error adding promotion:", error.response?.data || error);
       toast.error("Error adding promotion");
     }
   };
@@ -128,7 +155,9 @@ const PromotionChart = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setPromotion(promotion.filter((promotion) => promotion.id !== deleteId));
+      setPromotions(
+        promotions.filter((promotion) => promotion.id !== deleteId)
+      );
       toast.success("Xóa thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa promotion:", error);
@@ -199,7 +228,7 @@ const PromotionChart = () => {
           Add promotion
         </button>
       </div>
-      <DataTable columns={columns} data={promotion} pagination />
+      <DataTable columns={columns} data={promotions} pagination />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
@@ -208,14 +237,49 @@ const PromotionChart = () => {
       >
         <input
           type="text"
-          placeholder="Promotion chart type"
+          placeholder="Promotion name"
           className="w-full p-2 border"
-          value={formData.promotionChartType}
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        />
+        <input
+          type="number"
+          placeholder="Discount"
+          className="w-full p-2 border"
+          value={formData.discount}
           onChange={(e) =>
-            setFormData({ ...formData, promotionChartType: e.target.value })
+            setFormData({ ...formData, discount: e.target.value })
+          }
+        />
+        <input
+          type="text"
+          placeholder="Description"
+          className="w-full p-2 border"
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+        />
+        <input
+          type="date"
+          placeholder="Start Date"
+          className="w-full p-2 border"
+          value={formData.startDate || ""}
+          onChange={(e) =>
+            setFormData({ ...formData, startDate: e.target.value })
+          }
+        />
+        <input
+          type="date"
+          placeholder="End Date"
+          className="w-full p-2 border"
+          value={formData.endDate || ""}
+          onChange={(e) =>
+            setFormData({ ...formData, endDate: e.target.value })
           }
         />
       </ModalUpdate>
+
       <ModalAdd
         isOpen={modalAddIsOpen}
         onClose={closeAddModal}

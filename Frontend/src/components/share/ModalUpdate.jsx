@@ -5,7 +5,7 @@ const ModalUpdate = ({ isOpen, onClose, title, children, onSubmit }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto"
+      className="p-6 mt-[5%] bg-white rounded-lg shadow-lg max-w-md mx-auto max-h-[80vh] overflow-auto"
       overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
     >
       <div className="max-h-[80vh] overflow-y-auto">

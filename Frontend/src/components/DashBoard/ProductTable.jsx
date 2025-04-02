@@ -12,6 +12,10 @@ Modal.setAppElement("#root");
 
 const ProductTable = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [sizes, setSizes] = useState([]);
+  const [formClothes, setFormClothes] = useState([]);
+  const [promotions, setPromotions] = useState([]);
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editSize, setEditProduct] = useState(null);
@@ -36,7 +40,7 @@ const ProductTable = () => {
     },
     formClothes: {
       id: "",
-      formClothesType: "",
+      formClothes: "",
     },
     promotion: {
       id: "",
@@ -52,12 +56,9 @@ const ProductTable = () => {
   const handleGetProduct = async () => {
     try {
       const token = getToken();
-      const res = await axios.get(
-        "http://localhost:8080/Admin/SizeChartManagement",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await axios.get("http://localhost:8080/api/products", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setProducts(res.data);
       console.log("Token:", token);
     } catch (error) {
@@ -65,9 +66,72 @@ const ProductTable = () => {
     }
   };
 
+  const handleGetCategory = async () => {
+    try {
+      const token = getToken();
+      const res = await axios.get("http://localhost:8080/api/categories", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(res.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const handleGetSizes = async () => {
+    try {
+      const token = getToken();
+      const res = await axios.get(
+        "http://localhost:8080/Admin/SizeChartManagement",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setSizes(res.data);
+      console.log("Token:", token);
+    } catch (error) {
+      console.error("Error fetching sizes:", error);
+    }
+  };
+
+  const handleGetFormClothes = async () => {
+    try {
+      const token = getToken();
+      const res = await axios.get("http://localhost:8080/api/formclothes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFormClothes(res.data);
+      console.log("Token:", token);
+    } catch (error) {
+      console.error("Error fetching formClothes:", error);
+    }
+  };
+
+  const handleGetPromotion = async () => {
+    try {
+      const token = getToken();
+      const res = await axios.get("http://localhost:8080/api/promotions", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPromotions(res.data);
+      console.log("Token:", token);
+    } catch (error) {
+      console.error("Error fetching promotion:", error);
+    }
+  };
+
   useEffect(() => {
     handleGetProduct();
+    handleGetCategory();
+    handleGetSizes();
+    handleGetFormClothes();
+    handleGetPromotion();
   }, []);
+
+  console.log("Categories:", categories);
+  console.log("Sizes:", sizes);
+  console.log("Form Clothes:", formClothes);
+  console.log("Promotions:", promotions);
 
   const openEditModal = (size) => {
     setEditProduct(size.id);
@@ -80,7 +144,37 @@ const ProductTable = () => {
   };
 
   const openAddModal = () => {
-    setFormData({ sizeChartType: "" });
+    setFormData({
+      productCode: "",
+      productName: "",
+      price: "",
+      color: "",
+      material: "",
+      description: "",
+      quantityInventory: "",
+      category: {
+        id: "",
+        categoryName: "",
+        parentCategoryID: {
+          id: "",
+        },
+      },
+      sizeChart: {
+        id: "",
+        sizeChartType: "",
+      },
+      formClothes: {
+        id: "",
+        formClothes: "",
+      },
+      promotion: {
+        id: "",
+        discount: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+      },
+    });
     setModalAddIsOpen(true);
   };
 
@@ -159,8 +253,71 @@ const ProductTable = () => {
   };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "Size Type", selector: (row) => row.sizeChartType, sortable: true },
+    {
+      name: "ID",
+      selector: (row) => (row.id ? row.id : "Null"),
+      sortable: true,
+    },
+    {
+      name: "Product Code",
+      selector: (row) => (row.productCode ? row.productCode : "Null"),
+      sortable: true,
+    },
+    {
+      name: "Product Name",
+      selector: (row) => (row.productName ? row.productName : "Null"),
+      sortable: true,
+    },
+    {
+      name: "Price",
+      selector: (row) => (row.price ? row.price : "Null"),
+      sortable: true,
+    },
+    {
+      name: "Color",
+      selector: (row) => (row.color ? row.color : "Null"),
+      sortable: true,
+    },
+    {
+      name: "Material",
+      selector: (row) => (row.material ? row.material : "Null"),
+      sortable: true,
+    },
+    {
+      name: "Description",
+      selector: (row) => (row.description ? row.description : "Null"),
+      sortable: true,
+    },
+    {
+      name: "Quantity Inventory",
+      selector: (row) =>
+        row.quantityInventory ? row.quantityInventory : "Null",
+      sortable: true,
+    },
+    {
+      name: "Category",
+      selector: (row) =>
+        row.category.categoryName ? row.category.categoryName : "Null",
+      sortable: true,
+    },
+    {
+      name: "Size Chart",
+      selector: (row) =>
+        row.sizeChart.sizeChartType ? row.sizeChart.sizeChartType : "Null",
+      sortable: true,
+    },
+    {
+      name: "Form Clothes",
+      selector: (row) =>
+        row.formClothes.formClothes ? row.formClothes.formClothes : "Null",
+      sortable: true,
+    },
+    {
+      name: "Promotion",
+      selector: (row) =>
+        row.promotion.name ? row.promotion.name : "Null",
+      sortable: true,
+    },
     {
       name: "Actions",
       cell: (row) => (
@@ -191,41 +348,196 @@ const ProductTable = () => {
           className="bg-blue-500 text-white px-4 py-2 rounded"
           onClick={openAddModal}
         >
-          Add size
+          Add product
         </button>
       </div>
       <DataTable columns={columns} data={products} pagination />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
-        title="Edit size"
+        title="Edit Product"
         onSubmit={handleEditSubmit}
       >
         <input
           type="text"
-          placeholder="Size chart type"
+          placeholder="Product Code"
           className="w-full p-2 border"
-          value={formData.sizeChartType}
+          value={formData.productCode}
           onChange={(e) =>
-            setFormData({ ...formData, sizeChartType: e.target.value })
+            setFormData({ ...formData, productCode: e.target.value })
+          }
+        />
+        <input
+          type="text"
+          placeholder="Product Name"
+          className="w-full p-2 border"
+          value={formData.productName}
+          onChange={(e) =>
+            setFormData({ ...formData, productName: e.target.value })
+          }
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          className="w-full p-2 border"
+          value={formData.price}
+          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Color"
+          className="w-full p-2 border"
+          value={formData.color}
+          onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Material"
+          className="w-full p-2 border"
+          value={formData.material}
+          onChange={(e) =>
+            setFormData({ ...formData, material: e.target.value })
+          }
+        />
+        <textarea
+          placeholder="Description"
+          className="w-full p-2 border"
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+        ></textarea>
+        <input
+          type="number"
+          placeholder="Quantity Inventory"
+          className="w-full p-2 border"
+          value={formData.quantityInventory}
+          onChange={(e) =>
+            setFormData({ ...formData, quantityInventory: e.target.value })
           }
         />
       </ModalUpdate>
+
       <ModalAdd
         isOpen={modalAddIsOpen}
         onClose={closeAddModal}
-        title="Add size"
+        title="Add Product"
         onSubmit={handleAddSubmit}
       >
         <input
           type="text"
-          placeholder="Size chart type"
+          placeholder="Product Code"
           className="w-full p-2 border"
-          value={formData.sizeChartType}
+          value={formData.productCode}
           onChange={(e) =>
-            setFormData({ ...formData, sizeChartType: e.target.value })
+            setFormData({ ...formData, productCode: e.target.value })
           }
         />
+        <input
+          type="text"
+          placeholder="Product Name"
+          className="w-full p-2 border"
+          value={formData.productName}
+          onChange={(e) =>
+            setFormData({ ...formData, productName: e.target.value })
+          }
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          className="w-full p-2 border"
+          value={formData.price}
+          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Color"
+          className="w-full p-2 border"
+          value={formData.color}
+          onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Material"
+          className="w-full p-2 border"
+          value={formData.material}
+          onChange={(e) =>
+            setFormData({ ...formData, material: e.target.value })
+          }
+        />
+        <textarea
+          placeholder="Description"
+          className="w-full p-2 border"
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+        ></textarea>
+        <input
+          type="number"
+          placeholder="Quantity Inventory"
+          className="w-full p-2 border"
+          value={formData.quantityInventory}
+          onChange={(e) =>
+            setFormData({ ...formData, quantityInventory: e.target.value })
+          }
+        />
+        <select
+          className="w-full p-2 border"
+          value={formData.category}
+          onChange={(e) =>
+            setFormData({ ...formData, category: e.target.value })
+          }
+        >
+          <option value="">Select Category</option>
+          {categories.map((cate) => (
+            <option key={cate.id} value={cate.id}>
+              {cate.categoryName}
+            </option>
+          ))}
+        </select>
+        <select
+          className="w-full p-2 border"
+          value={formData.sizeChart}
+          onChange={(e) =>
+            setFormData({ ...formData, sizeChart: e.target.value })
+          }
+        >
+          <option value="">Select Size Chart</option>
+          {sizes.map((size) => (
+            <option key={size.id} value={size.id}>
+              {size.sizeChartType}
+            </option>
+          ))}
+        </select>
+        <select
+          className="w-full p-2 border"
+          value={formData.formClothes}
+          onChange={(e) =>
+            setFormData({ ...formData, formClothes: e.target.value })
+          }
+        >
+          <option value="">Select Form Clothes</option>
+          {formClothes.map((form) => (
+            <option key={form.id} value={form.id}>
+              {form.formClothes}
+            </option>
+          ))}
+        </select>
+        <select
+          className="w-full p-2 border"
+          value={formData.promotion}
+          onChange={(e) =>
+            setFormData({ ...formData, promotion: e.target.value })
+          }
+        >
+          <option value="">Select Promotion</option>
+          {promotions.map((promo) => (
+            <option key={promo.id} value={promo.id}>
+              {promo.name}
+            </option>
+          ))}
+        </select>
       </ModalAdd>
       <ModalDelete
         isDeleteModalOpen={isDeleteModalOpen}
