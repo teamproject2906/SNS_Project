@@ -26,6 +26,7 @@ public class SizeChartServiceImpl implements ISizeChartService {
 
         dto.setId(entity.getId());
         dto.setSizeChartType(entity.getSizeChartType());
+        dto.setValue(entity.getValue());
 
         return dto;
     }
@@ -40,7 +41,7 @@ public class SizeChartServiceImpl implements ISizeChartService {
     // Validation function
     private SizeChart validateSizeChart(SizeChart sizeChart) {
 
-        if (sizeChart == null || sizeChart.getSizeChartType() == null) {
+        if (sizeChart == null || sizeChart.getSizeChartType() == null || sizeChart.getValue() == null) {
             throw new InvalidInputException("Size Chart cannot be null");
         }
 
@@ -58,14 +59,18 @@ public class SizeChartServiceImpl implements ISizeChartService {
             throw new InvalidInputException("Size chart name can only contain alphanumeric characters and spaces.");
         }
 
-        if(repository.existsBySizeChartType(sizeChartType)) {
-            throw new InvalidInputException("Size Chart Type '" + sizeChartType + "' already exists");
+        String sizeValue = sizeChart.getValue().trim();
+        if (sizeValue.isBlank()) {
+            throw new InvalidInputException("Size value is required");
         }
 
-        System.out.println(sizeChartType);
+        if (sizeValue.length() > 10) {
+            throw new InvalidInputException("Size value is longer than 10 characters");
+        }
 
         // Set the trimmed and validated value back to the SizeChart object
         sizeChart.setSizeChartType(sizeChartType);
+        sizeChart.setValue(sizeValue);
         return sizeChart;
     }
 
@@ -95,6 +100,7 @@ public class SizeChartServiceImpl implements ISizeChartService {
         SizeChart validatedSizeChart = validateSizeChart(sizeChart);
 
         updateSizeChart.setSizeChartType(validatedSizeChart.getSizeChartType());
+        updateSizeChart.setValue(validatedSizeChart.getValue());
         repository.save(updateSizeChart);
 
         return updateSizeChart;

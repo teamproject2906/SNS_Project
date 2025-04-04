@@ -22,7 +22,7 @@ public class SizeChartController {
 
     @PostMapping()
     public ResponseEntity<SizeChart> createSizeChart(@RequestBody SizeChart sizeChart) {
-        return new ResponseEntity<SizeChart>(sizeChartService.createSizeChart(sizeChart), HttpStatus.CREATED);
+        return new ResponseEntity<>(sizeChartService.createSizeChart(sizeChart), HttpStatus.CREATED);
     }
 
     @GetMapping()

@@ -12,4 +12,5 @@ import java.util.UUID;
 public class SizeChartResponseDTO {
     private Integer id;
     private String sizeChartType;
+    private String value;
 }
