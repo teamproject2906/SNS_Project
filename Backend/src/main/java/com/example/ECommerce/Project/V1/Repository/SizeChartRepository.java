@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SizeChartRepository extends JpaRepository<SizeChart, Integer> {
-    boolean existsBySizeChartType(String sizeChartType);
-    boolean existsById(Integer id);
+
 }
