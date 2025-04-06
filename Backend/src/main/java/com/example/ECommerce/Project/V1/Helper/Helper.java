@@ -1,6 +1,6 @@
 package com.example.ECommerce.Project.V1.Helper;
 
-import com.example.ECommerce.Project.V1.DTO.PageableResponse;
+import com.example.ECommerce.Project.V1.DTO.ResponseDTO.PageableResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 

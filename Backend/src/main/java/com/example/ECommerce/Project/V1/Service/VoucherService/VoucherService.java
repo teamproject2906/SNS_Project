@@ -1,6 +1,6 @@
 package com.example.ECommerce.Project.V1.Service.VoucherService;
 
-import com.example.ECommerce.Project.V1.DTO.PageableResponse;
+import com.example.ECommerce.Project.V1.DTO.ResponseDTO.PageableResponse;
 import com.example.ECommerce.Project.V1.DTO.VoucherDTO;
 import com.example.ECommerce.Project.V1.Helper.Helper;
 import com.example.ECommerce.Project.V1.Model.Voucher;

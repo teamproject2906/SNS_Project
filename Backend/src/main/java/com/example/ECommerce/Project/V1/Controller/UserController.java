@@ -1,9 +1,7 @@
 package com.example.ECommerce.Project.V1.Controller;
 
-import com.example.ECommerce.Project.V1.DTO.ChangePasswordRequest;
-import com.example.ECommerce.Project.V1.DTO.PageableResponse;
+import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
-import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Service.UserService.IUserService;
 import com.example.ECommerce.Project.V1.Service.VoucherService.VoucherService;
 import jakarta.validation.Valid;

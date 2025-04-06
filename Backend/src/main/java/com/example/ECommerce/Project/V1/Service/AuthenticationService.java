@@ -1,8 +1,8 @@
 package com.example.ECommerce.Project.V1.Service;
 
-import com.example.ECommerce.Project.V1.DTO.AuthenticationRequest;
-import com.example.ECommerce.Project.V1.DTO.AuthenticationResponse;
-import com.example.ECommerce.Project.V1.DTO.RegisterRequest;
+import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationRequest;
+import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResponse;
+import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.RegisterRequest;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;

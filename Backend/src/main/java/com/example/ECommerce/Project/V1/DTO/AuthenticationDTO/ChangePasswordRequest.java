@@ -1,4 +1,4 @@
-package com.example.ECommerce.Project.V1.DTO;
+package com.example.ECommerce.Project.V1.DTO.AuthenticationDTO;
 
 import lombok.Builder;
 import lombok.Data;
