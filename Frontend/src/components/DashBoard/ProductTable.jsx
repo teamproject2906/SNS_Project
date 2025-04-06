@@ -29,43 +29,35 @@ const ProductTable = () => {
     quantityInventory: "",
     category: {
       id: "",
-      categoryName: "",
-      parentCategoryID: {
-        id: "",
-      },
     },
     sizeChart: {
       id: "",
-      sizeChartType: "",
-      value: "",
     },
     formClothes: {
       id: "",
-      formClothes: "",
     },
     promotion: {
       id: "",
-      discount: "",
-      description: "",
-      startDate: "",
-      endDate: "",
     },
   });
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // const handleGetProduct = async () => {
-  //   try {
-  //     const token = getToken();
-  //     const res = await axios.get("http://localhost:8080/api/products", {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-  //     setProducts(res.data);
-  //     console.log("Token:", token);
-  //   } catch (error) {
-  //     console.error("Error fetching products:", error);
-  //   }
-  // };
+  const handleGetProduct = async () => {
+    try {
+      const token = getToken();
+      const res = await axios.get("http://localhost:8080/api/products", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (Array.isArray(res.data)) {
+        setProducts(res.data);
+      } else {
+        console.error("Expected an array of products");
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   const handleGetCategory = async () => {
     try {
@@ -122,17 +114,19 @@ const ProductTable = () => {
   };
 
   useEffect(() => {
-    // handleGetProduct();
+    handleGetProduct();
     handleGetCategory();
     handleGetSizes();
     handleGetFormClothes();
     handleGetPromotion();
   }, []);
 
-  console.log("Categories:", categories);
-  console.log("Sizes:", sizes);
-  console.log("Form Clothes:", formClothes);
-  console.log("Promotions:", promotions);
+  // console.log("Categories:", categories);
+  // console.log("Sizes:", sizes);
+  // console.log("Form Clothes:", formClothes);
+  // console.log("Promotions:", promotions);
+
+  console.log("Form Data:", formData);
 
   const openEditModal = (size) => {
     setEditProduct(size.id);
@@ -155,25 +149,15 @@ const ProductTable = () => {
       quantityInventory: "",
       category: {
         id: "",
-        categoryName: "",
-        parentCategoryID: {
-          id: "",
-        },
       },
       sizeChart: {
         id: "",
-        sizeChartType: "",
       },
       formClothes: {
         id: "",
-        formClothes: "",
       },
       promotion: {
         id: "",
-        discount: "",
-        description: "",
-        startDate: "",
-        endDate: "",
       },
     });
     setModalAddIsOpen(true);
@@ -214,20 +198,43 @@ const ProductTable = () => {
 
   const handleAddSubmit = async (e) => {
     e.preventDefault();
+
+    // Format the product data
+    const productData = {
+      productCode: formData.productCode,
+      productName: formData.productName,
+      price: formData.price,
+      color: formData.color,
+      material: formData.material,
+      description: formData.description,
+      quantityInventory: formData.quantityInventory,
+      category: {
+        id: formData.category, // Assuming the selected category ID is stored here
+      },
+      sizeChart: {
+        id: formData.sizeChart, // Assuming the selected size chart ID is stored here
+      },
+      formClothes: {
+        id: formData.formClothes, // Assuming the selected form clothes ID is stored here
+      },
+      promotion: formData.promotion.id ? formData.promotion : null, // Send null if no promotion is selected
+    };
+
     try {
       const token = getToken();
       const res = await axios.post(
-        "http://localhost:8080/Admin/SizeChartManagement",
-        formData,
+        "http://localhost:8080/api/products",
+        productData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setProducts([...products, res.data]);
+      setProducts([...products, res.data]); // Add the newly created product to the state
       closeAddModal();
+      toast.success("Product added successfully!");
     } catch (error) {
-      console.error("Error adding size:", error);
-      toast.error("Error adding size");
+      console.error("Error adding product:", error);
+      toast.error("Error adding product");
     }
   };
 
@@ -251,6 +258,24 @@ const ProductTable = () => {
       setIsDeleteModalOpen(false);
       setDeleteId(null);
     }
+  };
+
+  const customStyles = {
+    cells: {
+      style: {
+        minWidth: "auto", // Đảm bảo kích thước ô phù hợp với nội dung
+        whiteSpace: "nowrap", // Ngăn nội dung bị xuống dòng
+        padding: "8px", // Giữ khoảng cách giữa các ô
+      },
+    },
+    headCells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        fontWeight: "bold",
+        padding: "8px",
+      },
+    },
   };
 
   const columns = [
@@ -277,48 +302,45 @@ const ProductTable = () => {
     {
       name: "Color",
       selector: (row) => (row.color ? row.color : "Null"),
-      sortable: true,
     },
-    {
-      name: "Material",
-      selector: (row) => (row.material ? row.material : "Null"),
-      sortable: true,
-    },
-    {
-      name: "Description",
-      selector: (row) => (row.description ? row.description : "Null"),
-      sortable: true,
-    },
+    // {
+    //   name: "Material",
+    //   selector: (row) => (row.material ? row.material : "Null"),
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Description",
+    //   selector: (row) => (row.description ? row.description : "Null"),
+    //   sortable: true,
+    // },
     {
       name: "Quantity Inventory",
       selector: (row) =>
         row.quantityInventory ? row.quantityInventory : "Null",
       sortable: true,
     },
+    // {
+    //   name: "Category",
+    //   selector: (row) =>
+    //     row.category.categoryName ? row.category.categoryName : "Null",
+    //   sortable: true,
+    // },
     {
-      name: "Category",
-      selector: (row) =>
-        row.category.categoryName ? row.category.categoryName : "Null",
+      name: "Size",
+      selector: (row) => (row.sizeChart.value ? row.sizeChart.value : "Null"),
       sortable: true,
     },
-    {
-      name: "Size Chart",
-      selector: (row) =>
-        row.sizeChart.sizeChartType ? row.sizeChart.sizeChartType : "Null",
-      sortable: true,
-    },
-    {
-      name: "Form Clothes",
-      selector: (row) =>
-        row.formClothes.formClothes ? row.formClothes.formClothes : "Null",
-      sortable: true,
-    },
-    {
-      name: "Promotion",
-      selector: (row) =>
-        row.promotion.name ? row.promotion.name : "Null",
-      sortable: true,
-    },
+    // {
+    //   name: "Form Clothes",
+    //   selector: (row) =>
+    //     row.formClothes.formClothes ? row.formClothes.formClothes : "Null",
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Promotion",
+    //   selector: (row) => (row.promotion ? row.promotion : "Null"),
+    //   sortable: true,
+    // },
     {
       name: "Actions",
       cell: (row) => (
@@ -344,7 +366,7 @@ const ProductTable = () => {
     <div>
       <ToastContainer />
       <div className="flex justify-between my-4">
-        <h3 className="text-lg font-semibold">Size Chart</h3>
+        <h3 className="text-lg font-semibold">Product Chart</h3>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
           onClick={openAddModal}
@@ -352,7 +374,12 @@ const ProductTable = () => {
           Add product
         </button>
       </div>
-      <DataTable columns={columns} data={products} pagination />
+      <DataTable
+        columns={columns}
+        data={products}
+        pagination
+        customStyles={customStyles}
+      />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
@@ -507,7 +534,7 @@ const ProductTable = () => {
           <option value="">Select Size Chart</option>
           {sizes.map((size) => (
             <option key={size.id} value={size.id}>
-              {size.sizeChartType}
+              {size.value}
             </option>
           ))}
         </select>
@@ -527,12 +554,12 @@ const ProductTable = () => {
         </select>
         <select
           className="w-full p-2 border"
-          value={formData.promotion}
+          value={formData.promotion.id || ""} // Nếu không có `id`, chọn giá trị mặc định trống
           onChange={(e) =>
-            setFormData({ ...formData, promotion: e.target.value })
+            setFormData({ ...formData, promotion: { id: e.target.value } })
           }
         >
-          <option value="">Select Promotion</option>
+          <option value="">Select Promotion</option> {/* Tùy chọn bỏ qua */}
           {promotions.map((promo) => (
             <option key={promo.id} value={promo.id}>
               {promo.name}

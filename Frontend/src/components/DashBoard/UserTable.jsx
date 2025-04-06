@@ -71,7 +71,10 @@ const UserTable = () => {
       const res = await axios.get("http://localhost:8080/User/getAllUser", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUsers(res.data);
+
+      const filteredUsers = res.data.filter((user) => user.role !== "ADMIN");
+
+      setUsers(filteredUsers);
     } catch (error) {
       console.error("Lỗi lấy thông tin user:", error);
     }
@@ -240,33 +243,62 @@ const UserTable = () => {
       name: "Phone",
       selector: (row) => (row.phoneNumber ? row.phoneNumber : "Not updated"),
     },
-    {
-      name: "Date of Birth",
-      selector: (row) => (row.dob ? formatDate(row.dob) : "Not updated"),
-    },
-    {
-      name: "Gender",
-      selector: (row) => (row.gender ? "Male" : "Female"),
-      sortable: true,
-    },
-    {
-      name: "Bio",
-      selector: (row) => (row.bio ? row.bio : "Not updated"),
-    },
+    // {
+    //   name: "Date of Birth",
+    //   selector: (row) => (row.dob ? formatDate(row.dob) : "Not updated"),
+    // },
+    // {
+    //   name: "Gender",
+    //   selector: (row) => (row.gender ? "Male" : "Female"),
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Bio",
+    //   selector: (row) => (row.bio ? row.bio : "Not updated"),
+    // },
     {
       name: "Role",
-      selector: (row) => (row.role ? row.role : "Not updated"),
+      selector: (row) => {
+        // Tạo class màu nền tương ứng
+        let bgColorClass = "";
+        switch (row.role) {
+          case "CUSTOMER":
+            bgColorClass = "bg-blue-600 text-white";
+            break;
+          case "STAFF":
+            bgColorClass = "bg-green-600 text-white";
+            break;
+          case "MODERATOR":
+            bgColorClass = "bg-yellow-300 text-black";
+            break;
+          default:
+            bgColorClass = "bg-gray-200 text-black";
+        }
+
+        return (
+          <select
+            className={`w-full p-2 border rounded-lg ${bgColorClass}`}
+            value={row.role}
+            onChange={(e) => handleSetRole(e, row)}
+          >
+            <option value="CUSTOMER" className="bg-blue-600">USER</option>
+            <option value="STAFF" className="bg-green-600">STAFF</option>
+            <option value="MODERATOR" className="bg-yellow-300">MODERATOR</option>
+          </select>
+        );
+      },
       sortable: true,
     },
-    {
-      name: "Avatar",
-      selector: (row) =>
-        row.avatar ? (
-          <img width={100} height={100} src={row.avatar} />
-        ) : (
-          "Not updated"
-        ),
-    },
+
+    // {
+    //   name: "Avatar",
+    //   selector: (row) =>
+    //     row.avatar ? (
+    //       <img width={100} height={100} src={row.avatar} />
+    //     ) : (
+    //       "Not updated"
+    //     ),
+    // },
     {
       name: "Active",
       selector: (row) => (row.active ? "YES" : "NO"),
@@ -359,7 +391,7 @@ const UserTable = () => {
             when: (row) => !row.active, // Nếu user bị ban (active === false)
             style: {
               opacity: "0.5", // Làm mờ
-              backgroundColor: "#f8d7da", // Màu nền để dễ nhận diện
+              backgroundColor: "#e1e1e1", // Màu nền để dễ nhận diện
             },
           },
         ]}
