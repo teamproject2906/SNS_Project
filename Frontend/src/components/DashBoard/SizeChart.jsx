@@ -6,7 +6,8 @@ import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import Modal from "react-modal";
 import { toast, ToastContainer } from "react-toastify";
-import ModalDelete from "../share/ModalDelete";
+import ModalDeactivate from "../share/ModalDeactivate";
+import ModalActivate from "../share/ModalActivate";
 
 Modal.setAppElement("#root");
 
@@ -16,8 +17,10 @@ const SizeChart = () => {
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editSize, setEditSize] = useState(null);
   const [formData, setFormData] = useState({ sizeChartType: "", value: "" });
-  const [deleteId, setDeleteId] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deactivateID, setDeactivateID] = useState(null);
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  const [activateID, setActivateID] = useState(null);
+  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
 
   const handleGetSizes = async () => {
     try {
@@ -29,6 +32,7 @@ const SizeChart = () => {
         }
       );
       setSizes(res.data);
+      console.log("Sizes:", res.data);
       console.log("Token:", token);
     } catch (error) {
       console.error("Error fetching sizes:", error);
@@ -54,9 +58,15 @@ const SizeChart = () => {
     setModalAddIsOpen(true);
   };
 
-  const openDeleteModal = (id) => {
-    setDeleteId(id);
-    setIsDeleteModalOpen(true);
+  const openDeactivateModal = (id) => {
+    setDeactivateID(id);
+    setIsDeactivateModalOpen(true);
+  };
+
+  const openActivateModal = (id) => {
+    setActivateID(id);
+    console.log("Activate ID:", id);
+    setIsActivateModalOpen(true);
   };
 
   const closeEditModal = () => setModalEditIsOpen(false);
@@ -106,25 +116,70 @@ const SizeChart = () => {
     }
   };
 
-  const confirmDelete = async () => {
-    if (!deleteId) return;
+  const confirmDeactivate = async () => {
+    if (!deactivateID) return;
 
     try {
       const token = getToken();
-      await axios.delete(
-        `http://localhost:8080/Admin/SizeChartManagement/${deleteId}`,
+      // Gọi API để hủy kích hoạt mà không cần truyền active
+      const res = await axios.delete(
+        `http://localhost:8080/Admin/SizeChartManagement/${deactivateID}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setSizes(sizes.filter((size) => size.id !== deleteId));
-      toast.success("Xóa thành công!");
+
+      // Cập nhật lại danh sách sizes sau khi hủy kích hoạt
+      if (res.data) {
+        setSizes(
+          sizes.map((size) =>
+            size.id === deactivateID ? { ...size, active: false } : size
+          )
+        );
+        toast.success("Deactivate success!");
+      } else {
+        toast.error("Failed to deactivate size");
+      }
     } catch (error) {
-      console.error("Lỗi khi xóa size:", error);
-      toast.error("Lỗi khi xóa size");
+      console.error("Error deactivate size:", error);
+      toast.error("Error deactivate size");
     } finally {
-      setIsDeleteModalOpen(false);
-      setDeleteId(null);
+      setIsDeactivateModalOpen(false);
+      setDeactivateID(null);
+    }
+  };
+
+  const confirmActivate = async () => {
+    if (!activateID) return;
+
+    try {
+      const token = getToken();
+      // Gọi API để kích hoạt lại mà không cần truyền active
+      const res = await axios.patch(
+        `http://localhost:8080/Admin/SizeChartManagement/reactive/${activateID}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Cập nhật lại danh sách sizes sau khi kích hoạt lại
+      if (res.data) {
+        setSizes(
+          sizes.map((size) =>
+            size.id === activateID ? { ...size, active: true } : size
+          )
+        );
+        toast.success("Activate success!");
+      } else {
+        toast.error("Failed to activate size");
+      }
+    } catch (error) {
+      console.error("Error activate size:", error);
+      toast.error("Error activate size");
+    } finally {
+      setIsActivateModalOpen(false);
+      setActivateID(null);
     }
   };
 
@@ -136,18 +191,31 @@ const SizeChart = () => {
       name: "Actions",
       cell: (row) => (
         <>
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded mr-2"
-            onClick={() => openEditModal(row)}
-          >
-            Edit
-          </button>
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded"
-            onClick={() => openDeleteModal(row.id)}
-          >
-            Deactivate
-          </button>
+          {row.active ? (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => openEditModal(row)}
+            >
+              Edit
+            </button>
+          ) : (
+            ""
+          )}
+          {row.active ? (
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => openDeactivateModal(row.id)}
+            >
+              Deactivate
+            </button>
+          ) : (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => openActivateModal(row.id)}
+            >
+              Activate
+            </button>
+          )}
         </>
       ),
     },
@@ -165,7 +233,20 @@ const SizeChart = () => {
           Add size
         </button>
       </div>
-      <DataTable columns={columns} data={sizes} pagination />
+      <DataTable
+        columns={columns}
+        data={sizes}
+        pagination
+        conditionalRowStyles={[
+          {
+            when: (row) => !row.active, // Nếu user bị ban (active === false)
+            style: {
+              opacity: "0.5", // Làm mờ
+              backgroundColor: "#e1e1e1", // Màu nền để dễ nhận diện
+            },
+          },
+        ]}
+      />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
@@ -186,9 +267,7 @@ const SizeChart = () => {
           placeholder="Value"
           className="w-full p-2 border"
           value={formData.value}
-          onChange={(e) =>
-            setFormData({ ...formData, value: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, value: e.target.value })}
         />
       </ModalUpdate>
       <ModalAdd
@@ -211,15 +290,18 @@ const SizeChart = () => {
           placeholder="Value"
           className="w-full p-2 border"
           value={formData.value}
-          onChange={(e) =>
-            setFormData({ ...formData, value: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, value: e.target.value })}
         />
       </ModalAdd>
-      <ModalDelete
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        confirmDelete={confirmDelete}
+      <ModalDeactivate
+        isDeactivateModalOpen={isDeactivateModalOpen}
+        setIsDeactivateModalOpen={setIsDeactivateModalOpen}
+        confirmDeactivate={confirmDeactivate}
+      />
+      <ModalActivate
+        isActivateModalOpen={isActivateModalOpen}
+        setIsActivateModalOpen={setIsActivateModalOpen}
+        confirmActivate={confirmActivate}
       />
     </div>
   );

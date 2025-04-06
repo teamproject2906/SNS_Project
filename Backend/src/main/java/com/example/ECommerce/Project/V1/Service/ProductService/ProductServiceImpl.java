@@ -206,6 +206,8 @@ public class ProductServiceImpl implements IProductService {
 
         dto.setId(entity.getId());
         dto.setSizeChartType(entity.getSizeChartType());
+        dto.setValue(entity.getValue());
+        dto.setActive(entity.getIsActive());
 
         return dto;
     }
