@@ -37,6 +37,7 @@ const ProductTable = () => {
     sizeChart: {
       id: "",
       sizeChartType: "",
+      value: "",
     },
     formClothes: {
       id: "",
@@ -53,18 +54,18 @@ const ProductTable = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleGetProduct = async () => {
-    try {
-      const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/products", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts(res.data);
-      console.log("Token:", token);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
-  };
+  // const handleGetProduct = async () => {
+  //   try {
+  //     const token = getToken();
+  //     const res = await axios.get("http://localhost:8080/api/products", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     setProducts(res.data);
+  //     console.log("Token:", token);
+  //   } catch (error) {
+  //     console.error("Error fetching products:", error);
+  //   }
+  // };
 
   const handleGetCategory = async () => {
     try {
@@ -121,7 +122,7 @@ const ProductTable = () => {
   };
 
   useEffect(() => {
-    handleGetProduct();
+    // handleGetProduct();
     handleGetCategory();
     handleGetSizes();
     handleGetFormClothes();

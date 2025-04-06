@@ -15,7 +15,7 @@ const SizeChart = () => {
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editSize, setEditSize] = useState(null);
-  const [formData, setFormData] = useState({ sizeChartType: "" });
+  const [formData, setFormData] = useState({ sizeChartType: "", value: "" });
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -43,14 +43,14 @@ const SizeChart = () => {
     setEditSize(size.id);
     setFormData(
       size
-        ? { id: size.id, sizeChartType: size.sizeChartType }
-        : { id: "", sizeChartType: "" }
+        ? { id: size.id, sizeChartType: size.sizeChartType, value: size.value }
+        : { id: "", sizeChartType: "", value: "" }
     );
     setModalEditIsOpen(true);
   };
 
   const openAddModal = () => {
-    setFormData({ sizeChartType: "" });
+    setFormData({ sizeChartType: "", value: "" });
     setModalAddIsOpen(true);
   };
 
@@ -70,7 +70,7 @@ const SizeChart = () => {
       const token = getToken();
       const res = await axios.patch(
         `http://localhost:8080/Admin/SizeChartManagement/${editSize}`,
-        { sizeChartType: formData.sizeChartType },
+        { sizeChartType: formData.sizeChartType, value: formData.value },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -131,6 +131,7 @@ const SizeChart = () => {
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
     { name: "Size Type", selector: (row) => row.sizeChartType, sortable: true },
+    { name: "Value", selector: (row) => row.value, sortable: true },
     {
       name: "Actions",
       cell: (row) => (
@@ -145,7 +146,7 @@ const SizeChart = () => {
             className="bg-red-500 text-white px-4 py-2 rounded"
             onClick={() => openDeleteModal(row.id)}
           >
-            Delete
+            Deactivate
           </button>
         </>
       ),
@@ -180,6 +181,15 @@ const SizeChart = () => {
             setFormData({ ...formData, sizeChartType: e.target.value })
           }
         />
+        <input
+          type="text"
+          placeholder="Value"
+          className="w-full p-2 border"
+          value={formData.value}
+          onChange={(e) =>
+            setFormData({ ...formData, value: e.target.value })
+          }
+        />
       </ModalUpdate>
       <ModalAdd
         isOpen={modalAddIsOpen}
@@ -194,6 +204,15 @@ const SizeChart = () => {
           value={formData.sizeChartType}
           onChange={(e) =>
             setFormData({ ...formData, sizeChartType: e.target.value })
+          }
+        />
+        <input
+          type="text"
+          placeholder="Value"
+          className="w-full p-2 border"
+          value={formData.value}
+          onChange={(e) =>
+            setFormData({ ...formData, value: e.target.value })
           }
         />
       </ModalAdd>

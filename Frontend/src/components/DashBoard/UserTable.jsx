@@ -7,22 +7,27 @@ import { getToken } from "../../pages/Login/app/static";
 import { toast } from "react-toastify";
 import ModalBan from "../share/ModalBan";
 import ModalUnban from "../share/ModalUnban";
+import ModalUpdate from "../share/ModalUpdate";
 
 const UserTable = () => {
   const [users, setUsers] = useState([]);
   // const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
-  // const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
-  // const [userId, setUserId] = useState(null);
+  const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
+  const [userId, setUserId] = useState(null);
   // const [addUser, setAddUser] = useState(null);
   const [banId, setBanId] = useState(null);
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [UnbanId, setUnbanId] = useState(null);
   const [isUnbanModalOpen, setIsUnbanModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    role: "",
+  });
 
   console.log(getToken());
   console.log("BanID", banId);
   console.log("Token", getToken());
+  console.log("Users", userId);
 
   const formatDate = (dateString) => {
     if (!dateString) return ""; // Xử lý trường hợp null hoặc undefined
@@ -35,25 +40,18 @@ const UserTable = () => {
     return `${day}/${month}/${year}`;
   };
 
-  // const openEditModal = (user) => {
-  //   setUserId(user.id);
-  //   setFormData(
-  //     user
-  //       ? {
-  //           firstname: user.firstname,
-  //           lastname: user.lastname,
-  //           email: user.email,
-  //           phoneNumber: user.phoneNumber,
-  //           dob: user.dob,
-  //           gender: user.gender,
-  //           bio: user.bio,
-  //           avatar: user.avatar,
-  //           active: user.active,
-  //         }
-  //       : { name: "", email: "" }
-  //   );
-  //   setModalEditIsOpen(true);
-  // };
+  const openEditModal = (user) => {
+    setUserId(user.id);
+    console.log("UserID", user.id);
+    setFormData(
+      user
+        ? {
+            role: user.role,
+          }
+        : { role: "" }
+    );
+    setModalEditIsOpen(true);
+  };
 
   // const openAddModal = (user = null) => {
   //   setAddUser(user);
@@ -63,7 +61,7 @@ const UserTable = () => {
   //   setModalAddIsOpen(true);
   // };
 
-  // const closeEditModal = () => setModalEditIsOpen(false);
+  const closeEditModal = () => setModalEditIsOpen(false);
 
   // const closeAddModal = () => setModalAddIsOpen(false);
 
@@ -123,6 +121,24 @@ const UserTable = () => {
   // const handleDelete = (id) => {
   //   setUsers(users.filter((product) => product.id !== id));
   // };
+
+  const handleSetRole = async () => {
+    try {
+      const token = getToken();
+      const res = await axios.patch(
+        `http://localhost:8080/User/setUserRole/${userId}`,
+        {
+          role: formData.role,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setUsers(users.map((u) => (u.id === userId ? res.data : u)));
+      toast.success("Set role thanh cong!");
+    } catch (error) {
+      console.error("Lỗi khi set role:", error);
+      toast.error("Lỗi khi set role");
+    }
+  };
 
   const openBanModal = (id) => {
     setBanId(id);
@@ -238,6 +254,11 @@ const UserTable = () => {
       selector: (row) => (row.bio ? row.bio : "Not updated"),
     },
     {
+      name: "Role",
+      selector: (row) => (row.role ? row.role : "Not updated"),
+      sortable: true,
+    },
+    {
       name: "Avatar",
       selector: (row) =>
         row.avatar ? (
@@ -274,7 +295,10 @@ const UserTable = () => {
           </div>
           <div className="roleBtn">
             {row.active ? (
-              <button className="bg-red-500 text-white px-3 py-2 rounded">
+              <button
+                className="bg-red-500 text-white px-3 py-2 rounded"
+                onClick={() => openEditModal(row)}
+              >
                 Role
               </button>
             ) : (
@@ -352,6 +376,25 @@ const UserTable = () => {
         setIsUnbanModalOpen={setIsUnbanModalOpen}
         confirmUnban={handleUnban}
       />
+
+      <ModalUpdate
+        isOpen={modalEditIsOpen}
+        onClose={closeEditModal}
+        title={"Set role"}
+        onSubmit={handleSetRole}
+      >
+        <div className="setRoleForm flex items-center flex-col">
+          <select
+            className="w-full p-2 border rounded-lg"
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+          >
+            <option value="CUSTOMER">USER</option>
+            <option value="STAFF">STAFF</option>
+            <option value="MODERATOR">MODERATOR</option>
+          </select>
+        </div>
+      </ModalUpdate>
 
       {/* <ModalUpdate
         isOpen={modalEditIsOpen}

@@ -54,16 +54,6 @@ const SideBar = ({ activeTab, handleTabChange }) => {
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
-            activeTab === "orders"
-              ? "bg-purple-100 text-purple-600"
-              : "hover:bg-gray-100"
-          }`}
-          onClick={() => handleTabChange("orders")}
-        >
-          <MdShoppingCart className="mr-2" /> Orders
-        </button>
-        <button
-          className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
             activeTab === "category"
               ? "bg-purple-100 text-purple-600"
               : "hover:bg-gray-100"
@@ -74,13 +64,13 @@ const SideBar = ({ activeTab, handleTabChange }) => {
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
-            activeTab === "formClothes"
+            activeTab === "size"
               ? "bg-purple-100 text-purple-600"
               : "hover:bg-gray-100"
           }`}
-          onClick={() => handleTabChange("formClothes")}
+          onClick={() => handleTabChange("size")}
         >
-          <BiCategory className="mr-2" /> Form Clothes
+          <MdShoppingCart className="mr-2" /> Size Chart
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
@@ -94,15 +84,27 @@ const SideBar = ({ activeTab, handleTabChange }) => {
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
-            activeTab === "size"
+            activeTab === "orders"
               ? "bg-purple-100 text-purple-600"
               : "hover:bg-gray-100"
           }`}
-          onClick={() => handleTabChange("size")}
+          onClick={() => handleTabChange("orders")}
         >
-          <MdShoppingCart className="mr-2" /> Size Chart
+          <MdShoppingCart className="mr-2" /> Orders
         </button>
+
         <button
+          className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
+            activeTab === "formClothes"
+              ? "bg-purple-100 text-purple-600"
+              : "hover:bg-gray-100"
+          }`}
+          onClick={() => handleTabChange("formClothes")}
+        >
+          <BiCategory className="mr-2" /> Form Clothes
+        </button>
+
+        {/* <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
             activeTab === "alphabet"
               ? "bg-purple-100 text-purple-600"
@@ -121,7 +123,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
           onClick={() => handleTabChange("numeric")}
         >
           <TbNumber className="mr-2" /> Numeric Chart
-        </button>
+        </button> */}
       </header>
       <footer className="">
         <div className="layoutProfile bg-purple-600 text-white p-4 rounded-lg">
