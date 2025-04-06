@@ -1,32 +1,24 @@
 package com.example.ECommerce.Project.V1.Service.UserService;
 
 import com.cloudinary.Cloudinary;
-import com.example.ECommerce.Project.V1.DTO.ChangePasswordRequest;
-import com.example.ECommerce.Project.V1.DTO.PageableResponse;
+import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
-import com.example.ECommerce.Project.V1.Helper.Helper;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
-import com.example.ECommerce.Project.V1.Service.UserService.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +34,23 @@ public class UserServiceImpl implements IUserService {
     private final Cloudinary cloudinary;
 
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        Integer userId;
 
-        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+        if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
+            Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
+
+            if (userIdClaim instanceof Number number) {
+                userId = number.intValue();
+            } else {
+                throw new IllegalArgumentException("Invalid userId claim in JWT");
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
+        }
+
+        User userFind = userRepository.findUserById(userId);
+
+        if(!passwordEncoder.matches(request.getCurrentPassword(), userFind.getPassword())) {
             throw new BadCredentialsException("Wrong password");
         }
 
@@ -52,8 +58,8 @@ public class UserServiceImpl implements IUserService {
             throw new BadCredentialsException("Passwords and Confirm Passwords do not match");
         }
 
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
+        userFind.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(userFind);
     }
 
     @Override
@@ -166,6 +172,7 @@ public class UserServiceImpl implements IUserService {
         if(userDTO.getRole().equals("CUSTOMER")) {user.setRole(Role.USER);}
         if(userDTO.getRole().equals("STAFF")) {user.setRole(Role.STAFF);}
         if(userDTO.getRole().equals("MODERATOR")) {user.setRole(Role.MODERATOR);}
+        userRepository.save(user);
         return mapper.map(user, UserDTO.class);
     }
 }

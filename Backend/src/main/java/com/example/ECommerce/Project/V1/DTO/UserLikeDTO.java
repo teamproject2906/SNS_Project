@@ -5,12 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-    private String username;
-    private String emailOrPhoneNumber;
-    private String password;
+@Builder
+public class UserLikeDTO {
+    private Integer userID;
+    private UUID postID;
 }

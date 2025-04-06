@@ -1,7 +1,7 @@
 package com.example.ECommerce.Project.V1.Controller;
 
-import com.example.ECommerce.Project.V1.DTO.PageableResponse;
-import com.example.ECommerce.Project.V1.DTO.ResponseMessageAPI;
+import com.example.ECommerce.Project.V1.DTO.ResponseDTO.PageableResponse;
+import com.example.ECommerce.Project.V1.DTO.ResponseDTO.ResponseMessageAPI;
 import com.example.ECommerce.Project.V1.DTO.VoucherDTO;
 import com.example.ECommerce.Project.V1.Service.VoucherService.IVoucherService;
 import lombok.RequiredArgsConstructor;

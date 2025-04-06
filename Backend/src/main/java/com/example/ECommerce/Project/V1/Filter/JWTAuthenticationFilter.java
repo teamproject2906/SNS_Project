@@ -11,8 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,8 +55,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 return;
             } catch (JwtException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Unauthorized: Token is missing or invalid");
+                response.getWriter().write("Unauthorized: Token has been revoked or expired");
                 response.getWriter().flush();
+//                response.sendRedirect("/Authentication/Authenticate");
                 return;
             }
         }
@@ -83,13 +82,15 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Unauthorized: Token has been revoked or expired");
                 response.getWriter().flush();
+//                response.sendRedirect("/Authentication/Authenticate");
                 return;
             }
         } else {
             SecurityContextHolder.clearContext();
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized: Token is missing or invalid");
-            response.getWriter().flush();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Unauthorized: Token has been revoked or expired");
+                response.getWriter().flush();
+//            response.sendRedirect("/Authentication/Authenticate");
             return;
         }
         filterChain.doFilter(request, response);

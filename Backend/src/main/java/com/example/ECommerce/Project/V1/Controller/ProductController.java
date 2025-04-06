@@ -22,11 +22,9 @@ public class ProductController {
     private final IProductService productService;
     private final FileUploadService fileUploadService;
 
-
     public ProductController(IProductService productService, FileUploadService fileUploadService) {
         this.productService = productService;
         this.fileUploadService = fileUploadService;
-
     }
 
     @PostMapping()

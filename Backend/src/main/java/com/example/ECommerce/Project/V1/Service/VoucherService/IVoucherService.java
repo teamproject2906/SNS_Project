@@ -1,9 +1,7 @@
 package com.example.ECommerce.Project.V1.Service.VoucherService;
 
-import com.example.ECommerce.Project.V1.DTO.PageableResponse;
+import com.example.ECommerce.Project.V1.DTO.ResponseDTO.PageableResponse;
 import com.example.ECommerce.Project.V1.DTO.VoucherDTO;
-
-import java.util.List;
 
 public interface IVoucherService {
     PageableResponse<VoucherDTO> getAllVoucher(int pageNumber, int pageSize, String sortBy, String sortDir);
