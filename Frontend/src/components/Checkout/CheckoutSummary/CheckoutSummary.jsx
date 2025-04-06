@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { useCart } from "../../../context/CartContext";
+import { Link } from "react-router-dom";
 
 const CheckoutSummary = () => {
   const [discountCode, setDiscountCode] = useState("");
-  const [subtotal, setSubtotal] = useState(1600000); // Giá tạm tính
-  const [shippingFee, setShippingFee] = useState(0); // Phí vận chuyển
-  const [total, setTotal] = useState(subtotal + shippingFee); // Tổng tiền
+  const { cartItems, getTotalPrice } = useCart();
+  const shippingFee = 0; // Phí vận chuyển
+  
+  // Calculate subtotal and total from cart items
+  const subtotal = getTotalPrice();
+  const total = subtotal + shippingFee;
 
   const handleApplyDiscount = () => {
     alert(`Mã giảm giá "${discountCode}" đã được áp dụng (Demo)`);
@@ -13,21 +18,38 @@ const CheckoutSummary = () => {
 
   return (
     <div className="w-full bg-white shadow-lg p-8 rounded-lg">
+      <h2 className="text-xl font-semibold mb-4">Tóm tắt đơn hàng</h2>
+      
       {/* Sản phẩm */}
-      <div className="flex items-center justify-between border-b pb-6">
-        <div className="flex items-center">
-          <img
-            src="https://product.hstatic.net/1000026602/product/dsc03170_2dfd2355eeec459b8d7d634b0214d5ca.jpg"
-            alt="Áo bomber da rắn"
-            className="w-16 h-16 rounded-md mr-4 object-cover"
-          />
-          <div>
-            <p className="text-lg font-semibold">Áo bomber da rắn - XL</p>
-            <span className="text-sm text-gray-500">Số lượng: 1</span>
-          </div>
+      {cartItems.length === 0 ? (
+        <div className="text-center py-4 border-b pb-6">
+          <p className="text-gray-500">Giỏ hàng của bạn đang trống</p>
+          <Link to="/cart" className="text-blue-600 hover:underline mt-2 inline-block">
+            Quay lại giỏ hàng
+          </Link>
         </div>
-        <p className="text-lg font-bold text-gray-900">1,600,000₫</p>
-      </div>
+      ) : (
+        <div className="border-b pb-6">
+          {cartItems.map((item) => (
+            <div key={item.id} className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-16 h-16 rounded-md mr-4 object-cover"
+                />
+                <div>
+                  <p className="text-lg font-semibold">{item.name}</p>
+                  <span className="text-sm text-gray-500">Số lượng: {item.quantity}</span>
+                </div>
+              </div>
+              <p className="text-lg font-bold text-gray-900">
+                {(item.price * item.quantity).toLocaleString()}₫
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Mã giảm giá */}
       <div className="mt-6 border-b pb-6">

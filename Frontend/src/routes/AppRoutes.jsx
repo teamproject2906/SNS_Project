@@ -20,6 +20,8 @@ import ProfileSocial from "../../../Frontend/src/pages/ProfileSocial/ProfileSoci
 import SearchPage from "../../../Frontend/src/pages/SearchPage/SearchPage";
 import Setting from "../pages/setting/Setting";
 import Profile from "../pages/Profile/Profile";
+import Address from "../pages/Address/Address";
+import Favourite from "../pages/Favourite/Favourite";
 
 // Giả lập trạng thái Auth
 const isAuthenticated = false; // Kiểm tra trạng thái đăng nhập
@@ -92,6 +94,15 @@ const routes = [
     ),
   },
   {
+    path: "/favourite",
+    element: (
+      <MainLayout>
+        <Breadcrumb />
+        <Favourite />
+      </MainLayout>
+    ),
+  },
+  {
     path: "/checkout",
     element: (
       <MainLayout>
@@ -131,6 +142,14 @@ const routes = [
     element: (
       <MainLayout>
       <Profile />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/my-address",
+    element: (
+      <MainLayout>
+      <Address />
       </MainLayout>
     ),
   },
