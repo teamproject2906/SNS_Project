@@ -27,6 +27,9 @@ public class SizeChart extends BaseEntity {
     @Column(name = "size_chart_id", nullable = false, unique = true)
     private Integer id;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String sizeChartType;
+
+    @Column(nullable = false, length = 10)
+    private String value;
 }

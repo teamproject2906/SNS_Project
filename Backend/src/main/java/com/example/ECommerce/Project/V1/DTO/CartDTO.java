@@ -1,17 +1,19 @@
 package com.example.ECommerce.Project.V1.DTO;
 
-import com.example.ECommerce.Project.V1.DTO.SizeChartResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlphabetSizeResponseDTO {
+public class CartDTO {
     private Integer id;
-    private String alphabetSize;
-    private SizeChartResponseDTO sizeChart;
+    private Integer userId;
+    private List<CartItemDTO> items;
+    private double totalAmount;
 }

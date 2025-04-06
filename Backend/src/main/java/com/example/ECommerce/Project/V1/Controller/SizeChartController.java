@@ -22,7 +22,7 @@ public class SizeChartController {
 
     @PostMapping()
     public ResponseEntity<SizeChart> createSizeChart(@RequestBody SizeChart sizeChart) {
-        return new ResponseEntity<SizeChart>(sizeChartService.createSizeChart(sizeChart), HttpStatus.CREATED);
+        return new ResponseEntity<>(sizeChartService.createSizeChart(sizeChart), HttpStatus.CREATED);
     }
 
     @GetMapping()
@@ -41,11 +41,14 @@ public class SizeChartController {
         return sizeChartService.updateSizeChartById(id, sizeChart);
     }
 
-    @DeleteMapping("/{sizeChartId}")
-    public ResponseEntity<String> deleteSizeChartById(@PathVariable("sizeChartId") Integer id) {
-        sizeChartService.deleteSizeChartById(id);
+    @PatchMapping("/reactive/{sizeChartId}")
+    public SizeChart reActiveSizeChartById(@PathVariable("sizeChartId") Integer id) {
+        return sizeChartService.reActivateSizeChartById(id);
+    }
 
-//        return new ResponseEntity<>("SizeChart is  deleted", HttpStatus.OK);
-        return ResponseEntity.ok("Deleted SizeChart with ID: " + id);
+    @DeleteMapping("/{sizeChartId}")
+    public ResponseEntity<String> deactivateSizeChartById(@PathVariable("sizeChartId") Integer id) {
+        sizeChartService.deactivateSizeChartById(id);
+        return ResponseEntity.ok("Deactivated SizeChart with ID: " + id);
     }
 }

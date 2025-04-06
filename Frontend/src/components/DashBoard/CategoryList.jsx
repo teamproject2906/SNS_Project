@@ -1,159 +1,250 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import ModalUpdate from "../share/ModalUpdate";
 import ModalAdd from "../share/ModalAdd";
+import ModalDelete from "../share/ModalDelete";
+import { getToken } from "../../pages/Login/app/static";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const CategoryList = () => {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Laptop", price: "$1000", category: "Electronics", status: "Active" },
-    { id: 2, name: "Phone", price: "$500", category: "Electronics", status: "Active" },
-  ]);
+  const [categories, setCategories] = useState([]);
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
-  const [addCategory, setAddCategory] = useState(null);
-  const [formData, setFormData] = useState({ name: "", price: "" });
+  const [formData, setFormData] = useState({
+    categoryName: "",
+    parentCategoryID: {
+      id: "",
+    },
+  });
+  const [categoryId, setCategoryId] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const openEditModal = (user = null) => {
-    setEditCategory(user);
-    setFormData(
-      user ? { name: user.name, price: user.price } : { name: "", price: "" }
-    );
+  const fetchCategories = async () => {
+    try {
+      const token = getToken();
+      const res = await axios.get("http://localhost:8080/api/categories", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(res.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const openEditModal = (category) => {
+    setEditCategory(category.id);
+    setFormData({
+      categoryName: category.categoryName,
+      parentCategoryID: category.parentCategoryID
+        ? { id: category.parentCategoryID.id }
+        : { id: "" },
+    });
     setModalEditIsOpen(true);
   };
 
-  const openAddModal = (user = null) => {
-    setAddCategory(user);
-    setFormData(
-      user ? { name: user.name, price: user.price } : { name: "", price: "" }
-    );
+  const openAddModal = () => {
+    setFormData({
+      categoryName: "",
+      parentCategoryID: { id: "" },
+    });
     setModalAddIsOpen(true);
+  };
+
+  const openDeleteModal = (id) => {
+    console.log("Category ID to delete:", id);
+    setCategoryId(id);
+    setIsDeleteModalOpen(true);
   };
 
   const closeEditModal = () => setModalEditIsOpen(false);
   const closeAddModal = () => setModalAddIsOpen(false);
 
-  const handleEditSubmit = () => {
-    if (editCategory) {
-      setProducts(
-        products.map((u) =>
-          u.id === editCategory.id ? { ...editCategory, ...formData } : u
-        )
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = getToken();
+      const res = await axios.patch(
+        `http://localhost:8080/api/categories/${editCategory}`,
+        {
+          categoryName: formData.categoryName,
+          parentCategoryID: formData.parentCategoryID.id
+            ? formData.parentCategoryID
+            : null,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-    } else {
-      setProducts([...products, { id: products.length + 1, ...formData }]);
+      setCategories(
+        categories.map((cate) => (cate.id === editCategory ? res.data : cate))
+      );
+      closeEditModal();
+      toast.success("Cập nhật danh mục thành công!");
+    } catch (error) {
+      console.error("Error updating category:", error);
+      toast.error("Lỗi khi cập nhật danh mục");
     }
-    closeEditModal();
   };
 
-  const handleAddSubmit = () => {
-    setProducts([...products, { id: products.length + 1, ...formData, status: "Active" }]);
-    closeAddModal();
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = getToken();
+      const requestData = {
+        categoryName: formData.categoryName,
+      };
+  
+      // Chỉ thêm parentCategoryID nếu có giá trị hợp lệ
+      if (formData.parentCategoryID.id.trim() !== "") {
+        requestData.parentCategoryID = { id: formData.parentCategoryID.id };
+      }
+  
+      const res = await axios.post(
+        "http://localhost:8080/api/categories",
+        requestData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      setCategories([...categories, res.data]);
+      closeAddModal();
+      toast.success("Thêm danh mục thành công!");
+    } catch (error) {
+      console.error("Error adding category:", error);
+      toast.error("Lỗi khi thêm danh mục");
+    }
   };
+  
 
-  const toggleStatus = (id) => {
-    setProducts(
-      products.map((product) =>
-        product.id === id
-          ? { ...product, status: product.status === "Active" ? "Deactive" : "Active" }
-          : product
-      )
-    );
+  const confirmDelete = async () => {
+    try {
+      const token = getToken();
+      await axios.delete(`http://localhost:8080/api/categories/${categoryId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(categories.filter((cat) => cat.id !== categoryId));
+      console.log("Deleting category ID:", categoryId);
+      toast.success("Xóa danh mục thành công!");
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      toast.error("Lỗi khi xóa danh mục");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setCategoryId(null);
+    }
   };
 
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "Product", selector: (row) => row.name, sortable: true },
-    { name: "Price", selector: (row) => row.price, sortable: true },
-    { name: "Status", selector: (row) => row.status, sortable: true },
+    {
+      name: "Category Name",
+      selector: (row) => row.categoryName,
+      sortable: true,
+    },
+    {
+      name: "Parent Category",
+      selector: (row) =>
+        row.parentCategoryID ? row.parentCategoryID.id : "Null",
+      sortable: true,
+    },
     {
       name: "Actions",
       cell: (row) => (
-        <div className="flex items-center gap-2">
+        <>
           <button
-            className="bg-green-500 text-white px-4 py-2 rounded"
+            className="bg-green-500 text-white px-4 py-2 rounded mr-2"
             onClick={() => openEditModal(row)}
           >
             Edit
           </button>
           <button
-            className={`px-4 py-2 rounded ${row.status === "Active" ? "bg-red-500" : "bg-gray-500"} text-white`}
-            onClick={() => toggleStatus(row.id)}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+            onClick={() => openDeleteModal(row.id)}
           >
-            {row.status === "Active" ? "Deactivate" : "Activate"}
+            Delete
           </button>
-        </div>
+        </>
       ),
     },
   ];
 
   return (
     <div>
+      <ToastContainer />
       <div className="flex justify-between my-4">
-        <h3 className="text-lg font-semibold">Category</h3>
+        <h3 className="text-lg font-semibold">Category List</h3>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={() => openAddModal(null)}
+          onClick={openAddModal}
         >
           Add Category
         </button>
       </div>
-      <DataTable
-        columns={columns}
-        data={products}
-        pagination
-        conditionalRowStyles={[
-          {
-            when: (row) => row.status === "Deactive",
-            style: {
-              opacity: 0.5,
-            },
-          },
-        ]}
-      />
+      <DataTable columns={columns} data={categories} pagination />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
-        title={editCategory ? "Edit Category" : "Add Category"}
+        title="Edit Category"
         onSubmit={handleEditSubmit}
       >
         <input
           type="text"
-          placeholder="Name"
-          className="w-full p-2 border mb-2"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Category Name"
+          className="w-full p-2 border"
+          value={formData.categoryName}
+          onChange={(e) =>
+            setFormData({ ...formData, categoryName: e.target.value })
+          }
         />
         <input
           type="text"
-          placeholder="Price"
-          className="w-full p-2 border"
-          value={formData.price}
-          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+          placeholder="Parent Category ID"
+          className="w-full p-2 border mt-2"
+          value={formData.parentCategoryID? formData.parentCategoryID.id : "Null"}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              parentCategoryID: { id: e.target.value },
+            })
+          }
         />
       </ModalUpdate>
-
       <ModalAdd
         isOpen={modalAddIsOpen}
         onClose={closeAddModal}
-        title={addCategory ? "Edit Category" : "Add Category"}
+        title="Add Category"
         onSubmit={handleAddSubmit}
       >
         <input
           type="text"
-          placeholder="Name"
-          className="w-full p-2 border mb-2"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Category Name"
+          className="w-full p-2 border"
+          onChange={(e) =>
+            setFormData({ ...formData, categoryName: e.target.value })
+          }
         />
         <input
           type="text"
-          placeholder="Price"
-          className="w-full p-2 border"
-          value={formData.price}
-          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+          placeholder="Parent Category ID"
+          className="w-full p-2 border mt-2"
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              parentCategoryID: { id: e.target.value },
+            })
+          }
         />
       </ModalAdd>
+      <ModalDelete
+        isDeleteModalOpen={isDeleteModalOpen}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
+        confirmDelete={confirmDelete}
+      />
     </div>
   );
 };

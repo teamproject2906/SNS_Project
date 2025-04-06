@@ -86,8 +86,8 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProductByProductCode(code),HttpStatus.OK);
     }
 
-    @GetMapping("/name/{name}")
-    public ResponseEntity<Object> getProductsByProductName(@PathVariable String name) {
+    @GetMapping("/search")
+    public ResponseEntity<Object> getProductsByProductName(@RequestParam String name) {
         List<Product> products = productService.getProductByName(name);
 
         // Return a custom message when no product are available

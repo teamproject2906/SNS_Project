@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlphabetSizeDTO {
-    private String sizeChart;
-    private String alphabetSize;
+public class CartItemDTO {
+    private Integer id;
+    private Integer quantity;
+    private double unitPrice;
+    private Integer productId;
+    private Integer cartId;
 }

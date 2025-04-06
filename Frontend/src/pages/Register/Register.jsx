@@ -5,8 +5,11 @@ import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { setToken, setUserInfo } from "../Login/app/static";
+import { jwtDecode } from "jwt-decode";
+import { useUser } from "../../context/UserContext";
 
 const Register = () => {
+  const { setUser } = useUser(); // Lấy setUser để cập nhật thông tin user
   const [username, setUsername] = useState("");
   const [emailOrPhoneNumber, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,29 +48,47 @@ const Register = () => {
           withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
         }
       );
-      
+
       // const res = await axios.post("https://6785f704f80b78923aa4e3be.mockapi.io/product", {
       //   username,
       //   email: trimmedEmail,
       //   password,
       // });
-      if (res.data) {
-        setToken(res.data);
-        setUserInfo(res.data);
+      console.log("Response from server:", res.data);
+
+      if (res.data && res.data.access_token) {
+        const token = res.data.access_token;
+        setToken(`${token}`); // Lưu token với định dạng Bearer
+        console.log("Token: " + token);
         console.log("user info:", res.data);
-        console.log("Token: " + res.data);
-        navigate("/");
+
+        // Giải mã token để lấy thông tin user
+        const decodedUser = jwtDecode(token);
+        setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
+
+        console.log("Decoded User:", decodedUser);
+        setUser(decodedUser); // Cập nhật thông tin user trong context
+        // Display "Register successful" message
+        toast.success("Registration successful", {
+          autoClose: 2000, // Display for 2 seconds
+          position: "top-right",
+        });
+
+        // Navigate to home page after a short delay
+        setTimeout(() => {
+          navigate("/");
+        }, 2000); // 2-second delay to match the toast duration
       } else {
         throw new Error("Token not found in response.");
       }
-      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
-      navigate("/");
+      // toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+      // navigate("/");
       console.log(res.data);
     } catch (error) {
       if (error.response) {
         switch (error.response.status) {
-          case 409:
-            toast.error("Email hoặc tên người dùng đã tồn tại!");
+          case 400:
+            toast.error(error.response.data.message);
             break;
           case 500:
             toast.error("Lỗi máy chủ, vui lòng thử lại sau!");
@@ -126,11 +147,10 @@ const Register = () => {
           <button
             aria-label="Register"
             disabled={loading}
-            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${
-              loading
+            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-black text-white hover:bg-gray-800"
-            }`}
+              }`}
           >
             {loading ? "Đang xử lý..." : "ĐĂNG KÝ"}
           </button>

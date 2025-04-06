@@ -50,7 +50,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(unique = true, length = 11)
     private String phoneNumber;
 
-    @Column(nullable = true, length = 255)
+    @Column()
     private String password;
 
     @Column()
