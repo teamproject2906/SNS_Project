@@ -68,18 +68,27 @@ const Register = () => {
 
         console.log("Decoded User:", decodedUser);
         setUser(decodedUser); // Cập nhật thông tin user trong context
-        navigate("/");
+        // Display "Register successful" message
+        toast.success("Registration successful", {
+          autoClose: 2000, // Display for 2 seconds
+          position: "top-right",
+        });
+
+        // Navigate to home page after a short delay
+        setTimeout(() => {
+          navigate("/");
+        }, 2000); // 2-second delay to match the toast duration
       } else {
         throw new Error("Token not found in response.");
       }
-      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
-      navigate("/");
+      // toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+      // navigate("/");
       console.log(res.data);
     } catch (error) {
       if (error.response) {
         switch (error.response.status) {
           case 400:
-            toast.error("Username already exists!");
+            toast.error(error.response.data.message);
             break;
           case 500:
             toast.error("Lỗi máy chủ, vui lòng thử lại sau!");
@@ -138,11 +147,10 @@ const Register = () => {
           <button
             aria-label="Register"
             disabled={loading}
-            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${
-              loading
+            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-black text-white hover:bg-gray-800"
-            }`}
+              }`}
           >
             {loading ? "Đang xử lý..." : "ĐĂNG KÝ"}
           </button>
