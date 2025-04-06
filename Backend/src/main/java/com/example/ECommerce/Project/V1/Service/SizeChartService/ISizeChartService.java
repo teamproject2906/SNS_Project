@@ -12,6 +12,6 @@ public interface ISizeChartService {
     List<SizeChartResponseDTO> getAllSizeChart();
     SizeChart getSizeChartById(Integer id);
     SizeChart updateSizeChartById(Integer id, SizeChart sizeChart);
-    void deleteSizeChartById(Integer id);
+    void deactivateSizeChartById(Integer id);
     SizeChart reActivateSizeChartById(Integer id);
 }

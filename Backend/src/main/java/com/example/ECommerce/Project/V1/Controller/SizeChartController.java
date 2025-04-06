@@ -47,10 +47,8 @@ public class SizeChartController {
     }
 
     @DeleteMapping("/{sizeChartId}")
-    public ResponseEntity<String> deleteSizeChartById(@PathVariable("sizeChartId") Integer id) {
-        sizeChartService.deleteSizeChartById(id);
-
-//        return new ResponseEntity<>("SizeChart is  deleted", HttpStatus.OK);
-        return ResponseEntity.ok("Deleted SizeChart with ID: " + id);
+    public ResponseEntity<String> deactivateSizeChartById(@PathVariable("sizeChartId") Integer id) {
+        sizeChartService.deactivateSizeChartById(id);
+        return ResponseEntity.ok("Deactivated SizeChart with ID: " + id);
     }
 }

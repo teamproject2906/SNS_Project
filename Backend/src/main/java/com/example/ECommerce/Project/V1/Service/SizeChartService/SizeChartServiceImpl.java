@@ -5,7 +5,6 @@ import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.SizeChart;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
-import com.example.ECommerce.Project.V1.Service.SizeChartService.ISizeChartService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +26,7 @@ public class SizeChartServiceImpl implements ISizeChartService {
         dto.setId(entity.getId());
         dto.setSizeChartType(entity.getSizeChartType());
         dto.setValue(entity.getValue());
+        dto.setActive(entity.getIsActive());
 
         return dto;
     }
@@ -101,13 +101,14 @@ public class SizeChartServiceImpl implements ISizeChartService {
 
         updateSizeChart.setSizeChartType(validatedSizeChart.getSizeChartType());
         updateSizeChart.setValue(validatedSizeChart.getValue());
+        updateSizeChart.setIsActive(validatedSizeChart.getIsActive());
         repository.save(updateSizeChart);
 
         return updateSizeChart;
     }
 
     @Override
-    public void deleteSizeChartById(Integer id) {
+    public void deactivateSizeChartById(Integer id) {
        SizeChart sizeChart = getSizeChartById(id);
 
        if (sizeChart != null) {
