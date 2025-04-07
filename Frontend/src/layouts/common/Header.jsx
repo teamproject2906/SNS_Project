@@ -8,9 +8,11 @@ import {
   FaBars,
   FaTimes,
   FaSignOutAlt,
+  FaHeart,
 } from "react-icons/fa";
 import { useSpring, animated } from "@react-spring/web";
 import { CgProfile } from "react-icons/cg";
+import { CiLocationOn } from "react-icons/ci";
 import { FaEarthAmericas } from "react-icons/fa6";
 import { FaNewspaper } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
@@ -94,6 +96,15 @@ const Header = () => {
                         </Link>
                       </li>
                       <li>
+                        <Link
+                          to={`/my-address`}
+                          className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"
+                        >
+                          <CiLocationOn className="mr-3 mt-1" />
+                          Address
+                        </Link>
+                      </li>
+                      {/* <li>
                         <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex">
                           <FaEarthAmericas className="mr-3 mt-1" />
                           Change Language
@@ -119,7 +130,7 @@ const Header = () => {
                           <BsChatDots className="mr-3 mt-1" />
                           Message
                         </button>
-                      </li>
+                      </li> */}
                       <li>
                         <button
                           className="w-full text-left hover:bg-gray-100 px-2 py-1"
@@ -159,8 +170,13 @@ const Header = () => {
       <div className="bg-white py-4 border-b border-gray-400">
         <div className="container mx-auto flex justify-between items-center px-4">
           {/* Giỏ hàng */}
-          <Link to={"/cart"} className="text-gray-800 flex items-center">
+          <Link to={"/cart"} className="text-gray-800 flex items-center mx-2">
             <FaShoppingBag size={20} />
+            <span className="ml-1 text-sm hidden sm:inline">0</span>
+          </Link>
+          {/* Giỏ hàng */}
+          <Link to={"/favourite"} className="text-gray-800 flex items-center mx-2">
+            <FaHeart size={20} />
             <span className="ml-1 text-sm hidden sm:inline">0</span>
           </Link>
 
