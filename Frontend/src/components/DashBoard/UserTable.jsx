@@ -7,12 +7,13 @@ import { getToken } from "../../pages/Login/app/static";
 import { toast } from "react-toastify";
 import ModalBan from "../share/ModalBan";
 import ModalUnban from "../share/ModalUnban";
-import ModalUpdate from "../share/ModalUpdate";
+import ModalDetail from "../share/ModalDetail";
 
 const UserTable = () => {
   const [users, setUsers] = useState([]);
   // const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
-  const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
+  // const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
+  const [modalDetailIsOpen, setModalDetailIsOpen] = useState(false);
   const [userId, setUserId] = useState(null);
   // const [addUser, setAddUser] = useState(null);
   const [banId, setBanId] = useState(null);
@@ -27,7 +28,7 @@ const UserTable = () => {
   console.log(getToken());
   console.log("BanID", banId);
   console.log("Token", getToken());
-  console.log("Users", userId);
+  console.log("Users", users);
 
   const formatDate = (dateString) => {
     if (!dateString) return ""; // Xử lý trường hợp null hoặc undefined
@@ -40,17 +41,22 @@ const UserTable = () => {
     return `${day}/${month}/${year}`;
   };
 
-  const openEditModal = (user) => {
-    setUserId(user.id);
-    console.log("UserID", user.id);
-    setFormData(
-      user
-        ? {
-            role: user.role,
-          }
-        : { role: "" }
-    );
-    setModalEditIsOpen(true);
+  const openDetailModal = (id) => {
+    const user = users.find((user) => user.id === id);
+    if (user) {
+      setUserId(user.id);
+      setFormData({
+        firstname: user.firstname || "",
+        lastname: user.lastname || "",
+        email: user.email || "",
+        phoneNumber: user.phoneNumber || "",
+        dob: user.dob || "",
+        gender: user.gender || "",
+        bio: user.bio || "",
+        avatar: user.avatar || "",
+      });
+      setModalDetailIsOpen(true);
+    }
   };
 
   // const openAddModal = (user = null) => {
@@ -61,7 +67,7 @@ const UserTable = () => {
   //   setModalAddIsOpen(true);
   // };
 
-  const closeEditModal = () => setModalEditIsOpen(false);
+  // const closeEditModal = () => setModalEditIsOpen(false);
 
   // const closeAddModal = () => setModalAddIsOpen(false);
 
@@ -125,18 +131,16 @@ const UserTable = () => {
   //   setUsers(users.filter((product) => product.id !== id));
   // };
 
-  const handleSetRole = async () => {
+  const handleSetRole = async (id, role) => {
     try {
       const token = getToken();
       const res = await axios.patch(
-        `http://localhost:8080/User/setUserRole/${userId}`,
-        {
-          role: formData.role,
-        },
+        `http://localhost:8080/User/setUserRole/${id}`,
+        { role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setUsers(users.map((u) => (u.id === userId ? res.data : u)));
-      toast.success("Set role thanh cong!");
+      setUsers(users.map((u) => (u.id === id ? res.data : u)));
+      toast.success("Cập nhật vai trò thành công!");
     } catch (error) {
       console.error("Lỗi khi set role:", error);
       toast.error("Lỗi khi set role");
@@ -225,7 +229,7 @@ const UserTable = () => {
   };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
+    { name: "ID", selector: (row) => row.id, sortable: true},
     {
       name: "Full Name",
       selector: (row) =>
@@ -272,18 +276,30 @@ const UserTable = () => {
             bgColorClass = "bg-yellow-300 text-black";
             break;
           default:
-            bgColorClass = "bg-gray-200 text-black";
+            bgColorClass = "bg-blue-600 text-white";
         }
 
         return (
           <select
             className={`w-full p-2 border rounded-lg ${bgColorClass}`}
             value={row.role}
-            onChange={(e) => handleSetRole(e, row)}
+            disabled={!row.active} // Disable nếu user đã bị ban
+            onChange={(e) => {
+              const newRole = e.target.value;
+              setFormData({ ...formData, role: newRole });
+              setUserId(row.id);
+              handleSetRole(row.id, newRole);
+            }}
           >
-            <option value="CUSTOMER" className="bg-blue-600">USER</option>
-            <option value="STAFF" className="bg-green-600">STAFF</option>
-            <option value="MODERATOR" className="bg-yellow-300">MODERATOR</option>
+            <option value="CUSTOMER" className="bg-blue-600">
+              USER
+            </option>
+            <option value="STAFF" className="bg-green-600">
+              STAFF
+            </option>
+            <option value="MODERATOR" className="bg-yellow-300">
+              MODERATOR
+            </option>
           </select>
         );
       },
@@ -301,7 +317,27 @@ const UserTable = () => {
     // },
     {
       name: "Active",
-      selector: (row) => (row.active ? "YES" : "NO"),
+      selector: (row) => (
+        <>
+          <div className="banBtn">
+            {row.active ? (
+              <button
+                className="bg-green-500 text-white px-3 py-2 rounded-lg mr-2"
+                onClick={() => openBanModal(row.id)}
+              >
+                Ban
+              </button>
+            ) : (
+              <button
+                className="bg-green-500 text-white px-3 py-2 rounded-lg mr-2"
+                onClick={() => openUnbanModal(row.id)}
+              >
+                Unban
+              </button>
+            )}
+          </div>
+        </>
+      ),
       sortable: true,
     },
     {
@@ -309,56 +345,16 @@ const UserTable = () => {
       cell: (row) => (
         <>
           <div className="banBtn">
-            {row.active ? (
-              <button
-                className="bg-green-500 text-white px-3 py-2 rounded mr-2"
-                onClick={() => openBanModal(row.id)}
-              >
-                Ban
-              </button>
-            ) : (
-              <button
-                className="bg-green-500 text-white px-3 py-2 rounded mr-2"
-                onClick={() => openUnbanModal(row.id)}
-              >
-                Unban
-              </button>
-            )}
-          </div>
-          <div className="roleBtn">
-            {row.active ? (
-              <button
-                className="bg-red-500 text-white px-3 py-2 rounded"
-                onClick={() => openEditModal(row)}
-              >
-                Role
-              </button>
-            ) : (
-              ""
-            )}
+            <button
+              className="bg-green-500 text-white px-3 py-2 rounded-lg mr-2"
+              onClick={() => openDetailModal(row.id)}
+            >
+              View
+            </button>
           </div>
         </>
       ),
-      // Mở comment nếu muốn disable các nút
-      // cell: (row) => (
-      //   <>
-      //     <button
-      //       className="bg-green-500 text-white px-4 py-2 rounded mr-2"
-      //       onClick={() => openBanModal(row.id)}
-      //       disabled={!row.active} // Disable nếu user đã bị ban
-      //       style={{ opacity: !row.active ? 0.5 : 1, cursor: !row.active ? "not-allowed" : "pointer" }}
-      //     >
-      //       Ban
-      //     </button>
-      //     <button
-      //       className="bg-red-500 text-white px-4 py-2 rounded"
-      //       disabled={!row.active} // Disable nếu user đã bị ban
-      //       style={{ opacity: !row.active ? 0.5 : 1, cursor: !row.active ? "not-allowed" : "pointer" }}
-      //     >
-      //       Role
-      //     </button>
-      //   </>
-      // ),
+
     },
   ];
 
@@ -409,65 +405,36 @@ const UserTable = () => {
         confirmUnban={handleUnban}
       />
 
-      <ModalUpdate
-        isOpen={modalEditIsOpen}
-        onClose={closeEditModal}
-        title={"Set role"}
-        onSubmit={handleSetRole}
-      >
-        <div className="setRoleForm flex items-center flex-col">
-          <select
-            className="w-full p-2 border rounded-lg"
-            value={formData.role}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-          >
-            <option value="CUSTOMER">USER</option>
-            <option value="STAFF">STAFF</option>
-            <option value="MODERATOR">MODERATOR</option>
-          </select>
-        </div>
-      </ModalUpdate>
-
-      {/* <ModalUpdate
-        isOpen={modalEditIsOpen}
-        onClose={closeEditModal}
-        title={userId ? "Edit User" : "Add User"}
-        onSubmit={handleEditSubmit}
+      <ModalDetail
+        isOpen={modalDetailIsOpen}
+        onClose={() => setModalDetailIsOpen(false)}
+        title={"User Detail"}
       >
         <div className="first_name_form">
           <label>First name:</label>
           <input
             type="text"
-            placeholder="First name"
             className="w-full p-2 border rounded-lg"
-            value={formData.firstname}
-            onChange={(e) =>
-              setFormData({ ...formData, firstname: e.target.value })
-            }
+            value={formData.firstname ? formData.firstname : "Not updated"}
+            readOnly
           />
         </div>
         <div className="last_name_form pt-4">
           <label>Last name:</label>
           <input
             type="text"
-            placeholder="Last name"
             className="w-full p-2 border rounded-lg"
-            value={formData.lastname}
-            onChange={(e) =>
-              setFormData({ ...formData, lastname: e.target.value })
-            }
+            value={formData.lastname ? formData.lastname : "Not updated"}
+            readOnly
           />
         </div>
         <div className="email_form pt-4">
           <label>Email:</label>
           <input
             type="email"
-            placeholder="Email"
             className="w-full p-2 border rounded-lg"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
+            value={formData.email ? formData.email : "Not updated"}
+            readOnly
           />
         </div>
         <div className="phone_number_form pt-4">
@@ -475,122 +442,59 @@ const UserTable = () => {
           <input
             type="tel"
             pattern="^0(3[2-9]|5[2-9]|7[0-9]|8[1-9]|9[0-9])[0-9]{7}$"
-            placeholder="Số điện thoại (VD: 0987654321)"
             className="w-full p-2 border rounded-lg"
             title="Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08, 09"
-            value={formData.phoneNumber}
-            onChange={(e) =>
-              setFormData({ ...formData, phoneNumber: Number(e.target.value) })
-            }
+            value={formData.phoneNumber ? formData.phoneNumber : "Not updated"}
+            readOnly
           />
         </div>
         <div className="dob_form pt-4">
           <label>Date of birth:</label>
           <input
-            type="date"
-            placeholder="Date of birth"
+            type="text"
             className="w-full p-2 border rounded-lg"
-            value={formData.dob ? formData.dob.split("T")[0] : "NULL"}
-            onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+            value={formData.dob ? formData.dob.split("T")[0] : "Not updated"}
+            readOnly
           />
         </div>
-        <div className="gender_form_layout flex items-center flex-row pt-4">
+        <div className="gender_male_form pt-4">
           <label className="w-4/12">Gender:</label>
-          <div className="w-8/12 gender_form_radio flex flex-row justify-around">
-            <div className="gender_male_form">
-              <input
-                type="radio"
-                id="male"
-                name="gender"
-                value="true"
-                checked={formData.gender === true || formData.gender === "true"}
-                onChange={() => setFormData({ ...formData, gender: true })}
-                className="rounded-lg"
-              />
-              <label htmlFor="male">Male</label>
-            </div>
-            <div className="gender_female_form">
-              <input
-                type="radio"
-                id="female"
-                name="gender"
-                value="false"
-                checked={
-                  formData.gender === false || formData.gender === "false"
-                }
-                onChange={() => setFormData({ ...formData, gender: false })}
-                className="rounded-lg"
-              />
-              <label htmlFor="female">Female</label>
-            </div>
-          </div>
+          <input
+            type="text"
+            className="w-full p-2 border rounded-lg"
+            value={formData.gender ? "Male" : "Female"}
+            readOnly
+          />
         </div>
         <div className="bio_form pt-4">
           <label>Bio:</label>
-          <input
+          <textarea
             type="text"
-            placeholder="Bio"
             className="w-full p-2 border rounded-lg"
-            value={formData.bio ? formData.bio : "NULL"}
-            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+            value={formData.bio ? formData.bio : "Not updated"}
+            readOnly
           />
         </div>
 
         {formData.avatar ? (
-          <div className="avatarForm flex items-center flex-col pt-4">
-            <input
-              type="image"
-              src={formData.avatar}
-              style={{ width: "100px", height: "120px" }}
-              placeholder="Avatar"
-              className="w-full p-2 border"
-              value={formData.avatar}
-              onChange={(e) =>
-                setFormData({ ...formData, avatar: e.target.value })
-              }
-            />
-            <div className="avatarForm flex items-center flex-row justify-center pt-2">
-              <button className="uploadBtn bg-red-500 p-3 rounded-lg">
-                Upload Image
-              </button>
+          <div className="avatar_form pt-4 flex flex-col">
+            <label>Avatar:</label>
+            <div className="flex justify-center items-center">
+              <img
+                src={formData.avatar}
+                alt="Avatar"
+                className="w-full p-2 border rounded-lg"
+                style={{ maxWidth: "200px", maxHeight: "400px" }}
+              />
             </div>
           </div>
         ) : (
-          <div className="avatarForm flex items-center flex-row justify-center pt-4">
-            <button className="uploadBtn bg-red-500 p-3 rounded-lg">
-              Upload Image
-            </button>
+          <div className="avatar_form pt-4">
+            <label>Avatar:</label>
+            <p className="w-full p-2 border rounded-lg">Not updated</p>
           </div>
         )}
-
-        <div className="active_form_layout flex items-center flex-row pt-4">
-          <label className="w-4/12">Status:</label>
-          <div className="w-8/12 active_form_radio flex flex-row justify-around">
-            <div className="active_status_form">
-              <input
-                type="radio"
-                id="active"
-                name="active"
-                value="true"
-                checked={formData.active === true}
-                onChange={() => setFormData({ ...formData, active: true })}
-              />
-              <label htmlFor="active">Active</label>
-            </div>
-            <div className="inactive_status_form">
-              <input
-                type="radio"
-                id="inactive"
-                name="active"
-                value="false"
-                checked={formData.active === false}
-                onChange={() => setFormData({ ...formData, active: false })}
-              />
-              <label htmlFor="inactive">Inactive</label>
-            </div>
-          </div>
-        </div>
-      </ModalUpdate> */}
+      </ModalDetail>
 
       {/* <ModalAdd
         isOpen={modalAddIsOpen}
