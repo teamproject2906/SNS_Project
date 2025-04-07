@@ -3,7 +3,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import { setToken, setUserInfo } from "../Login/app/static";
 import { jwtDecode } from "jwt-decode";
 import { useUser } from "../../context/UserContext";
@@ -103,6 +103,44 @@ const Register = () => {
     setLoading(false);
   };
 
+  const registerWithGoogle = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8080/oauth2/redirectToGoogle",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log("Redirect URL:", res.data);
+
+      if (res.data && res.data.auth_) {
+        // Chuyển hướng trình duyệt tới URL Google OAuth
+        window.location.href = res.data.auth_;
+      } else {
+        toast.error("Không tìm thấy URL chuyển hướng!");
+      }
+    } catch (error) {
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            toast.error(error.response.data.message);
+            break;
+          case 500:
+            toast.error("Lỗi máy chủ, vui lòng thử lại sau!");
+            break;
+          default:
+            toast.error(error.response.data.message || "Có lỗi xảy ra!");
+        }
+      } else {
+        toast.error("Không thể kết nối đến máy chủ, vui lòng kiểm tra mạng!");
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <ToastContainer />
@@ -147,10 +185,11 @@ const Register = () => {
           <button
             aria-label="Register"
             disabled={loading}
-            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${loading
+            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${
+              loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-black text-white hover:bg-gray-800"
-              }`}
+            }`}
           >
             {loading ? "Đang xử lý..." : "ĐĂNG KÝ"}
           </button>
@@ -160,7 +199,10 @@ const Register = () => {
             Hoặc đăng nhập với
           </p>
           <div className="flex justify-center space-x-4">
-            <button className="flex items-center bg-red-600 text-white px-4 py-2 rounded shadow-lg hover:bg-red-500">
+            <button
+              className="flex items-center bg-red-600 text-white px-4 py-2 rounded shadow-lg hover:bg-red-500"
+              onClick={registerWithGoogle}
+            >
               <FaGoogle className="mr-2" />
               Google
             </button>
