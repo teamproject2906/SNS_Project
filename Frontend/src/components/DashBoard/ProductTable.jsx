@@ -19,7 +19,7 @@ const ProductTable = () => {
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
-  const [uploadID, setUploadID] = useState(null);
+  const [productId, setProductId] = useState(null);
   const [formData, setFormData] = useState({
     productCode: "",
     productName: "",
@@ -122,12 +122,12 @@ const ProductTable = () => {
     handleGetFormClothes();
     handleGetPromotion();
   }, []);
+  console.log("Product ID set for image upload:", productId); // Debugging
 
   console.log("Form Data:", formData);
 
   const openEditModal = (product) => {
-    console.log("Editing Product:", product); 
-    setUploadID(product.id); 
+    console.log("Editing Product:", product);
     setEditProduct(product.id);
     setFormData({
       productCode: product.productCode,
@@ -182,6 +182,11 @@ const ProductTable = () => {
   const openDeleteModal = (id) => {
     setDeleteId(id);
     setIsDeleteModalOpen(true);
+  };
+
+  const setOpenUploadImage = (id) => {
+    setProductId(id.id); // Set the product ID to upload image for
+    console.log("Product ID for upload:", id); // Log the product ID
   };
 
   const closeEditModal = () => setModalEditIsOpen(false);
@@ -300,23 +305,32 @@ const ProductTable = () => {
   };
 
   const handleUploadImage = async (e) => {
-    const file = e.target.files[0]; // Choose image to upload
-    if (!file) {
-      toast.error("Chưa chọn hình ảnh!"); // Not selected image
-      return;
-    }
-    if (!uploadID) {
-      toast.error("Chưa có sản phẩm được chọn!"); // Not have product id to upload
+    const files = e.target.files; // Get the selected files
+    const productId = e.target.getAttribute("data-product-id"); // Retrieve the product ID from the data attribute
+
+    if (files.length === 0) {
+      toast.error("No image selected!"); // If no file is selected
       return;
     }
 
+    if (!productId) {
+      toast.error("No product selected!"); // If no product ID is found
+      return;
+    }
+
+    console.log("Uploading for Product ID:", productId); // Log the product ID
+
     const formDataUpload = new FormData();
-    formDataUpload.append("image", file); // 'image' is the field expected by your backend
+    // Append all selected files to FormData
+    for (let i = 0; i < files.length; i++) {
+      formDataUpload.append("files", files[i]);
+    }
+    formDataUpload.append("productId", productId); // Append the productId to the FormData
 
     try {
       const token = getToken();
       const res = await axios.post(
-        `http://localhost:8080/api/product-gallery/upload/${uploadID}`, // Assuming the product ID is required in the URL
+        `http://localhost:8080/api/product-gallery/upload-multiple`, // API endpoint for uploading images
         formDataUpload,
         {
           headers: {
@@ -326,11 +340,11 @@ const ProductTable = () => {
         }
       );
 
-      toast.success("Tải ảnh lên thành công!"); // Success message
-      handleGetProduct(); // Reload the product list to show the updated image
+      toast.success("Images uploaded successfully!"); // Notify user on success
+      handleGetProduct(); // Reload product list to reflect image updates
     } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error("Lỗi khi tải ảnh lên!"); // Error message
+      console.error("Error uploading images:", error);
+      toast.error("Error uploading images!"); // Notify user on failure
     }
   };
 
@@ -339,7 +353,7 @@ const ProductTable = () => {
       style: {
         minWidth: "auto", // Đảm bảo kích thước ô phù hợp với nội dung
         whiteSpace: "nowrap", // Ngăn nội dung bị xuống dòng
-        padding: "8px", // Giữ khoảng cách giữa các ô
+        padding: "1px", // Giữ khoảng cách giữa các ô
       },
     },
     headCells: {
@@ -347,7 +361,7 @@ const ProductTable = () => {
         minWidth: "auto",
         whiteSpace: "nowrap",
         fontWeight: "bold",
-        padding: "8px",
+        padding: "1px",
       },
     },
   };
@@ -410,17 +424,38 @@ const ProductTable = () => {
       },
     },
     {
+      cell: (row) => (
+        <>
+          <input
+            type="file"
+            accept="image/*"
+            id={`file-upload-${row.id}`} // Ensure each input has a unique ID
+            onChange={handleUploadImage} // Trigger file upload handler
+            data-product-id={row.id} // Use data-* attribute to store product ID
+            multiple
+            style={{ display: "none" }} // Hide the original input
+          />
+          <label
+            htmlFor={`file-upload-${row.id}`} // Ensure label corresponds to input
+            className="cursor-pointer p-2 bg-blue-500 text-white rounded"
+          >
+            Upload Image
+          </label>
+        </>
+      ),
+    },
+    {
       name: "Actions",
       cell: (row) => (
         <>
           <button
-            className="bg-green-500 text-white px-3 py-2 rounded mr-2"
+            className="bg-green-500 text-white px-2 py-2 rounded mr-2"
             onClick={() => openEditModal(row)}
           >
             Edit
           </button>
           <button
-            className="bg-red-500 text-white px-3 py-2 rounded"
+            className="bg-red-500 text-white px-2 py-2 rounded"
             onClick={() => openDeleteModal(row.id)}
           >
             Deactivate
@@ -576,9 +611,6 @@ const ProductTable = () => {
             </option>
           ))}
         </select>
-        <div className="flex  mt-4">
-          <input type="file" accept="image/*" onChange={handleUploadImage} />
-        </div>
       </ModalUpdate>
 
       <ModalAdd
