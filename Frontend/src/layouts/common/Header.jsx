@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaShoppingBag,
   FaUser,
@@ -7,13 +7,39 @@ import {
   FaSearch,
   FaBars,
   FaTimes,
+  FaSignOutAlt,
+  FaHeart,
 } from "react-icons/fa";
 import { useSpring, animated } from "@react-spring/web";
+import { CgProfile } from "react-icons/cg";
+import { CiLocationOn } from "react-icons/ci";
+import { FaEarthAmericas } from "react-icons/fa6";
+import { FaNewspaper } from "react-icons/fa";
+import { CiSettings } from "react-icons/ci";
+import { BsChatDots } from "react-icons/bs";
+import {
+  removeToken,
+  removeUserInfo,
+  getToken,
+} from "../../pages/Login/app/static";
+import { useUser } from "../../context/UserContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { user } = useUser(); // Lấy thông tin user từ Context
+  const { setUser } = useUser(); // Hàm để cập nhật thông tin user trong Context
 
-  // Animation configuration for mobile menu
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  console.log("User:", user);
+  console.log("Token:", getToken());
+
+  useEffect(() => {
+    console.log("User thay đổi:", user);
+  }, [user]); // Mỗi khi user thay đổi, Header sẽ render lại
+
   const menuAnimation = useSpring({
     opacity: isMenuOpen ? 1 : 1,
     transform: isMenuOpen ? "translateY(45%)" : "translateY(-100%)",
@@ -25,25 +51,117 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleLogout = () => {
+    removeToken();
+    removeUserInfo();
+    localStorage.removeItem("user"); // Xóa user khỏi localStorage
+    setUser(null); // Xóa user trong context
+    navigate("/");
+  };
+
   return (
     <header>
-      {/* Top Bar */}
       <div className="bg-black text-white text-sm py-2">
         <div className="container mx-auto flex justify-between items-center px-4">
-          {/* Địa chỉ cửa hàng */}
           <span className="hidden sm:block">
             STORE: 3A PHÙ ĐỔNG THIÊN VƯƠNG - HAI BÀ TRƯNG - HÀ NỘI
           </span>
-          {/* Đăng ký/Đăng nhập */}
           <div className="flex space-x-4">
-            <Link to="/register" className="flex items-center hover:underline">
-              <FaUser className="mr-1" />
-              ĐĂNG KÍ
-            </Link>
-            <Link to="/login" className="flex items-center hover:underline">
-              <FaSignInAlt className="mr-1" />
-              ĐĂNG NHẬP
-            </Link>
+            {user ? (
+              <div className="relative">
+                <button className="flex items-center" onClick={toggleDropdown}>
+                  <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuUNzMQDgnsk95ui5vpRRrv5CQoovkaGz3qA&s"
+                    alt="Avatar"
+                    className="rounded-full w-8 h-8 sm:w-10 sm:h-10"
+                  />
+                </button>
+                {isDropdownOpen && (
+                  <div
+                    ref={dropdownRef}
+                    className="absolute right-0 mt-2 bg-white shadow-md rounded-lg w-48"
+                  >
+                    <ul className="space-y-2 p-2 text-sm text-gray-700">
+                      <li>
+                        <Link
+                          to={`/profile-page`}
+                          className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"
+                        >
+                          <CgProfile className="mr-3 mt-1" />
+                          Profile
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to={`/my-address`}
+                          className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"
+                        >
+                          <CiLocationOn className="mr-3 mt-1" />
+                          Address
+                        </Link>
+                      </li>
+                      {/* <li>
+                        <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex">
+                          <FaEarthAmericas className="mr-3 mt-1" />
+                          Change Language
+                        </button>
+                      </li>
+                      <li>
+                        <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex">
+                          <FaNewspaper className="mr-3 mt-1" />
+                          Change Theme
+                        </button>
+                      </li>
+                      <li>
+                        <Link
+                          to={`/setting-page`}
+                          className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"
+                        >
+                          <CiSettings className="mr-3 mt-1" />
+                          Setting
+                        </Link>
+                      </li>
+                      <li>
+                        <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex">
+                          <BsChatDots className="mr-3 mt-1" />
+                          Message
+                        </button>
+                      </li> */}
+                      <li>
+                        <button
+                          className="w-full text-left hover:bg-gray-100 px-2 py-1"
+                          onClick={handleLogout}
+                        >
+                          <FaSignOutAlt className="inline mr-2" />
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/register"
+                  className="flex items-center hover:underline py-2"
+                >
+                  <FaUser className="mr-1" />
+                  ĐĂNG KÍ
+                </Link>
+                <Link
+                  to="/login"
+                  className="flex items-center hover:underline py-2"
+                >
+                  <FaSignInAlt className="mr-1" />
+                  ĐĂNG NHẬP
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -52,8 +170,13 @@ const Header = () => {
       <div className="bg-white py-4 border-b border-gray-400">
         <div className="container mx-auto flex justify-between items-center px-4">
           {/* Giỏ hàng */}
-          <Link to={"/cart"} className="text-gray-800 flex items-center">
+          <Link to={"/cart"} className="text-gray-800 flex items-center mx-2">
             <FaShoppingBag size={20} />
+            <span className="ml-1 text-sm hidden sm:inline">0</span>
+          </Link>
+          {/* Giỏ hàng */}
+          <Link to={"/favourite"} className="text-gray-800 flex items-center mx-2">
+            <FaHeart size={20} />
             <span className="ml-1 text-sm hidden sm:inline">0</span>
           </Link>
 
