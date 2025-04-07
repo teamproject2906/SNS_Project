@@ -3,7 +3,7 @@ package com.example.ECommerce.Project.V1.Controller;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationRequest;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResponse;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.RegisterRequest;
-import com.example.ECommerce.Project.V1.Service.AuthenticationService;
+import com.example.ECommerce.Project.V1.Service.AuthenticationService.IAuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService authenticationService;
+    private final IAuthenticationService authenticationService;
 
     @PostMapping("/Register")
     public ResponseEntity<AuthenticationResponse> register(
