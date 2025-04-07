@@ -1,7 +1,6 @@
 package com.example.ECommerce.Project.V1.Controller;
 
-import com.example.ECommerce.Project.V1.Service.AuthenticationService;
-import com.example.ECommerce.Project.V1.Service.JWTService;
+import com.example.ECommerce.Project.V1.Service.AuthenticationService.IAuthenticationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -9,8 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GoogleController {
 
-    private final AuthenticationService authenticationService;
+    private final IAuthenticationService authenticationService;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;

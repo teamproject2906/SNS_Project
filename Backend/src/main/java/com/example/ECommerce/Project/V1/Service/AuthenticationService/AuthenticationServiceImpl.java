@@ -1,4 +1,4 @@
-package com.example.ECommerce.Project.V1.Service;
+package com.example.ECommerce.Project.V1.Service.AuthenticationService;
 
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationRequest;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResponse;
@@ -7,6 +7,7 @@ import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Service.JWTService;
 import com.example.ECommerce.Project.V1.Token.Token;
 import com.example.ECommerce.Project.V1.Token.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +29,7 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationServiceImpl implements IAuthenticationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -124,7 +125,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    private void saveUserToken(User savedUser, String jwtToken) {
+    public void saveUserToken(User savedUser, String jwtToken) {
         var token = Token.builder()
                 .user(savedUser)
                 .token(jwtToken)
