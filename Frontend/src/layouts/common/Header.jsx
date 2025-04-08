@@ -21,8 +21,12 @@ import {
   removeToken,
   removeUserInfo,
   getToken,
+  setToken,
+  setUserInfo,
 } from "../../pages/Login/app/static";
 import { useUser } from "../../context/UserContext";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,13 +59,48 @@ const Header = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleLogout = () => {
-    removeToken();
-    removeUserInfo();
-    localStorage.removeItem("user"); // Xóa user khỏi localStorage
-    setUser(null); // Xóa user trong context
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      // Xóa cookie "id_token"
+      document.cookie =
+        "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+
+      // Xóa các thông tin khác nếu cần
+      document.cookie =
+        "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+
+      removeToken(); // Xóa token khỏi localStorage
+      removeUserInfo(); // Xóa thông tin user khỏi localStorage
+      setUser(null); // Xóa user trong context
+
+      // Điều hướng về trang đăng nhập
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
+
+  // Hàm lấy cookie theo tên
+  const getCookie = (name) => {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+      const [key, value] = cookie.split("=");
+      if (key === name) return decodeURIComponent(value);
+    }
+    return null;
+  };
+
+  // Gọi getTokenByGoogle khi component mount và có token từ cookie (hoặc sau khi redirect từ Google)
+  useEffect(() => {
+    const token = getCookie("id_token");
+    console.log("Token từ cookie:", token); // Kiểm tra token từ cookie
+    if (token) {
+      setToken(token);
+      const decoded = jwtDecode(token);
+      setUser(decoded);
+      setUserInfo(decoded);
+    }
+  }, []); // Chạy khi component mount
 
   return (
     <header>
@@ -175,7 +214,10 @@ const Header = () => {
             <span className="ml-1 text-sm hidden sm:inline">0</span>
           </Link>
           {/* Giỏ hàng */}
-          <Link to={"/favourite"} className="text-gray-800 flex items-center mx-2">
+          <Link
+            to={"/favourite"}
+            className="text-gray-800 flex items-center mx-2"
+          >
             <FaHeart size={20} />
             <span className="ml-1 text-sm hidden sm:inline">0</span>
           </Link>

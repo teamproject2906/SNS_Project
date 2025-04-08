@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { setToken, setUserInfo } from "../Login/app/static";
 import { jwtDecode } from "jwt-decode";
 import { useUser } from "../../context/UserContext";
@@ -65,8 +65,6 @@ const Register = () => {
         // Giải mã token để lấy thông tin user
         const decodedUser = jwtDecode(token);
         setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
-
-        console.log("Decoded User:", decodedUser);
         setUser(decodedUser); // Cập nhật thông tin user trong context
         // Display "Register successful" message
         toast.success("Registration successful", {
@@ -115,29 +113,14 @@ const Register = () => {
         }
       );
 
-      console.log("Redirect URL:", res.data);
-
-      if (res.data && res.data.auth_) {
-        // Chuyển hướng trình duyệt tới URL Google OAuth
-        window.location.href = res.data.auth_;
+      if (res.data && res.data.auth_url) {
+        window.location.href = res.data.auth_url; // Chuyển hướng đến Google
       } else {
         toast.error("Không tìm thấy URL chuyển hướng!");
       }
     } catch (error) {
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            toast.error(error.response.data.message);
-            break;
-          case 500:
-            toast.error("Lỗi máy chủ, vui lòng thử lại sau!");
-            break;
-          default:
-            toast.error(error.response.data.message || "Có lỗi xảy ra!");
-        }
-      } else {
-        toast.error("Không thể kết nối đến máy chủ, vui lòng kiểm tra mạng!");
-      }
+      toast.error("Có lỗi xảy ra khi đăng nhập với Google!");
+      console.error(error);
     }
   };
 
