@@ -18,6 +18,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
 
     List<Category> findByCategoryNameContainingIgnoreCase(String categoryName);
+    List<Category> findByIsActiveAndCategoryNameContainingIgnoreCase(Boolean isActive, String categoryName);
 
     @Modifying
     @Transactional
@@ -32,5 +33,11 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     boolean existsByCategoryName(String categoryName);
     boolean existsByCategoryNameAndParentCategoryID(String categoryName, Category parentCategory);
 
+    @Query("SELECT c FROM Category c WHERE c.isActive = true")
+    List<Category> getActiveCategories();
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE Category c SET c.isActive = false WHERE c.parentCategoryID.id = :parentCategory")
+    void deactivateChildCategories(@Param("parentCategory") Integer parentCategory);
 }
