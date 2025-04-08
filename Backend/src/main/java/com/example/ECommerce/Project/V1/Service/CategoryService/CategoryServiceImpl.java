@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements ICategoryService {
             throw new InvalidInputException("Category Name Cannot Exceed 100 Characters");
         }
 
-        if (!categoryName.matches("^[a-zA-Z0-9 ']+$")) {
+        if (!categoryName.matches("^[a-zA-Z0-9-_ ']+$")) {
             throw new InvalidInputException("Category Name Cannot Contain Special Characters");
         }
 
@@ -79,6 +79,7 @@ public class CategoryServiceImpl implements ICategoryService {
         if (category.getParentCategoryID() != null) {
             parentCategoryDTO = new ParentCategoryResponseDTO(
                     category.getParentCategoryID().getId(),
+                    category.getParentCategoryID().getIsActive(),
                     category.getParentCategoryID().getCategoryName()
             );
         }
@@ -86,6 +87,7 @@ public class CategoryServiceImpl implements ICategoryService {
         return new CategoryResponseDTO(
                 category.getId(),
                 category.getCategoryName(),
+                category.getIsActive(),
                 parentCategoryDTO
         );
     }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaLock } from "react-icons/fa";
+import { FaFacebook, FaGoogle, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { getToken, setToken, setUserInfo } from "./app/static";
 import { toast, ToastContainer } from "react-toastify";
@@ -62,6 +62,29 @@ const Login = () => {
       toast.error(error.response.data.message);
     }
   };
+  
+  const registerWithGoogle = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8080/oauth2/redirectToGoogle",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data && res.data.auth_url) {
+        window.location.href = res.data.auth_url; // Chuyển hướng đến Google
+      } else {
+        toast.error("Không tìm thấy URL chuyển hướng!");
+      }
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi đăng nhập với Google!");
+      console.error(error);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -115,6 +138,22 @@ const Login = () => {
               <FaLock className="mr-1" />
               Quên mật khẩu
             </Link>
+          </div>
+          <p className="text-center text-sm mb-4 text-gray-500">
+            Hoặc đăng nhập với
+          </p>
+          <div className="flex justify-center space-x-4">
+            <button
+              className="flex items-center bg-red-600 text-white px-4 py-2 rounded shadow-lg hover:bg-red-500"
+              onClick={registerWithGoogle}
+            >
+              <FaGoogle className="mr-2" />
+              Google
+            </button>
+            <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-500">
+              <FaFacebook className="mr-2" />
+              Facebook
+            </button>
           </div>
         </div>
 
