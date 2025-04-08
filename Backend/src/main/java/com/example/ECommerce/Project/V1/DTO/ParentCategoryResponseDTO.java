@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ParentCategoryResponseDTO {
     private Integer id;
+    private boolean isActive;
     private String categoryName;
 }
