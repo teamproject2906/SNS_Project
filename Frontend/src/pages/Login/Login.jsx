@@ -15,8 +15,11 @@ const Login = () => {
 
   const handleLoginUser = async (event) => {
     event.preventDefault();
-    if (!username || !password) {
-      toast.error("Email hoặc mật khẩu không hợp lệ.");
+    if (!username) {
+      toast.error("Username cannot be blank");
+      return;
+    } else if (!password){
+      toast.error("Password cannot be blank");
       return;
     }
 
@@ -39,20 +42,24 @@ const Login = () => {
         console.log("Decoded User:", decodedUser);
         setUser(decodedUser); // Cập nhật thông tin user trong Context
 
-        toast.success("Đăng nhập thành công!");
-
-        // Điều hướng theo role
+        toast.success("Login successful", {
+          autoClose: 1000, 
+          position: "top-right",
+        });
+        setTimeout(() => {
+                  // Điều hướng theo role
         if (res.data.role === "ADMIN") {
           navigate("/dashboard");
         } else {
           navigate("/");
         }
+        }, 1000);
       } else {
         throw new Error("Access token không hợp lệ.");
       }
     } catch (error) {
       console.error("Lỗi đăng nhập:", error.response?.data || error.message);
-      toast.error("Đăng nhập thất bại. Vui lòng kiểm tra lại.");
+      toast.error(error.response.data.message);
     }
   };
   
