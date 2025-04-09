@@ -32,6 +32,15 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/changeForgotPassword")
+    public ResponseEntity<?> changeForgotPassword(
+            @RequestBody ChangePasswordRequest request,
+            Principal connectedUser
+    ){
+        userService.changeForgotPassword(request, connectedUser);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/update/{userId}")
     public ResponseEntity<?> updateUserInfo(
             @RequestBody UserDTO userDTO,
@@ -42,14 +51,13 @@ public class UserController {
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
-    @PatchMapping("/updateUsername/{userId}")
-    public ResponseEntity<?> updateUsernameByCustomer(
+    @PatchMapping("/findUserId/{username}")
+    public Integer findUsername(
             @Valid @RequestBody UserDTO userDTO,
-            @PathVariable("userId") Integer userId,
+            @PathVariable("username") String username,
             Principal connectedUser
     ){
-        UserDTO userDto = userService.updateUsernameByCustomer(userDTO, userId);
-        return new ResponseEntity<>(userDto, HttpStatus.OK);
+        return userService.findUserIdByUsername(userDTO, username);
     }
 
     @PostMapping("/updateAvt/{userId}")

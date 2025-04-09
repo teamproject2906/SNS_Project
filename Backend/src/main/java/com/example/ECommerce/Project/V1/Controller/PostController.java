@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
@@ -27,18 +29,20 @@ public class PostController {
     @PostMapping("/createPost")
     public ResponseEntity<PostDTO> createPost(
             @RequestBody PostDTO postDTO,
+            @RequestParam("file") MultipartFile file,
             Principal connectedUser
-    ) {
-        return ResponseEntity.ok(postService.createPost(postDTO, connectedUser));
+    ) throws IOException {
+        return ResponseEntity.ok(postService.createPost(postDTO, file, connectedUser));
     }
 
     @PutMapping("/updatePost/{postId}")
     public ResponseEntity<PostDTO> updatePost(
             @RequestBody PostDTO postDTO,
             @PathVariable UUID postId,
+            @RequestParam("file") MultipartFile file,
             Principal connectedUser
-    ) {
-        return ResponseEntity.ok(postService.updatePost(postDTO, postId, connectedUser));
+    ) throws IOException {
+        return ResponseEntity.ok(postService.updatePost(postDTO, postId, file, connectedUser));
     }
 
     @PatchMapping("/deactivatePost/{postId}")
@@ -82,5 +86,13 @@ public class PostController {
                 .success(true)
                 .build();
         return new ResponseEntity<>(responseMessageAPI, HttpStatus.OK);
+    }
+
+    @GetMapping("/getUserPostByUserId/{userId}")
+    public ResponseEntity<List<PostDTO>> getUserPostByUserId(
+            @PathVariable Integer userId,
+            Principal connectedUser
+    ){
+        return ResponseEntity.ok(postService.getUserPostByUserId(userId));
     }
 }

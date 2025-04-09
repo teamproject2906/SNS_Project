@@ -3,14 +3,21 @@ package com.example.ECommerce.Project.V1.Service.UserService;
 import com.cloudinary.Cloudinary;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
+import com.example.ECommerce.Project.V1.Exception.InvalidTokenException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
+import com.example.ECommerce.Project.V1.Mailing.AccountVerificationEmailContext;
+import com.example.ECommerce.Project.V1.Mailing.EmailService;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Service.SecureTokenService.SecureTokenServiceImpl;
+import com.example.ECommerce.Project.V1.Token.SecureToken;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -19,9 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +37,9 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper mapper;
     private final Cloudinary cloudinary;
+
+    @Value("http://localhost:8080")
+    private String baseUrl;
 
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
         Integer userId;
@@ -49,6 +57,10 @@ public class UserServiceImpl implements IUserService {
         }
 
         User userFind = userRepository.findUserById(userId);
+
+        if (request.getConfirmPassword().length() < 8 || request.getConfirmPassword().length() > 50) {
+            throw new IllegalArgumentException("Password must be between 8 and 50 characters");
+        }
 
         if(!passwordEncoder.matches(request.getCurrentPassword(), userFind.getPassword())) {
             throw new BadCredentialsException("Wrong password");
@@ -77,26 +89,31 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserDTO updateUsernameByCustomer(UserDTO userDTO, Integer userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
-        user.setUsername(userDTO.getUsername());
-        user.setUpdatedBy(user.getUsername());
-        user.setUpdatedAt(LocalDateTime.now());
-        User userSaved = userRepository.save(user);
-        return mapper.map(userSaved, UserDTO.class);
+    public Integer findUserIdByUsername(UserDTO userDTO, String username) {
+        User user = userRepository.findByEmail(username);
+        return user.getId();
     }
 
     @Override
-    public UserDTO updateUserAvatar(Integer userId, MultipartFile fileAvt) throws IOException {
+    public UserDTO updateUserAvatar(Integer userId, MultipartFile file) throws IOException {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
 
-        Map<String, Object> options = new HashMap<>();
-        options.put("folder", "user_avt");
-        options.put("tags", List.of("avatar"));
+        String imageUrl = null;
+        if (file != null && !file.isEmpty()) {
+            // 🔻 Delete the old image from Cloudinary if exists
+            String oldImageUrl = user.getAvatar();
+            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                String publicId = extractPublicIdFromUrl(oldImageUrl);
+                cloudinary.uploader().destroy(publicId, Map.of());
+            }
 
-        Map uploadResult = cloudinary.uploader().upload(fileAvt.getBytes(), options);
+            Map<String, Object> options = new HashMap<>();
+            options.put("folder", "user_avt");
+            options.put("tags", List.of("avatar"));
 
-        String imageUrl = uploadResult.get("secure_url").toString();
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
+            imageUrl = uploadResult.get("secure_url").toString();
+        }
 
         user.setAvatar(imageUrl);
         user.setUpdatedBy(user.getUsername());
@@ -175,4 +192,58 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user);
         return mapper.map(user, UserDTO.class);
     }
+
+    @Override
+    public void changeForgotPassword(ChangePasswordRequest request, Principal connectedUser) {
+        Integer userId;
+
+        if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
+            Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
+
+            if (userIdClaim instanceof Number number) {
+                userId = number.intValue();
+            } else {
+                throw new IllegalArgumentException("Invalid userId claim in JWT");
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
+        }
+
+        User userFind = userRepository.findUserById(userId);
+
+        if (request.getConfirmPassword().length() < 8 || request.getConfirmPassword().length() > 50) {
+            throw new IllegalArgumentException("Password must be between 8 and 50 characters");
+        }
+
+        if(!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BadCredentialsException("Passwords and Confirm Passwords do not match");
+        }
+
+        userFind.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(userFind);
+    }
+
+    private String extractPublicIdFromUrl(String url) {
+        try {
+            String[] parts = url.split("/");
+            int index = Arrays.asList(parts).indexOf("upload");
+            if (index != -1 && index + 1 < parts.length) {
+                // Join everything after 'upload' (skip version and extract public_id without extension)
+                StringBuilder publicIdBuilder = new StringBuilder();
+                for (int i = index + 2; i < parts.length; i++) {
+                    String part = parts[i];
+                    if (i == parts.length - 1) {
+                        part = part.substring(0, part.lastIndexOf('.')); // remove .jpg/.png
+                    }
+                    publicIdBuilder.append(part);
+                    if (i < parts.length - 1) publicIdBuilder.append("/");
+                }
+                return publicIdBuilder.toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

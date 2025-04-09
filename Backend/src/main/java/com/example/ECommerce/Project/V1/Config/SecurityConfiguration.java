@@ -100,8 +100,8 @@ public class SecurityConfiguration implements AuthenticationProvider {
                         .requestMatchers(
                                 "Google/**",
                                 "/oauth2/**",
-                                "/login",
                                 "/Authentication/**",
+                                "/api/v1/payment/**",
                                 "/v2/api-docs/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",

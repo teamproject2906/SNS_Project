@@ -83,22 +83,22 @@ public class GoogleController {
             String refreshToken = json.has("refresh_token") ? json.get("refresh_token").asText() : "";
 
             Cookie accessTokenCookie = new Cookie("access_token", accessToken);
-            accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(true);
+            accessTokenCookie.setHttpOnly(false);
+            accessTokenCookie.setSecure(false);
             accessTokenCookie.setPath("/");
             accessTokenCookie.setMaxAge(3600);
             servletResponse.addCookie(accessTokenCookie);
 
             Cookie idTokenCookie = new Cookie("id_token", idToken);
-            idTokenCookie.setHttpOnly(true);
-            idTokenCookie.setSecure(true);
+            idTokenCookie.setHttpOnly(false);
+            idTokenCookie.setSecure(false);
             idTokenCookie.setPath("/");
             idTokenCookie.setMaxAge(3600);
             servletResponse.addCookie(idTokenCookie);
 
             Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
-            idTokenCookie.setHttpOnly(true);
-            idTokenCookie.setSecure(true);
+            idTokenCookie.setHttpOnly(false);
+            idTokenCookie.setSecure(false);
             idTokenCookie.setPath("/");
             idTokenCookie.setMaxAge(3600);
             servletResponse.addCookie(refreshTokenCookie);
@@ -117,7 +117,6 @@ public class GoogleController {
                     .body("Error retrieving access token: " + e.getMessage());
         }
     }
-
 
     private String exchangeCodeForAccessToken(String code) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
@@ -202,4 +201,16 @@ public class GoogleController {
                     .body("Error retrieving access token: " + e.getMessage());
         }
     }
+
+    //    @GetMapping("/GoogleLogin")
+    //    public Map<String, String> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+    //        Map<String, String> userInfo = new HashMap<>();
+    //        userInfo.put("email", jwt.getClaim("email"));
+    //        userInfo.put("name", jwt.getClaim("name"));
+    //        return userInfo;
+    //    }
+    //    public void googleLogin(HttpServletResponse response) throws IOException {
+    //        // Redirect to Google's OAuth2 login URL (managed by Spring Security)
+    //        response.sendRedirect("/oauth2/authorization/google");
+    //    }
 }
