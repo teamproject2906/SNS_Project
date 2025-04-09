@@ -1,6 +1,8 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.DTO.BestSellerDTO;
 import com.example.ECommerce.Project.V1.DTO.OrderDetailDTO;
+import com.example.ECommerce.Project.V1.Service.BestSellerService;
 import com.example.ECommerce.Project.V1.Service.OrderDetailService.OrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ public class OrderDetailController {
 
     @Autowired
     private OrderDetailService orderDetailService;
+
+    @Autowired
+    private BestSellerService bestSellerService;
 
     @GetMapping
     public List<OrderDetailDTO> getAllOrders() {
@@ -45,5 +50,9 @@ public class OrderDetailController {
     public ResponseEntity<String> deactivateOrder(@PathVariable Integer id) {
         orderDetailService.deactivateOrder(id);
         return ResponseEntity.ok("OrderDetail has been deactivated successfully");
+    }
+    @GetMapping("/best")
+    public List<BestSellerDTO> getTopBestSellers() {
+        return bestSellerService.getTopBestSellers(10);
     }
 }
