@@ -1,12 +1,14 @@
 package com.example.ECommerce.Project.V1.Service.SizeChartService;
 
 import com.example.ECommerce.Project.V1.DTO.SizeChartResponseDTO;
+import com.example.ECommerce.Project.V1.DTO.SizeChartTypeResponse;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.SizeChart;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,9 +90,18 @@ public class SizeChartServiceImpl implements ISizeChartService {
     }
 
     @Override
-    public List<String> getAllDistinctSizeChart() {
-        return repository.findDistinctSizeChartTypes();
+    public List<SizeChartTypeResponse> getAllDistinctSizeChart() {
+        List<String> allTypes = repository.findDistinctSizeChartTypes();
+        List<SizeChartTypeResponse> result = new ArrayList<>();
+
+        for (String type : allTypes) {
+            List<String> values = repository.findValuesBySizeChartType(type);
+            result.add(new SizeChartTypeResponse(type, values));
+        }
+
+        return result;
     }
+
 
     @Override
     public SizeChart getSizeChartById(Integer id) {
