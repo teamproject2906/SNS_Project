@@ -6,6 +6,7 @@ import com.example.ECommerce.Project.V1.Model.*;
 import com.example.ECommerce.Project.V1.Repository.OrderDetailRepository;
 import com.example.ECommerce.Project.V1.Repository.OrderItemRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
+import com.example.ECommerce.Project.V1.Service.BestSellerService;
 import com.example.ECommerce.Project.V1.Service.OrderItemService.OrderItemService;
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
 import org.modelmapper.ModelMapper;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,9 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Autowired
     private OrderItemService orderItemService;
+
+    @Autowired
+    private BestSellerService bestSellerService;
 
     @Override
     public List<OrderDetailDTO> getAllOrders() {
@@ -74,8 +79,14 @@ public class OrderDetailServiceImpl implements OrderDetailService {
             orderDetail.getOrderItems().add(orderItem);
             productService.updateProductForOrder(orderItemDTO.getProductId(), orderItemDTO.getQuantity());
         }
+
         orderDetail = orderDetailRepository.save(orderDetail);
 
+        if(Objects.equals(orderDetailDTO.getOrderStatus(), "COMPLETED")){
+            for (OrderItem orderItem : orderDetail.getOrderItems()) {
+                bestSellerService.updateBestSellerQuantity(orderItem.getProduct().getId());
+            }
+        }
         return modelMapper.map(orderDetail, OrderDetailDTO.class);
     }
 
@@ -108,6 +119,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
             // Cập nhật OrderItem theo DTO (bạn có thể tự cập nhật các thuộc tính cần thiết tại đây)
             orderItemService.updateOrderItem(orderItemDTO.getId(), orderItemDTO);
+        }
+        // Nếu trạng thái mới là COMPLETED, cập nhật BestSeller
+        if (Objects.equals(orderDetailDTO.getOrderStatus(), "COMPLETED")) {
+            for (OrderItem orderItem : orderDetail.getOrderItems()) {
+                bestSellerService.updateBestSellerQuantity(orderItem.getProduct().getId());
+            }
         }
 
         // Lưu lại các thay đổi của OrderDetail (vẫn giữ nguyên tham chiếu của collection orderItems)

@@ -20,11 +20,9 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements ICategoryService {
 
     private final CategoryRepository repository;
-    private final EntityManager entityManager;
 
-    public CategoryServiceImpl(CategoryRepository repository, EntityManager entityManager) {
+    public CategoryServiceImpl(CategoryRepository repository) {
         this.repository = repository;
-        this.entityManager = entityManager;
     }
 
     // Validate function of category name
@@ -79,6 +77,7 @@ public class CategoryServiceImpl implements ICategoryService {
         if (category.getParentCategoryID() != null) {
             parentCategoryDTO = new ParentCategoryResponseDTO(
                     category.getParentCategoryID().getId(),
+                    category.getIsActive(),
                     category.getParentCategoryID().getCategoryName()
             );
         }
@@ -86,6 +85,7 @@ public class CategoryServiceImpl implements ICategoryService {
         return new CategoryResponseDTO(
                 category.getId(),
                 category.getCategoryName(),
+                category.getIsActive(),
                 parentCategoryDTO
         );
     }
@@ -122,6 +122,12 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
+    public List<CategoryResponseDTO> getActiveCategories() {
+        List<Category> categoryList = repository.getActiveCategories();
+        return convertEntityListToDTOList(categoryList);
+    }
+
+    @Override
     public Category getCategoryById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
@@ -137,8 +143,13 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public List<Category> getAllCategoriesByName(String categoryName) {
+    public List<Category> getCategoriesByName(String categoryName) {
         return repository.findByCategoryNameContainingIgnoreCase(categoryName);
+    }
+
+    @Override
+    public List<Category> getActiveCategoriesByName(String categoryName) {
+        return repository.findByIsActiveAndCategoryNameContainingIgnoreCase(true, categoryName);
     }
 
     @Override
@@ -151,8 +162,8 @@ public class CategoryServiceImpl implements ICategoryService {
 
             if (category.getParentCategoryID() != null) {
                 System.out.println(category.getParentCategoryID());
-                    Category updatingParentCategory = validateParentCategory(category, updatingCategoryName);
-                    updatingCategory.setParentCategoryID(updatingParentCategory);
+                Category updatingParentCategory = validateParentCategory(category, updatingCategoryName);
+                updatingCategory.setParentCategoryID(updatingParentCategory);
             }
 
             repository.save(updatingCategory);
@@ -166,7 +177,14 @@ public class CategoryServiceImpl implements ICategoryService {
         Category category = getCategoryById(id);
 
         if (category != null) {
-            repository.deActiveCategory(id);
+
+            category.setIsActive(false);
+            repository.save(category);
+
+            List<Category> childCategories = repository.findByParentCategoryID(id);
+            if (!childCategories.isEmpty()) {
+                repository.deactivateChildCategories(id);
+            }
         }
     }
 
@@ -176,17 +194,30 @@ public class CategoryServiceImpl implements ICategoryService {
         Category category = getCategoryById(id);
 
         if (category != null) {
-            repository.reActiveCategory(id);
-            entityManager.refresh(category);
+            // Activate itself
+            category.setIsActive(true);
+
+            if (category.getParentCategoryID() != null) {
+                Category parent = category.getParentCategoryID();
+
+                if (!Boolean.TRUE.equals(parent.getIsActive())) {
+                    parent.setIsActive(true);
+                    repository.save(parent);
+                }
+            }
+
+
+            repository.save(category);
         }
 
-         return category;
+        return category;
     }
 
     @Override
     public void deleteAllCategories() {
         repository.deleteAll();
     }
+
 
 
 }

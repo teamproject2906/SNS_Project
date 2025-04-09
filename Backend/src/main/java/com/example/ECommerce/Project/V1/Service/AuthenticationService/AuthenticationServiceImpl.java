@@ -121,7 +121,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+                .orElseThrow(() -> new IllegalArgumentException("Username not exist!"));
 
         if (!user.getIsActive()) {
             throw new DisabledException("User account is inactive or disabled");
@@ -135,7 +135,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                     )
             );
         } catch (BadCredentialsException e) {
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new IllegalArgumentException("Password not correct!");
         }
 
         var jwtToken = jwtService.generateToken(user);

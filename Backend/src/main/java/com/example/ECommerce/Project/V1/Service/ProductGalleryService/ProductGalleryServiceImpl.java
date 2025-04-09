@@ -1,13 +1,12 @@
 package com.example.ECommerce.Project.V1.Service.ProductGalleryService;
 
 import com.cloudinary.Cloudinary;
+import com.example.ECommerce.Project.V1.Exception.ImageLimitExceededException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Product;
 import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Repository.ProductGalleryRepository;
-import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +29,14 @@ public class ProductGalleryServiceImpl implements IProductGalleryService {
 
     @Override
     public ProductGallery uploadImage(Integer productId, MultipartFile file) throws IOException {
+        // Check image count before proceding
+        long currentImageCount = getImageCountForProduct(productId);
+        System.out.println(currentImageCount);
+
+        if (currentImageCount >= 10) {
+            throw new ImageLimitExceededException("Maximum limit of 10 images per product reached");
+        }
+
         // Set Cloundinary upload options
         Map<String, Object> options = new HashMap<>();
         options.put("folder", "product_gallery");
@@ -92,6 +99,15 @@ public class ProductGalleryServiceImpl implements IProductGalleryService {
     @Override
     public ProductGallery getProductGalleryById(Integer id) {
         return productGalleryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product Gallery with the ID: " + id + " not found"));
+    }
+
+    @Override
+    public String getProductGalleryByIdAndMinSortOrder(Integer id){
+        if(productGalleryRepository.getProductGalleryByIdAndMinSortOrder(id)!=null){
+            return productGalleryRepository.getProductGalleryByIdAndMinSortOrder(id).getImageUrl();
+        }else{
+            return "Lam deo gi co anh dau";
+        }
     }
 
     @Override
@@ -220,6 +236,11 @@ public class ProductGalleryServiceImpl implements IProductGalleryService {
             productGalleryRepository.deleteAll(productGalleryList);
             System.out.println("All images for product ID " + productId + " deleted from database.");
         }
+    }
+
+    @Override
+    public long getImageCountForProduct(Integer productId) {
+        return productGalleryRepository.countByProductId(productId);
     }
 
 

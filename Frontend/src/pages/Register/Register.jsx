@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
@@ -65,8 +65,6 @@ const Register = () => {
         // Giải mã token để lấy thông tin user
         const decodedUser = jwtDecode(token);
         setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
-
-        console.log("Decoded User:", decodedUser);
         setUser(decodedUser); // Cập nhật thông tin user trong context
         // Display "Register successful" message
         toast.success("Registration successful", {
@@ -101,6 +99,29 @@ const Register = () => {
       }
     }
     setLoading(false);
+  };
+
+  const registerWithGoogle = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8080/oauth2/redirectToGoogle",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data && res.data.auth_url) {
+        window.location.href = res.data.auth_url; // Chuyển hướng đến Google
+      } else {
+        toast.error("Không tìm thấy URL chuyển hướng!");
+      }
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi đăng nhập với Google!");
+      console.error(error);
+    }
   };
 
   return (
@@ -147,10 +168,11 @@ const Register = () => {
           <button
             aria-label="Register"
             disabled={loading}
-            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${loading
+            className={`w-full py-3 rounded text-sm font-medium shadow-lg ${
+              loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-black text-white hover:bg-gray-800"
-              }`}
+            }`}
           >
             {loading ? "Đang xử lý..." : "ĐĂNG KÝ"}
           </button>
@@ -160,7 +182,10 @@ const Register = () => {
             Hoặc đăng nhập với
           </p>
           <div className="flex justify-center space-x-4">
-            <button className="flex items-center bg-red-600 text-white px-4 py-2 rounded shadow-lg hover:bg-red-500">
+            <button
+              className="flex items-center bg-red-600 text-white px-4 py-2 rounded shadow-lg hover:bg-red-500"
+              onClick={registerWithGoogle}
+            >
               <FaGoogle className="mr-2" />
               Google
             </button>
