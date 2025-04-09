@@ -247,7 +247,12 @@ const HomePage = () => {
   };
 
   if (loading) {
-    return <p style={{ textAlign: "center" }}>Loading...</p>;
+    return (
+      <div style={{ textAlign: "center" }}>
+        <div className="spinner" /> {/* Thêm spinner */}
+        Loading...
+      </div>
+    );
   }
 
   if (error) {
