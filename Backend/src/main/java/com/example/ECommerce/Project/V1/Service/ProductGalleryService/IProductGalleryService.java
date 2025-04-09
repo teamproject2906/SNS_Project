@@ -20,4 +20,5 @@ public interface IProductGalleryService {
     void updateProductGallery(Integer productId, MultipartFile[] files) throws IOException;
     void deleteProductGalleryById(Integer imageId);
     void deleteProductGalleryByProductId(Integer productId);
+    long getImageCountForProduct(Integer productId);
 }

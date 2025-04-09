@@ -193,6 +193,7 @@ public class ProductServiceImpl implements IProductService {
         if (category.getParentCategoryID() != null) {
             parentCategoryDTO = new ParentCategoryResponseDTO(
                     category.getParentCategoryID().getId(),
+                    category.getParentCategoryID().getIsActive(),
                     category.getParentCategoryID().getCategoryName()
             );
         }
@@ -200,6 +201,7 @@ public class ProductServiceImpl implements IProductService {
         return new CategoryResponseDTO(
                 category.getId(),
                 category.getCategoryName(),
+                category.getIsActive(),
                 parentCategoryDTO
         );
     }

@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.Exception.ImageLimitExceededException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/product-gallery")
@@ -40,20 +42,27 @@ public class ProductGalleryController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<ProductGallery> uploadImage(
+    public ResponseEntity<Object> uploadImage(
             @RequestParam("productId") Integer productId,
             @RequestParam("file") MultipartFile file) {
 
         try {
+            long currentImageCount = productGalleryService.getImageCountForProduct(productId);
+
+            if (currentImageCount >= 10) {
+                throw new ImageLimitExceededException("Maximum limit of 10 images per product reached");
+            }
             ProductGallery savedGallery = productGalleryService.uploadImage(productId, file);
             return ResponseEntity.ok(savedGallery);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body(null);
+        } catch (ImageLimitExceededException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
     @PostMapping("/upload-multiple")
-    public ResponseEntity<List<ProductGallery>> uploadMultipleImages(
+    public ResponseEntity<Object> uploadMultipleImages(
             @RequestParam("productId") Integer productId,
             @RequestParam("files") List<MultipartFile> files
 
@@ -62,12 +71,20 @@ public class ProductGalleryController {
         List<ProductGallery> uploadImages = new ArrayList<>();
 
         try {
+            long currentImageCount = productGalleryService.getImageCountForProduct(productId);
+
+            if (currentImageCount >= 10) {
+                throw new ImageLimitExceededException("Maximum limit of 10 images per product reached");
+            }
+
             for (MultipartFile file : files) {
                 ProductGallery savedGallery = productGalleryService.uploadImage(productId, file);
                 uploadImages.add(savedGallery);
             }
 
             return ResponseEntity.ok(uploadImages);
+        } catch (ImageLimitExceededException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(null);
         }
