@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Service.PostService;
 
+import com.cloudinary.Cloudinary;
 import com.example.ECommerce.Project.V1.DTO.CommentDTO;
 import com.example.ECommerce.Project.V1.DTO.PostDTO;
 import com.example.ECommerce.Project.V1.DTO.UserLikeDTO;
@@ -8,19 +9,18 @@ import com.example.ECommerce.Project.V1.Model.Comment;
 import com.example.ECommerce.Project.V1.Model.Post;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Model.UserLike;
-import com.example.ECommerce.Project.V1.Repository.CommentRepository;
 import com.example.ECommerce.Project.V1.Repository.LikeRepository;
 import com.example.ECommerce.Project.V1.Repository.PostRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,10 +28,9 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements IPostService {
 
     private final PostRepository postRepository;
-    private final ModelMapper mapper;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
+    private final Cloudinary cloudinary;
 
     private User getCurrentUser(Principal connectedUser) {
         int userId;
@@ -52,14 +51,21 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public PostDTO createPost(PostDTO post, Principal connectedUser) {
+    public PostDTO createPost(PostDTO post, MultipartFile file, Principal connectedUser) throws IOException {
 
         User userFind = getCurrentUser(connectedUser);
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("folder", "social");
+        options.put("tags", List.of("post_img"));
+
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
+        String imageUrl = uploadResult.get("secure_url").toString();
 
         var newPost = Post.builder()
                 .user(userFind)
                 .content(post.getContent())
-                .imageUrl(post.getImageUrl())
+                .imageUrl(imageUrl)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .createdBy(userFind.getUsername())
@@ -77,13 +83,32 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public PostDTO updatePost(PostDTO post, UUID postId, Principal connectedUser) {
+    public PostDTO updatePost(PostDTO post, UUID postId, MultipartFile file, Principal connectedUser) throws IOException {
 
         User userFind = getCurrentUser(connectedUser);
 
         Post updatedPost = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        // If a new image is uploaded
+        String imageUrl = null;
+        if (file != null && !file.isEmpty()) {
+            String oldImageUrl = updatedPost.getImageUrl();
+            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                String publicId = extractPublicIdFromUrl(oldImageUrl);
+                cloudinary.uploader().destroy(publicId, Map.of());
+            }
+
+            Map<String, Object> options = new HashMap<>();
+            options.put("folder", "social");
+            options.put("tags", List.of("post_img"));
+
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
+            imageUrl = uploadResult.get("secure_url").toString();
+        }
+
+
         updatedPost.setContent(post.getContent());
-        updatedPost.setImageUrl(post.getImageUrl());
+        updatedPost.setImageUrl(imageUrl);
         updatedPost.setUpdatedAt(LocalDateTime.now());
         updatedPost.setUpdatedBy(userFind.getUsername());
 
@@ -203,6 +228,34 @@ public class PostServiceImpl implements IPostService {
         }
     }
 
+    @Override
+    public List<PostDTO> getUserPostByUserId(Integer userId) {
+
+        List<Post> posts = postRepository.findPostByUserId(userId);
+
+        return posts.stream()
+                .map(post -> {
+                    User userFind = postRepository.findUserByPostId(post.getId());
+                    long totalLikes = likeRepository.countByPostId(post.getId());
+                    return PostDTO.builder()
+                            .id(post.getId())
+                            .user(userFind.getFirstname() + " " + userFind.getLastname())
+                            .content(post.getContent())
+                            .imageUrl(post.getImageUrl())
+                            .comments(post.getComments()
+                                    .stream()
+                                    .map(this::convertToCommentDTO)
+                                    .collect(Collectors.toList()))
+                            .userLikes(post.getLikes()
+                                    .stream()
+                                    .map(this::convertToUserLikeDTO)
+                                    .collect(Collectors.toList()))
+                            .totalLiked(totalLikes)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
     private CommentDTO convertToCommentDTO(Comment comment) {
 
         return CommentDTO.builder()
@@ -226,4 +279,28 @@ public class PostServiceImpl implements IPostService {
                 .postID(userLike.getPost().getId())
                 .build();
     }
+
+    private String extractPublicIdFromUrl(String url) {
+        try {
+            String[] parts = url.split("/");
+            int index = Arrays.asList(parts).indexOf("upload");
+            if (index != -1 && index + 1 < parts.length) {
+                // Join everything after 'upload' (skip version and extract public_id without extension)
+                StringBuilder publicIdBuilder = new StringBuilder();
+                for (int i = index + 2; i < parts.length; i++) {
+                    String part = parts[i];
+                    if (i == parts.length - 1) {
+                        part = part.substring(0, part.lastIndexOf('.')); // remove .jpg/.png
+                    }
+                    publicIdBuilder.append(part);
+                    if (i < parts.length - 1) publicIdBuilder.append("/");
+                }
+                return publicIdBuilder.toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

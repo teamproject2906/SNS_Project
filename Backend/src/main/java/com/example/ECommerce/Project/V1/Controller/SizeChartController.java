@@ -30,6 +30,11 @@ public class SizeChartController {
         return sizeChartService.getAllSizeChart();
     }
 
+    @GetMapping("/getDistinctSizeChart")
+    public List<String> getAllDistinctSizeChart(){
+        return sizeChartService.getAllDistinctSizeChart();
+    }
+
     @GetMapping("/{sizeChartId}")
     public ResponseEntity<SizeChart> getSizeChartById(@PathVariable("sizeChartId") Integer id) {
         SizeChart sizeChart = sizeChartService.getSizeChartById(id);

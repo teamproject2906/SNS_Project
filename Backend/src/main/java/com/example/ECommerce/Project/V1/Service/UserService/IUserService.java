@@ -10,11 +10,12 @@ import java.security.Principal;
 import java.util.List;
 
 public interface IUserService {
+
     void changePassword(ChangePasswordRequest request, Principal connectedUser);
 
     UserDTO updateUserInfo(@Valid UserDTO userDTO, Integer userId);
 
-    UserDTO updateUsernameByCustomer(@Valid UserDTO userDTO, Integer userId);
+    Integer findUserIdByUsername(@Valid UserDTO userDTO, String username);
 
     UserDTO updateUserAvatar(Integer userId, MultipartFile file) throws IOException;
 
@@ -31,4 +32,6 @@ public interface IUserService {
     List<UserDTO> searchUserByUsername(String keyword);
 
     UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
+
+    void changeForgotPassword(ChangePasswordRequest request, Principal connectedUser);
 }

@@ -88,6 +88,11 @@ public class SizeChartServiceImpl implements ISizeChartService {
     }
 
     @Override
+    public List<String> getAllDistinctSizeChart() {
+        return repository.findDistinctSizeChartTypes();
+    }
+
+    @Override
     public SizeChart getSizeChartById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SizeChart not found with id: " + id));

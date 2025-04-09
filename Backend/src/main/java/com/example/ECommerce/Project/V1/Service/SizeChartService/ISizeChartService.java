@@ -10,6 +10,9 @@ public interface ISizeChartService {
 
     SizeChart createSizeChart(SizeChart sizeChart);
     List<SizeChartResponseDTO> getAllSizeChart();
+
+    List<String> getAllDistinctSizeChart();
+
     SizeChart getSizeChartById(Integer id);
     SizeChart updateSizeChartById(Integer id, SizeChart sizeChart);
     void deactivateSizeChartById(Integer id);
