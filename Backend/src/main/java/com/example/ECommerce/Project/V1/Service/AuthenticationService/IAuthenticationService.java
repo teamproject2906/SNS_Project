@@ -11,12 +11,20 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 
 public interface IAuthenticationService {
+
     ResponseEntity<String> register(RegisterRequest request);
+
     AuthenticationResponse authenticate(AuthenticationRequest request);
+
     AuthenticationResponse verifyEmail(String token);
+
     void saveUserToken(User savedUser, String jwtToken);
+
     void cleanUpExpiredTokens(User user);
+
     void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
     void registerByGoogle(String jwt);
+
     ResponseEntity<String> forgotPassword(String email);
 }

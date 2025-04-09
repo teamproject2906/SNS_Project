@@ -254,6 +254,7 @@ public class ProductServiceImpl implements IProductService {
         productResponseDTO.setFormClothes(convertFormClothesEntityToDTO(product.getFormClothes()));
         productResponseDTO.setPromotion(product.getPromotion() != null ? convertEntityPromotionToResponseDTO(product.getPromotion()) : null);
         productResponseDTO.setImageUrl(productGalleryService.getProductGalleryByIdAndMinSortOrder(product.getId()));
+        productResponseDTO.setCreatedAt(product.getCreatedAt());
         productResponseDTO.setActive(product.getIsActive());
         return productResponseDTO;
     }
