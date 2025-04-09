@@ -20,4 +20,7 @@ public class ProductResponseDTO {
     private SizeChartResponseDTO sizeChart;
     private FormClothesResponseDTO formClothes;
     private PromotionResponseDTO promotion;
+    private boolean isActive;
+    private String imageUrl;
+
 }
