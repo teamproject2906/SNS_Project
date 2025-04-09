@@ -180,6 +180,13 @@ const UserTable = () => {
             : "Not updated"}
         </div>
       ),
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "8px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
     },
     {
       name: "Email",
@@ -189,6 +196,13 @@ const UserTable = () => {
           {row.email ? row.email : "Not updated"}
         </div>
       ),
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "8px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
     },
     {
       name: "Phone",
@@ -198,6 +212,13 @@ const UserTable = () => {
           {row.phoneNumber ? row.phoneNumber : "Not updated"}
         </div>
       ),
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "8px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
     },
     {
       name: "Role",

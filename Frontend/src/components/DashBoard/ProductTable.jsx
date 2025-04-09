@@ -397,12 +397,12 @@ const ProductTable = () => {
       return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
     const maxFileSize = 2 * 1024 * 1024;
     for (let i = 0; i < files.length; i++) {
       if (!allowedTypes.includes(files[i].type)) {
         toast.error(
-          `File ${files[i].name} has an unsupported format! Only JPEG, PNG, and WEBP are allowed.`
+          `File ${files[i].name} has an unsupported format! Only JPEG, PNG, JPG and WEBP are allowed.`
         );
         e.target.value = null;
         return;
@@ -505,6 +505,9 @@ const ProductTable = () => {
       sortable: true,
       style: {
         width: "100px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
@@ -518,6 +521,9 @@ const ProductTable = () => {
       sortable: true,
       style: {
         width: "100px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
@@ -531,6 +537,9 @@ const ProductTable = () => {
       sortable: true,
       style: {
         width: "100px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>

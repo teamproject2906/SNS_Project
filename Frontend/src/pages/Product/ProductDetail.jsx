@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import CommentsSection from "../../components/CommentsSection/CommentsSection";
 import axios from "axios";
 import { getToken } from "../Login/app/static";
+import { FaHeart } from "react-icons/fa";
 
 const ProductDetail = () => {
   const [product, setProduct] = useState(null);
@@ -57,7 +58,7 @@ const ProductDetail = () => {
       const scrollPosition = index * thumbnailHeight;
       thumbnailsRef.current.scrollTo({
         top: scrollPosition,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -120,21 +121,21 @@ const ProductDetail = () => {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className="flex gap-4">
+      <div className="flex">
         {/* Phần hình ảnh sản phẩm */}
         <div className="w-1/2">
           <div className="imageLayout flex flex-row justify-center gap-10">
-            <div 
+            <div
               ref={thumbnailsRef}
-              className="thumbnails flex overflow-y-auto flex-col max-h-[500px] gap-1" 
-              style={{ scrollbarWidth: 'none' }}
+              className="thumbnails flex overflow-y-auto flex-col max-h-[500px] gap-1"
+              style={{ scrollbarWidth: "none" }}
             >
               {productImages.map((image, index) => (
                 <img
                   key={image.id}
                   src={image.imageUrl}
                   alt="Thumbnail"
-                  className={`w-20 h-[96px] rounded-lg cursor-pointer border-2 object-cover ${
+                  className={`w-20 h-[80px] rounded-lg cursor-pointer border-2 object-cover ${
                     selectedImage === image.imageUrl
                       ? "border-blue-500"
                       : "border-gray-300"
@@ -144,19 +145,21 @@ const ProductDetail = () => {
               ))}
             </div>
             <div className="main-image mb-4 relative">
-              <img
-                src={selectedImage || product.imageUrl}
-                alt={product.productName}
-                className="w-full h-full rounded-lg"
-                style={{ maxHeight: "500px", objectFit: "contain" }}
-              />
-              <button 
+              <div className="flex justify-center w-[500px] h-[500px] min-h-[500px] min-w-[500px]">
+                <img
+                  src={selectedImage || product.imageUrl}
+                  alt={product.productName}
+                  className="w-full h-full rounded-lg border-2 border-gray-400"
+                  style={{ maxHeight: "500px", objectFit: "contain" }}
+                />
+              </div>
+              <button
                 className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full opacity-75 hover:opacity-100"
                 onClick={handlePrevImage}
               >
                 ◀
               </button>
-              <button 
+              <button
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full opacity-75 hover:opacity-100"
                 onClick={handleNextImage}
               >
@@ -167,39 +170,75 @@ const ProductDetail = () => {
         </div>
 
         {/* Phần thông tin sản phẩm */}
-        <div className="w-1/2 flex flex-col justify-center">
+        <div className="w-1/2 flex flex-col justify-between">
           <div className="mb-4">
-            <h1 className="text-3xl font-bold">
-              {product.productName}
-            </h1>
+            <h1 className="text-3xl font-bold">{product.productName}</h1>
           </div>
 
-          <div className="mb-4 flex flex-row gap-2 align-center">
+          <div className="mb-4 flex flex-row items-center gap-2">
             <p className="text-base font-medium">Product code:</p>
-            <p className="text-base">{product.productCode}</p>
+            <p className="text-base text-Montserrat-500">
+              {product.productCode}
+            </p>
+            <button className="favoriteBtn border-2 rounded-full p-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="black"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </button>
           </div>
 
           <div className="mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-[#021f58]">
-                {formatPrice(product.price)}đ
-              </span>
+              {product.promotion ? (
+                <span className="text-2xl font-bold text-[#021f58]">
+                  {formatPrice(
+                    product.price - product.price * product.promotion.discount
+                  )}
+                  đ
+                </span>
+              ) : (
+                <span className="text-2xl font-bold text-[#021f58]">
+                  {formatPrice(product.price)}đ
+                </span>
+              )}
+              {product.promotion ? (
+                <span
+                  className="text-md font-bold text-gray-400"
+                  style={{ textDecoration: "line-through" }}
+                >
+                  {formatPrice(product.price)}đ
+                </span>
+              ) : (
+                ""
+              )}
+              {product.promotion ? (
+                <span className="promotion bg-red-500 p-1 w-12 flex justify-center rounded-md font-bold text-white">
+                  -{product.promotion.discount * 100}%
+                </span>
+              ) : (
+                ""
+              )}
             </div>
           </div>
 
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <h3 className="text-base font-medium mb-2">Description:</h3>
             <p className="text-sm text-gray-500">{product.description}</p>
-          </div>
+          </div> */}
 
-          <div className="mb-4 flex flex-row gap-2">
+          {/* <div className="mb-4 flex flex-row gap-2">
             <h3 className="text-base font-medium mb-2">Material:</h3>
             <p className="text-base">{product.material}</p>
-          </div>
+          </div> */}
 
           {/* Chọn màu sắc */}
-          <div className="mb-4 flex flex-row gap-2">
-            <h3 className="text-sm font-medium mb-2">Choose color:</h3>
+          <div className="mb-4 flex flex-row items-center gap-2">
+            <h3 className="text-sm font-medium">Choose color:</h3>
             <div className="flex gap-2">
               <button
                 key={product.color}
@@ -216,8 +255,8 @@ const ProductDetail = () => {
           </div>
 
           {/* Chọn kích thước */}
-          <div className="mb-4 flex flex-row gap-2">
-            <h3 className="text-sm font-medium mb-2">Choose size:</h3>
+          <div className="mb-4 flex flex-row gap-2 items-center">
+            <h3 className="text-sm font-medium">Choose size:</h3>
             <div className="flex gap-2 flex-wrap">
               <button
                 key={product.sizeChart.value}
@@ -260,6 +299,31 @@ const ProductDetail = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      <hr
+        style={{
+          height: "2px",
+          borderWidth: "0",
+          color: "gray",
+          backgroundColor: "gray",
+          marginTop: "5%",
+        }}
+      />
+      <div className="description mt-8 gap-2 flex flex-col">
+        <h2 className="text-2xl font-bold mb-4">{product.productName}</h2>
+        <ul className="flex flex-col gap-2">
+          <div className="flex flex-row gap-2">
+            <li>Material:</li>
+            <div>{product.material}</div>
+          </div>
+          <div className="flex flex-row gap-2">
+            <li>Form:</li>
+            <div>{product.formClothes.formClothes}</div>
+          </div>
+        </ul>
+        <p className="">Description:</p>
+        <p className="">{product.description}</p>
       </div>
 
       {/* Phần bình luận */}

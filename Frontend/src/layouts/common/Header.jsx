@@ -13,10 +13,6 @@ import {
 import { useSpring, animated } from "@react-spring/web";
 import { CgProfile } from "react-icons/cg";
 import { CiLocationOn } from "react-icons/ci";
-import { FaEarthAmericas } from "react-icons/fa6";
-import { FaNewspaper } from "react-icons/fa";
-import { CiSettings } from "react-icons/ci";
-import { BsChatDots } from "react-icons/bs";
 import {
   removeToken,
   removeUserInfo,
@@ -32,19 +28,20 @@ import "../../assets/styles/Header.module.css";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false); // State for search dropdown
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user, setUser } = useUser();
   const [product, setProduct] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [token, setTokenState] = useState(localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")); // Thêm state cho token
 
   const dropdownRef = useRef(null);
-  const searchDropdownRef = useRef(null); // Ref for search dropdown
+  const searchDropdownRef = useRef(null);
   const navigate = useNavigate();
 
   console.log("User:", user);
-  console.log("Token:", getToken());
+  console.log("Token:", token);
 
   useEffect(() => {
     console.log("User thay đổi:", user);
@@ -67,14 +64,13 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      document.cookie =
-        "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      document.cookie =
-        "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      removeToken();
-      removeUserInfo();
-      setUser(null);
-      navigate("/login");
+      document.cookie = "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      removeToken(); // Xóa token khỏi localStorage
+      removeUserInfo(); // Xóa thông tin người dùng khỏi localStorage
+      setTokenState(null); // Cập nhật state token ngay lập tức
+      setUser(null); // Đặt user về null
+      navigate("/login"); // Điều hướng đến trang đăng nhập
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -90,11 +86,12 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const token = getCookie("id_token");
-    console.log("Token từ cookie:", token);
-    if (token) {
-      setToken(token);
-      const decoded = jwtDecode(token);
+    const cookieToken = getCookie("id_token");
+    console.log("Token từ cookie:", cookieToken);
+    if (cookieToken) {
+      setToken(cookieToken);
+      setTokenState(cookieToken); // Đồng bộ token từ cookie
+      const decoded = jwtDecode(cookieToken);
       setUser(decoded);
       setUserInfo(decoded);
     }
@@ -104,7 +101,6 @@ const Header = () => {
     const fetchedProducts = async () => {
       try {
         setLoading(true);
-        const token = getToken();
         const res = await axios.get("http://localhost:8080/api/products", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -116,43 +112,87 @@ const Header = () => {
         setLoading(false);
       }
     };
-
+    
     fetchedProducts();
   }, []);
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-    setIsSearchDropdownOpen(query.length > 0); // Show dropdown if query is not empty
+    setIsSearchDropdownOpen(query.length > 0);
   };
 
-  // Filter products based on search query
   const filteredProducts = product.filter((item) =>
     item.productName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Close search dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        searchDropdownRef.current &&
-        !searchDropdownRef.current.contains(event.target)
-      ) {
+      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target)) {
         setIsSearchDropdownOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Format price
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
+
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!token) {
+        setError("Bạn chưa đăng nhập");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const decodedToken = parseJwt(token);
+        const userId = decodedToken?.userId;
+
+        if (!userId) {
+          throw new Error("Không thể xác định thông tin người dùng");
+        }
+
+        const response = await axios.get(
+          `http://localhost:8080/User/getUserProfile/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const userData = response.data;
+        setUser({
+          ...userData,
+          avatar:
+            userData.avatar ||
+            "https://www.rainforest-alliance.org/wp-content/uploads/2021/06/capybara-square-1.jpg.optimal.jpg",
+          role: userData.role || "User",
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin người dùng:", error);
+        setError("Không thể lấy thông tin người dùng. Vui lòng thử lại sau.");
+        setLoading(false);
+      }
+    };
+
+    if (token) fetchUserProfile(); // Chỉ gọi API nếu có token
+  }, [token]); // Chỉ phụ thuộc vào token, không phụ thuộc vào user
 
   return (
     <header>
@@ -166,7 +206,7 @@ const Header = () => {
               <div className="relative">
                 <button className="flex items-center" onClick={toggleDropdown}>
                   <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuUNzMQDgnsk95ui5vpRRrv5CQoovkaGz3qA&s"
+                    src={user.avatar}
                     alt="Avatar"
                     className="rounded-full w-8 h-8 sm:w-10 sm:h-10"
                   />
@@ -233,7 +273,6 @@ const Header = () => {
       {/* Main Header */}
       <div className="bg-white py-4 border-b border-gray-400">
         <div className="container mx-auto flex justify-between items-center px-4">
-          {/* Giỏ hàng */}
           <Link to={"/cart"} className="text-gray-800 flex items-center mx-2">
             <FaShoppingBag size={20} />
             <span className="ml-1 text-sm hidden sm:inline">0</span>
@@ -245,8 +284,6 @@ const Header = () => {
             <FaHeart size={20} />
             <span className="ml-1 text-sm hidden sm:inline">0</span>
           </Link>
-
-          {/* Logo */}
           <div className="flex-1 flex justify-center sm:ml-10 md:ml-20 lg:ml-40">
             <Link to="/">
               <img
@@ -256,8 +293,6 @@ const Header = () => {
               />
             </Link>
           </div>
-
-          {/* Thanh tìm kiếm */}
           <div className="hidden md:flex items-center space-x-2 relative">
             <input
               type="text"
@@ -269,12 +304,10 @@ const Header = () => {
             <button className="text-gray-500">
               <FaSearch size={16} />
             </button>
-
-            {/* Search Dropdown */}
             {isSearchDropdownOpen && (
               <div
                 ref={searchDropdownRef}
-                style={{ margin: 0}}
+                style={{ margin: 0 }}
                 className="absolute top-10 left-0 w-11/12 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 z-10"
               >
                 {filteredProducts.length > 0 ? (
@@ -307,8 +340,6 @@ const Header = () => {
               </div>
             )}
           </div>
-
-          {/* Hamburger Menu (Mobile) */}
           <button
             className="text-gray-800 md:hidden"
             onClick={toggleMenu}
@@ -319,7 +350,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar */}
       <div className="mt-8">
         <animated.div
           style={menuAnimation}
