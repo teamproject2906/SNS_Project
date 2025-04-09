@@ -123,8 +123,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Username not exist!"));
 
-        if (!user.getIsActive()) {
-            throw new DisabledException("User account is inactive or disabled");
+        if (!user.getIsActive() && !user.isVerified()) {
+            throw new DisabledException("Your account is banned or not verified");
         }
 
         try {
