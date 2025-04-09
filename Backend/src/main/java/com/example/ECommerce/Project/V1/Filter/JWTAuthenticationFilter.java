@@ -85,13 +85,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 //                response.sendRedirect("/Authentication/Authenticate");
                 return;
             }
-        } else {
-            SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Unauthorized: Token has been revoked or expired");
-                response.getWriter().flush();
-//            response.sendRedirect("/Authentication/Authenticate");
-            return;
         }
         filterChain.doFilter(request, response);
     }

@@ -27,14 +27,20 @@ import {
 import { useUser } from "../../context/UserContext";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import "../../assets/styles/Header.module.css";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { user } = useUser(); // Lấy thông tin user từ Context
-  const { setUser } = useUser(); // Hàm để cập nhật thông tin user trong Context
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false); // State for search dropdown
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const { user, setUser } = useUser();
+  const [product, setProduct] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const dropdownRef = useRef(null);
+  const searchDropdownRef = useRef(null); // Ref for search dropdown
   const navigate = useNavigate();
 
   console.log("User:", user);
@@ -42,7 +48,7 @@ const Header = () => {
 
   useEffect(() => {
     console.log("User thay đổi:", user);
-  }, [user]); // Mỗi khi user thay đổi, Header sẽ render lại
+  }, [user]);
 
   const menuAnimation = useSpring({
     opacity: isMenuOpen ? 1 : 1,
@@ -61,26 +67,19 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      // Xóa cookie "id_token"
       document.cookie =
         "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-
-      // Xóa các thông tin khác nếu cần
       document.cookie =
         "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-
-      removeToken(); // Xóa token khỏi localStorage
-      removeUserInfo(); // Xóa thông tin user khỏi localStorage
-      setUser(null); // Xóa user trong context
-
-      // Điều hướng về trang đăng nhập
+      removeToken();
+      removeUserInfo();
+      setUser(null);
       navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
-  // Hàm lấy cookie theo tên
   const getCookie = (name) => {
     const cookies = document.cookie.split("; ");
     for (let cookie of cookies) {
@@ -90,17 +89,70 @@ const Header = () => {
     return null;
   };
 
-  // Gọi getTokenByGoogle khi component mount và có token từ cookie (hoặc sau khi redirect từ Google)
   useEffect(() => {
     const token = getCookie("id_token");
-    console.log("Token từ cookie:", token); // Kiểm tra token từ cookie
+    console.log("Token từ cookie:", token);
     if (token) {
       setToken(token);
       const decoded = jwtDecode(token);
       setUser(decoded);
       setUserInfo(decoded);
     }
-  }, []); // Chạy khi component mount
+  }, []);
+
+  useEffect(() => {
+    const fetchedProducts = async () => {
+      try {
+        setLoading(true);
+        const token = getToken();
+        const res = await axios.get("http://localhost:8080/api/products", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProduct(res.data);
+        console.log("Product", res.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchedProducts();
+  }, []);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setIsSearchDropdownOpen(query.length > 0); // Show dropdown if query is not empty
+  };
+
+  // Filter products based on search query
+  const filteredProducts = product.filter((item) =>
+    item.productName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target)
+      ) {
+        setIsSearchDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Format price
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   return (
     <header>
@@ -122,7 +174,7 @@ const Header = () => {
                 {isDropdownOpen && (
                   <div
                     ref={dropdownRef}
-                    className="absolute right-0 mt-2 bg-white shadow-md rounded-lg w-48"
+                    className="absolute right-0 mt-2 bg-white shadow-md rounded-lg w-48 z-10"
                   >
                     <ul className="space-y-2 p-2 text-sm text-gray-700">
                       <li>
@@ -143,33 +195,6 @@ const Header = () => {
                           Address
                         </Link>
                       </li>
-                      {/* <li>
-                        <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex">
-                          <FaEarthAmericas className="mr-3 mt-1" />
-                          Change Language
-                        </button>
-                      </li>
-                      <li>
-                        <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex">
-                          <FaNewspaper className="mr-3 mt-1" />
-                          Change Theme
-                        </button>
-                      </li>
-                      <li>
-                        <Link
-                          to={`/setting-page`}
-                          className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"
-                        >
-                          <CiSettings className="mr-3 mt-1" />
-                          Setting
-                        </Link>
-                      </li>
-                      <li>
-                        <button className="w-full text-left hover:bg-gray-100 px-2 py-1 flex">
-                          <BsChatDots className="mr-3 mt-1" />
-                          Message
-                        </button>
-                      </li> */}
                       <li>
                         <button
                           className="w-full text-left hover:bg-gray-100 px-2 py-1"
@@ -213,7 +238,6 @@ const Header = () => {
             <FaShoppingBag size={20} />
             <span className="ml-1 text-sm hidden sm:inline">0</span>
           </Link>
-          {/* Giỏ hàng */}
           <Link
             to={"/favourite"}
             className="text-gray-800 flex items-center mx-2"
@@ -234,15 +258,54 @@ const Header = () => {
           </div>
 
           {/* Thanh tìm kiếm */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2 relative">
             <input
               type="text"
               placeholder="TÌM KIẾM..."
-              className="border border-gray-300 rounded-full px-4 py-1 text-sm focus:outline-none"
+              className="border border-gray-300 rounded-full px-4 py-1 text-sm focus:outline-none w-64"
+              value={searchQuery}
+              onChange={handleSearchChange}
             />
             <button className="text-gray-500">
               <FaSearch size={16} />
             </button>
+
+            {/* Search Dropdown */}
+            {isSearchDropdownOpen && (
+              <div
+                ref={searchDropdownRef}
+                style={{ margin: 0}}
+                className="absolute top-10 left-0 w-11/12 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 z-10"
+              >
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((item) => (
+                    <Link
+                      to={`/products/${item.id}`}
+                      key={item.id}
+                      className="flex items-center p-2 hover:bg-gray-100 border-b border-gray-200"
+                    >
+                      <img
+                        src={item.imageUrl || "https://via.placeholder.com/50"}
+                        alt={item.productName}
+                        className="w-12 h-12 object-cover rounded mr-3"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800">
+                          {item.productName}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {formatPrice(item.price)}đ
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="p-2 text-sm text-gray-500">
+                    Không tìm thấy sản phẩm.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Hamburger Menu (Mobile) */}

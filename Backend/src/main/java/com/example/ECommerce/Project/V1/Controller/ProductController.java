@@ -77,8 +77,8 @@ public class ProductController {
     }
     
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductDetailById(@PathVariable Integer productId) {
-        return new ResponseEntity<>(productService.getProductById(productId),HttpStatus.OK);
+    public ResponseEntity<ProductResponseDTO> getProductDetailById(@PathVariable Integer productId) {
+        return new ResponseEntity<>(productService.getProductDTOById(productId),HttpStatus.OK);
     }
 
     @GetMapping("/productCode/{code}")

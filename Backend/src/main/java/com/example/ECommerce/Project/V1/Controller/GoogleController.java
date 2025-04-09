@@ -83,26 +83,24 @@ public class GoogleController {
             String refreshToken = json.has("refresh_token") ? json.get("refresh_token").asText() : "";
 
             Cookie accessTokenCookie = new Cookie("access_token", accessToken);
-            accessTokenCookie.setHttpOnly(true);
             accessTokenCookie.setSecure(true);
             accessTokenCookie.setPath("/");
             accessTokenCookie.setMaxAge(3600);
             servletResponse.addCookie(accessTokenCookie);
+            System.out.println("Cookie added: name=" + accessTokenCookie.getName() + ", value=" + accessTokenCookie.getValue());
 
             Cookie idTokenCookie = new Cookie("id_token", idToken);
-            idTokenCookie.setHttpOnly(true);
             idTokenCookie.setSecure(true);
             idTokenCookie.setPath("/");
             idTokenCookie.setMaxAge(3600);
             servletResponse.addCookie(idTokenCookie);
 
             Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
-            idTokenCookie.setHttpOnly(true);
-            idTokenCookie.setSecure(true);
-            idTokenCookie.setPath("/");
-            idTokenCookie.setMaxAge(3600);
+            refreshTokenCookie.setSecure(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(3600*24*7);
             servletResponse.addCookie(refreshTokenCookie);
-
+            System.out.println("refresh: " + refreshToken);
 
             // Tạo URL để redirect về frontend
             String redirectToFrontend = "http://localhost:5173/";

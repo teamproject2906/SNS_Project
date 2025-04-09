@@ -14,6 +14,9 @@ public interface IProductGalleryService {
     List<ProductGallery> getAllProductGallery();
     List<ProductGallery> getAllProductGalleryByProductId(Integer productId);
     ProductGallery getProductGalleryById(Integer id);
+
+    String getProductGalleryByIdAndMinSortOrder(Integer id);
+
     void updateProductGallery(Integer productId, MultipartFile[] files) throws IOException;
     void deleteProductGalleryById(Integer imageId);
     void deleteProductGalleryByProductId(Integer productId);
