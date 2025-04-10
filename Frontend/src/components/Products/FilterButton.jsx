@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactSlider from "react-slider"; // Giả định rằng react-slider đã được import
 import "../../assets/styles/FilterButton.module.css";
 
 const FilterButton = ({ products, onFilter }) => {
@@ -7,8 +8,6 @@ const FilterButton = ({ products, onFilter }) => {
 
   // State để lưu giá trị category
   const [category, setCategory] = useState("");
-
-  const [reset, setReset] = useState(false);
 
   // Đảm bảo products là mảng, nếu không thì gán mảng rỗng
   const safeProducts = Array.isArray(products) ? products : [];
@@ -23,13 +22,8 @@ const FilterButton = ({ products, onFilter }) => {
   ];
 
   // Hàm xử lý thay đổi giá tiền
-  const handlePriceChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "min") {
-      setPriceRange([parseInt(value), priceRange[1]]); // Cập nhật min, giữ max
-    } else {
-      setPriceRange([priceRange[0], parseInt(value)]); // Cập nhật max, giữ min
-    }
+  const handlePriceChange = (value) => {
+    setPriceRange(value); // ReactSlider trả về mảng [min, max]
   };
 
   // Hàm xử lý thay đổi category
@@ -53,24 +47,19 @@ const FilterButton = ({ products, onFilter }) => {
       <div className="filter-section">
         <h3>Giá</h3>
         <div className="price-range">
-          <input
-            type="range"
-            name="min"
-            min="300000"
-            max="45000000"
-            value={priceRange[0]}
+          <ReactSlider
+            className="horizontal-slider"
+            thumbClassName="thumb"
+            trackClassName="track"
+            min={300000}
+            max={45000000}
+            value={priceRange}
             onChange={handlePriceChange}
-          />
-          <input
-            type="range"
-            name="max"
-            min="300000"
-            max="45000000"
-            value={priceRange[1]}
-            onChange={handlePriceChange}
+            pearling
+            minDistance={100000} // Khoảng cách tối thiểu giữa hai thumb
           />
           <div className="price-values">
-            <span>{formatPrice(priceRange[0])}</span> -{" "}
+            <span>{formatPrice(priceRange[0])}</span>
             <span>{formatPrice(priceRange[1])}</span>
           </div>
         </div>
