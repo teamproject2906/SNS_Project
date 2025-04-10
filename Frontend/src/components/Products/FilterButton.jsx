@@ -8,12 +8,17 @@ const FilterButton = ({ products, onFilter }) => {
   // State để lưu giá trị category
   const [category, setCategory] = useState("");
 
-  const [reset, setReset] = useState(false)
+  const [reset, setReset] = useState(false);
 
-  // Tạo danh sách category động từ products
+  // Đảm bảo products là mảng, nếu không thì gán mảng rỗng
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  // Tạo danh sách category động từ safeProducts
   const categories = [
     ...new Set(
-      products.map((product) => product.category.name).filter((cat) => cat)
+      safeProducts
+        .map((product) => product?.category?.name)
+        .filter((cat) => cat)
     ),
   ];
 
@@ -21,9 +26,9 @@ const FilterButton = ({ products, onFilter }) => {
   const handlePriceChange = (e) => {
     const { name, value } = e.target;
     if (name === "min") {
-      setPriceRange([parseInt(value)]);
+      setPriceRange([parseInt(value), priceRange[1]]); // Cập nhật min, giữ max
     } else {
-      setPriceRange([priceRange[0], parseInt(value)]);
+      setPriceRange([priceRange[0], parseInt(value)]); // Cập nhật max, giữ min
     }
   };
 
@@ -56,9 +61,17 @@ const FilterButton = ({ products, onFilter }) => {
             value={priceRange[0]}
             onChange={handlePriceChange}
           />
-            <label className="maxPrice">450.000.000</label>
+          <input
+            type="range"
+            name="max"
+            min="300000"
+            max="45000000"
+            value={priceRange[1]}
+            onChange={handlePriceChange}
+          />
           <div className="price-values">
-            <span>{formatPrice(priceRange[0])}</span>
+            <span>{formatPrice(priceRange[0])}</span> -{" "}
+            <span>{formatPrice(priceRange[1])}</span>
           </div>
         </div>
       </div>

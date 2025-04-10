@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import SortBar from "../../components/Products/SortBar"
-
+import SortBar from "../../components/Products/SortBar";
 import ProductCard from "../../components/Products/ProductCard";
-import { getToken } from "../../pages/Login/app/static";
 import FilterButton from "../../components/Products/FilterButton";
+import { getToken } from "../../pages/Login/app/static";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
@@ -21,10 +20,14 @@ export default function Product() {
         const res = await axios.get("http://localhost:8080/api/products", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setProducts(res.data);
-        setFilteredProducts(res.data); // Khởi tạo filteredProducts
+        // Đảm bảo res.data là mảng
+        const safeProducts = Array.isArray(res.data) ? res.data : [];
+        setProducts(safeProducts);
+        setFilteredProducts(safeProducts); // Khởi tạo filteredProducts
       } catch (err) {
         setError(err.message);
+        setProducts([]);
+        setFilteredProducts([]);
       } finally {
         setLoading(false);
       }
@@ -35,6 +38,7 @@ export default function Product() {
 
   // Hàm xử lý lọc
   const handleFilter = ({ priceRange, category }) => {
+    const [minPrice, maxPrice] = priceRange;
     let filtered = [...products];
 
     // Lọc theo giá
@@ -42,12 +46,14 @@ export default function Product() {
       const price = product.promotion
         ? product.price * (1 - product.promotion.discount)
         : product.price;
-      return price >= priceRange[0] && price <= priceRange[1];
+      return price >= minPrice && price <= maxPrice;
     });
 
-    // Lọc theo category
+    // Lọc theo category (category là object với thuộc tính name)
     if (category) {
-      filtered = filtered.filter((product) => product.category === category);
+      filtered = filtered.filter(
+        (product) => product.category?.name === category
+      );
     }
 
     setFilteredProducts(filtered);
@@ -105,6 +111,7 @@ export default function Product() {
         sortedProducts.sort((a, b) => (b.sales || 0) - (a.sales || 0));
         break;
       default:
+        sortedProducts = [...products]; // Mặc định trả về danh sách gốc
         break;
     }
 

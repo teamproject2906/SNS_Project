@@ -9,11 +9,14 @@ const ProductCard = ({ products, loading, error }) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
+  // Đảm bảo products là mảng, nếu không thì gán mảng rỗng
+  const safeProducts = Array.isArray(products) ? products : [];
+
   // Calculate pagination
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const totalPages = Math.ceil(safeProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = products.slice(startIndex, endIndex);
+  const currentItems = safeProducts.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -29,8 +32,8 @@ const ProductCard = ({ products, loading, error }) => {
 
   return (
     <div className="container mx-auto">
-      {products.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No products available.</p>
+      {safeProducts.length === 0 ? (
+        <p style={{ textAlign: "center" }}>Hiện chưa có sản phẩm.</p>
       ) : (
         <>
           <div className="product-card grid grid-cols-4 gap-6">
@@ -45,7 +48,10 @@ const ProductCard = ({ products, loading, error }) => {
                 >
                   <img
                     className="product-card__image"
-                    src={item.imageUrl}
+                    src={
+                      item.imageUrl ||
+                      "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="
+                    }
                     alt={item.productName}
                     width={300}
                     height={300}
