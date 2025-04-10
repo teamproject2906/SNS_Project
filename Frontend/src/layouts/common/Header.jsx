@@ -34,7 +34,9 @@ const Header = () => {
   const [product, setProduct] = useState([]); // Khởi tạo product là mảng rỗng
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [token, setTokenState] = useState(localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, ""));
+  const [token, setTokenState] = useState(
+    localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
+  );
 
   const dropdownRef = useRef(null);
   const searchDropdownRef = useRef(null);
@@ -64,8 +66,10 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      document.cookie = "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      document.cookie = "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie =
+        "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie =
+        "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       removeToken();
       removeUserInfo();
       setTokenState(null);
@@ -136,7 +140,10 @@ const Header = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target)) {
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target)
+      ) {
         setIsSearchDropdownOpen(false);
       }
     };
@@ -168,6 +175,10 @@ const Header = () => {
         setLoading(true);
         const decodedToken = parseJwt(token);
         const userId = decodedToken?.userId;
+        console.log("Token decoded:", decodedToken);
+
+        const expirationDate = new Date(decodedToken.exp * 1000);
+        console.log("Thời hạn là:", expirationDate);
 
         if (!userId) {
           throw new Error("Không thể xác định thông tin người dùng");
