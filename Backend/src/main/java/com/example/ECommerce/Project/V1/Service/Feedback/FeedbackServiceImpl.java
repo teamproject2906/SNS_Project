@@ -101,6 +101,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .comment(feedback.getComment())
                 .rate(feedback.getRate())
                 .imageUrl(feedback.getImageUrl())
+                .createdAt(feedback.getCreatedAt())
                 .build();
     }
 }
