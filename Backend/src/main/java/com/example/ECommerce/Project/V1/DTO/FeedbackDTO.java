@@ -1,9 +1,8 @@
 package com.example.ECommerce.Project.V1.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +15,6 @@ public class FeedbackDTO {
     private String subject;
     private String comment;
     private Float rate;
-    private String imageUrl;    // trả về sau khi upload
+    private String imageUrl;
+    private LocalDateTime createdAt;
 }

@@ -3,18 +3,11 @@ package com.example.ECommerce.Project.V1.Service.UserService;
 import com.cloudinary.Cloudinary;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
-import com.example.ECommerce.Project.V1.Exception.InvalidTokenException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
-import com.example.ECommerce.Project.V1.Mailing.AccountVerificationEmailContext;
-import com.example.ECommerce.Project.V1.Mailing.EmailService;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
-import com.example.ECommerce.Project.V1.Service.SecureTokenService.SecureTokenServiceImpl;
-import com.example.ECommerce.Project.V1.Token.SecureToken;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -244,6 +237,29 @@ public class UserServiceImpl implements IUserService {
             e.printStackTrace();
         }
         return null;
+    }
+    @Override
+    public UserDTO getUserById(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+        return mapToDTO(user);
+    }
+
+    private UserDTO mapToDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .dob(user.getDob())
+                .gender(user.getGender())
+                .bio(user.getBio())
+                .avatar(user.getAvatar())
+                .isActive(user.isEnabled())
+                .role(user.getRole() != null ? user.getRole().name() : null)
+                .build();
     }
 
 }
