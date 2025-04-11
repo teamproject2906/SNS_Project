@@ -239,5 +239,28 @@ public class UserServiceImpl implements IUserService {
         }
         return null;
     }
+    @Override
+    public UserDTO getUserById(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+        return mapToDTO(user);
+    }
+
+    private UserDTO mapToDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .dob(user.getDob())
+                .gender(user.getGender())
+                .bio(user.getBio())
+                .avatar(user.getAvatar())
+                .isActive(user.isEnabled())
+                .role(user.getRole() != null ? user.getRole().name() : null)
+                .build();
+    }
 
 }

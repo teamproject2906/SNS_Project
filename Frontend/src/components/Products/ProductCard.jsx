@@ -1,44 +1,22 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { getToken } from "../../pages/Login/app/static";
-import { FaRegHeart } from "react-icons/fa";
 
-const ProductCard = () => {
-  const [product, setProduct] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+const ProductCard = ({ products, loading, error }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
-
-  useEffect(() => {
-    const fetchedProducts = async () => {
-      try {
-        const token = getToken();
-        const res = await axios.get("http://localhost:8080/api/products", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setProduct(res.data);
-        console.log("Product", res.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchedProducts();
-  }, []);
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
+  // Đảm bảo products là mảng, nếu không thì gán mảng rỗng
+  const safeProducts = Array.isArray(products) ? products : [];
+
   // Calculate pagination
-  const totalPages = Math.ceil(product.length / itemsPerPage);
+  const totalPages = Math.ceil(safeProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = product.slice(startIndex, endIndex);
+  const currentItems = safeProducts.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -54,15 +32,15 @@ const ProductCard = () => {
 
   return (
     <div className="container mx-auto">
-      {product.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No products available.</p>
+      {safeProducts.length === 0 ? (
+        <p style={{ textAlign: "center" }}>Hiện chưa có sản phẩm.</p>
       ) : (
         <>
           <div className="product-card grid grid-cols-4 gap-6">
             {currentItems.map((item) => (
               <div
                 key={item.id}
-                className="product-card__item border  rounded-lg p-4 flex flex-col justify-between gap-5 shadow-xl"
+                className="product-card__item border rounded-lg p-4 flex flex-col justify-between gap-5 shadow-xl"
               >
                 <Link
                   to={`/products/${item.id}`}
@@ -70,7 +48,10 @@ const ProductCard = () => {
                 >
                   <img
                     className="product-card__image"
-                    src={item.imageUrl}
+                    src={
+                      item.imageUrl ||
+                      "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="
+                    }
                     alt={item.productName}
                     width={300}
                     height={300}
@@ -103,7 +84,10 @@ const ProductCard = () => {
                         </p>
                       )}
                       {item.promotion ? (
-                        <p className="product-card__original-price text-md text-gray-400" style={{ textDecoration: "line-through" }}>
+                        <p
+                          className="product-card__original-price text-md text-gray-400"
+                          style={{ textDecoration: "line-through" }}
+                        >
                           {formatPrice(item.price)}đ
                         </p>
                       ) : (

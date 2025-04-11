@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,8 +47,6 @@ public class ProductServiceImpl implements IProductService {
     private void validateProductCode(String productCode, ProductRepository repository) {
         if (productCode == null || productCode.isBlank()) {
             throw new InvalidInputException("Product code cannot be blank");
-        } else if (repository.findProductByProductCode(productCode).isPresent()) {
-            throw new InvalidInputException("Product code '"+ productCode +"' already exists");
         } else if(productCode.length() > 20) {
             throw new InvalidInputException("Product code cannot longer than 20 characters");
         }
@@ -259,6 +258,8 @@ public class ProductServiceImpl implements IProductService {
         return productResponseDTO;
     }
 
+
+
     private List<ProductResponseDTO> convertEntityListToDTOList(List<Product> products) {
         return products.stream().map(this::convertProductEntityToDTO).collect(Collectors.toList());
     }
@@ -283,6 +284,18 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public List<ProductResponseDTO> getAllProducts() {
         return convertEntityListToDTOList(productRepository.findAll());
+    }
+
+    @Override
+    public List<ProductResponseDTO> getAllProductsUsingProductCode(){
+        List<String> listProductCode = repository.getAllProductCodes();
+        List<ProductResponseDTO> listProductDTO = new ArrayList<>();
+        for(String productCode : listProductCode){
+            Product specificProduct = repository.findSpecificProductByProductCode(productCode)
+                    .orElseThrow(() -> new IllegalArgumentException("Product with productCode " + productCode + " not found"));
+            listProductDTO.add(convertProductEntityToDTO(specificProduct));
+        }
+        return  listProductDTO;
     }
 
     @Override

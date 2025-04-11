@@ -31,10 +31,12 @@ const Header = () => {
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, setUser } = useUser();
-  const [product, setProduct] = useState([]);
+  const [product, setProduct] = useState([]); // Khởi tạo product là mảng rỗng
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [token, setTokenState] = useState(localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")); // Thêm state cho token
+  const [token, setTokenState] = useState(
+    localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
+  );
 
   const dropdownRef = useRef(null);
   const searchDropdownRef = useRef(null);
@@ -64,13 +66,15 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      document.cookie = "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      document.cookie = "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      removeToken(); // Xóa token khỏi localStorage
-      removeUserInfo(); // Xóa thông tin người dùng khỏi localStorage
-      setTokenState(null); // Cập nhật state token ngay lập tức
-      setUser(null); // Đặt user về null
-      navigate("/login"); // Điều hướng đến trang đăng nhập
+      document.cookie =
+        "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie =
+        "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      removeToken();
+      removeUserInfo();
+      setTokenState(null);
+      setUser(null);
+      navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -90,7 +94,7 @@ const Header = () => {
     console.log("Token từ cookie:", cookieToken);
     if (cookieToken) {
       setToken(cookieToken);
-      setTokenState(cookieToken); // Đồng bộ token từ cookie
+      setTokenState(cookieToken);
       const decoded = jwtDecode(cookieToken);
       setUser(decoded);
       setUserInfo(decoded);
@@ -104,17 +108,23 @@ const Header = () => {
         const res = await axios.get("http://localhost:8080/api/products", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setProduct(res.data);
-        console.log("Product", res.data);
+        // Kiểm tra dữ liệu trả về từ API
+        if (Array.isArray(res.data)) {
+          setProduct(res.data); // Nếu là mảng, gán trực tiếp
+        } else {
+          setProduct([]); // Nếu không phải mảng, gán mảng rỗng
+          console.log("Product data is not an array:", res.data);
+        }
       } catch (err) {
         setError(err.message);
+        setProduct([]); // Gán mảng rỗng nếu có lỗi
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchedProducts();
-  }, []);
+
+    if (token) fetchedProducts(); // Chỉ gọi API nếu có token
+  }, [token]);
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -122,13 +132,18 @@ const Header = () => {
     setIsSearchDropdownOpen(query.length > 0);
   };
 
-  const filteredProducts = product.filter((item) =>
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = Array.isArray(product)
+    ? product.filter((item) =>
+        item.productName.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target)) {
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target)
+      ) {
         setIsSearchDropdownOpen(false);
       }
     };
@@ -160,6 +175,10 @@ const Header = () => {
         setLoading(true);
         const decodedToken = parseJwt(token);
         const userId = decodedToken?.userId;
+        console.log("Token decoded:", decodedToken);
+
+        const expirationDate = new Date(decodedToken.exp * 1000);
+        console.log("Thời hạn là:", expirationDate);
 
         if (!userId) {
           throw new Error("Không thể xác định thông tin người dùng");
@@ -180,7 +199,7 @@ const Header = () => {
           ...userData,
           avatar:
             userData.avatar ||
-            "https://www.rainforest-alliance.org/wp-content/uploads/2021/06/capybara-square-1.jpg.optimal.jpg",
+            "https://pro-bel.com/wp-content/uploads/2019/11/blank-avatar-1-450x450.png",
           role: userData.role || "User",
         });
         setLoading(false);
@@ -191,8 +210,8 @@ const Header = () => {
       }
     };
 
-    if (token) fetchUserProfile(); // Chỉ gọi API nếu có token
-  }, [token]); // Chỉ phụ thuộc vào token, không phụ thuộc vào user
+    if (token) fetchUserProfile();
+  }, [token]);
 
   return (
     <header>
