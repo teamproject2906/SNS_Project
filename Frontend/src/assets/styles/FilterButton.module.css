@@ -1,56 +1,106 @@
 .filter-form {
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  
-  .filter-section {
-    margin-bottom: 20px;
-  }
-  
-  .filter-section h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  
-  .price-range {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .price-range input[type="range"] {
-    width: 100%;
-    margin: 5px 0;
-  }
-  
-  .price-values {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    color: #333;
-  }
-  
-  select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  
-  .search-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .search-button:hover {
-    background-color: #0056b3;
-  }
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-section h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.price-range {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #333;
+  margin-top: 10px;
+}
+
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+.reset-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.reset-button:hover {
+  background-color: #0056b3;
+}
+
+/* CSS cho ReactSlider */
+.horizontal-slider {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #ddd;
+  outline: none;
+  margin: 10px 0;
+}
+
+.thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: grab;
+  top: -5px;
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.thumb:active {
+  cursor: grabbing;
+}
+
+.track {
+  height: 10px;
+  border-radius: 5px;
+}
+
+.track-1 {
+  background: #007bff; /* Phần track giữa hai thumb */
+}
+
+.track-0,
+.track-2 {
+  background: #ddd; /* Phần track bên ngoài */
+}

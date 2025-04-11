@@ -55,7 +55,10 @@ const ProductDetail = () => {
         );
         const feedbacks = feedbackRes.data;
         if (feedbacks.length > 0) {
-          const totalRating = feedbacks.reduce((sum, feedback) => sum + feedback.rate, 0);
+          const totalRating = feedbacks.reduce(
+            (sum, feedback) => sum + feedback.rate,
+            0
+          );
           const avgRating = totalRating / feedbacks.length;
           setAverageRating(parseFloat(avgRating.toFixed(1))); // Làm tròn đến 1 chữ số thập phân
         } else {
@@ -191,12 +194,24 @@ const ProductDetail = () => {
         {/* Phần thông tin sản phẩm */}
         <div className="w-1/2 flex flex-col justify-between">
           <div className="mb-4">
-            <h1 className="text-3xl font-bold">{product.productName}</h1>
+            <h1 className="text-3xl font-bold">
+              {product.productName}
+              {product.quantityInventory ? (
+                <span className="ml-2 bg-green-500 text-white py-1 px-2 rounded text-sm">
+                  IN STOCK
+                </span>
+              ) : (
+                <span className="ml-2 bg-red-500 text-white py-1 px-2 rounded text-sm">
+                  SOLD OUT
+                </span>
+              )}
+            </h1>
             {/* Hiển thị average rating */}
             <div className="average-rating mt-2 flex items-center">
               {[1, 2, 3, 4, 5].map((star) => {
                 const isFull = averageRating >= star;
-                const isHalf = averageRating >= star - 0.5 && averageRating < star;
+                const isHalf =
+                  averageRating >= star - 0.5 && averageRating < star;
 
                 return (
                   <span
@@ -207,7 +222,7 @@ const ProductDetail = () => {
                     <span
                       className="filled-star absolute top-0 left-0 text-yellow-400 overflow-hidden"
                       style={{
-                        width: isFull ? '100%' : isHalf ? '50%' : '0%',
+                        width: isFull ? "100%" : isHalf ? "50%" : "0%",
                       }}
                     >
                       ★
@@ -216,7 +231,9 @@ const ProductDetail = () => {
                 );
               })}
               <span className="ml-2 text-gray-600">
-                {averageRating > 0 ? `${averageRating} stars` : 'No ratings yet'}
+                {averageRating > 0
+                  ? `${averageRating} stars`
+                  : "No ratings yet"}
               </span>
             </div>
           </div>
@@ -283,6 +300,10 @@ const ProductDetail = () => {
                     : "border-gray-300"
                 }`}
                 onClick={() => handleColorSelect(product.color)}
+                style={{
+                  backgroundColor: product.color,
+                  color: product.color === "Black" ? "white" : "black",
+                }}
               >
                 {product.color}
               </button>
@@ -346,15 +367,15 @@ const ProductDetail = () => {
         <h2 className="text-2xl font-bold mb-4">{product.productName}</h2>
         <ul className="flex flex-col gap-2">
           <div className="flex flex-row gap-2">
-            <li>Material:</li>
+            <li className="font-bold underline">Material:</li>
             <div>{product.material}</div>
           </div>
           <div className="flex flex-row gap-2">
-            <li>Form:</li>
+            <li className="font-bold underline">Form:</li>
             <div>{product.formClothes.formClothes}</div>
           </div>
         </ul>
-        <p className="">Description:</p>
+        <p className="font-bold underline">Description:</p>
         <p className="">{product.description}</p>
       </div>
 
