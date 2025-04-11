@@ -91,13 +91,55 @@ const Header = () => {
 
   useEffect(() => {
     const cookieToken = getCookie("id_token");
+    const ggCookieToken = getCookie("emailToken");
+    console.log("Token verify email từ cookie:", ggCookieToken);
     console.log("Token từ cookie:", cookieToken);
+
+    // Handle id_token (authentication token)
     if (cookieToken) {
-      setToken(cookieToken);
-      setTokenState(cookieToken);
-      const decoded = jwtDecode(cookieToken);
-      setUser(decoded);
-      setUserInfo(decoded);
+      try {
+        setToken(cookieToken);
+        setTokenState(cookieToken);
+        const decoded = jwtDecode(cookieToken);
+        setUser(decoded);
+        setUserInfo(decoded);
+      } catch (error) {
+        console.error("Error decoding id_token:", error.message);
+        setToken(null);
+        setTokenState(null);
+        setUser(null);
+        setUserInfo(null);
+      }
+    }
+
+    // Handle emailToken (email verification token)
+    if (ggCookieToken) {
+      const verifyEmail = async () => {
+        try {
+          const res = await axios.get(
+            "http://localhost:8080/Authentication/register/verify",
+            {
+              params: { token: ggCookieToken }, // Pass token as query parameter
+            }
+          );
+          console.log("Email verification response:", res.data);
+          const token = res.data.access_token;
+          // Optionally clear the emailToken cookie after successful verification
+          setToken(token);
+          setTokenState(token);
+          const decoded = jwtDecode(token);
+          setUser(decoded);
+          setUserInfo(decoded);
+          document.cookie =
+            "emailToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        } catch (error) {
+          console.error(
+            "Error verifying email:",
+            error.response ? error.response.data : error.message
+          );
+        }
+      };
+      verifyEmail();
     }
   }, []);
 
