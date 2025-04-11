@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LikeRepository extends JpaRepository<UserLike, Integer> {
+
     Optional<UserLike> findUserLikeByUserAndPost(User user, Post post);
 
     @Query("SELECT COUNT(ul) FROM UserLike ul WHERE ul.post.id = :postId")

@@ -51,7 +51,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public PostDTO createPost(PostDTO post, MultipartFile file, Principal connectedUser) throws IOException {
+    public PostDTO createPost(String content, MultipartFile file, Principal connectedUser) throws IOException {
 
         User userFind = getCurrentUser(connectedUser);
 
@@ -64,7 +64,7 @@ public class PostServiceImpl implements IPostService {
 
         var newPost = Post.builder()
                 .user(userFind)
-                .content(post.getContent())
+                .content(content)
                 .imageUrl(imageUrl)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -83,7 +83,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public PostDTO updatePost(PostDTO post, UUID postId, MultipartFile file, Principal connectedUser) throws IOException {
+    public PostDTO updatePost(String content, UUID postId, MultipartFile file, Principal connectedUser) throws IOException {
 
         User userFind = getCurrentUser(connectedUser);
 
@@ -107,7 +107,7 @@ public class PostServiceImpl implements IPostService {
         }
 
 
-        updatedPost.setContent(post.getContent());
+        updatedPost.setContent(content);
         updatedPost.setImageUrl(imageUrl);
         updatedPost.setUpdatedAt(LocalDateTime.now());
         updatedPost.setUpdatedBy(userFind.getUsername());
@@ -275,8 +275,7 @@ public class PostServiceImpl implements IPostService {
         }
 
         return UserLikeDTO.builder()
-                .userID(userLike.getUser().getId())
-                .postID(userLike.getPost().getId())
+                .userLike(userLike.getUser().getFirstname() + userLike.getUser().getLastname())
                 .build();
     }
 

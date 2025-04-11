@@ -1,6 +1,8 @@
 package com.example.ECommerce.Project.V1.Controller;
 
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.ResponseDTO.ResponseMessageAPI;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Service.UserService.IUserService;
 import com.example.ECommerce.Project.V1.Service.VoucherService.VoucherService;
@@ -33,12 +35,16 @@ public class UserController {
     }
 
     @PatchMapping("/changeForgotPassword")
-    public ResponseEntity<?> changeForgotPassword(
-            @RequestBody ChangePasswordRequest request,
+    public ResponseMessageAPI changeForgotPassword(
+            @RequestBody ChangeForgotPasswordRequest request,
             Principal connectedUser
     ){
         userService.changeForgotPassword(request, connectedUser);
-        return ResponseEntity.ok().build();
+        return ResponseMessageAPI.builder()
+                .message("Change password successfully")
+                .status(HttpStatus.OK)
+                .success(true)
+                .build();
     }
 
     @PutMapping("/update/{userId}")

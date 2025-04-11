@@ -12,9 +12,9 @@ import java.util.UUID;
 
 public interface IPostService {
 
-    PostDTO createPost(PostDTO post, MultipartFile file, Principal connectedUser) throws IOException;
+    PostDTO createPost(String content, MultipartFile file, Principal connectedUser) throws IOException;
 
-    PostDTO updatePost(PostDTO post, UUID postId, MultipartFile file, Principal connectedUser) throws IOException;
+    PostDTO updatePost(String content, UUID postId, MultipartFile file, Principal connectedUser) throws IOException;
 
     void deactivatePost(PostDTO post, UUID postId, Principal connectedUser);
 
