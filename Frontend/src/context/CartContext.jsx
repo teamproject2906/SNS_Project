@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { getToken, getUserInfo } from "../pages/Login/app/static";
@@ -18,11 +18,18 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const user = getUserInfo();
+  const [user, setUser] = useState(getUserInfo());
+
+  useEffect(() => {
+    setUser(getUserInfo());
+  }, []);
 
   // Fetch cart data from API
   const fetchCart = async () => {
-    if (!user || !user.userId) return;
+    if (!user || !user.userId) {
+      setCartItems([]);
+      return;
+    }
     
     try {
       setLoading(true);
@@ -38,7 +45,9 @@ export const CartProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching cart:", err);
       setError(err.message);
-      toast.error("Không thể tải giỏ hàng");
+      if (user && user.userId) {
+        toast.error("Không thể tải giỏ hàng");
+      }
     } finally {
       setLoading(false);
     }
@@ -48,6 +57,8 @@ export const CartProvider = ({ children }) => {
 
   // Add item to cart
   const addToCart = async (product) => {
+    setUser(getUserInfo());
+
     if (!user || !user.userId) {
       toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
       return;

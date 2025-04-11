@@ -18,11 +18,17 @@ export const FavouriteProvider = ({ children }) => {
   const [favouriteItems, setFavouriteItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const user = getUserInfo();
+  const [user, setUser] = useState(getUserInfo());
+
+
 
   // Fetch wishlist data from API
   const fetchWishlist = async () => {
-    if (!user || !user.userId) return;
+    
+    if (!user || !user.userId) {
+      setFavouriteItems([]);
+      return;
+    }
     
     try {
       setLoading(true);
@@ -49,7 +55,9 @@ export const FavouriteProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching wishlist:", err);
       setError(err.message);
-      toast.error("Không thể tải danh sách yêu thích");
+      if (user && user.userId) {
+        toast.error("Không thể tải danh sách yêu thích");
+      }
     } finally {
       setLoading(false);
     }
@@ -61,12 +69,8 @@ export const FavouriteProvider = ({ children }) => {
   }, []);
 
   // Add item to favourites
-  const addToFavourites = async (product) => {
-    if (!user || !user.userId) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích");
-      return;
-    }
-    
+  const addToFavourites = async (product) => {    
+    setUser(getUserInfo())
     try {
       setLoading(true);
       const token = getToken();

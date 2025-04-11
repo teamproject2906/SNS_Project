@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import { useUser } from "../../context/UserContext";
 import { useEffect, useState } from "react";
+import { useUser } from '../../context/UserContext';
+
 
 function Cart() {
   // Use the cart context instead of local state

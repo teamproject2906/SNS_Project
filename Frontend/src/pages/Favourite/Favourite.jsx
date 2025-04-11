@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { useFavourite } from "../../context/FavouriteContext";
 import { useCart } from "../../context/CartContext";
-import { useUser } from "../../context/UserContext";
 import { useState, useEffect } from "react";
+import { useUser } from "../../context/UserContext";
 
 function Favourite() {
   // Use the favourite context

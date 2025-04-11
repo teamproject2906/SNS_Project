@@ -4,8 +4,8 @@ import axios from "axios";
 import { getToken } from "../Login/app/static";
 import { useCart } from "../../context/CartContext";
 import { useFavourite } from "../../context/FavouriteContext";
-import { useUser } from "../../context/UserContext";
 import { toast } from "react-toastify";
+import { useUser } from "../../context/UserContext";
 
 const ProductDetail = () => {
   const [product, setProduct] = useState(null);
@@ -17,18 +17,19 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [imageIndex, setImageIndex] = useState(0);
+  const [averageRating, setAverageRating] = useState(0); // State cho average rating
   const thumbnailsRef = useRef(null);
   const { addToCart } = useCart();
   const { addToFavourites, removeFromFavourites, isInFavourites } = useFavourite();
   const { user } = useUser();
 
   const productId = window.location.pathname.split("/")[2];
-  console.log("Product ID:", productId);
 
   useEffect(() => {
     const fetchedProduct = async () => {
       try {
         const token = getToken();
+        // Lấy thông tin sản phẩm
         const productRes = await axios.get(
           `http://localhost:8080/api/products/${productId}`,
           {
@@ -38,6 +39,7 @@ const ProductDetail = () => {
         setProduct(productRes.data);
         console.log("Product:", productRes.data);
 
+        // Lấy hình ảnh sản phẩm
         const imagesRes = await axios.get(
           `http://localhost:8080/api/product-gallery/product/${productId}`,
           {
@@ -47,6 +49,25 @@ const ProductDetail = () => {
         setProductImages(imagesRes.data);
         if (imagesRes.data.length > 0) {
           setSelectedImage(imagesRes.data[0].imageUrl);
+        }
+
+        // Lấy feedback để tính average rating
+        const feedbackRes = await axios.get(
+          `http://localhost:8080/api/feedbacks/product/${productId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const feedbacks = feedbackRes.data;
+        if (feedbacks.length > 0) {
+          const totalRating = feedbacks.reduce(
+            (sum, feedback) => sum + feedback.rate,
+            0
+          );
+          const avgRating = totalRating / feedbacks.length;
+          setAverageRating(parseFloat(avgRating.toFixed(1))); // Làm tròn đến 1 chữ số thập phân
+        } else {
+          setAverageRating(0); // Nếu không có feedback, rating trung bình là 0
         }
       } catch (err) {
         setError(err.message);
@@ -60,7 +81,7 @@ const ProductDetail = () => {
 
   const scrollToThumbnail = (index) => {
     if (thumbnailsRef.current) {
-      const thumbnailHeight = 100; // 500px / 5 thumbnails = 100px each
+      const thumbnailHeight = 100;
       const scrollPosition = index * thumbnailHeight;
       thumbnailsRef.current.scrollTo({
         top: scrollPosition,
@@ -217,7 +238,48 @@ const ProductDetail = () => {
         {/* Phần thông tin sản phẩm */}
         <div className="w-1/2 flex flex-col justify-between">
           <div className="mb-4">
-            <h1 className="text-3xl font-bold">{product.productName}</h1>
+            <h1 className="text-3xl font-bold">
+              {product.productName}
+              {product.quantityInventory ? (
+                <span className="ml-2 bg-green-500 text-white py-1 px-2 rounded text-sm">
+                  IN STOCK
+                </span>
+              ) : (
+                <span className="ml-2 bg-red-500 text-white py-1 px-2 rounded text-sm">
+                  SOLD OUT
+                </span>
+              )}
+            </h1>
+            {/* Hiển thị average rating */}
+            <div className="average-rating mt-2 flex items-center">
+              {[1, 2, 3, 4, 5].map((star) => {
+                const isFull = averageRating >= star;
+                const isHalf =
+                  averageRating >= star - 0.5 && averageRating < star;
+
+                return (
+                  <span
+                    key={star}
+                    className="star relative inline-block text-2xl"
+                  >
+                    <span className="empty-star text-gray-300">★</span>
+                    <span
+                      className="filled-star absolute top-0 left-0 text-yellow-400 overflow-hidden"
+                      style={{
+                        width: isFull ? "100%" : isHalf ? "50%" : "0%",
+                      }}
+                    >
+                      ★
+                    </span>
+                  </span>
+                );
+              })}
+              <span className="ml-2 text-gray-600">
+                {averageRating > 0
+                  ? `${averageRating} stars`
+                  : "No ratings yet"}
+              </span>
+            </div>
           </div>
 
           <div className="mb-4 flex flex-row items-center gap-2">
@@ -274,17 +336,6 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* <div className="mb-4">
-            <h3 className="text-base font-medium mb-2">Description:</h3>
-            <p className="text-sm text-gray-500">{product.description}</p>
-          </div> */}
-
-          {/* <div className="mb-4 flex flex-row gap-2">
-            <h3 className="text-base font-medium mb-2">Material:</h3>
-            <p className="text-base">{product.material}</p>
-          </div> */}
-
-          {/* Chọn màu sắc */}
           <div className="mb-4 flex flex-row items-center gap-2">
             <h3 className="text-sm font-medium">Choose color:</h3>
             <div className="flex gap-2">
@@ -296,13 +347,16 @@ const ProductDetail = () => {
                     : "border-gray-300"
                 }`}
                 onClick={() => handleColorSelect(product.color)}
+                style={{
+                  backgroundColor: product.color,
+                  color: product.color === "Black" ? "white" : "black",
+                }}
               >
                 {product.color}
               </button>
             </div>
           </div>
 
-          {/* Chọn kích thước */}
           <div className="mb-4 flex flex-row gap-2 items-center">
             <h3 className="text-sm font-medium">Choose size:</h3>
             <div className="flex gap-2 flex-wrap">
@@ -320,7 +374,6 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Số lượng */}
           <div className="mb-4 flex items-center gap-3">
             <div className="flex items-center border-2 border-gray-300 rounded-lg">
               <button
@@ -343,7 +396,6 @@ const ProductDetail = () => {
             </button>
           </div>
 
-          {/* Nút Add to Cart */}
           <div className="mb-4 flex flex-row gap-2">
             <button className="bg-red-500 text-white px-6 py-3 rounded-lg w-full">
               BUY NOW
@@ -365,21 +417,20 @@ const ProductDetail = () => {
         <h2 className="text-2xl font-bold mb-4">{product.productName}</h2>
         <ul className="flex flex-col gap-2">
           <div className="flex flex-row gap-2">
-            <li>Material:</li>
+            <li className="font-bold underline">Material:</li>
             <div>{product.material}</div>
           </div>
           <div className="flex flex-row gap-2">
-            <li>Form:</li>
+            <li className="font-bold underline">Form:</li>
             <div>{product.formClothes.formClothes}</div>
           </div>
         </ul>
-        <p className="">Description:</p>
+        <p className="font-bold underline">Description:</p>
         <p className="">{product.description}</p>
       </div>
 
-      {/* Phần bình luận */}
       <div className="mt-8">
-        <CommentsSection />
+        <CommentsSection productId={productId} />
       </div>
     </div>
   );

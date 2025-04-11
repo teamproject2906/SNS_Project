@@ -1,11 +1,11 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getToken } from "../../pages/Login/app/static";
 import { useFavourite } from "../../context/FavouriteContext";
 import { useCart } from "../../context/CartContext";
-import { useUser } from "../../context/UserContext";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { useUser } from "../../context/UserContext";
 
 const ProductCard = () => {
   const [products, setProducts] = useState([]);

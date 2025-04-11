@@ -35,4 +35,6 @@ public interface IUserService {
     UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
 
     void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser);
+
+    UserDTO getUserById(Integer id);
 }

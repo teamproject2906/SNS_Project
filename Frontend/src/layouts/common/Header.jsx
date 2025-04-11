@@ -38,22 +38,14 @@ const Header = () => {
   const [token, setTokenState] = useState(
     localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
   ); // Thêm state cho token
-  const { cartItems, fetchCart } = useCart();
-  const { favouriteItems, fetchWishlist } = useFavourite();
+  const { cartItems } = useCart();
+  const { favouriteItems } = useFavourite();
 
   const dropdownRef = useRef(null);
   const searchDropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this only runs once on mount
 
-  useEffect(() => {
-    fetchWishlist();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array means this only runs once on mount
 
   useEffect(() => {
     console.log("User thay đổi:", user);
