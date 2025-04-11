@@ -2,19 +2,13 @@ package com.example.ECommerce.Project.V1.Service.UserService;
 
 import com.cloudinary.Cloudinary;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
-import com.example.ECommerce.Project.V1.Exception.InvalidTokenException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
-import com.example.ECommerce.Project.V1.Mailing.AccountVerificationEmailContext;
-import com.example.ECommerce.Project.V1.Mailing.EmailService;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
-import com.example.ECommerce.Project.V1.Service.SecureTokenService.SecureTokenServiceImpl;
-import com.example.ECommerce.Project.V1.Token.SecureToken;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -194,7 +188,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void changeForgotPassword(ChangePasswordRequest request, Principal connectedUser) {
+    public void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser) {
         Integer userId;
 
         if (connectedUser instanceof JwtAuthenticationToken jwtToken) {

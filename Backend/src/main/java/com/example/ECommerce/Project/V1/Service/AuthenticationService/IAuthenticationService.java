@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public interface IAuthenticationService {
 
-    ResponseEntity<String> register(RegisterRequest request);
+    ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse);
 
     AuthenticationResponse authenticate(AuthenticationRequest request);
 
@@ -26,5 +26,5 @@ public interface IAuthenticationService {
 
     void registerByGoogle(String jwt);
 
-    ResponseEntity<String> forgotPassword(String email);
+    ResponseEntity<String> forgotPassword(String email, HttpServletResponse response);
 }

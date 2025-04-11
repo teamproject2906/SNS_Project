@@ -28,21 +28,26 @@ public class PostController {
 
     @PostMapping("/createPost")
     public ResponseEntity<PostDTO> createPost(
-            @RequestBody PostDTO postDTO,
+            @RequestParam("content") String content,
             @RequestParam("file") MultipartFile file,
             Principal connectedUser
     ) throws IOException {
-        return ResponseEntity.ok(postService.createPost(postDTO, file, connectedUser));
+        return ResponseEntity.ok(postService.createPost(content, file, connectedUser));
     }
 
-    @PutMapping("/updatePost/{postId}")
+    @PutMapping("/updatePost")
     public ResponseEntity<PostDTO> updatePost(
-            @RequestBody PostDTO postDTO,
-            @PathVariable UUID postId,
+            @RequestParam("content") String content,
+            @RequestParam("postId") UUID postId,
             @RequestParam("file") MultipartFile file,
             Principal connectedUser
     ) throws IOException {
-        return ResponseEntity.ok(postService.updatePost(postDTO, postId, file, connectedUser));
+
+        if (file.getSize() > 1){
+            throw new RuntimeException("You cannot upload more than one file for each post");
+        }
+
+        return ResponseEntity.ok(postService.updatePost(content, postId, file, connectedUser));
     }
 
     @PatchMapping("/deactivatePost/{postId}")

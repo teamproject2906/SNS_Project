@@ -70,7 +70,7 @@ public class User extends BaseEntity implements UserDetails {
     private String provider;
 
     @Column
-    private boolean isVerified;
+    private Boolean isVerified;
 
     @Enumerated(EnumType.STRING)
     private Role role;
