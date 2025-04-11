@@ -177,7 +177,7 @@ const PromotionChart = () => {
     },
     {
       name: "Discount",
-      selector: (row) => row.discount,
+      selector: (row) => row.discount*100 + "%",
       sortable: true,
     },
     {
