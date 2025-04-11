@@ -44,7 +44,7 @@ const CheckoutSummary = () => {
                 </div>
               </div>
               <p className="text-lg font-bold text-gray-900">
-                {(item.price * item.quantity).toLocaleString()}₫
+              {(item.unitPrice * item.quantity).toLocaleString()}₫
               </p>
             </div>
           ))}

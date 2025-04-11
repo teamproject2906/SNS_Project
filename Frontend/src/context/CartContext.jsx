@@ -1,5 +1,8 @@
 import { createContext, useState, useContext } from "react";
 import PropTypes from "prop-types";
+import axios from "axios";
+import { getToken, getUserInfo } from "../pages/Login/app/static";
+import { toast } from "react-toastify";
 
 // Create the context
 const CartContext = createContext();
@@ -9,78 +12,170 @@ export const useCart = () => {
   return useContext(CartContext);
 };
 
-// Hardcoded initial cart data
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Áo thun nam",
-    price: 199000,
-    quantity: 2,
-    imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    name: "Quần jean nam",
-    price: 299000,
-    quantity: 1,
-    imageUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 3,
-    name: "Giày thể thao",
-    price: 499000,
-    quantity: 1,
-    imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-];
-
 // Provider component
 export const CartProvider = ({ children }) => {
-  // Initialize cart state with hardcoded data
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  // Initialize cart state
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const user = getUserInfo();
+
+  // Fetch cart data from API
+  const fetchCart = async () => {
+    if (!user || !user.userId) return;
+    
+    try {
+      setLoading(true);
+      const token = getToken();
+      const response = await axios.get(`http://localhost:8080/api/v1/cart/${user.userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data && response.data.items) {
+        setCartItems(response.data.items);
+      } else {
+        setCartItems([]);
+      }
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+      setError(err.message);
+      toast.error("Không thể tải giỏ hàng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch cart on component mount and when user changes
 
   // Add item to cart
-  const addToCart = (product) => {
-    setCartItems((prevItems) => {
-      // Check if product already exists in cart
-      const existingItem = prevItems.find((item) => item.id === product.id);
-      
-      if (existingItem) {
-        // If it exists, increase quantity
-        return prevItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        // If it doesn't exist, add new item
-        return [...prevItems, { ...product, quantity: 1 }];
-      }
-    });
-  };
-
-  // Remove item from cart
-  const removeFromCart = (productId) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
-  };
-
-  // Update item quantity
-  const updateQuantity = (productId, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
+  const addToCart = async (product) => {
+    if (!user || !user.userId) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
       return;
     }
     
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
-      )
-    );
+    try {
+      setLoading(true);
+      const token = getToken();
+      
+      // Prepare cart item data
+      const cartItemData = {
+        productId: product.id,
+        quantity: product.quantity || 1,
+        color: product.color,
+        size: product.size
+      };
+      
+      const response = await axios.post(
+        `http://localhost:8080/api/v1/cart/${user.userId}/add`,
+        cartItemData,
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (response.data) {
+        // Update local cart state with the response data
+        if (response.data.cartItems) {
+          setCartItems(response.data.cartItems);
+        }
+        toast.success("Đã thêm sản phẩm vào giỏ hàng");
+      }
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      setError(err.message);
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Remove item from cart
+  const removeFromCart = async (cartItemId) => {
+    if (!user || !user.userId) return;
+    
+    try {
+      setLoading(true);
+      const token = getToken();
+      
+      await axios.delete(
+        `http://localhost:8080/api/v1/cart/${user.userId}/remove/${cartItemId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      // Update local cart state
+      setCartItems(prevItems => prevItems.filter(item => item.id !== cartItemId));
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+    } catch (err) {
+      console.error("Error removing from cart:", err);
+      setError(err.message);
+      toast.error("Không thể xóa sản phẩm khỏi giỏ hàng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update item quantity
+  const updateQuantity = async (cartItemId, quantity) => {
+    if (!user || !user.userId) return;
+    
+    if (quantity <= 0 || quantity.isNaN) {
+      removeFromCart(cartItemId);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const token = getToken();
+      
+      const response = await axios.put(
+        `http://localhost:8080/api/v1/cart/update-quantity?userId=${user.userId}&cartItemId=${cartItemId}&quantity=${quantity}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      if (response.data && response.data.cartItems) {
+        setCartItems(response.data.cartItems);
+      }
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+      setError(err.message);
+      toast.error("Không thể cập nhật số lượng sản phẩm");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Clear cart
-  const clearCart = () => {
-    setCartItems([]);
+  const clearCart = async () => {
+    if (!user || !user.userId) return;
+    
+    try {
+      setLoading(true);
+      const token = getToken();
+      
+      await axios.delete(
+        `http://localhost:8080/api/v1/cart/${user.userId}/clear`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      setCartItems([]);
+      toast.success("Đã xóa tất cả sản phẩm khỏi giỏ hàng");
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+      setError(err.message);
+      toast.error("Không thể xóa giỏ hàng");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Calculate total price
@@ -99,12 +194,15 @@ export const CartProvider = ({ children }) => {
   // Context value
   const value = {
     cartItems,
+    loading,
+    error,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
     getTotalPrice,
     getTotalItems,
+    fetchCart
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
