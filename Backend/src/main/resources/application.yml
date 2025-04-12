@@ -6,7 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     database: mysql
     show-sql: false
     properties:
@@ -66,7 +66,7 @@ application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      expiration: 3600000
+      expiration: 3600000 # 30000 = 30s (1000 millisecond = 1s)
       refresh-token:
         expiration: 604800000
 
