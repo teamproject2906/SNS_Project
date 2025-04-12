@@ -12,5 +12,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class UserLikeDTO {
-    private String userLike;
+    private Integer userID;
+    private UUID postID;
 }
