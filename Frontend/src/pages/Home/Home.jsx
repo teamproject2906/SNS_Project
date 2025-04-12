@@ -6,6 +6,7 @@ import BackgroundImage from "../../assets/images/Homepage Background.png";
 import "../../assets/styles/HomePage.module.css";
 import { Link } from "react-router-dom";
 import { getToken } from "../Login/app/static";
+import axios from "axios";
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [product, setProduct] = useState([]);
@@ -146,32 +147,22 @@ const HomePage = () => {
   useEffect(() => {
     const fetchedProducts = async () => {
       try {
-        const response = await fetch(
-          "https://6785f704f80b78923aa4e3be.mockapi.io/product",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json(); // Parse the JSON response
-        setProduct(data); // Use parsed data
-        console.log("Token:", getToken());
+        const token = getToken();
+        const res = await axios.get("http://localhost:8080/api/products", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProduct(Array.isArray(res.data) ? res.data : []);
+        console.log("Product", res.data);
       } catch (err) {
+        console.error("Error fetching products:", err);
         setError(err.message);
+        setProduct([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchedProducts();
-    console.log(product);
   }, []);
 
   const productSettings = {
@@ -258,7 +249,12 @@ const HomePage = () => {
   };
 
   if (loading) {
-    return <p style={{ textAlign: "center" }}>Loading...</p>;
+    return (
+      <div style={{ textAlign: "center" }}>
+        <div className="spinner" /> {/* Thêm spinner */}
+        Loading...
+      </div>
+    );
   }
 
   if (error) {
@@ -282,8 +278,12 @@ const HomePage = () => {
         }}
       >
         <h2 style={{ marginBottom: "20px" }}>SẢN PHẨM NỔI BẬT</h2>
-        {product.length === 0 ? (
+        {loading ? (
           <p style={{ textAlign: "center" }}>Loading...</p>
+        ) : error ? (
+          <p style={{ textAlign: "center", color: "red" }}>{error}</p>
+        ) : product.length === 0 ? (
+          <p style={{ textAlign: "center" }}>Không có sản phẩm nào</p>
         ) : (
           <Slider {...productSettings}>
             {product.map((item, index) => (
@@ -296,7 +296,7 @@ const HomePage = () => {
                 <div className="product-image" style={{ position: "relative" }}>
                   <img
                     loading="lazy"
-                    src={item.productImage}
+                    src={item.imageUrl ? item.imageUrl : "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="}
                     alt={`Product ${item}`}
                     style={{
                       width: "80%",

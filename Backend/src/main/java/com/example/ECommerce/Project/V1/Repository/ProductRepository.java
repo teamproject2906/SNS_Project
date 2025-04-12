@@ -29,4 +29,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     // Supports pagination & sorting
     Page<Product> findAll(Pageable pageable);
+
+    @Query("select p from Product p WHERE p.productCode = :productCode order by p.id asc limit 1")
+    Optional<Product> findSpecificProductByProductCode(@Param("productCode") String productCode);
+
+    @Query("SELECT DISTINCT p.productCode FROM Product p")
+    List<String> getAllProductCodes();
 }

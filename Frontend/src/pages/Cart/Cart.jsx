@@ -1,12 +1,79 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useEffect, useState } from "react";
+import { useUser } from '../../context/UserContext';
+
 
 function Cart() {
   // Use the cart context instead of local state
-  const { cartItems, updateQuantity, getTotalPrice } = useCart();
+  const {
+    cartItems,
+    updateQuantity,
+    getTotalPrice,
+    loading,
+    error,
+    fetchCart,
+  } = useCart();
+  const { user } = useUser();
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Fetch cart data when component mounts
+  useEffect(() => {
+    fetchCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array means this only runs once on mount
+
+  // Handle quantity update with proper state management
+  const handleQuantityUpdate = async (itemId, newQuantity) => {
+    setIsUpdating(true);
+    try {
+      await updateQuantity(itemId, newQuantity);
+      // Fetch fresh cart data after update
+      await fetchCart();
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   // Calculate total price from context
   const total = getTotalPrice();
+
+  if (loading || isUpdating) {
+    return (
+      <div className="container mx-auto px-6 py-8 text-center">
+        <p className="text-xl">Đang tải giỏ hàng...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-8 text-center">
+        <p className="text-xl text-red-500">Có lỗi xảy ra: {error}</p>
+        <button
+          onClick={fetchCart}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Thử lại
+        </button>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-6 py-8 text-center">
+        <p className="text-xl text-gray-500 mb-4">
+          Vui lòng đăng nhập để xem giỏ hàng
+        </p>
+        <Link to="/login" className="text-blue-600 hover:underline">
+          Đăng nhập
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-6 py-8">
@@ -17,45 +84,56 @@ function Cart() {
           <div className="space-y-6">
             {cartItems.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-xl text-gray-500 mb-4">Giỏ hàng của bạn đang trống</p>
+                <p className="text-xl text-gray-500 mb-4">
+                  Giỏ hàng của bạn đang trống
+                </p>
                 <Link to="/products" className="text-blue-600 hover:underline">
                   Tiếp tục mua sắm
                 </Link>
               </div>
             ) : (
-              cartItems.map((product) => (
+              cartItems.map((item) => (
                 <div
-                  key={product.id}
+                  key={item.id}
                   className="flex justify-between items-center"
                 >
                   <div className="flex items-center space-x-4">
                     <img
-                      src={product.imageUrl}
-                      alt={`${product.name}`}
+                      src={item.imageUrl}
+                      alt={`${item.productName}`}
                       className="w-32 h-32 object-cover"
                     />
                     <div>
-                      <h3 className="text-xl font-semibold">{product.name}</h3>
+                      <h3 className="text-xl font-semibold">
+                        {item.productName}
+                      </h3>
                       <p className="text-gray-700">
-                        Giá: {product.price.toLocaleString()}₫
+                        Giá: {(item.unitPrice * item.quantity).toLocaleString()}
+                        ₫
                       </p>
+                      {item.color && (
+                        <p className="text-gray-600">Màu: {item.color}</p>
+                      )}
+                      {item.size && (
+                        <p className="text-gray-600">Kích thước: {item.size}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
                       type="number"
                       className="form-input border w-16 text-center"
-                      value={product.quantity}
+                      value={item.quantity}
                       onChange={(e) =>
-                        updateQuantity(
-                          product.id,
-                          Math.max(0, parseInt(e.target.value))
+                        handleQuantityUpdate(
+                          item.id,
+                          Math.max(0, parseInt(e.target.value || 0))
                         )
                       }
                     />
                     <span>x</span>
                     <span className="text-gray-800 font-semibold">
-                      {(product.price * product.quantity).toLocaleString()}₫
+                      {item.unitPrice.toLocaleString()}₫
                     </span>
                   </div>
                 </div>
@@ -83,7 +161,10 @@ function Cart() {
             >
               THANH TOÁN
             </Link>
-            <Link to="/products" className="block w-full py-3 mt-4 border border-gray-400 text-gray-600 text-lg text-center">
+            <Link
+              to="/products"
+              className="block w-full py-3 mt-4 border border-gray-400 text-gray-600 text-lg text-center"
+            >
               TIẾP TỤC MUA HÀNG
             </Link>
           </div>

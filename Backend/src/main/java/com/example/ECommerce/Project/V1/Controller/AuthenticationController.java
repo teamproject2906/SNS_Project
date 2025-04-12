@@ -20,10 +20,11 @@ public class AuthenticationController {
     private final IAuthenticationService authenticationService;
 
     @PostMapping("/Register")
-    public ResponseEntity<AuthenticationResponse> register(
-           @RequestBody RegisterRequest request
+    public ResponseEntity<String> register(
+           @RequestBody RegisterRequest request,
+           HttpServletResponse servletResponse
     ){
-        return ResponseEntity.ok(authenticationService.register(request));
+        return authenticationService.register(request, servletResponse);
     }
 
     @PostMapping("/Authenticate")
@@ -41,15 +42,18 @@ public class AuthenticationController {
         authenticationService.refreshToken(request, response);
     }
 
-//    @GetMapping("/GoogleLogin")
-//    public Map<String, String> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
-//        Map<String, String> userInfo = new HashMap<>();
-//        userInfo.put("email", jwt.getClaim("email"));
-//        userInfo.put("name", jwt.getClaim("name"));
-//        return userInfo;
-//    }
-//    public void googleLogin(HttpServletResponse response) throws IOException {
-//        // Redirect to Google's OAuth2 login URL (managed by Spring Security)
-//        response.sendRedirect("/oauth2/authorization/google");
-//    }
+    @PostMapping("/ForgotPassword/{email}")
+    public ResponseEntity<String> forgotPassword(
+            @PathVariable("email") String email,
+            HttpServletResponse response
+    ) {
+        return authenticationService.forgotPassword(email, response);
+    }
+
+    @GetMapping("/register/verify")
+    public AuthenticationResponse verifyEmail(
+            @RequestParam("token") String token
+    ) {
+        return authenticationService.verifyEmail(token);
+    }
 }

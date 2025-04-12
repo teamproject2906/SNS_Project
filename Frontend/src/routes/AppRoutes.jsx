@@ -22,6 +22,8 @@ import Setting from "../pages/setting/Setting";
 import Profile from "../pages/Profile/Profile";
 import Address from "../pages/Address/Address";
 import Favourite from "../pages/Favourite/Favourite";
+import ForgetPassword from "../pages/ForgotPassword/ForgotPassword";
+import ChangePassword from "../pages/ForgotPassword/ChangePassword";
 
 // Giả lập trạng thái Auth
 const isAuthenticated = false; // Kiểm tra trạng thái đăng nhập
@@ -113,27 +115,21 @@ const routes = [
   },
   {
     path: "/social",
-    element: (
-      <SocialFeedPage />
-    ),
+    element: <SocialFeedPage />,
   },
   {
     path: "/social-profile",
-    element: (
-      <ProfileSocial />
-    ),
+    element: <ProfileSocial />,
   },
   {
     path: "/search-page",
-    element: (
-      <SearchPage />
-    ),
+    element: <SearchPage />,
   },
   {
     path: "/setting-page",
     element: (
       <MainLayout>
-      <Setting />
+        <Setting />
       </MainLayout>
     ),
   },
@@ -141,7 +137,7 @@ const routes = [
     path: "/profile-page",
     element: (
       <MainLayout>
-      <Profile />
+        <Profile />
       </MainLayout>
     ),
   },
@@ -149,7 +145,23 @@ const routes = [
     path: "/my-address",
     element: (
       <MainLayout>
-      <Address />
+        <Address />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/forgot-password",
+    element: (
+      <MainLayout>
+        <ForgetPassword />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/change-password",
+    element: (
+      <MainLayout>
+        <ChangePassword />
       </MainLayout>
     ),
   },

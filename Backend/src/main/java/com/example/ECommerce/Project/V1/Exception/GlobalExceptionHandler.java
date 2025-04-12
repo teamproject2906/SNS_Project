@@ -32,6 +32,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(ImageLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleImageLimitExceeded(ImageLimitExceededException ex) {
+        System.out.println("ImageLimitExceededException");
+        ErrorResponse errorResponse = new ErrorResponse(400 ,ex.getMessage(), "Image Limit Exceeded");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(com.example.ECommerce.Project.V1.Exception.DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException ex) {
         ErrorResponse error = new ErrorResponse(400 ,ex.getMessage(), "Duplicate Entry Resource");

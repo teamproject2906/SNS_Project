@@ -2,6 +2,7 @@ package com.example.ECommerce.Project.V1.Model;
 
 import com.example.ECommerce.Project.V1.Model.BaseEntity;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Token.SecureToken;
 import com.example.ECommerce.Project.V1.Token.Token;
 import jakarta.persistence.*;
 import lombok.*;
@@ -68,12 +69,19 @@ public class User extends BaseEntity implements UserDetails {
     @Column
     private String provider;
 
+    @Column
+    private Boolean isVerified;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Token> tokens;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<SecureToken> secureTokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

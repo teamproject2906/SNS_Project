@@ -102,7 +102,7 @@ const Profile = () => {
           // Đảm bảo các trường khác có giá trị mặc định nếu API không trả về
           avatar:
             userData.avatar ||
-            "https://www.rainforest-alliance.org/wp-content/uploads/2021/06/capybara-square-1.jpg.optimal.jpg",
+            "https://pro-bel.com/wp-content/uploads/2019/11/blank-avatar-1-450x450.png",
           firstname: userData.firstname || "",
           lastname: userData.lastname || "",
           username: userData.username || "",
