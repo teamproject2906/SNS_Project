@@ -2,7 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import CommentsSection from "../../components/CommentsSection/CommentsSection";
 import axios from "axios";
 import { getToken } from "../Login/app/static";
-import { FaHeart } from "react-icons/fa";
+import { useCart } from "../../context/CartContext";
+import { useFavourite } from "../../context/FavouriteContext";
+import { toast } from "react-toastify";
+import { useUser } from "../../context/UserContext";
 
 const ProductDetail = () => {
   const [product, setProduct] = useState(null);
@@ -16,9 +19,11 @@ const ProductDetail = () => {
   const [imageIndex, setImageIndex] = useState(0);
   const [averageRating, setAverageRating] = useState(0); // State cho average rating
   const thumbnailsRef = useRef(null);
+  const { addToCart } = useCart();
+  const { addToFavourites, removeFromFavourites, isInFavourites } = useFavourite();
+  const { user } = useUser();
 
   const productId = window.location.pathname.split("/")[2];
-  console.log("Product ID:", productId);
 
   useEffect(() => {
     const fetchedProduct = async () => {
@@ -99,9 +104,9 @@ const ProductDetail = () => {
     scrollToThumbnail(index);
   };
 
-  const handlePlus = () => {
-    setQuantity(quantity + 1);
-  };
+	const handlePlus = () => {
+		setQuantity(quantity + 1);
+	};
 
   const handleMinus = () => {
     if (quantity > 1) {
@@ -127,6 +132,45 @@ const ProductDetail = () => {
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedColor) {
+      toast.error("Vui lòng chọn màu sắc");
+      return;
+    }
+    
+    if (!selectedSize) {
+      toast.error("Vui lòng chọn kích thước");
+      return;
+    }
+    
+    const productToAdd = {
+      id: product.id,
+      productName: product.productName,
+      price: product.promotion 
+        ? product.price - product.price * product.promotion.discount 
+        : product.price,
+      quantity: quantity,
+      imageUrl: selectedImage || product.imageUrl,
+      color: selectedColor,
+      size: selectedSize
+    };
+    
+    addToCart(productToAdd);
+  };
+
+  const handleToggleFavourite = () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích");
+      return;
+    }
+    
+    if (isInFavourites(product.id)) {
+      removeFromFavourites(product.id);
+    } else {
+      addToFavourites(product);
+    }
   };
 
   if (loading) {
@@ -243,11 +287,14 @@ const ProductDetail = () => {
             <p className="text-base text-Montserrat-500">
               {product.productCode}
             </p>
-            <button className="favoriteBtn border-2 rounded-full p-1">
+            <button 
+              className={`favoriteBtn border-2 rounded-full p-1 ${isInFavourites(product.id) ? 'text-red-500' : 'text-gray-400'}`}
+              onClick={handleToggleFavourite}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
-                fill="black"
+                fill="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -341,7 +388,10 @@ const ProductDetail = () => {
                 +
               </button>
             </div>
-            <button className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full">
+            <button 
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full"
+              onClick={handleAddToCart}
+            >
               ADD TO CART
             </button>
           </div>

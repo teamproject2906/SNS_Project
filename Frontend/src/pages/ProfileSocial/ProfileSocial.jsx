@@ -55,7 +55,7 @@ const ProfileSocial = () => {
             </div>
             <h2 className="font-semibold text-2xl text-gray-800">User 1</h2>
             {/* Nếu đang chỉnh sửa thì hiển thị input, ngược lại hiển thị bio */}
-           
+
             <p className="text-gray-600 text-sm mt-1">5 followers</p>
             {isEditing ? (
               <div className="flex flex-col w-[100%]  items-center">
@@ -91,7 +91,6 @@ const ProfileSocial = () => {
           <PostCard />
         </div>
       </div>
-
     </div>
   );
 };

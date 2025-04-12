@@ -10,7 +10,11 @@ const SearchPage = () => {
     setSearchQuery(e.target.value); // Cập nhật từ khóa tìm kiếm
     if (e.target.value.length > 0) {
       // Giả lập kết quả tìm kiếm
-      setSearchResults([`${e.target.value} Result 1`, `${e.target.value} Result 2`, `${e.target.value} Result 3`]);
+      setSearchResults([
+        `${e.target.value} Result 1`,
+        `${e.target.value} Result 2`,
+        `${e.target.value} Result 3`,
+      ]);
     } else {
       setSearchResults([]); // Nếu không có từ khóa, xóa kết quả tìm kiếm
     }
@@ -19,25 +23,25 @@ const SearchPage = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-     <div className="w-16 flex flex-col items-center justify-around p-4 h-100">
-            <div className="space-y-6">
-              <button className="text-2xl">
-                <FaHome /> {/* Home */}
-              </button>
-              <button className="text-2xl">
-                <FaSearch /> {/* Search */}
-              </button>
-              <button className="text-2xl">
-                <FaUser /> {/* Profile */}
-              </button>
-              <button className="text-2xl">
-                <FaCog /> {/* Settings */}
-              </button>
-            </div>
-            <button className="text-2xl mt-auto bg-gray-700 rounded-full p-3 hover:bg-gray-600">
-              + {/* Add Post Button */}
-            </button>
-          </div>
+      <div className="w-16 flex flex-col items-center justify-around p-4 h-100">
+        <div className="space-y-6">
+          <button className="text-2xl">
+            <FaHome /> {/* Home */}
+          </button>
+          <button className="text-2xl">
+            <FaSearch /> {/* Search */}
+          </button>
+          <button className="text-2xl">
+            <FaUser /> {/* Profile */}
+          </button>
+          <button className="text-2xl">
+            <FaCog /> {/* Settings */}
+          </button>
+        </div>
+        <button className="text-2xl mt-auto bg-gray-700 rounded-full p-3 hover:bg-gray-600">
+          + {/* Add Post Button */}
+        </button>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 bg-gray-100 p-6">
@@ -61,7 +65,10 @@ const SearchPage = () => {
             {searchResults.length > 0 ? (
               <ul>
                 {searchResults.map((result, index) => (
-                  <li key={index} className="text-gray-800 p-2 hover:bg-gray-100 cursor-pointer">
+                  <li
+                    key={index}
+                    className="text-gray-800 p-2 hover:bg-gray-100 cursor-pointer"
+                  >
                     {result}
                   </li>
                 ))}

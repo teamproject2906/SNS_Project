@@ -1,454 +1,620 @@
-import { useState, useEffect } from 'react';
-import api from '../../pages/Login/app/api';
-import { useUser } from '../../context/UserContext';
-import { toast, ToastContainer } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from "react";
+import {
+	FaThumbsUp,
+	FaEllipsisV,
+	FaReply,
+	FaEdit,
+	FaTrash,
+} from "react-icons/fa";
+import { commentService } from "../../services/commentService";
+import { useUser } from "../../context/UserContext";
+import { toast } from "react-toastify";
 
-const CommentsSection = ({ productId }) => {
-  const [token, setTokenState] = useState(localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, ""));
-  const { user } = useUser();
-  const navigate = useNavigate();
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState({
-    content: '',
-    rating: 0,
-    file: null,
-  });
-  const [hoverRating, setHoverRating] = useState(0);
-  const [editingCommentId, setEditingCommentId] = useState(null); // Theo dõi feedback đang chỉnh sửa
-  const [editComment, setEditComment] = useState({
-    content: '',
-    rating: 0,
-    file: null,
-  });
-  const [editHoverRating, setEditHoverRating] = useState(0); // Hover rating cho form chỉnh sửa
+// Helper function to determine active status from response
+const getActiveStatus = (response) => {
+	// Backend uses isActive field, check both possible field names
+	if (response?.isActive !== undefined) return response.isActive;
+	if (response?.active !== undefined) return response.active;
+	return true; // Default to true if no field found
+};
 
-  const parseJwt = (token) => {
-    try {
-      return JSON.parse(atob(token.split(".")[1]));
-    } catch (e) {
-      return null;
-    }
-  };
+// Helper function to parse API responses
+const parseApiResponse = (response) => {
+	// Handle direct data or response.data
+	const data = response.data || response;
 
-  const decodedToken = parseJwt(token);
-  const userId = decodedToken?.userId;
+	if (!data) {
+		console.error("No data in response");
+		return null;
+	}
 
-  // Fetch feedbacks
-  useEffect(() => {
-    fetchFeedbacks();
-  }, [productId]);
+	return data;
+};
 
-  const fetchFeedbacks = async () => {
-    try {
-      const response = await api.get(`/api/feedbacks/product/${productId}`);
-      console.log('Feedbacks from backend:', response.data);
-      const feedbacks = response.data;
+const CommentsSection = ({ postId }) => {
+	const { user } = useUser();
+	const [comments, setComments] = useState([]);
+	const [newComment, setNewComment] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [editingComment, setEditingComment] = useState(null);
+	const [editContent, setEditContent] = useState("");
+	const [menuOpen, setMenuOpen] = useState(null);
+	const [expandedComments, setExpandedComments] = useState({});
+	const menuRef = useRef(null);
 
-      const feedbacksWithFullName = await Promise.all(
-        feedbacks.map(async (comment) => {
-          let fullName = 'Unknown User';
-          try {
-            const userResponse = await api.get(`/User/getUserProfile/${comment.userId}`);
-            console.log(`User data for userId ${comment.userId}:`, userResponse.data);
-            const firstname = userResponse.data?.firstname || '';
-            const lastname = userResponse.data?.lastname || '';
-            fullName = `${firstname} ${lastname}`.trim() || 'Unknown User';
-          } catch (error) {
-            console.error(`Failed to fetch user data for userId ${comment.userId}:`, {
-              status: error.response?.status,
-              message: error.response?.data?.message || error.message,
-            });
-          }
+	// Validate postId
+	useEffect(() => {
+		if (!postId) {
+			toast.warning("Không thể tải bình luận: Thiếu ID bài viết");
+		}
+	}, [postId]);
 
-          const createdAt = comment.createdAt
-            ? new Date(comment.createdAt).toLocaleString('en-GB', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              }).replace(',', '')
-            : new Date().toLocaleString('en-GB', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              }).replace(',', '');
+	// Load comments when component mounts or postId changes
+	useEffect(() => {
+		if (postId) {
+			fetchComments();
+		}
+	}, [postId]);
 
-          return {
-            ...comment,
-            fullName,
-            date: createdAt,
-            expanded: false,
-          };
-        })
-      );
+	// Handle click outside dropdown menu
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (menuRef.current && !menuRef.current.contains(event.target)) {
+				setMenuOpen(null);
+			}
+		};
 
-      setComments(feedbacksWithFullName);
-    } catch (error) {
-      console.error('Error fetching feedbacks:', {
-        status: error.response?.status,
-        message: error.response?.data?.message || error.message,
-      });
-      toast.error(error.response?.data?.message || error.message || 'Failed to load feedbacks!');
-    }
-  };
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
-  // Handle submit new feedback
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) {
-      toast.error('Please log in to submit a feedback!');
-      setTimeout(() => navigate('/login'), 1000);
-      return;
-    }
+	// Fetch comments from API
+	const fetchComments = async () => {
+		try {
+			setLoading(true);
 
-    if (!userId) {
-      toast.error('User ID not found. Please log in again.');
-      setTimeout(() => navigate('/login'), 1000);
-      return;
-    }
+			// Validate postId
+			if (!postId) {
+				toast.error("Không thể tải bình luận: Thiếu ID bài viết");
+				setComments([]);
+				return;
+			}
 
-    const dto = {
-      comment: newComment.content,
-      rate: newComment.rating,
-      productId: parseInt(productId),
-      userId: userId,
-    };
-    console.log('DTO being sent:', dto);
+			// Try getting all comments first
+			const allCommentsResponse =
+				await commentService.getAllCommentsByPostId(postId);
 
-    const formData = new FormData();
-    formData.append('dto', JSON.stringify(dto));
-    if (newComment.file) {
-      formData.append('file', newComment.file);
-    }
+			if (
+				Array.isArray(allCommentsResponse) &&
+				allCommentsResponse.length > 0
+			) {
+				// Filter for active comments only
+				const activeComments = allCommentsResponse.filter((comment) => {
+					const isActiveField = comment.isActive === true;
+					const activeField = comment.active === true;
+					return isActiveField || activeField;
+				});
 
-    try {
-      const response = await api.post('/api/feedbacks', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      console.log('Response from backend:', response.data);
-      await fetchFeedbacks();
-      setNewComment({ content: '', rating: 0, file: null });
-      setHoverRating(0);
-      toast.success('Feedback submitted successfully!');
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-      toast.error(error.response?.data?.message || error.message || 'Failed to submit feedback!');
-    }
-  };
+				setComments(activeComments);
+				return;
+			}
 
-  // Handle edit feedback
-  const handleEdit = (comment) => {
-    setEditingCommentId(comment.id);
-    setEditComment({
-      content: comment.comment,
-      rating: comment.rate,
-      file: null,
-    });
-    setEditHoverRating(comment.rate);
-  };
+			// If first attempt fails, try the regular endpoint
+			const response = await commentService.getCommentsByPostId(postId);
 
-  const handleEditSubmit = async (e, commentId) => {
-    e.preventDefault();
-    const dto = {
-      comment: editComment.content,
-      rate: editComment.rating,
-      productId: parseInt(productId),
-      userId: userId,
-    };
-    console.log('Edit DTO being sent:', dto);
+			if (Array.isArray(response) && response.length > 0) {
+				const activeComments = response.filter((comment) => {
+					const isActiveField = comment.isActive === true;
+					const activeField = comment.active === true;
+					return isActiveField || activeField;
+				});
 
-    const formData = new FormData();
-    formData.append('dto', JSON.stringify(dto));
-    if (editComment.file) {
-      formData.append('file', editComment.file);
-    }
+				setComments(activeComments);
+			} else {
+				setComments([]);
+				toast.info("Chưa có bình luận nào cho bài viết này");
+			}
+		} catch (error) {
+			console.error("Error fetching comments:", error);
+			toast.error(
+				"Không thể tải bình luận: " +
+					(error.response?.data?.message || error.message)
+			);
+			setComments([]);
+		} finally {
+			setLoading(false);
+		}
+	};
 
-    try {
-      const response = await api.put(`/api/feedbacks/${commentId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      console.log('Edit response from backend:', response.data);
-      await fetchFeedbacks();
-      setEditingCommentId(null);
-      setEditComment({ content: '', rating: 0, file: null });
-      setEditHoverRating(0);
-      toast.success('Feedback updated successfully!');
-    } catch (error) {
-      console.error('Error updating feedback:', error);
-      toast.error(error.response?.data?.message || error.message || 'Failed to update feedback!');
-    }
-  };
+	// Submit new comment
+	const handleSubmitComment = async (e) => {
+		e.preventDefault();
+		if (!newComment.trim()) return;
 
-  // Handle delete feedback
-  const handleDelete = async (commentId) => {
-    if (window.confirm('Are you sure you want to delete this feedback?')) {
-      try {
-        await api.delete(`/api/feedbacks/${commentId}`);
-        await fetchFeedbacks();
-        toast.success('Feedback deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting feedback:', error);
-        toast.error(error.response?.data?.message || error.message || 'Failed to delete feedback!');
-      }
-    }
-  };
+		try {
+			setLoading(true);
 
-  const toggleFullText = (index) => {
-    setComments(comments.map((comment, i) =>
-      i === index ? { ...comment, expanded: !comment.expanded } : comment
-    ));
-  };
+			// Validate postId
+			if (!postId) {
+				toast.error("Không thể thêm bình luận: Thiếu ID bài viết");
+				return;
+			}
 
-  const handleRatingClick = (rating) => {
-    setNewComment({ ...newComment, rating });
-  };
+			// Create commentData with the correct structure
+			const commentData = {
+				content: newComment,
+				postId: postId,
+				isActive: true, // Backend model expects isActive
+			};
 
-  const handleRatingHover = (rating) => {
-    setHoverRating(rating);
-  };
+			// Get user ID from context
+			const userId = user?.sub || user?.username;
 
-  const handleRatingLeave = () => {
-    setHoverRating(0);
-  };
+			const apiResponse = await commentService.createComment(commentData);
 
-  const handleEditRatingClick = (rating) => {
-    setEditComment({ ...editComment, rating });
-  };
+			// Parse and process response
+			const parsedResponse = parseApiResponse(apiResponse);
+			if (parsedResponse) {
+				// Add new comment directly to state
+				const newCommentObj = {
+					id:
+						parsedResponse.id ||
+						parsedResponse.commentReplyId ||
+						Date.now(),
+					content: parsedResponse.content || newComment,
+					user: parsedResponse.user || userId || "Người dùng",
+					postId: parsedResponse.postId || postId,
+					createdAt: new Date().toISOString(),
+					isActive: true, // Explicitly set to true for new comments
+				};
 
-  const handleEditRatingHover = (rating) => {
-    setEditHoverRating(rating);
-  };
+				// Add to state
+				setComments((prevComments) => [...prevComments, newCommentObj]);
 
-  const handleEditRatingLeave = () => {
-    setEditHoverRating(0);
-  };
+				// Show toast notification
+				toast.success("Đã thêm bình luận");
 
-  return (
-    <div className="commentsSection">
-      <ToastContainer />
-      <div className="commentForm bg-white shadow-md rounded-lg p-4 mb-4">
-        <h3 className="text-2xl font-semibold mb-4">Add a Comment</h3>
-        <form onSubmit={handleSubmit}>
-          <textarea
-            value={newComment.content}
-            onChange={(e) => setNewComment({ ...newComment, content: e.target.value })}
-            placeholder="Write your comment..."
-            className="w-full p-2 border rounded mb-2"
-            disabled={!user}
-          />
-          <input
-            type="file"
-            onChange={(e) => setNewComment({ ...newComment, file: e.target.files[0] })}
-            className="mb-2"
-            disabled={!user}
-          />
-          <div className="ratingInput mb-2 flex items-center">
-            {[1, 2, 3, 4, 5].map((star) => {
-              const currentRating = hoverRating || newComment.rating;
-              const isFull = currentRating >= star;
-              const isHalf = currentRating >= star - 0.5 && currentRating < star;
+				// Refresh from server to synchronize
+				setTimeout(async () => {
+					await fetchComments();
+				}, 500);
 
-              return (
-                <span
-                  key={star}
-                  className="star relative inline-block text-2xl cursor-pointer"
-                  onMouseEnter={() => !user ? null : handleRatingHover(star - 0.5)}
-                  onMouseMove={(e) => {
-                    if (!user) return;
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const half = x < rect.width / 2;
-                    handleRatingHover(half ? star - 0.5 : star);
-                  }}
-                  onMouseLeave={() => !user ? null : handleRatingLeave()}
-                  onClick={() => !user ? null : handleRatingClick(hoverRating || star - 0.5)}
-                >
-                  <span className="empty-star text-gray-300">★</span>
-                  <span
-                    className="filled-star absolute top-0 left-0 text-yellow-400 overflow-hidden"
-                    style={{
-                      width: isFull ? '100%' : isHalf ? '50%' : '0%',
-                    }}
-                  >
-                    ★
-                  </span>
-                </span>
-              );
-            })}
-            <span className="ml-2 text-gray-600">
-              {newComment.rating > 0 ? `${newComment.rating} stars` : 'Select rating'}
-            </span>
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
-            disabled={!user}
-          >
-            Submit
-          </button>
-        </form>
-        {!user && (
-          <p className="text-red-500 mt-2">
-            Log in to submit feedback!
-          </p>
-        )}
-      </div>
+				setNewComment("");
+			} else {
+				// If parsing fails, simply refresh comments from server
+				await fetchComments();
+				setNewComment("");
+				toast.success("Đã thêm bình luận và làm mới dữ liệu");
+			}
+		} catch (error) {
+			console.error("Error adding comment:", error);
+			if (error.response) {
+				toast.error(
+					`Không thể thêm bình luận: ${
+						error.response.data.message || error.message
+					}`
+				);
+			} else {
+				toast.error("Không thể thêm bình luận: Lỗi kết nối");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
 
-      <div className="commentList bg-white shadow-md rounded-lg p-4">
-        <h3 className="text-2xl font-semibold mb-4">Comments</h3>
-        {comments.map((comment, index) => (
-          <div key={index} className="commentItem border-t pt-4 mt-4">
-            {editingCommentId === comment.id ? (
-              // Form chỉnh sửa feedback
-              <form onSubmit={(e) => handleEditSubmit(e, comment.id)} className="mb-4">
-                <textarea
-                  value={editComment.content}
-                  onChange={(e) => setEditComment({ ...editComment, content: e.target.value })}
-                  placeholder="Edit your comment..."
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <input
-                  type="file"
-                  onChange={(e) => setEditComment({ ...editComment, file: e.target.files[0] })}
-                  className="mb-2"
-                />
-                <div className="ratingInput mb-2 flex items-center">
-                  {[1, 2, 3, 4, 5].map((star) => {
-                    const currentRating = editHoverRating || editComment.rating;
-                    const isFull = currentRating >= star;
-                    const isHalf = currentRating >= star - 0.5 && currentRating < star;
+	// Update comment
+	const handleUpdateComment = async (e) => {
+		e.preventDefault();
+		if (!editContent.trim()) return;
 
-                    return (
-                      <span
-                        key={star}
-                        className="star relative inline-block text-2xl cursor-pointer"
-                        onMouseEnter={() => handleEditRatingHover(star - 0.5)}
-                        onMouseMove={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const x = e.clientX - rect.left;
-                          const half = x < rect.width / 2;
-                          handleEditRatingHover(half ? star - 0.5 : star);
-                        }}
-                       A
-                        onMouseLeave={() => handleEditRatingLeave()}
-                        onClick={() => handleEditRatingClick(editHoverRating || star - 0.5)}
-                      >
-                        <span className="empty-star text-gray-300">★</span>
-                        <span
-                          className="filled-star absolute top-0 left-0 text-yellow-400 overflow-hidden"
-                          style={{
-                            width: isFull ? '100%' : isHalf ? '50%' : '0%',
-                          }}
-                        >
-                          ★
-                        </span>
-                      </span>
-                    );
-                  })}
-                  <span className="ml-2 text-gray-600">
-                    {editComment.rating > 0 ? `${editComment.rating} stars` : 'Select rating'}
-                  </span>
-                </div>
-                <button
-                  type="submit"
-                  className="bg-green-500 text-white p-2 rounded mr-2"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditingCommentId(null)}
-                  className="bg-gray-500 text-white p-2 rounded"
-                >
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              // Hiển thị feedback
-              <>
-                <div className="flex items-center gap-3">
-                  <img
-                    src={comment.userAvatar || 'https://i.pravatar.cc/300'}
-                    alt="User avatar"
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="flex-grow">
-                    <p className="font-semibold">{comment.fullName}</p>
-                    <p className="text-sm text-gray-500">{comment.date}</p>
-                  </div>
-                  {userId === comment.userId && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(comment)}
-                        className="text-blue-500 hover:underline"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(comment.id)}
-                        className="text-red-500 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="commentContent mt-2">
-                  <p>
-                    {comment.expanded || comment.comment.length <= 100
-                      ? comment.comment
-                      : `${comment.comment.substring(0, 100)}...`}
-                    {comment.comment.length > 100 && (
-                      <button onClick={() => toggleFullText(index)} className="text-blue-500 ml-2">
-                        {comment.expanded ? 'Collapse' : 'Read more'}
-                      </button>
-                    )}
-                  </p>
-                </div>
-                {comment.imageUrl && (
-                  <div className="commentImage mt-2">
-                    <img
-                      src={comment.imageUrl}
-                      alt="Comment image"
-                      className="w-32 h-32 object-cover rounded-lg"
-                    />
-                  </div>
-                )}
-                <div className="rating mt-2 flex items-center">
-                  {[1, 2, 3, 4, 5].map((star) => {
-                    const isFull = comment.rate >= star;
-                    const isHalf = comment.rate >= star - 0.5 && comment.rate < star;
+		try {
+			setLoading(true);
 
-                    return (
-                      <span
-                        key={star}
-                        className="star relative inline-block text-2xl"
-                      >
-                        <span className="empty-star text-gray-300">★</span>
-                        <span
-                          className="filled-star absolute top-0 left-0 text-yellow-400 overflow-hidden"
-                          style={{
-                            width: isFull ? '100%' : isHalf ? '50%' : '0%',
-                          }}
-                        >
-                          ★
-                        </span>
-                      </span>
-                    );
-                  })}
-                  <span className="ml-2 text-gray-600">{comment.rate} stars</span>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+			// Check if this is a temporary comment
+			const isTemporaryComment =
+				editingComment.id.toString().startsWith("temp-") ||
+				editingComment._tempId !== undefined;
+
+			if (isTemporaryComment) {
+				// Update temporary comment in state only
+				setComments((prevComments) =>
+					prevComments.map((comment) => {
+						if (comment.id === editingComment.id) {
+							return {
+								...comment,
+								content: editContent,
+								updatedAt: new Date().toISOString(),
+							};
+						}
+						return comment;
+					})
+				);
+
+				setEditingComment(null);
+				toast.success("Đã cập nhật bình luận");
+				return;
+			}
+
+			// Create commentData with the correct structure
+			const commentData = {
+				content: editContent,
+				postId: postId,
+				isActive: true,
+			};
+
+			await commentService.updateComment(editingComment.id, commentData);
+
+			// Refresh comments from server
+			await fetchComments();
+
+			setEditingComment(null);
+			toast.success("Đã cập nhật bình luận");
+		} catch (error) {
+			console.error("Error updating comment:", error);
+			if (error.response) {
+				toast.error(
+					`Không thể cập nhật bình luận: ${
+						error.response.data.message || error.message
+					}`
+				);
+			} else {
+				toast.error("Không thể cập nhật bình luận: Lỗi kết nối");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// Delete comment
+	const handleDeleteComment = async (commentId) => {
+		try {
+			setLoading(true);
+
+			// Check if this is a temporary comment
+			const isTemporaryComment = commentId.toString().startsWith("temp-");
+			const commentToDelete = comments.find((c) => c.id === commentId);
+			const hasTemporaryFlag =
+				commentToDelete && commentToDelete._tempId !== undefined;
+
+			if (isTemporaryComment || hasTemporaryFlag) {
+				// Remove temporary comment from state only
+				setComments((prevComments) =>
+					prevComments.filter((comment) => comment.id !== commentId)
+				);
+				toast.success("Đã xóa bình luận");
+				setMenuOpen(null);
+				return;
+			}
+
+			// Create commentData with the correct structure
+			const commentData = {
+				postId: postId,
+				isActive: false, // Set isActive to false to mark as deleted
+			};
+
+			await commentService.deleteComment(commentId, commentData);
+
+			// Refresh comments from server
+			await fetchComments();
+
+			setMenuOpen(null);
+			toast.success("Đã xóa bình luận");
+		} catch (error) {
+			console.error("Error deleting comment:", error);
+			if (error.response) {
+				toast.error(
+					`Không thể xóa bình luận: ${
+						error.response.data.message || error.message
+					}`
+				);
+			} else {
+				toast.error("Không thể xóa bình luận: Lỗi kết nối");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	// Format date
+	const formatDate = (dateString) => {
+		const date = new Date(dateString);
+		return date.toLocaleDateString("vi-VN", {
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+		});
+	};
+
+	// Toggle menu display
+	const toggleMenu = (commentId) => {
+		setMenuOpen(menuOpen === commentId ? null : commentId);
+	};
+
+	// Handle edit button click
+	const handleEditClick = (comment) => {
+		setEditingComment(comment);
+		setEditContent(comment.content);
+		setMenuOpen(null);
+	};
+
+	// Toggle full text display
+	const toggleFullText = (commentId) => {
+		setComments(
+			comments.map((comment) => {
+				if (comment.id === commentId) {
+					return { ...comment, expanded: !comment.expanded };
+				}
+				return comment;
+			})
+		);
+	};
+
+	return (
+		<div className="commentsSection mt-5 bg-white shadow-md rounded-lg p-4">
+			<div className="flex justify-between items-center mb-4">
+				<h3 className="text-2xl font-semibold">
+					Bình luận ({comments.length})
+				</h3>
+				<div className="flex gap-2">
+					<button
+						onClick={async () => {
+							setLoading(true);
+							await fetchComments();
+							setLoading(false);
+						}}
+						className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center gap-1"
+						disabled={loading}
+					>
+						Force Refresh
+					</button>
+					<button
+						onClick={() => fetchComments()}
+						className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-1"
+						disabled={loading}
+					>
+						{loading ? "Đang tải..." : "Làm mới"}
+					</button>
+				</div>
+			</div>
+
+			{/* Loading state */}
+			{loading && (
+				<div className="text-center p-4 bg-blue-50 rounded mb-4">
+					<p className="text-blue-600">Đang tải dữ liệu bình luận...</p>
+				</div>
+			)}
+
+			{/* Error state - when postId is not provided */}
+			{!postId && (
+				<div className="text-center p-4 bg-red-50 rounded mb-4">
+					<p className="text-red-600">
+						Không thể tải bình luận: Thiếu ID bài viết
+					</p>
+				</div>
+			)}
+
+			{/* Form to add new comment */}
+			{postId && (
+				<div className="addComment mt-4">
+					<form
+						onSubmit={handleSubmitComment}
+						className="flex items-start gap-2"
+					>
+						<img
+							src={user?.avatar || "https://i.pravatar.cc/100"}
+							alt="User"
+							className="w-10 h-10 rounded-full object-cover"
+						/>
+						<div className="flex-1">
+							<textarea
+								value={newComment}
+								onChange={(e) => setNewComment(e.target.value)}
+								placeholder="Viết bình luận của bạn..."
+								className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+								rows="2"
+							></textarea>
+							<div className="flex justify-between items-center mt-2">
+								<div className="text-xs text-gray-500">
+									{loading && (
+										<span className="text-blue-500">
+											Đang xử lý...
+										</span>
+									)}
+								</div>
+								<button
+									type="submit"
+									disabled={!newComment.trim() || loading}
+									className={`px-4 py-2 rounded-md text-white font-medium ${
+										!newComment.trim() || loading
+											? "bg-gray-400"
+											: "bg-blue-500 hover:bg-blue-600"
+									}`}
+								>
+									{loading ? "Đang gửi..." : "Bình luận"}
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			)}
+
+			{/* Comments list */}
+			<div className="commentsList mt-6 border border-gray-200 rounded">
+				{loading && comments.length === 0 ? (
+					<p className="text-center py-4 text-gray-500">
+						Đang tải bình luận...
+					</p>
+				) : comments.length === 0 ? (
+					<p className="text-center py-4 text-gray-500">
+						Chưa có bình luận nào
+					</p>
+				) : !Array.isArray(comments) ? (
+					<div className="bg-red-100 p-4 rounded">
+						<p className="text-red-600">
+							Lỗi: Dữ liệu comments không đúng dạng mảng
+						</p>
+						<button
+							onClick={fetchComments}
+							className="mt-2 px-3 py-1 bg-red-500 text-white rounded"
+						>
+							Thử lại
+						</button>
+					</div>
+				) : (
+					comments.map((comment) => {
+						// Ensure content is a string
+						const contentValue = comment.content || "";
+
+						return (
+							<div
+								key={
+									comment.id || `temp-${Date.now()}-${Math.random()}`
+								}
+								className={`commentItem border-t pt-3 pb-3 px-4 ${
+									comment.id?.toString().startsWith("temp-")
+										? "relative border-dashed border-yellow-300 bg-yellow-50"
+										: "hover:bg-gray-50"
+								}`}
+							>
+								{comment.id?.toString().startsWith("temp-") && (
+									<span className="absolute -top-2 right-0 text-xs text-yellow-600 bg-yellow-50 px-1 rounded">
+										Đang xử lý
+									</span>
+								)}
+								{editingComment?.id === comment.id ? (
+									// Edit comment form
+									<form
+										onSubmit={handleUpdateComment}
+										className="mt-2"
+									>
+										<textarea
+											value={editContent}
+											onChange={(e) =>
+												setEditContent(e.target.value)
+											}
+											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+											rows="2"
+										></textarea>
+										<div className="flex justify-end gap-2 mt-2">
+											<button
+												type="button"
+												onClick={() => setEditingComment(null)}
+												className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100"
+											>
+												Hủy
+											</button>
+											<button
+												type="submit"
+												disabled={!editContent.trim() || loading}
+												className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+											>
+												Lưu
+											</button>
+										</div>
+									</form>
+								) : (
+									<>
+										<div className="flex items-center gap-3">
+											<img
+												src={
+													comment.userAvatar ||
+													"https://i.pravatar.cc/100"
+												}
+												alt="User avatar"
+												className="w-10 h-10 rounded-full"
+											/>
+											<div className="flex-grow">
+												<p className="font-semibold">
+													{comment.user || "Người dùng"}
+												</p>
+												<p className="text-sm text-gray-500">
+													{comment.id
+														?.toString()
+														.startsWith("temp-")
+														? "Vừa xong"
+														: comment.createdAt
+														? formatDate(comment.createdAt)
+														: ""}
+												</p>
+											</div>
+											<div className="relative" ref={menuRef}>
+												<button
+													onClick={() => toggleMenu(comment.id)}
+													className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full"
+												>
+													<FaEllipsisV />
+												</button>
+												{menuOpen === comment.id && (
+													<div className="absolute right-0 w-36 bg-white shadow-lg rounded-md overflow-hidden z-10">
+														<ul className="py-1">
+															<li>
+																<button
+																	onClick={() =>
+																		handleEditClick(comment)
+																	}
+																	className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+																>
+																	<FaEdit size={14} /> Chỉnh
+																	sửa
+																</button>
+															</li>
+															<li>
+																<button
+																	onClick={() =>
+																		handleDeleteComment(
+																			comment.id
+																		)
+																	}
+																	className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+																>
+																	<FaTrash size={14} /> Xóa
+																</button>
+															</li>
+														</ul>
+													</div>
+												)}
+											</div>
+										</div>
+										<div className="commentContent mt-2 bg-gray-50 p-2 rounded">
+											{contentValue.trim() === "" ? (
+												<p className="text-gray-400 italic">
+													Nội dung trống
+												</p>
+											) : (
+												<p className="whitespace-pre-wrap break-words">
+													{comment.expanded ||
+													contentValue.length <= 150
+														? contentValue
+														: `${contentValue.substring(
+																0,
+																150
+														  )}...`}
+													{contentValue.length > 150 && (
+														<button
+															onClick={() =>
+																toggleFullText(comment.id)
+															}
+															className="text-blue-500 ml-2 text-sm"
+														>
+															{comment.expanded
+																? "Thu gọn"
+																: "Xem thêm"}
+														</button>
+													)}
+												</p>
+											)}
+										</div>
+									</>
+								)}
+							</div>
+						);
+					})
+				)}
+			</div>
+		</div>
+	);
 };
 
 export default CommentsSection;

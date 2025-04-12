@@ -10,8 +10,10 @@ import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Service.CartService.ICartService;
 import com.example.ECommerce.Project.V1.Service.JWTService;
 import com.example.ECommerce.Project.V1.Service.SecureTokenService.ISecureTokenService;
+import com.example.ECommerce.Project.V1.Service.WishlistService.WishlistService;
 import com.example.ECommerce.Project.V1.Token.SecureToken;
 import com.example.ECommerce.Project.V1.Token.Token;
 import com.example.ECommerce.Project.V1.Token.TokenType;
@@ -21,6 +23,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +52,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
     private final ISecureTokenService secureTokenService;
+    @Autowired
+    private ICartService cartService;
+
+    @Autowired
+    private WishlistService wishlistService;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,50}$");
@@ -67,10 +75,12 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .updatedAt(LocalDateTime.now())
                 .createdBy("SYSTEM")
                 .updatedBy("SYSTEM")
-                .isVerified(false)
+                .isVerified(true)
                 .isActive(true)
                 .build();
         var savedUser = userRepository.save(user); // Save user in DB
+        cartService.initializeCartForUser(savedUser.getId());
+        wishlistService.createWishlist(savedUser.getId());
 
         // Generate secure token
         var secureToken = secureTokenService.createToken();

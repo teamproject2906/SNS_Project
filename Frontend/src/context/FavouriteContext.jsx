@@ -1,5 +1,8 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
+import axios from "axios";
+import { getToken, getUserInfo } from "../pages/Login/app/static";
+import { toast } from "react-toastify";
 
 // Create the context
 const FavouriteContext = createContext();
@@ -9,64 +12,118 @@ export const useFavourite = () => {
   return useContext(FavouriteContext);
 };
 
-// Hardcoded initial favourite data
-const initialFavouriteItems = [
-  {
-    id: 1,
-    name: "Áo thun nam",
-    price: 199000,
-    imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    name: "Quần jean nam",
-    price: 299000,
-    imageUrl: "https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 3,
-    name: "Giày thể thao",
-    price: 499000,
-    imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 4,
-    name: "Áo khoác denim",
-    price: 599000,
-    imageUrl: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 5,
-    name: "Túi xách nữ",
-    price: 399000,
-    imageUrl: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  },
-];
-
 // Provider component
 export const FavouriteProvider = ({ children }) => {
-  // Initialize favourite state with hardcoded data
-  const [favouriteItems, setFavouriteItems] = useState(initialFavouriteItems);
+  // Initialize favourite state
+  const [favouriteItems, setFavouriteItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState(getUserInfo());
+
+
+
+  // Fetch wishlist data from API
+  const fetchWishlist = async () => {
+    
+    if (!user || !user.userId) {
+      setFavouriteItems([]);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const token = getToken();
+      const response = await axios.get(`http://localhost:8080/api/wishlist/user/${user.userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data && response.data.productIds) {
+        // We need to fetch the full product details for each productId
+        const productPromises = response.data.productIds.map(productId => 
+          axios.get(`http://localhost:8080/api/products/${productId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        );
+        
+        const productResponses = await Promise.all(productPromises);
+        const products = productResponses.map(res => res.data);
+        
+        setFavouriteItems(products);
+      } else {
+        setFavouriteItems([]);
+      }
+    } catch (err) {
+      console.error("Error fetching wishlist:", err);
+      setError(err.message);
+      if (user && user.userId) {
+        toast.error("Không thể tải danh sách yêu thích");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch wishlist on component mount
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
 
   // Add item to favourites
-  const addToFavourites = (product) => {
-    setFavouriteItems((prevItems) => {
-      // Check if product already exists in favourites
-      const existingItem = prevItems.find((item) => item.id === product.id);
+  const addToFavourites = async (product) => {    
+    setUser(getUserInfo())
+    try {
+      setLoading(true);
+      const token = getToken();
       
-      if (existingItem) {
-        // If it exists, do nothing
-        return prevItems;
-      } else {
-        // If it doesn't exist, add new item
-        return [...prevItems, product];
+      const response = await axios.post(
+        `http://localhost:8080/api/wishlist/user/${user.userId}/add/${product.id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      if (response.data) {
+        // Refresh the wishlist after adding
+        await fetchWishlist();
+        toast.success("Đã thêm sản phẩm vào danh sách yêu thích");
       }
-    });
+    } catch (err) {
+      console.error("Error adding to wishlist:", err);
+      setError(err.message);
+      toast.error("Không thể thêm sản phẩm vào danh sách yêu thích");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Remove item from favourites
-  const removeFromFavourites = (productId) => {
-    setFavouriteItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+  const removeFromFavourites = async (productId) => {
+    if (!user || !user.userId) return;
+    
+    try {
+      setLoading(true);
+      const token = getToken();
+      
+      const response = await axios.delete(
+        `http://localhost:8080/api/wishlist/user/${user.userId}/remove/${productId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      
+      if (response.data) {
+        // Refresh the wishlist after removing
+        await fetchWishlist();
+        toast.success("Đã xóa sản phẩm khỏi danh sách yêu thích");
+      }
+    } catch (err) {
+      console.error("Error removing from wishlist:", err);
+      setError(err.message);
+      toast.error("Không thể xóa sản phẩm khỏi danh sách yêu thích");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Check if an item is in favourites
@@ -82,10 +139,13 @@ export const FavouriteProvider = ({ children }) => {
   // Context value
   const value = {
     favouriteItems,
+    loading,
+    error,
     addToFavourites,
     removeFromFavourites,
     isInFavourites,
     getTotalFavourites,
+    fetchWishlist
   };
 
   return <FavouriteContext.Provider value={value}>{children}</FavouriteContext.Provider>;

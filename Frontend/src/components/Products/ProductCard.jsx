@@ -1,158 +1,170 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getToken } from "../../pages/Login/app/static";
+import { useFavourite } from "../../context/FavouriteContext";
+import { useCart } from "../../context/CartContext";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useUser } from "../../context/UserContext";
 
-const ProductCard = ({ products, loading, error }) => {
+const ProductCard = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+  const { addToFavourites, removeFromFavourites, isInFavourites } = useFavourite();
+  const { addToCart } = useCart();
+  const { user } = useUser();
 
-  const formatPrice = (price) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const token = getToken();
+        const response = await axios.get("http://localhost:8080/api/products", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProducts(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleAddToCart = (product) => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+      return;
+    }
+    
+    const productToAdd = {
+      id: product.id,
+      productName: product.productName,
+      price: product.promotion 
+        ? product.price - product.price * product.promotion.discount 
+        : product.price,
+      quantity: 1,
+      imageUrl: product.imageUrl,
+      color: product.color,
+      size: product.size
+    };
+    
+    addToCart(productToAdd);
   };
-
-  // Đảm bảo products là mảng, nếu không thì gán mảng rỗng
-  const safeProducts = Array.isArray(products) ? products : [];
-
-  // Calculate pagination
-  const totalPages = Math.ceil(safeProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = safeProducts.slice(startIndex, endIndex);
+  
+  const handleToggleFavourite = (product) => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích");
+      return;
+    }
+    
+    if (isInFavourites(product.id)) {
+      removeFromFavourites(product.id);
+    } else {
+      addToFavourites(product);
+    }
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
   if (loading) {
-    return <p style={{ textAlign: "center" }}>Loading...</p>;
+    return <p>Loading...</p>;
   }
 
   if (error) {
-    return <p style={{ textAlign: "center", color: "red" }}>{error}</p>;
+    return <p>Error: {error}</p>;
   }
 
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+
   return (
-    <div className="container mx-auto">
-      {safeProducts.length === 0 ? (
-        <p style={{ textAlign: "center" }}>Hiện chưa có sản phẩm.</p>
-      ) : (
-        <>
-          <div className="product-card grid grid-cols-4 gap-6">
-            {currentItems.map((item) => (
-              <div
-                key={item.id}
-                className="product-card__item border rounded-lg p-4 flex flex-col justify-between gap-5 shadow-xl"
-              >
-                <Link
-                  to={`/products/${item.id}`}
-                  className="flex justify-center"
-                >
-                  <img
-                    className="product-card__image"
-                    src={
-                      item.imageUrl ||
-                      "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="
-                    }
-                    alt={item.productName}
-                    width={300}
-                    height={300}
-                  />
-                </Link>
-                <div className="flex flex-col gap-3">
-                  <div className="product-card__info">
-                    <h3
-                      className="product-card__name pb-2 text-md"
-                      style={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        maxWidth: "95%",
-                      }}
-                    >
-                      {item.productName}
-                    </h3>
-                    <div className="flex flex-row gap-2 items-center">
-                      {item.promotion ? (
-                        <p className="product-card__discount-price text-base text-[#021f58] font-extrabold">
-                          {formatPrice(
-                            item.price - item.price * item.promotion.discount
-                          )}
-                          đ
-                        </p>
-                      ) : (
-                        <p className="product-card__original-price text-base text-[#021f58] font-extrabold">
-                          {formatPrice(item.price)}đ
-                        </p>
-                      )}
-                      {item.promotion ? (
-                        <p
-                          className="product-card__original-price text-md text-gray-400"
-                          style={{ textDecoration: "line-through" }}
-                        >
-                          {formatPrice(item.price)}đ
-                        </p>
-                      ) : (
-                        ""
-                      )}
-                      {item.promotion ? (
-                        <p className="product-card__promotion bg-red-500 p-1 text-sm w-12 flex justify-center rounded-md font-bold text-white">
-                          -{formatPrice(item.promotion.discount * 100)}%
-                        </p>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  </div>
-                  <div className="product-card__actions flex flex-row gap-2">
-                    <button className="bg-blue-500 text-white py-2 px-4 rounded w-full">
-                      Add to cart
-                    </button>
-                    <button className="favoriteBtn">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {currentItems.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white rounded-lg shadow-md overflow-hidden product-card"
+          >
+            <Link to={`/products/${item.id}`}>
+              <div className="product-card__image">
+                <img
+                  src={item.imageUrl}
+                  alt={item.productName}
+                  className="w-full h-64 object-cover"
+                />
               </div>
+            </Link>
+            <div className="p-4">
+              <Link to={`/products/${item.id}`}>
+                <h3 className="text-lg font-semibold mb-2 product-card__title">
+                  {item.productName}
+                </h3>
+              </Link>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-xl font-bold product-card__price">
+                  {item.price.toLocaleString()}₫
+                </p>
+                {item.promotion && (
+                  <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">
+                    -{Math.round(item.promotion.discount * 100)}%
+                  </span>
+                )}
+              </div>
+              <div className="product-card__actions flex flex-row gap-2">
+                <button 
+                  className="bg-blue-500 text-white py-2 px-4 rounded w-full"
+                  onClick={() => handleAddToCart(item)}
+                >
+                  Add to cart
+                </button>
+                <button 
+                  className={`favoriteBtn ${isInFavourites(item.id) ? 'text-red-500' : 'text-gray-400'}`}
+                  onClick={() => handleToggleFavourite(item)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-8">
+          <div className="flex space-x-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-4 py-2 rounded ${
+                  currentPage === page
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {page}
+              </button>
             ))}
           </div>
-          {totalPages > 1 && (
-            <div className="pagination flex justify-center gap-2 mt-4">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="bg-blue-500 text-white py-2 px-4 rounded disabled:bg-gray-300"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                  className={`py-2 px-4 rounded ${
-                    currentPage === index + 1
-                      ? "bg-blue-700 text-white"
-                      : "bg-blue-500 text-white"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="bg-blue-500 text-white py-2 px-4 rounded disabled:bg-gray-300"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </>
+        </div>
       )}
     </div>
   );
