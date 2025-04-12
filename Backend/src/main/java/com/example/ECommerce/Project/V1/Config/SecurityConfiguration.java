@@ -69,13 +69,12 @@ public class SecurityConfiguration implements AuthenticationProvider {
    public CorsConfigurationSource corsConfigurationSource() {
       CorsConfiguration configuration = new CorsConfiguration();
       // Allow all origins for testing
-      configuration.setAllowedOrigins(List.of("*"));
+      configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "http://localhost:5175"));
       // Alternative if setAllowedOrigins("*") doesn't work
       // configuration.addAllowedOriginPattern("*");
       configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
       configuration.setAllowedHeaders(List.of("*"));
-      configuration.setExposedHeaders(List.of("*"));
-      configuration.setAllowCredentials(false); // Must be false when using "*" for allowedOrigins
+      configuration.setAllowCredentials(true); // Must be false when using "*" for allowedOrigins
 
       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
       source.registerCorsConfiguration("/**", configuration);
