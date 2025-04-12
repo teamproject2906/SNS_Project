@@ -55,6 +55,7 @@ const Register = () => {
       //   password,
       // });
       console.log("Response from server:", res.data);
+      toast.success(res.data);
 
       if (res.data && res.data.access_token) {
         const token = res.data.access_token;
@@ -66,18 +67,6 @@ const Register = () => {
         const decodedUser = jwtDecode(token);
         setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
         setUser(decodedUser); // Cập nhật thông tin user trong context
-        // Display "Register successful" message
-        toast.success("Registration successful", {
-          autoClose: 2000, // Display for 2 seconds
-          position: "top-right",
-        });
-
-        // Navigate to home page after a short delay
-        setTimeout(() => {
-          navigate("/");
-        }, 2000); // 2-second delay to match the toast duration
-      } else {
-        throw new Error("Token not found in response.");
       }
       // toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
       // navigate("/");
@@ -95,7 +84,7 @@ const Register = () => {
             toast.error(error.response.data.message || "Có lỗi xảy ra!");
         }
       } else {
-        toast.error("Không thể kết nối đến máy chủ, vui lòng kiểm tra mạng!");
+        toast.error(error.message || "Có lỗi xảy ra!");
       }
     }
     setLoading(false);
