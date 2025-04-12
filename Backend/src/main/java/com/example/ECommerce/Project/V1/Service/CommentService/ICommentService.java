@@ -8,8 +8,17 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ICommentService {
-    CommentDTO addComment(CommentDTO commentDTO, Principal currentUser);
-    CommentDTO updateComment(CommentDTO commentDTO, Integer cmtId, Principal currentUser);
-    void deactivateComment(CommentDTO commentDTO, Integer cmtId, Principal currentUser);
-    CommentDTO getCommentById(Integer id);
+   CommentDTO addComment(CommentDTO commentDTO, Principal currentUser);
+
+   CommentDTO updateComment(CommentDTO commentDTO, Integer cmtId, Principal currentUser);
+
+   void deactivateComment(CommentDTO commentDTO, Integer cmtId, Principal currentUser);
+
+   CommentDTO getCommentById(Integer id);
+
+   // Add method to get all comments by postId
+   List<CommentDTO> getCommentsByPostId(UUID postId);
+
+   // Get all comments regardless of active status
+   List<CommentDTO> getAllCommentsByPostId(UUID postId);
 }

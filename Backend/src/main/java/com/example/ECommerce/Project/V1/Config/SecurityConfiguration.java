@@ -48,133 +48,133 @@ import static org.springframework.http.HttpMethod.GET;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration implements AuthenticationProvider {
 
-    @Value("${application.security.jwt.secret-key}") // Secret key cho HMAC
-    private String secretKey;
+   @Value("${application.security.jwt.secret-key}") // Secret key cho HMAC
+   private String secretKey;
 
-    private final JWTAuthenticationFilter jwtAuthenticationFilter;
-    private final LogoutHandler logoutHandler;
+   private final JWTAuthenticationFilter jwtAuthenticationFilter;
+   private final LogoutHandler logoutHandler;
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
-        converter.setAuthorityPrefix("");
-        converter.setAuthoritiesClaimName("authorities");
+   @Bean
+   public JwtAuthenticationConverter jwtAuthenticationConverter() {
+      JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+      converter.setAuthorityPrefix("");
+      converter.setAuthoritiesClaimName("authorities");
 
-        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
-        jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
-        return jwtConverter;
-    }
+      JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+      jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
+      return jwtConverter;
+   }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "http://localhost:5175"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+   @Bean
+   public CorsConfigurationSource corsConfigurationSource() {
+      CorsConfiguration configuration = new CorsConfiguration();
+      // Allow all origins for testing
+      configuration.setAllowedOrigins(List.of("*"));
+      // Alternative if setAllowedOrigins("*") doesn't work
+      // configuration.addAllowedOriginPattern("*");
+      configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+      configuration.setAllowedHeaders(List.of("*"));
+      configuration.setExposedHeaders(List.of("*"));
+      configuration.setAllowCredentials(false); // Must be false when using "*" for allowedOrigins
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+      source.registerCorsConfiguration("/**", configuration);
+      return source;
+   }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
-        JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-                new JwtIssuerAuthenticationManagerResolver(
-                        issuer -> {
-                            if ("https://accounts.google.com".equals(issuer)) {
-                                return googleAuthenticationManager();
-                            } else if ("http://localhost:8080".equals(issuer)) {
-                                return internalAuthenticationManager();
-                            } else {
-                                throw new JwtException("Unknown issuer: " + issuer);
-                            }
-                        }
-                );
-        http
-                .cors(c -> c.configurationSource(corsConfigurationSource()))
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "Google/**",
-                                "/oauth2/**",
-                                "/login",
-                                "/Authentication/**",
-                                "/v2/api-docs/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/configuration/ui",
-                                "/configuration/security",
-                                "/swagger-ui/**",
-                                "/webjars/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers("/Admin/AdminManagement/**").hasRole("ADMIN")
-                        .requestMatchers(GET, "/Admin/AdminManagement/**").hasAuthority(ADMIN_VIEW.name())
-                        .anyRequest().authenticated()
-                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .authenticationProvider(this)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(logout -> logout
-                    .logoutUrl("/Authentication/Logout")
-                    .addLogoutHandler(logoutHandler)
-                    .logoutSuccessHandler(
-                            (request, response, authentication) -> {
-                                SecurityContextHolder.clearContext();
-                            }
-                    )
-                 )
-                 .formLogin(form -> form
-                         .loginPage("/login")
-                         .defaultSuccessUrl("/dashboard", true)
-                         .permitAll()
-                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.authenticationManagerResolver(authenticationManagerResolver));
-//                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder)));
-//                .oauth2Login(oauth2 -> oauth2
-//                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
-//                        .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
-//                        .defaultSuccessUrl("/oauth2/GoogleLogin", true) // Redirects to API user info
-//                        .failureUrl("/oauth2/LoginError") // Redirect on failure
-//                )
-//                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-//                .sessionManagement();
-        return http.build();
-    }
+   @Bean
+   public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
+      JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+            issuer -> {
+               if ("https://accounts.google.com".equals(issuer)) {
+                  return googleAuthenticationManager();
+               } else if ("http://localhost:8080".equals(issuer)) {
+                  return internalAuthenticationManager();
+               } else {
+                  throw new JwtException("Unknown issuer: " + issuer);
+               }
+            });
+      http
+            .cors(c -> c.configurationSource(corsConfigurationSource()))
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                  .requestMatchers(
+                        "Google/**",
+                        "/oauth2/**",
+                        "/login",
+                        "/Authentication/**",
+                        "/v2/api-docs/**",
+                        "/v3/api-docs/**",
+                        "/swagger-resources/**",
+                        "/configuration/ui",
+                        "/configuration/security",
+                        "/swagger-ui/**",
+                        "/webjars/**",
+                        "/swagger-ui.html",
+                        "/social/api/comment/getCommentsByPostId/**",
+                        "/social/api/comment/getAllCommentsByPostId/**")
+                  .permitAll()
+                  .requestMatchers("/Admin/AdminManagement/**").hasRole("ADMIN")
+                  .requestMatchers(GET, "/Admin/AdminManagement/**").hasAuthority(ADMIN_VIEW.name())
+                  .anyRequest().authenticated())
+            // .sessionManagement(session ->
+            // session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .authenticationProvider(this)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .logout(logout -> logout
+                  .logoutUrl("/Authentication/Logout")
+                  .addLogoutHandler(logoutHandler)
+                  .logoutSuccessHandler(
+                        (request, response, authentication) -> {
+                           SecurityContextHolder.clearContext();
+                        }))
+            .formLogin(form -> form
+                  .loginPage("/login")
+                  .defaultSuccessUrl("/dashboard", true)
+                  .permitAll())
+            .oauth2ResourceServer(oauth2 -> oauth2.authenticationManagerResolver(authenticationManagerResolver));
+      // .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder)));
+      // .oauth2Login(oauth2 -> oauth2
+      // .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
+      // .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
+      // .defaultSuccessUrl("/oauth2/GoogleLogin", true) // Redirects to API user info
+      // .failureUrl("/oauth2/LoginError") // Redirect on failure
+      // )
+      // .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+      // .sessionManagement();
+      return http.build();
+   }
 
-    private AuthenticationManager googleAuthenticationManager() {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri("https://www.googleapis.com/oauth2/v3/certs").build();
+   private AuthenticationManager googleAuthenticationManager() {
+      NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+            .build();
 
-        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
-        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
+      JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
+      provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
 
-        return new ProviderManager(provider);
-    }
+      return new ProviderManager(provider);
+   }
 
+   private AuthenticationManager internalAuthenticationManager() {
+      byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+      SecretKey hmacKey = Keys.hmacShaKeyFor(keyBytes);
+      NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(hmacKey).build();
 
-    private AuthenticationManager internalAuthenticationManager() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        SecretKey hmacKey = Keys.hmacShaKeyFor(keyBytes);
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(hmacKey).build();
+      JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
+      provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
 
-        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
-        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
+      return new ProviderManager(provider);
+   }
 
-        return new ProviderManager(provider);
-    }
+   @Override
+   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+      return null;
+   }
 
-
-    @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        return null;
-    }
-
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
-    }
+   @Override
+   public boolean supports(Class<?> authentication) {
+      return authentication.equals(UsernamePasswordAuthenticationToken.class);
+   }
 }
