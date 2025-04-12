@@ -33,7 +33,7 @@ public class AccountVerificationEmailContext extends AbstractEmailContext {
 
     public void buildVerificationUrlForgotPass(final String baseURL, final String token) {
         final String url = UriComponentsBuilder.fromHttpUrl(baseURL)
-                .path("/forgot-password") // Không thêm queryParam("token", token)
+                .path("/change-forgot-password") // Không thêm queryParam("token", token)
                 .build()
                 .toUriString();
         put("verificationURL", url);
