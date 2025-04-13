@@ -6,6 +6,7 @@ import {
 	FaEdit,
 	FaTrash,
 	FaRegHeart,
+	FaImage,
 } from "react-icons/fa";
 import { CiSettings } from "react-icons/ci";
 import { BsClock, BsChevronDown, BsChevronUp } from "react-icons/bs";
@@ -78,7 +79,11 @@ const CommentItem = ({
 						} p-3 rounded-xl`}
 					>
 						<h4 className="font-semibold text-sm flex justify-between">
-							<span>{comment.user=== 'null null'? '(Người dùng chưa đặt tên)': comment.user}</span>
+							<span>
+								{comment.user === "null null"
+									? "(Người dùng chưa đặt tên)"
+									: comment.user}
+							</span>
 							<div className="flex gap-2">
 								<button
 									onClick={() => onEditComment(comment)}
@@ -219,7 +224,7 @@ const CommentItem = ({
 	);
 };
 
-const PostCard = ({ post, onPostUpdate, onPostDelete }) => {
+const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 	const { user } = useUser();
 	const [likes, setLikes] = useState(post?.likes || 0);
 	const [liked, setLiked] = useState(post?.isLiked || false);
@@ -234,6 +239,14 @@ const PostCard = ({ post, onPostUpdate, onPostDelete }) => {
 	const [userProfile, setUserProfile] = useState(null);
 	const [editingComment, setEditingComment] = useState(null);
 	const [editingContent, setEditingContent] = useState("");
+
+	// Add state for editing post
+	const [isEditingPost, setIsEditingPost] = useState(false);
+	const [editedPostContent, setEditedPostContent] = useState(
+		post?.content || ""
+	);
+	const [selectedEditImage, setSelectedEditImage] = useState(null);
+	const [editImagePreview, setEditImagePreview] = useState(null);
 
 	// Thêm states cho tooltip người like
 	const [showLikeTooltip, setShowLikeTooltip] = useState(false);
@@ -500,10 +513,14 @@ const PostCard = ({ post, onPostUpdate, onPostDelete }) => {
 				const response = await commentService.createComment(commentData);
 				if (response) {
 					// Fetch lại toàn bộ comments sau khi thêm mới
-					const updatedComments = await commentService.getCommentsByPostId(post.id);
+					const updatedComments = await commentService.getCommentsByPostId(
+						post.id
+					);
 					if (Array.isArray(updatedComments)) {
 						const activeComments = updatedComments.filter(
-							(comment) => comment && (comment.isActive === true || comment.active === true)
+							(comment) =>
+								comment &&
+								(comment.isActive === true || comment.active === true)
 						);
 						setComments(activeComments);
 					}
@@ -764,6 +781,99 @@ const PostCard = ({ post, onPostUpdate, onPostDelete }) => {
 		setShowLikeTooltip(!showLikeTooltip);
 	};
 
+	// Add handler for editing post
+	const handleEditPost = () => {
+		setIsEditingPost(true);
+		setEditedPostContent(post?.content || "");
+		setEditImagePreview(post?.imageUrl || null);
+		setSelectedEditImage(null);
+		setShowSettings(false);
+	};
+
+	// Add handler for canceling post edit
+	const cancelEditPost = () => {
+		setIsEditingPost(false);
+		setEditedPostContent(post?.content || "");
+		setSelectedEditImage(null);
+		setEditImagePreview(null);
+	};
+
+	// Handler để chọn ảnh mới khi chỉnh sửa bài đăng
+	const handleEditImageChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setSelectedEditImage(file);
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setEditImagePreview(reader.result);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	// Hàm xử lý xóa ảnh đang preview
+	const handleRemoveEditImage = () => {
+		setSelectedEditImage(null);
+		setEditImagePreview(null);
+	};
+
+	// Add handler for saving post edit
+	const saveEditPost = async () => {
+		if (!editedPostContent.trim()) {
+			toast.error("Nội dung bài viết không được để trống");
+			return;
+		}
+
+		if (
+			editedPostContent === post?.content &&
+			!selectedEditImage &&
+			post?.imageUrl === editImagePreview
+		) {
+			setIsEditingPost(false);
+			return;
+		}
+
+		try {
+			setIsSubmitting(true);
+
+			// Gọi onPostUpdate với tham số imageFile
+			// null khi muốn giữ nguyên ảnh cũ, undefined khi muốn xóa ảnh
+			const imageFile =
+				editImagePreview === null ? undefined : selectedEditImage;
+			await onPostUpdate(post.id, editedPostContent, imageFile);
+
+			setIsEditingPost(false);
+			toast.success("Bài viết đã được cập nhật");
+		} catch (error) {
+			console.error("Error updating post:", error);
+			toast.error(
+				"Không thể cập nhật bài viết: " +
+					(error.response?.data?.message || error.message)
+			);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	// Add handler for deleting post
+	const handleDeletePost = async () => {
+		if (!window.confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+			return;
+		}
+
+		try {
+			setIsSubmitting(true);
+			await onPostDelete(post.id);
+			toast.success("Bài viết đã được xóa");
+		} catch (error) {
+			console.error("Error deleting post:", error);
+			toast.error("Không thể xóa bài viết");
+		} finally {
+			setIsSubmitting(false);
+			setShowSettings(false);
+		}
+	};
+
 	return (
 		<div className="bg-white rounded-xl shadow-lg overflow-hidden p-6 mb-4 hover:scale-105 transition-transform duration-300 ease-in-out relative">
 			<button
@@ -774,12 +884,18 @@ const PostCard = ({ post, onPostUpdate, onPostDelete }) => {
 			</button>
 
 			{showSettings && (
-				<div className="absolute top-12 right-3 bg-white shadow-lg rounded-lg border p-3 w-40">
+				<div className="absolute top-12 right-3 bg-white shadow-lg rounded-lg border p-3 w-40 z-50">
 					<ul>
-						<li className="text-gray-700 hover:bg-gray-200 p-2 cursor-pointer">
+						<li
+							className="text-gray-700 hover:bg-gray-200 p-2 cursor-pointer"
+							onClick={handleEditPost}
+						>
 							Edit Post
 						</li>
-						<li className="text-gray-700 hover:bg-gray-200 p-2 cursor-pointer">
+						<li
+							className="text-red-500 hover:bg-gray-200 p-2 cursor-pointer"
+							onClick={handleDeletePost}
+						>
 							Delete Post
 						</li>
 						<li className="text-gray-700 hover:bg-gray-200 p-2 cursor-pointer">
@@ -805,11 +921,105 @@ const PostCard = ({ post, onPostUpdate, onPostDelete }) => {
 						Follow
 					</button>
 				</div>
+
+				{/* Hiển thị trạng thái nếu showStatus = true và có thông tin isActive */}
+				{showStatus && post?.isActive !== undefined && (
+					<div
+						className={`ml-auto px-3 py-1 text-xs font-medium rounded-full ${
+							post.isActive
+								? "bg-green-100 text-green-800"
+								: "bg-red-100 text-red-800"
+						}`}
+					>
+						{post.isActive ? "Đang hiển thị" : "Đã xóa"}
+					</div>
+				)}
 			</div>
 
-			<div className="text-gray-800 mb-4">
-				<p>{post?.content}</p>
-			</div>
+			{isEditingPost ? (
+				<div className="mb-4">
+					<textarea
+						className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						value={editedPostContent}
+						onChange={(e) => setEditedPostContent(e.target.value)}
+						rows="4"
+						disabled={isSubmitting}
+						placeholder="Nội dung bài viết..."
+					/>
+
+					{/* Phần upload và preview ảnh */}
+					<div className="mt-3">
+						{editImagePreview ? (
+							<div className="relative">
+								<img
+									src={editImagePreview}
+									alt="Preview"
+									className="max-w-full h-auto rounded-lg"
+								/>
+								<button
+									className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+									onClick={handleRemoveEditImage}
+									disabled={isSubmitting}
+								>
+									<FaTrash className="w-3.5 h-3.5" />
+								</button>
+							</div>
+						) : (
+							<div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+								<label className="cursor-pointer text-blue-500 hover:text-blue-700">
+									<input
+										type="file"
+										accept="image/*"
+										className="hidden"
+										onChange={handleEditImageChange}
+										disabled={isSubmitting}
+									/>
+									<FaImage className="mx-auto h-8 w-8 mb-2" />
+									<span>Thêm hình ảnh</span>
+								</label>
+							</div>
+						)}
+					</div>
+
+					<div className="flex justify-end gap-2 mt-4">
+						<button
+							className="px-4 py-2 text-gray-700 border rounded-lg hover:bg-gray-100"
+							onClick={cancelEditPost}
+							disabled={isSubmitting}
+						>
+							Hủy
+						</button>
+						<button
+							className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+							onClick={saveEditPost}
+							disabled={isSubmitting || !editedPostContent.trim()}
+						>
+							{isSubmitting ? "Đang lưu..." : "Lưu"}
+						</button>
+					</div>
+				</div>
+			) : (
+				<div className="text-gray-800 mb-4">
+					<p>{post?.content}</p>
+
+					{/* Hiển thị hình ảnh nếu có */}
+					{post?.imageUrl && (
+						<div className="mt-3">
+							<img
+								src={post.imageUrl}
+								alt="Post image"
+								className="max-w-full h-auto rounded-lg object-cover"
+								loading="lazy"
+								onError={(e) => {
+									e.target.onerror = null;
+									e.target.src =
+										"https://via.placeholder.com/500x300?text=Ảnh+không+tồn+tại";
+								}}
+							/>
+						</div>
+					)}
+				</div>
+			)}
 
 			<div className="flex justify-between items-center mt-4 space-x-6">
 				<div className="relative">

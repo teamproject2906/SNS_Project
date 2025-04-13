@@ -32,6 +32,39 @@ export const postService = {
 		return response.data;
 	},
 
+	// Upload ảnh và tạo bài viết thông qua backend
+	createPostWithImage: async (content, imageFile) => {
+		try {
+			console.log("Creating post with image using backend API...");
+
+			// Tạo FormData chứa thông tin bài đăng và file ảnh
+			const formData = new FormData();
+			formData.append("file", imageFile);
+			formData.append("content", content);
+
+			// Gọi API backend để upload ảnh và tạo bài đăng
+			const response = await api.post(
+				"/social/api/post/createPostWithImage",
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
+
+			console.log("Post created successfully with image via backend");
+			return response.data;
+		} catch (error) {
+			console.error("Error creating post with image:", error);
+			if (error.response) {
+				console.error("Error response:", error.response.data);
+				console.error("Status code:", error.response.status);
+			}
+			throw error;
+		}
+	},
+
 	// Get all posts
 	getAllPosts: async () => {
 		const response = await api.get("/social/api/post/getAllPostActive");
@@ -53,6 +86,43 @@ export const postService = {
 		return response.data;
 	},
 
+	// Update post with image
+	updatePostWithImage: async (postId, content, imageFile) => {
+		try {
+			console.log("Updating post with image, postId:", postId);
+
+			// Tạo FormData chứa thông tin bài đăng và file ảnh (nếu có)
+			const formData = new FormData();
+			formData.append("content", content);
+
+			// Chỉ thêm file vào formData nếu có chọn ảnh mới
+			if (imageFile) {
+				formData.append("file", imageFile);
+			}
+
+			// Gọi API backend để cập nhật bài đăng
+			const response = await api.put(
+				`/social/api/post/updatePostWithImage/${postId}`,
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
+
+			console.log("Post updated successfully with image");
+			return response.data;
+		} catch (error) {
+			console.error("Error updating post with image:", error);
+			if (error.response) {
+				console.error("Error response:", error.response.data);
+				console.error("Status code:", error.response.status);
+			}
+			throw error;
+		}
+	},
+
 	// Deactivate a post
 	deactivatePost: async (postId, postData) => {
 		const response = await api.patch(
@@ -64,10 +134,17 @@ export const postService = {
 
 	searchPosts: async (query) => {
 		try {
+			// Nếu query trống hoặc undefined, trả về mảng rỗng
+			if (!query || query.trim() === "") {
+				return [];
+			}
+
 			const response = await api.get(`/social/api/post/searchPost/${query}`);
 			return response.data;
 		} catch (error) {
-			throw error;
+			console.error("Error searching posts:", error);
+			// Trả về mảng rỗng thay vì throw error để ngăn crash ứng dụng
+			return [];
 		}
 	},
 
@@ -144,6 +221,26 @@ export const postService = {
 		} catch (error) {
 			console.error("Error checking like status:", error);
 			return undefined;
+		}
+	},
+
+	// Trả về một số bài đăng ngẫu nhiên
+	getRandomPosts: async () => {
+		try {
+			// Nếu API chưa có endpoint cho random posts, sử dụng getAllPosts thay thế
+			const response = await api.get("/social/api/post/getAllPostActive");
+
+			// Nếu có ít hơn 5 bài viết, trả về tất cả
+			if (response.data.length <= 5) {
+				return response.data;
+			}
+
+			// Nếu có nhiều hơn 5 bài viết, trộn mảng và trả về 5 bài viết
+			const shuffled = [...response.data].sort(() => 0.5 - Math.random());
+			return shuffled.slice(0, 5);
+		} catch (error) {
+			console.error("Error fetching random posts:", error);
+			return [];
 		}
 	},
 };
