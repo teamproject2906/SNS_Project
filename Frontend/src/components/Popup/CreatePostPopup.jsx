@@ -72,19 +72,44 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
 		e.preventDefault();
 		if (!contentText.trim()) return;
 
+		// Kiểm tra token trước khi gửi
+		if (!token) {
+			toast.error("Bạn cần đăng nhập để đăng bài");
+			return;
+		}
+
 		try {
 			setIsLoading(true);
+			toast.info("Đang xử lý bài viết của bạn...");
 
-			// Prepare post data
-			const postData = {
-				user: user?.username || user?.name || user?.sub || "",
-				content: contentText,
-				imageUrl: imagePreview || "",
-				active: true,
-			};
+			// Log thông tin user cho debug
+			console.log("Posting as user:", {
+				username: user?.username || user?.name || user?.sub || "",
+				token: token ? "Available" : "Missing",
+			});
 
-			// Call post service to create post
-			await postService.createPost(postData);
+			// Nếu có chọn ảnh
+			if (selectedImage) {
+				// Kiểm tra kích thước ảnh
+				if (selectedImage.size > 5 * 1024 * 1024) {
+					// 5MB
+					toast.warning(
+						"Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB"
+					);
+					setIsLoading(false);
+					return;
+				}
+				// Sử dụng phương thức createPostWithImage để upload ảnh và tạo post
+				await postService.createPostWithImage(contentText, selectedImage);
+			} else {
+				// Nếu không có ảnh, tạo post bình thường
+				const postData = {
+					content: contentText,
+					active: true,
+				};
+				await postService.createPost(postData);
+			}
+
 			toast.success("Đăng bài thành công!");
 
 			// Reset form
@@ -99,7 +124,26 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
 			}
 		} catch (error) {
 			console.error("Error creating post:", error);
-			toast.error("Có lỗi xảy ra khi đăng bài!");
+			// Xử lý lỗi chi tiết
+			let errorMessage = "Có lỗi xảy ra khi đăng bài";
+
+			if (error.response) {
+				// Lỗi từ server
+				console.log("Error response data:", error.response.data);
+				console.log("Error status:", error.response.status);
+
+				if (error.response.status === 401) {
+					errorMessage =
+						"Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại";
+				} else if (error.response.data?.message) {
+					errorMessage = error.response.data.message;
+				}
+			} else if (error.request) {
+				// Yêu cầu đã được gửi nhưng không nhận được phản hồi
+				errorMessage = "Không thể kết nối đến máy chủ";
+			}
+
+			toast.error(errorMessage);
 		} finally {
 			setIsLoading(false);
 		}
