@@ -59,6 +59,16 @@ public class ProductController {
         return new ResponseEntity<>(productService.getAllProducts(),HttpStatus.OK);
     }
 
+    @GetMapping("/productcode")
+    public ResponseEntity<Object> getAllProductsUsingProductCode() {
+        List<ProductResponseDTO> products = productService.getAllProductsUsingProductCode();
+
+        // Return a custom message when no product are available
+        if (products.isEmpty()) return new ResponseEntity<>("There is no product. Please add new one.",HttpStatus.OK);
+
+        return new ResponseEntity<>(productService.getAllProductsUsingProductCode(),HttpStatus.OK);
+    }
+
     @GetMapping("/paginated")
     public ResponseEntity<Page<Product>> getProductsPaginated(@RequestParam(defaultValue = "0") int page,   // Default to page 0
                                                               @RequestParam(defaultValue = "5") int size,    // Default to 5 items per page
@@ -77,8 +87,8 @@ public class ProductController {
     }
     
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductDetailById(@PathVariable Integer productId) {
-        return new ResponseEntity<>(productService.getProductById(productId),HttpStatus.OK);
+    public ResponseEntity<ProductResponseDTO> getProductDetailById(@PathVariable Integer productId) {
+        return new ResponseEntity<>(productService.getProductDTOById(productId),HttpStatus.OK);
     }
 
     @GetMapping("/productCode/{code}")

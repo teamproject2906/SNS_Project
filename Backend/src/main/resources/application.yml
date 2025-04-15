@@ -49,11 +49,24 @@ spring:
       host: localhost
       port: 6379
 
+  mail:
+    port: 587
+    host: smtp.gmail.com
+    username: vandung290603@gmail.com
+    password: lpdh wgdb pnkn szen
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
 application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      expiration: 3600000
+      expiration: 3600000 # 30000 = 30s (1000 millisecond = 1s)
       refresh-token:
         expiration: 604800000
 
@@ -74,3 +87,13 @@ server:
   servlet:
     session:
       timeout: 30m
+
+payment:
+  vnPay:
+    url: ${PAY_URL}
+    tmnCode: ${TMN_CODE}
+    secretKey: ${SECRET_KEY}
+    returnUrl: ${RETURN_URL}
+    version: ${VERSION}
+    command: ${COMMAND}
+    orderType: ${ORDER_TYPE}

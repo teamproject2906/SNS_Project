@@ -1,6 +1,7 @@
 package com.example.ECommerce.Project.V1.Service.UserService;
 
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,11 +11,12 @@ import java.security.Principal;
 import java.util.List;
 
 public interface IUserService {
+
     void changePassword(ChangePasswordRequest request, Principal connectedUser);
 
     UserDTO updateUserInfo(@Valid UserDTO userDTO, Integer userId);
 
-    UserDTO updateUsernameByCustomer(@Valid UserDTO userDTO, Integer userId);
+    Integer findUserIdByUsername(@Valid UserDTO userDTO, String username);
 
     UserDTO updateUserAvatar(Integer userId, MultipartFile file) throws IOException;
 
@@ -31,4 +33,8 @@ public interface IUserService {
     List<UserDTO> searchUserByUsername(String keyword);
 
     UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
+
+    void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser);
+
+    UserDTO getUserById(Integer id);
 }

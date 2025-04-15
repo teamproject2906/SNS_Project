@@ -35,16 +35,16 @@ const CheckoutSummary = () => {
               <div className="flex items-center">
                 <img
                   src={item.imageUrl}
-                  alt={item.name}
+                  alt={item.productName}
                   className="w-16 h-16 rounded-md mr-4 object-cover"
                 />
                 <div>
-                  <p className="text-lg font-semibold">{item.name}</p>
+                  <p className="text-lg font-semibold">{item.productName}</p>
                   <span className="text-sm text-gray-500">Số lượng: {item.quantity}</span>
                 </div>
               </div>
               <p className="text-lg font-bold text-gray-900">
-                {(item.price * item.quantity).toLocaleString()}₫
+                {(item.unitPrice * item.quantity).toLocaleString()}₫
               </p>
             </div>
           ))}

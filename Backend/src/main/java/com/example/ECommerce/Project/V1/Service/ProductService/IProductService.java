@@ -13,8 +13,14 @@ public interface IProductService {
     Product addProduct(Product product);
     List<Product> addMultipleProducts(List<Product> products);
     List<ProductResponseDTO> getAllProducts();
+
+    List<ProductResponseDTO> getAllProductsUsingProductCode();
+
     Page<Product> getProducts(int page, int size, String sortBy, Sort.Direction sortDirection);
     Product getProductById(Integer id);
+
+    ProductResponseDTO getProductDTOById(Integer id);
+
     Product getProductByProductCode(String productCode);
     List<Product> getProductByName(String name);
     Product updateProductById(Integer id, Product product);

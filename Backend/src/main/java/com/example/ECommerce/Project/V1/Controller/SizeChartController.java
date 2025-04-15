@@ -1,6 +1,7 @@
 package com.example.ECommerce.Project.V1.Controller;
 
 import com.example.ECommerce.Project.V1.DTO.SizeChartResponseDTO;
+import com.example.ECommerce.Project.V1.DTO.SizeChartTypeResponse;
 import com.example.ECommerce.Project.V1.Model.SizeChart;
 import com.example.ECommerce.Project.V1.Service.SizeChartService.ISizeChartService;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,11 @@ public class SizeChartController {
     @GetMapping()
     public List<SizeChartResponseDTO> getAllSizeChart() {
         return sizeChartService.getAllSizeChart();
+    }
+
+    @GetMapping("/getDistinctSizeChart")
+    public List<SizeChartTypeResponse> getAllDistinctSizeChart(){
+        return sizeChartService.getAllDistinctSizeChart();
     }
 
     @GetMapping("/{sizeChartId}")

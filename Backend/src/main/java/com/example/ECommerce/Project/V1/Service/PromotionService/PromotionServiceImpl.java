@@ -42,7 +42,7 @@ public class PromotionServiceImpl implements IPromotionService {
             throw new InvalidInputException("Discount cannot be null");
         }
 
-        if (discount < 0 || discount > 1) {
+        if (!(discount > 0 && discount < 1)) {
             throw new InvalidInputException("Discount must be between 0 and 1");
         }
     }

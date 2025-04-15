@@ -9,11 +9,17 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IPostService {
-    PostDTO createPost(PostDTO post, Principal connectedUser);
-    PostDTO updatePost(PostDTO post, UUID postId, Principal connectedUser);
-    void deactivatePost(PostDTO post, UUID postId, Principal connectedUser);
-    List<PostDTO> getAllPostsActive();
-    PostDTO getPostById(UUID postId);
-    List<PostDTO> searchPostByTitle(String title);
-    void likeOrDislikePost(UUID postId, Principal connectedUser);
+   PostDTO createPost(PostDTO post, Principal connectedUser);
+
+   PostDTO updatePost(PostDTO post, UUID postId, Principal connectedUser);
+
+   void deactivatePost(PostDTO post, UUID postId, Principal connectedUser);
+
+   List<PostDTO> getAllPostsActive();
+
+   PostDTO getPostById(UUID postId);
+
+   List<PostDTO> searchPostByTitle(String title, Principal connectedUser);
+
+   void likeOrDislikePost(UUID postId, Principal connectedUser);
 }

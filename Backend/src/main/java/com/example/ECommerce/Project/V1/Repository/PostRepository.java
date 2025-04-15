@@ -10,9 +10,17 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
-    List<Post> findPostByContentContainingIgnoreCase(String title);
-    Post findPostById(UUID id);
-    List<Post> findAllByIsActiveTrue();
-    @Query("SELECT p.user FROM Post p WHERE p.id = :postId")
-    User findUserByPostId(@Param("postId") UUID postId);
+
+   List<Post> findPostByContentContainingIgnoreCase(String title);
+
+   List<Post> findPostByContentContainingIgnoreCaseAndIsActiveTrue(String title);
+
+   Post findPostById(UUID id);
+
+   List<Post> findAllByIsActiveTrue();
+
+   @Query("SELECT p.user FROM Post p WHERE p.id = :postId")
+   User findUserByPostId(@Param("postId") UUID postId);
+
+   List<Post> findPostByUserId(Integer userId);
 }

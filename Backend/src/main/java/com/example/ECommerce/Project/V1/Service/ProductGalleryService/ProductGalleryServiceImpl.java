@@ -6,9 +6,7 @@ import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Product;
 import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Repository.ProductGalleryRepository;
-import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -101,6 +99,15 @@ public class ProductGalleryServiceImpl implements IProductGalleryService {
     @Override
     public ProductGallery getProductGalleryById(Integer id) {
         return productGalleryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product Gallery with the ID: " + id + " not found"));
+    }
+
+    @Override
+    public String getProductGalleryByIdAndMinSortOrder(Integer id){
+        if(productGalleryRepository.getProductGalleryByIdAndMinSortOrder(id)!=null){
+            return productGalleryRepository.getProductGalleryByIdAndMinSortOrder(id).getImageUrl();
+        }else{
+            return "Lam deo gi co anh dau";
+        }
     }
 
     @Override

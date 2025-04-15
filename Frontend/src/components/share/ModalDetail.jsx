@@ -13,7 +13,7 @@ const ModalDetail = ({ isOpen, onClose, title, children }) => {
         <div className="overflow-y-auto max-h-[60vh] pr-2">{children}</div>
         <div className="flex justify-end gap-2 mt-4">
           <button onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded">
-            Cancel
+            Close
           </button>
         </div>
       </div>

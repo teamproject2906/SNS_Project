@@ -8,15 +8,17 @@ import com.example.ECommerce.Project.V1.Repository.CategoryRepository;
 import com.example.ECommerce.Project.V1.Repository.FormClothesRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
 import com.example.ECommerce.Project.V1.Repository.SizeChartRepository;
-import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
+import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,8 +31,10 @@ public class ProductServiceImpl implements IProductService {
     private final CategoryRepository categoryRepository;
     private final EntityManager entityManager;
     private final ProductRepository productRepository;
+    @Autowired
+    private IProductGalleryService productGalleryService;
 
-    public ProductServiceImpl(ProductRepository repository, SizeChartRepository sizeChartRepository, FormClothesRepository formClothesRepository, CategoryRepository categoryRepository, EntityManager entityManager, ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository repository, SizeChartRepository sizeChartRepository, FormClothesRepository formClothesRepository, CategoryRepository categoryRepository, EntityManager entityManager, ProductRepository productRepository, IProductGalleryService productGalleryService) {
         this.repository = repository;
         this.sizeChartRepository = sizeChartRepository;
         this.formClothesRepository = formClothesRepository;
@@ -43,8 +47,6 @@ public class ProductServiceImpl implements IProductService {
     private void validateProductCode(String productCode, ProductRepository repository) {
         if (productCode == null || productCode.isBlank()) {
             throw new InvalidInputException("Product code cannot be blank");
-        } else if (repository.findProductByProductCode(productCode).isPresent()) {
-            throw new InvalidInputException("Product code '"+ productCode +"' already exists");
         } else if(productCode.length() > 20) {
             throw new InvalidInputException("Product code cannot longer than 20 characters");
         }
@@ -238,7 +240,6 @@ public class ProductServiceImpl implements IProductService {
 
     private ProductResponseDTO convertProductEntityToDTO(Product product) {
         ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-
         productResponseDTO.setId(product.getId());
         productResponseDTO.setProductCode(product.getProductCode());
         productResponseDTO.setProductName(product.getProductName());
@@ -251,9 +252,13 @@ public class ProductServiceImpl implements IProductService {
         productResponseDTO.setSizeChart(convertSizeChartEntityToDTO(product.getSizeChart()));
         productResponseDTO.setFormClothes(convertFormClothesEntityToDTO(product.getFormClothes()));
         productResponseDTO.setPromotion(product.getPromotion() != null ? convertEntityPromotionToResponseDTO(product.getPromotion()) : null);
-
+        productResponseDTO.setImageUrl(productGalleryService.getProductGalleryByIdAndMinSortOrder(product.getId()));
+        productResponseDTO.setCreatedAt(product.getCreatedAt());
+        productResponseDTO.setActive(product.getIsActive());
         return productResponseDTO;
     }
+
+
 
     private List<ProductResponseDTO> convertEntityListToDTOList(List<Product> products) {
         return products.stream().map(this::convertProductEntityToDTO).collect(Collectors.toList());
@@ -282,6 +287,18 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    public List<ProductResponseDTO> getAllProductsUsingProductCode(){
+        List<String> listProductCode = repository.getAllProductCodes();
+        List<ProductResponseDTO> listProductDTO = new ArrayList<>();
+        for(String productCode : listProductCode){
+            Product specificProduct = repository.findSpecificProductByProductCode(productCode)
+                    .orElseThrow(() -> new IllegalArgumentException("Product with productCode " + productCode + " not found"));
+            listProductDTO.add(convertProductEntityToDTO(specificProduct));
+        }
+        return  listProductDTO;
+    }
+
+    @Override
     public Page<Product> getProducts(int page, int size, String sortBy, Sort.Direction sortDirection) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
         return productRepository.findAll(pageable);
@@ -293,6 +310,11 @@ public class ProductServiceImpl implements IProductService {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id: " + id + " not found!"));
     }
+    @Override
+    public ProductResponseDTO getProductDTOById(Integer id){
+        return convertProductEntityToDTO(getProductById(id));
+    }
+
 
     @Override
     public Product getProductByProductCode(String productCode) {
