@@ -21,7 +21,7 @@ public interface IProductService {
 
     ProductResponseDTO getProductDTOById(Integer id);
 
-    Product getProductByProductCode(String productCode);
+    List<ProductResponseDTO> getProductByProductCode(String productCode);
     List<Product> getProductByName(String name);
     Product updateProductById(Integer id, Product product);
     void deleteProductById(Integer id);

@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Repository;
 
+import com.example.ECommerce.Project.V1.DTO.ProductResponseDTO;
 import com.example.ECommerce.Project.V1.Model.Product;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
-    Optional<Product> findProductByProductCode(String productCode);
+    List<Product> findProductByProductCode(String productCode);
     List<Product> findProductsByProductNameContainingIgnoreCase(String productName);
 
     @Modifying
