@@ -29,6 +29,7 @@ import ChangePassword from "../pages/ForgotPassword/ChangePassword";
 const isAuthenticated = false; // Kiểm tra trạng thái đăng nhập
 
 // Cấu hình routes
+const routes = [
 	{
 		path: "/", // Trang Home, cho mọi user
 		element: (
@@ -168,7 +169,6 @@ const isAuthenticated = false; // Kiểm tra trạng thái đăng nhập
 			</MainLayout>
 		),
 	},
-
 ];
 
 const AppRoutes = () => {
