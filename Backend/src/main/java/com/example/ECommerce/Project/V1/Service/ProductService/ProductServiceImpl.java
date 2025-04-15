@@ -83,8 +83,8 @@ public class ProductServiceImpl implements IProductService {
     private void validateMaterial(String material) {
         if(material == null || material.isBlank()) {
             throw new InvalidInputException("Material cannot be blank");
-        } else if (material.length() > 100) {
-            throw new InvalidInputException("Product color cannot longer than 100 characters");
+        } else if (material.length() > 50) {
+            throw new InvalidInputException("Product material cannot longer than 50 characters");
         }
     }
 

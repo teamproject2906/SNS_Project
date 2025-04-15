@@ -9,6 +9,7 @@ import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Service.CartService.ICartService;
 import com.example.ECommerce.Project.V1.Service.JWTService;
 import com.example.ECommerce.Project.V1.Service.SecureTokenService.ISecureTokenService;
 import com.example.ECommerce.Project.V1.Token.SecureToken;
@@ -19,6 +20,7 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +48,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
     private final ISecureTokenService secureTokenService;
+    @Autowired
+    private ICartService cartService;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
-    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,50}$");
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
 
     // 2. Handle the business logic code for registration
     public ResponseEntity<String> register(RegisterRequest request) {
@@ -68,6 +72,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .isActive(true)
                 .build();
         var savedUser = userRepository.save(user); // Save user in DB
+        cartService.initializeCartForUser(savedUser.getId());
 
         // Generate secure token
         var secureToken = secureTokenService.createToken();
@@ -106,7 +111,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
 
         if (!USERNAME_PATTERN.matcher(request.getUsername()).matches()) {
-            throw new IllegalArgumentException("Invalid username. Only alphanumeric characters and underscores are allowed (3-50 characters).");
+            throw new IllegalArgumentException("Invalid username. Only alphanumeric characters and underscores are allowed (3-20 characters).");
         }
 
         if (!EMAIL_PATTERN.matcher(request.getEmailOrPhoneNumber()).matches()) {

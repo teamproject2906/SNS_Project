@@ -2,6 +2,7 @@ package com.example.ECommerce.Project.V1.Service.CartService;
 
 import com.example.ECommerce.Project.V1.DTO.CartDTO;
 import com.example.ECommerce.Project.V1.DTO.CartItemDTO;
+import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.Cart;
 import com.example.ECommerce.Project.V1.Model.CartItem;
@@ -96,6 +97,10 @@ public class CartService implements ICartService{
         Product product = productRepository.findById(cartItemDTO.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        Integer quantity = cartItemDTO.getQuantity();
+        if (quantity <= 0) {
+            throw new InvalidInputException("Quantity must be greater than 0");
+        }
         // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
         Optional<CartItem> existingCartItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
