@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements ICategoryService {
             throw new InvalidInputException("Category Name Cannot Exceed 100 Characters");
         }
 
-        if (!categoryName.matches("^[a-zA-Z0-9 ']+$")) {
+        if (!categoryName.matches("^[a-zA-Z0-9 '_-]+$")) {
             throw new InvalidInputException("Category Name Cannot Contain Special Characters");
         }
 

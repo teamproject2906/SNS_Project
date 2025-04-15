@@ -36,5 +36,5 @@ public interface IUserService {
 
     void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser);
 
-    UserDTO getUserById(Integer id);
+//    UserDTO getUserById(Integer id);
 }

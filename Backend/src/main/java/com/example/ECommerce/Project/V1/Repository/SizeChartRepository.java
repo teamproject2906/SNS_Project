@@ -16,4 +16,6 @@ public interface SizeChartRepository extends JpaRepository<SizeChart, Integer> {
 
     @Query("SELECT s.value FROM SizeChart s WHERE s.sizeChartType = :type")
     List<String> findValuesBySizeChartType(@Param("type") String type);
+
+    Boolean existsSizeChartByValue(String value);
 }

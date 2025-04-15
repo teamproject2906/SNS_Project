@@ -70,6 +70,10 @@ public class SizeChartServiceImpl implements ISizeChartService {
             throw new InvalidInputException("Size value is longer than 10 characters");
         }
 
+        if (repository.existsSizeChartByValue(sizeValue)) {
+            throw new InvalidInputException("Size Chart already exists");
+        }
+
         // Set the trimmed and validated value back to the SizeChart object
         sizeChart.setSizeChartType(sizeChartType);
         sizeChart.setValue(sizeValue);
