@@ -32,7 +32,7 @@ public class PromotionServiceImpl implements IPromotionService {
         }
         if (name.length() > 100) {
             throw new InvalidInputException("Promotion name cannot exceed 100 characters");
-        } else if (!name.matches("^[a-zA-Z0-9 ']+$")) {
+        } else if (!name.matches("^[a-zA-Z0-9% ']+$")) {
             throw new InvalidInputException("Promotion name cannot contain special characters");
         }
     }

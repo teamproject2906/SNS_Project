@@ -92,12 +92,16 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         emailContext.init(savedUser);
         emailContext.setToken(secureToken.getToken());
 
-        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
-        emailToken.setHttpOnly(false);
-        emailToken.setSecure(false);
-        emailToken.setPath("/");
-        emailToken.setMaxAge(3600);
-        servletResponse.addCookie(emailToken);
+//        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
+//        emailToken.setHttpOnly(false);
+//        emailToken.setSecure(false);
+//        emailToken.setPath("/");
+//        emailToken.setMaxAge(3600);
+//        emailToken.setAttribute("SameSite", "Lax");
+//        servletResponse.addCookie(emailToken);
+
+        String cookie = String.format("emailTokenForGG=%s; Max-Age=3600; Path=/; SameSite=Lax", secureToken.getToken());
+        servletResponse.setHeader("Set-Cookie", cookie);
 
 //        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
         String baseUrl = "http://localhost:5173";
@@ -296,20 +300,23 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             emailContext.init(savedUser);
             emailContext.setToken(secureToken.getToken());
 
-            Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
-            emailToken.setHttpOnly(false);
-            emailToken.setSecure(false);
-            emailToken.setPath("/");
-            emailToken.setMaxAge(3600);
-            response.addCookie(emailToken);
+//            Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
+//            emailToken.setHttpOnly(false);
+//            emailToken.setSecure(false);
+//            emailToken.setPath("/");
+//            emailToken.setMaxAge(3600);
+//            emailToken.setAttribute("SameSite", "Lax");
+//            response.addCookie(emailToken);
+            String cookie = String.format("emailTokenForForgot=%s; Max-Age=3600; Path=/; SameSite=Lax", secureToken.getToken());
+            response.setHeader("Set-Cookie", cookie);
 
-//        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
+//          String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
             String baseUrl = "http://localhost:5173";
             emailContext.buildVerificationUrlForgotPass(baseUrl, secureToken.getToken());
 
             try {
                 emailService.sendMail(emailContext);
-                return ResponseEntity.ok("We have send to your email a verification, please check have a check and complete your registration!");
+                return ResponseEntity.ok("We have send to your email a verification, please check have a check and complete your forgot password session!");
             } catch (MessagingException e) {
                 throw new RuntimeException("Failed to send verification email", e);
             }

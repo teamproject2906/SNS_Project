@@ -1,9 +1,17 @@
-import { useState } from "react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useState } from "react";
+import { setToken, setUserInfo } from "../Login/app/static";
+import { useUser } from "../../context/UserContext";
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [token, setTokenState] = useState(
+    localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
+  );
+  const { user, setUser } = useUser();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,6 +25,57 @@ export default function ChangePassword() {
       setConfirmPassword("");
     }
   };
+
+  const getCookie = (name) => {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+      const [key, value] = cookie.split("=");
+      if (key === name) return decodeURIComponent(value);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const resetPassswordCookie = getCookie("emailToken")
+    console.log("Token verify email từ cookie:", resetPassswordCookie);
+
+    // Handle emailToken (email verification token)
+    if (resetPassswordCookie) {
+      const verifyEmail = async () => {
+        try {
+          const res = await axios.get(
+            "http://localhost:8080/Authentication/register/verify",
+            {
+              params: { token: resetPassswordCookie }, // Pass token as query parameter
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
+            }
+          );
+          console.log("Email verification response:", res.data);
+          const token = res.data.access_token;
+          console.log("Token:", token);
+          // Optionally clear the emailToken cookie after successful verification
+          // setToken(token);
+          // setTokenState(token);
+          // const decoded = jwtDecode(token);
+          // setUser(decoded);
+          // setUserInfo(decoded);
+          // document.cookie =
+          //   "emailToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        } catch (error) {
+          console.error(
+            "Error verifying email:",
+            error.response ? error.response.data : error.message
+          );
+        }
+      };
+      verifyEmail();
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -280,5 +280,4 @@ public class UserServiceImpl implements IUserService {
             .role(user.getRole() != null ? user.getRole().name() : null)
             .build();
    }
-
 }

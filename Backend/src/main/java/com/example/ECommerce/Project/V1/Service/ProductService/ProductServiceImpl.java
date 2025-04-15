@@ -317,9 +317,9 @@ public class ProductServiceImpl implements IProductService {
 
 
     @Override
-    public Product getProductByProductCode(String productCode) {
-        return repository.findProductByProductCode(productCode)
-                .orElseThrow(() -> new ResourceNotFoundException("Product with productCode: " + productCode + " not found!"));
+    public List<ProductResponseDTO> getProductByProductCode(String productCode) {
+        List<Product> productListWithCode = repository.findProductByProductCode(productCode);
+        return convertEntityListToDTOList(productListWithCode);
     }
 
     @Override
