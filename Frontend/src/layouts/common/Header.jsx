@@ -45,8 +45,6 @@ const Header = () => {
   const searchDropdownRef = useRef(null);
   const navigate = useNavigate();
 
-
-
   useEffect(() => {
     console.log("User thay đổi:", user);
   }, [user]);
@@ -71,6 +69,8 @@ const Header = () => {
       document.cookie =
         "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       document.cookie =
+        "emailTokenForGG=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie =
         "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       removeToken(); // Xóa token khỏi localStorage
       removeUserInfo(); // Xóa thông tin người dùng khỏi localStorage
@@ -93,23 +93,74 @@ const Header = () => {
 
   useEffect(() => {
     const cookieToken = getCookie("id_token");
+    const ggCookieToken = getCookie("emailTokenForGG");
+    console.log("Token verify email từ cookie:", ggCookieToken);
     console.log("Token từ cookie:", cookieToken);
+
+    // Handle id_token (authentication token)
     if (cookieToken) {
-      setToken(cookieToken);
-      setTokenState(cookieToken); // Đồng bộ token từ cookie
-      const decoded = jwtDecode(cookieToken);
-      setUser(decoded);
-      setUserInfo(decoded);
+      try {
+        setToken(cookieToken);
+        setTokenState(cookieToken);
+        const decoded = jwtDecode(cookieToken);
+        setUser(decoded);
+        setUserInfo(decoded);
+      } catch (error) {
+        console.error("Error decoding id_token:", error.message);
+        setToken(null);
+        setTokenState(null);
+        setUser(null);
+        setUserInfo(null);
+      }
     }
+
+    // Handle emailToken (email verification token)
+    // if (ggCookieToken) {
+    //   const verifyEmail = async () => {
+    //     try {
+    //       const res = await axios.get(
+    //         "http://localhost:8080/Authentication/register/verify",
+    //         {
+    //           params: { token: ggCookieToken }, // Pass token as query parameter
+    //         }
+    //       );
+    //       console.log("Email verification response:", res.data);
+    //       const token = res.data.access_token;
+    //       // Optionally clear the emailToken cookie after successful verification
+    //       setToken(token);
+    //       setTokenState(token);
+    //       const decoded = jwtDecode(token);
+    //       setUser(decoded);
+    //       setUserInfo(decoded);
+    //       document.cookie =
+    //         "emailToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    //     } catch (error) {
+    //       console.error(
+    //         "Error verifying email:",
+    //         error.response ? error.response.data : error.message
+    //       );
+    //     }
+    //   };
+    //   verifyEmail();
+    // }
   }, []);
 
   useEffect(() => {
     const fetchedProducts = async () => {
+      if (!token) {
+        setProduct([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:8080/api/products", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          "http://localhost:8080/api/products/productcode",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setProduct(Array.isArray(res.data) ? res.data : []);
         console.log("Product", res.data);
       } catch (err) {
@@ -197,7 +248,7 @@ const Header = () => {
           ...userData,
           avatar:
             userData.avatar ||
-            "https://www.rainforest-alliance.org/wp-content/uploads/2021/06/capybara-square-1.jpg.optimal.jpg",
+            "https://pro-bel.com/wp-content/uploads/2019/11/blank-avatar-1-450x450.png",
           role: userData.role || "User",
         });
         setLoading(false);
@@ -292,14 +343,18 @@ const Header = () => {
         <div className="container mx-auto flex justify-between items-center px-4">
           <Link to={"/cart"} className="text-gray-800 flex items-center mx-2">
             <FaShoppingBag size={20} />
-            <span className="ml-1 text-sm hidden sm:inline">{cartItems.length}</span>
+            <span className="ml-1 text-sm hidden sm:inline">
+              {cartItems.length}
+            </span>
           </Link>
           <Link
             to={"/favourite"}
             className="text-gray-800 flex items-center mx-2"
           >
             <FaHeart size={20} />
-            <span className="ml-1 text-sm hidden sm:inline">{favouriteItems.length}</span>
+            <span className="ml-1 text-sm hidden sm:inline">
+              {favouriteItems.length}
+            </span>
           </Link>
           <div className="flex-1 flex justify-center sm:ml-10 md:ml-20 lg:ml-40">
             <Link to="/">

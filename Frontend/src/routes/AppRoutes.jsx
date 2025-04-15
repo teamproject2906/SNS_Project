@@ -160,9 +160,9 @@ const routes = [
   {
     path: "/change-forgot-password",
     element: (
-      <MainLayout>
+      
         <ChangePassword />
-      </MainLayout>
+     
     ),
   },
 ];

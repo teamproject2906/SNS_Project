@@ -13,15 +13,20 @@ const ProductCard = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
-  const { addToFavourites, removeFromFavourites, isInFavourites } = useFavourite();
+  const { addToFavourites, removeFromFavourites, isInFavourites } =
+    useFavourite();
   const { addToCart } = useCart();
   const { user } = useUser();
+
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/products", {
+        const response = await axios.get("http://localhost:8080/api/products/productcode", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(response.data);
@@ -40,28 +45,30 @@ const ProductCard = () => {
       toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
       return;
     }
-    
+
     const productToAdd = {
       id: product.id,
       productName: product.productName,
-      price: product.promotion 
-        ? product.price - product.price * product.promotion.discount 
+      price: product.promotion
+        ? product.price - product.price * product.promotion.discount
         : product.price,
       quantity: 1,
       imageUrl: product.imageUrl,
       color: product.color,
-      size: product.size
+      size: product.size,
     };
-    
+
     addToCart(productToAdd);
   };
-  
+
   const handleToggleFavourite = (product) => {
     if (!user) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích");
+      toast.error(
+        "Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích"
+      );
       return;
     }
-    
+
     if (isInFavourites(product.id)) {
       removeFromFavourites(product.id);
     } else {
@@ -89,46 +96,80 @@ const ProductCard = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="product-card grid grid-cols-4 gap-6">
         {currentItems.map((item) => (
           <div
             key={item.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden product-card"
+            className="product-card__item border rounded-lg p-4 flex flex-col justify-between gap-5 shadow-xl"
           >
-            <Link to={`/products/${item.id}`}>
-              <div className="product-card__image">
-                <img
-                  src={item.imageUrl}
-                  alt={item.productName}
-                  className="w-full h-64 object-cover"
-                />
-              </div>
+            <Link to={`/products/${item.id}`} className="flex justify-center">
+              <img
+                className="product-card__image"
+                src={
+                  item.imageUrl ||
+                  "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="
+                }
+                alt={item.productName}
+                width={350}
+                height={350}
+              />
             </Link>
-            <div className="p-4">
-              <Link to={`/products/${item.id}`}>
-                <h3 className="text-lg font-semibold mb-2 product-card__title">
+            <div className="flex flex-col gap-3">
+              <div className="product-card__info">
+                <h3
+                  className="product-card__name pb-2 text-md"
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: "95%",
+                  }}
+                >
                   {item.productName}
                 </h3>
-              </Link>
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-xl font-bold product-card__price">
-                  {item.price.toLocaleString()}₫
-                </p>
-                {item.promotion && (
-                  <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">
-                    -{Math.round(item.promotion.discount * 100)}%
-                  </span>
-                )}
+                <div className="flex flex-row gap-2 items-center">
+                  {item.promotion ? (
+                    <p className="product-card__discount-price text-base text-[#021f58] font-extrabold">
+                      {formatPrice(
+                        item.price - item.price * item.promotion.discount
+                      )}
+                      đ
+                    </p>
+                  ) : (
+                    <p className="product-card__original-price text-base text-[#021f58] font-extrabold">
+                      {formatPrice(item.price)}đ
+                    </p>
+                  )}
+                  {item.promotion ? (
+                    <p
+                      className="product-card__original-price text-md text-gray-400"
+                      style={{ textDecoration: "line-through" }}
+                    >
+                      {formatPrice(item.price)}đ
+                    </p>
+                  ) : (
+                    ""
+                  )}
+                  {item.promotion ? (
+                    <p className="product-card__promotion bg-red-500 p-1 text-sm w-12 flex justify-center rounded-md font-bold text-white">
+                      -{formatPrice(item.promotion.discount * 100)}%
+                    </p>
+                  ) : (
+                    ""
+                  )}
+                </div>
               </div>
               <div className="product-card__actions flex flex-row gap-2">
-                <button 
+                <button
                   className="bg-blue-500 text-white py-2 px-4 rounded w-full"
                   onClick={() => handleAddToCart(item)}
                 >
                   Add to cart
                 </button>
-                <button 
-                  className={`favoriteBtn ${isInFavourites(item.id) ? 'text-red-500' : 'text-gray-400'}`}
+                <button
+                  className={`favoriteBtn ${
+                    isInFavourites(item.id) ? "text-red-500" : "text-gray-400"
+                  }`}
                   onClick={() => handleToggleFavourite(item)}
                 >
                   <svg
