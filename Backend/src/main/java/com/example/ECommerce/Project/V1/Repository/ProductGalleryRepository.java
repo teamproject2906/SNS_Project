@@ -23,4 +23,7 @@ public interface ProductGalleryRepository extends JpaRepository<ProductGallery, 
 
     @Query("SELECT COUNT (*) FROM ProductGallery pg  WHERE pg.product.id = :productId")
     long countByProductId(Integer productId);
+
+    @Query("SELECT pg FROM ProductGallery pg WHERE pg.product.productCode =: productCode ORDER BY pg.sortOrder asc ")
+    List<ProductGallery> getProductGalleriesByProductCode(@Param("productCode") String productCode);
 }

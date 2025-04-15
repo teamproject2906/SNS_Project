@@ -123,12 +123,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
     }
 
+    @Override
+    public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse) {
+        return null;
+    }
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Username not exist!"));
 
-        if (!user.getIsActive() && !user.isVerified()) {
+        if (!user.getIsActive() && !user.getIsVerified()) {
             throw new DisabledException("Your account is banned or not verified");
         }
 
@@ -163,7 +168,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
 
         User user = secureToken.getUser();
-        user.setVerified(true);
+        user.setIsVerified(true);
         var savedUser = userRepository.save(user);
         secureTokenService.removeToken(secureToken);
 
@@ -254,6 +259,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         } else {
             saveUserToken(userEmail, jwt);
         }
+    }
+
+    @Override
+    public ResponseEntity<String> forgotPassword(String email, HttpServletResponse response) {
+        return null;
     }
 
     public ResponseEntity<String> forgotPassword(String email){
