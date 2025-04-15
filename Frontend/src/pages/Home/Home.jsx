@@ -148,19 +148,15 @@ const HomePage = () => {
     const fetchedProducts = async () => {
       try {
         const token = getToken();
-        const res = await axios.get("http://localhost:8080/api/products", {
+        const res = await axios.get("http://localhost:8080/api/products/productcode", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Kiểm tra dữ liệu trả về từ API
-        if (Array.isArray(res.data)) {
-          setProduct(res.data); // Nếu là mảng, gán trực tiếp
-        } else {
-          setProduct([]); // Nếu không phải mảng, gán mảng rỗng
-          console.log("Product data is not an array:", res.data);
-        }
+        setProduct(Array.isArray(res.data) ? res.data : []);
+        console.log("Product", res.data);
       } catch (err) {
+        console.error("Error fetching products:", err);
         setError(err.message);
-        setProduct([]); // Gán mảng rỗng nếu có lỗi
+        setProduct([]);
       } finally {
         setLoading(false);
       }
@@ -282,8 +278,12 @@ const HomePage = () => {
         }}
       >
         <h2 style={{ marginBottom: "20px" }}>SẢN PHẨM NỔI BẬT</h2>
-        {product.length === 0 ? (
+        {loading ? (
           <p style={{ textAlign: "center" }}>Loading...</p>
+        ) : error ? (
+          <p style={{ textAlign: "center", color: "red" }}>{error}</p>
+        ) : product.length === 0 ? (
+          <p style={{ textAlign: "center" }}>Không có sản phẩm nào</p>
         ) : (
           <Slider {...productSettings}>
             {product.map((item, index) => (
@@ -296,11 +296,7 @@ const HomePage = () => {
                 <div className="product-image" style={{ position: "relative" }}>
                   <img
                     loading="lazy"
-                    src={
-                      item.imageUrl
-                        ? item.imageUrl
-                        : "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="
-                    }
+                    src={item.imageUrl ? item.imageUrl : "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="}
                     alt={`Product ${item}`}
                     style={{
                       width: "80%",

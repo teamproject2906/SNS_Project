@@ -92,8 +92,13 @@ public class ProductController {
     }
 
     @GetMapping("/productCode/{code}")
-    public ResponseEntity<Product> getProductByProductCode(@PathVariable String code) {
-        return new ResponseEntity<>(productService.getProductByProductCode(code),HttpStatus.OK);
+    public ResponseEntity<Object> getProductByProductCode(@PathVariable String code) {
+        List<ProductResponseDTO> products = productService.getProductByProductCode(code);
+
+        // Return a custom message when no product are available
+        if (products.isEmpty()) return new ResponseEntity<>("There is no product with product code: " + code,HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(products,HttpStatus.OK);
     }
 
     @GetMapping("/search")
@@ -101,7 +106,7 @@ public class ProductController {
         List<Product> products = productService.getProductByName(name);
 
         // Return a custom message when no product are available
-        if (products.isEmpty()) return new ResponseEntity<>("There is no product with name: " + name,HttpStatus.OK);
+        if (products.isEmpty()) return new ResponseEntity<>("There is no product with name: " + name,HttpStatus.NOT_FOUND);
 
         return new ResponseEntity<>(products,HttpStatus.OK);
     }

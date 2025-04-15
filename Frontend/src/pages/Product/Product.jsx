@@ -4,6 +4,7 @@ import SortBar from "../../components/Products/SortBar";
 import ProductCard from "../../components/Products/ProductCard";
 import FilterButton from "../../components/Products/FilterButton";
 import { getToken } from "../../pages/Login/app/static";
+import { IoFilter } from "react-icons/io5";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
@@ -11,6 +12,8 @@ export default function Product() {
   const [sortOption, setSortOption] = useState("Sản phẩm nổi bật");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFiltered, setIsFiltered] = useState(false); // Track if filtering is applied
+  const [modalIsOpen, setModalIsOpen] = useState(false); // Control modal visibility
 
   // Fetch products on mount
   useEffect(() => {
@@ -20,10 +23,9 @@ export default function Product() {
         const res = await axios.get("http://localhost:8080/api/products", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Đảm bảo res.data là mảng
         const safeProducts = Array.isArray(res.data) ? res.data : [];
         setProducts(safeProducts);
-        setFilteredProducts(safeProducts); // Khởi tạo filteredProducts
+        setFilteredProducts(safeProducts); // Initially show all products
       } catch (err) {
         setError(err.message);
         setProducts([]);
@@ -49,20 +51,22 @@ export default function Product() {
       return price >= minPrice && price <= maxPrice;
     });
 
-    // Lọc theo category (category là object với thuộc tính name)
+    // Lọc theo category
     if (category) {
       filtered = filtered.filter(
-        (product) => product.category?.name === category
+        (product) => product.category?.categoryName === category
       );
     }
 
     setFilteredProducts(filtered);
+    setIsFiltered(true); // Mark that filtering is applied
+    setSortOption("Sản phẩm nổi bật");
   };
 
   // Handle sorting logic
   const handleSort = (option) => {
     setSortOption(option.label);
-    let sortedProducts = [...filteredProducts];
+    let sortedProducts = [...(isFiltered ? filteredProducts : products)]; // Sort the active list
 
     switch (option.value) {
       case "price-asc":
@@ -111,18 +115,40 @@ export default function Product() {
         sortedProducts.sort((a, b) => (b.sales || 0) - (a.sales || 0));
         break;
       default:
-        sortedProducts = [...products]; // Mặc định trả về danh sách gốc
+        sortedProducts = [...(isFiltered ? filteredProducts : products)]; // Preserve current list
         break;
     }
 
     setFilteredProducts(sortedProducts);
   };
 
+  // Open modal
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-row justify-between">
         <div className="filterBtn">
-          <FilterButton products={products} onFilter={handleFilter} />
+          <button
+            onClick={openModal}
+            className="px-4 py-2 rounded flex flex-row items-center gap-2 cursor-pointer bg-gray-200 hover:bg-gray-300"
+          >
+            <IoFilter className="text-2xl"/>
+            <label>FILTER</label>
+          </button>
+          <FilterButton
+            products={products}
+            onFilter={handleFilter}
+            isOpen={modalIsOpen}
+            onClose={closeModal}
+          />
         </div>
         <div className="sortBar">
           <SortBar onSort={handleSort} selectedOption={sortOption} />
@@ -130,7 +156,7 @@ export default function Product() {
       </div>
       <div className="w-full">
         <ProductCard
-          products={filteredProducts}
+          products={filteredProducts} // Always use filteredProducts
           loading={loading}
           error={error}
         />

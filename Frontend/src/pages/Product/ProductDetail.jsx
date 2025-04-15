@@ -2,7 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import CommentsSection from "../../components/CommentsSection/CommentsSection";
 import axios from "axios";
 import { getToken } from "../Login/app/static";
-import { FaHeart } from "react-icons/fa";
+import { useCart } from "../../context/CartContext";
+import { useFavourite } from "../../context/FavouriteContext";
+import { toast } from "react-toastify";
+import { useUser } from "../../context/UserContext";
 
 const ProductDetail = () => {
   const [product, setProduct] = useState(null);
@@ -16,9 +19,11 @@ const ProductDetail = () => {
   const [imageIndex, setImageIndex] = useState(0);
   const [averageRating, setAverageRating] = useState(0); // State cho average rating
   const thumbnailsRef = useRef(null);
+  const { addToCart } = useCart();
+  const { addToFavourites, removeFromFavourites, isInFavourites } = useFavourite();
+  const { user } = useUser();
 
   const productId = window.location.pathname.split("/")[2];
-  console.log("Product ID:", productId);
 
   useEffect(() => {
     const fetchedProduct = async () => {
@@ -55,7 +60,10 @@ const ProductDetail = () => {
         );
         const feedbacks = feedbackRes.data;
         if (feedbacks.length > 0) {
-          const totalRating = feedbacks.reduce((sum, feedback) => sum + feedback.rate, 0);
+          const totalRating = feedbacks.reduce(
+            (sum, feedback) => sum + feedback.rate,
+            0
+          );
           const avgRating = totalRating / feedbacks.length;
           setAverageRating(parseFloat(avgRating.toFixed(1))); // Làm tròn đến 1 chữ số thập phân
         } else {
@@ -96,9 +104,9 @@ const ProductDetail = () => {
     scrollToThumbnail(index);
   };
 
-  const handlePlus = () => {
-    setQuantity(quantity + 1);
-  };
+	const handlePlus = () => {
+		setQuantity(quantity + 1);
+	};
 
   const handleMinus = () => {
     if (quantity > 1) {
@@ -124,6 +132,45 @@ const ProductDetail = () => {
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedColor) {
+      toast.error("Vui lòng chọn màu sắc");
+      return;
+    }
+    
+    if (!selectedSize) {
+      toast.error("Vui lòng chọn kích thước");
+      return;
+    }
+    
+    const productToAdd = {
+      id: product.id,
+      productName: product.productName,
+      price: product.promotion 
+        ? product.price - product.price * product.promotion.discount 
+        : product.price,
+      quantity: quantity,
+      imageUrl: selectedImage || product.imageUrl,
+      color: selectedColor,
+      size: selectedSize
+    };
+    
+    addToCart(productToAdd);
+  };
+
+  const handleToggleFavourite = () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích");
+      return;
+    }
+    
+    if (isInFavourites(product.id)) {
+      removeFromFavourites(product.id);
+    } else {
+      addToFavourites(product);
+    }
   };
 
   if (loading) {
@@ -191,12 +238,24 @@ const ProductDetail = () => {
         {/* Phần thông tin sản phẩm */}
         <div className="w-1/2 flex flex-col justify-between">
           <div className="mb-4">
-            <h1 className="text-3xl font-bold">{product.productName}</h1>
+            <h1 className="text-3xl font-bold">
+              {product.productName}
+              {product.quantityInventory ? (
+                <span className="ml-2 bg-green-500 text-white py-1 px-2 rounded text-sm">
+                  IN STOCK
+                </span>
+              ) : (
+                <span className="ml-2 bg-red-500 text-white py-1 px-2 rounded text-sm">
+                  SOLD OUT
+                </span>
+              )}
+            </h1>
             {/* Hiển thị average rating */}
             <div className="average-rating mt-2 flex items-center">
               {[1, 2, 3, 4, 5].map((star) => {
                 const isFull = averageRating >= star;
-                const isHalf = averageRating >= star - 0.5 && averageRating < star;
+                const isHalf =
+                  averageRating >= star - 0.5 && averageRating < star;
 
                 return (
                   <span
@@ -207,7 +266,7 @@ const ProductDetail = () => {
                     <span
                       className="filled-star absolute top-0 left-0 text-yellow-400 overflow-hidden"
                       style={{
-                        width: isFull ? '100%' : isHalf ? '50%' : '0%',
+                        width: isFull ? "100%" : isHalf ? "50%" : "0%",
                       }}
                     >
                       ★
@@ -216,7 +275,9 @@ const ProductDetail = () => {
                 );
               })}
               <span className="ml-2 text-gray-600">
-                {averageRating > 0 ? `${averageRating} stars` : 'No ratings yet'}
+                {averageRating > 0
+                  ? `${averageRating} stars`
+                  : "No ratings yet"}
               </span>
             </div>
           </div>
@@ -226,11 +287,14 @@ const ProductDetail = () => {
             <p className="text-base text-Montserrat-500">
               {product.productCode}
             </p>
-            <button className="favoriteBtn border-2 rounded-full p-1">
+            <button 
+              className={`favoriteBtn border-2 rounded-full p-1 ${isInFavourites(product.id) ? 'text-red-500' : 'text-gray-400'}`}
+              onClick={handleToggleFavourite}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
-                fill="black"
+                fill="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -283,6 +347,10 @@ const ProductDetail = () => {
                     : "border-gray-300"
                 }`}
                 onClick={() => handleColorSelect(product.color)}
+                style={{
+                  backgroundColor: product.color,
+                  color: product.color === "Black" ? "white" : "black",
+                }}
               >
                 {product.color}
               </button>
@@ -320,7 +388,10 @@ const ProductDetail = () => {
                 +
               </button>
             </div>
-            <button className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full">
+            <button 
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full"
+              onClick={handleAddToCart}
+            >
               ADD TO CART
             </button>
           </div>
@@ -346,15 +417,15 @@ const ProductDetail = () => {
         <h2 className="text-2xl font-bold mb-4">{product.productName}</h2>
         <ul className="flex flex-col gap-2">
           <div className="flex flex-row gap-2">
-            <li>Material:</li>
+            <li className="font-bold underline">Material:</li>
             <div>{product.material}</div>
           </div>
           <div className="flex flex-row gap-2">
-            <li>Form:</li>
+            <li className="font-bold underline">Form:</li>
             <div>{product.formClothes.formClothes}</div>
           </div>
         </ul>
-        <p className="">Description:</p>
+        <p className="font-bold underline">Description:</p>
         <p className="">{product.description}</p>
       </div>
 

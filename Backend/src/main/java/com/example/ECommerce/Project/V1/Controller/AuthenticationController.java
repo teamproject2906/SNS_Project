@@ -21,9 +21,10 @@ public class AuthenticationController {
 
     @PostMapping("/Register")
     public ResponseEntity<String> register(
-           @RequestBody RegisterRequest request
+           @RequestBody RegisterRequest request,
+           HttpServletResponse servletResponse
     ){
-        return authenticationService.register(request);
+        return authenticationService.register(request, servletResponse);
     }
 
     @PostMapping("/Authenticate")
@@ -39,6 +40,14 @@ public class AuthenticationController {
             HttpServletResponse response
     ) throws IOException {
         authenticationService.refreshToken(request, response);
+    }
+
+    @PostMapping("/ForgotPassword/{email}")
+    public ResponseEntity<String> forgotPassword(
+            @PathVariable("email") String email,
+            HttpServletResponse response
+    ) {
+        return authenticationService.forgotPassword(email, response);
     }
 
     @GetMapping("/register/verify")

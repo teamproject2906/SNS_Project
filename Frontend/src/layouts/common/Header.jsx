@@ -24,24 +24,26 @@ import { useUser } from "../../context/UserContext";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import "../../assets/styles/Header.module.css";
-
+import { useCart } from "../../context/CartContext";
+import { useFavourite } from "../../context/FavouriteContext";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, setUser } = useUser();
-  const [product, setProduct] = useState([]); // Khởi tạo product là mảng rỗng
+  const [product, setProduct] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [token, setTokenState] = useState(localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, ""));
+  const [token, setTokenState] = useState(
+    localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
+  ); // Thêm state cho token
+  const { cartItems } = useCart();
+  const { favouriteItems } = useFavourite();
 
   const dropdownRef = useRef(null);
   const searchDropdownRef = useRef(null);
   const navigate = useNavigate();
-
-  console.log("User:", user);
-  console.log("Token:", token);
 
   useEffect(() => {
     console.log("User thay đổi:", user);
@@ -64,13 +66,17 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      document.cookie = "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      document.cookie = "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      removeToken();
-      removeUserInfo();
-      setTokenState(null);
-      setUser(null);
-      navigate("/login");
+      document.cookie =
+        "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie =
+        "emailTokenForGG=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie =
+        "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      removeToken(); // Xóa token khỏi localStorage
+      removeUserInfo(); // Xóa thông tin người dùng khỏi localStorage
+      setTokenState(null); // Cập nhật state token ngay lập tức
+      setUser(null); // Đặt user về null
+      navigate("/login"); // Điều hướng đến trang đăng nhập
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -87,39 +93,86 @@ const Header = () => {
 
   useEffect(() => {
     const cookieToken = getCookie("id_token");
+    const ggCookieToken = getCookie("emailTokenForGG");
+    console.log("Token verify email từ cookie:", ggCookieToken);
     console.log("Token từ cookie:", cookieToken);
+
+    // Handle id_token (authentication token)
     if (cookieToken) {
-      setToken(cookieToken);
-      setTokenState(cookieToken);
-      const decoded = jwtDecode(cookieToken);
-      setUser(decoded);
-      setUserInfo(decoded);
+      try {
+        setToken(cookieToken);
+        setTokenState(cookieToken);
+        const decoded = jwtDecode(cookieToken);
+        setUser(decoded);
+        setUserInfo(decoded);
+      } catch (error) {
+        console.error("Error decoding id_token:", error.message);
+        setToken(null);
+        setTokenState(null);
+        setUser(null);
+        setUserInfo(null);
+      }
     }
+
+    // Handle emailToken (email verification token)
+    // if (ggCookieToken) {
+    //   const verifyEmail = async () => {
+    //     try {
+    //       const res = await axios.get(
+    //         "http://localhost:8080/Authentication/register/verify",
+    //         {
+    //           params: { token: ggCookieToken }, // Pass token as query parameter
+    //         }
+    //       );
+    //       console.log("Email verification response:", res.data);
+    //       const token = res.data.access_token;
+    //       // Optionally clear the emailToken cookie after successful verification
+    //       setToken(token);
+    //       setTokenState(token);
+    //       const decoded = jwtDecode(token);
+    //       setUser(decoded);
+    //       setUserInfo(decoded);
+    //       document.cookie =
+    //         "emailToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    //     } catch (error) {
+    //       console.error(
+    //         "Error verifying email:",
+    //         error.response ? error.response.data : error.message
+    //       );
+    //     }
+    //   };
+    //   verifyEmail();
+    // }
   }, []);
 
   useEffect(() => {
     const fetchedProducts = async () => {
+      if (!token) {
+        setProduct([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:8080/api/products", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        // Kiểm tra dữ liệu trả về từ API
-        if (Array.isArray(res.data)) {
-          setProduct(res.data); // Nếu là mảng, gán trực tiếp
-        } else {
-          setProduct([]); // Nếu không phải mảng, gán mảng rỗng
-          console.log("Product data is not an array:", res.data);
-        }
+        const res = await axios.get(
+          "http://localhost:8080/api/products/productcode",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setProduct(Array.isArray(res.data) ? res.data : []);
+        console.log("Product", res.data);
       } catch (err) {
+        console.error("Error fetching products:", err);
         setError(err.message);
-        setProduct([]); // Gán mảng rỗng nếu có lỗi
+        setProduct([]);
       } finally {
         setLoading(false);
       }
     };
 
-    if (token) fetchedProducts(); // Chỉ gọi API nếu có token
+    fetchedProducts();
   }, [token]);
 
   const handleSearchChange = (e) => {
@@ -129,14 +182,20 @@ const Header = () => {
   };
 
   const filteredProducts = Array.isArray(product)
-    ? product.filter((item) =>
-        item.productName.toLowerCase().includes(searchQuery.toLowerCase())
+    ? product.filter(
+        (item) =>
+          item &&
+          item.productName &&
+          item.productName.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target)) {
+      if (
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target)
+      ) {
         setIsSearchDropdownOpen(false);
       }
     };
@@ -152,6 +211,7 @@ const Header = () => {
     try {
       return JSON.parse(atob(token.split(".")[1]));
     } catch (e) {
+      console.error("Error parsing JWT:", e);
       return null;
     }
   };
@@ -199,8 +259,8 @@ const Header = () => {
       }
     };
 
-    if (token) fetchUserProfile();
-  }, [token]);
+    if (token) fetchUserProfile(); // Chỉ gọi API nếu có token
+  }, [token]); // Chỉ phụ thuộc vào token, không phụ thuộc vào user
 
   return (
     <header>
@@ -283,14 +343,18 @@ const Header = () => {
         <div className="container mx-auto flex justify-between items-center px-4">
           <Link to={"/cart"} className="text-gray-800 flex items-center mx-2">
             <FaShoppingBag size={20} />
-            <span className="ml-1 text-sm hidden sm:inline">0</span>
+            <span className="ml-1 text-sm hidden sm:inline">
+              {cartItems.length}
+            </span>
           </Link>
           <Link
             to={"/favourite"}
             className="text-gray-800 flex items-center mx-2"
           >
             <FaHeart size={20} />
-            <span className="ml-1 text-sm hidden sm:inline">0</span>
+            <span className="ml-1 text-sm hidden sm:inline">
+              {favouriteItems.length}
+            </span>
           </Link>
           <div className="flex-1 flex justify-center sm:ml-10 md:ml-20 lg:ml-40">
             <Link to="/">

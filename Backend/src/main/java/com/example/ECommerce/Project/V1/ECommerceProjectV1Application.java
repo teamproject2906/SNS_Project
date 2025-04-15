@@ -27,48 +27,50 @@ public class ECommerceProjectV1Application {
 			AddressRepository addressRepository,
 			PasswordEncoder passwordEncoder) {
 		return args -> {
-			for (int i = 0; i < 1; i++){
-				Faker faker = new Faker();
+            Faker faker = null;
+            for (int i = 0; i < 1; i++) {
+                faker = new Faker();
 
-				// Create user
-				var user = User.builder()
-						.firstname(faker.name().firstName())
-						.lastname(faker.name().lastName())
-						.username(faker.name().username())
-						.email(faker.internet().emailAddress())
-						.password(passwordEncoder.encode("123"))
-						.dob(faker.date().birthday())
-						.phoneNumber(faker.number().digits(11))
-						.gender(true)
-						.bio("Hello this is the " + i + " person")
-						.avatar(null)
-						.role(Role.ADMIN)
-						.createdAt(LocalDateTime.now())
-						.updatedAt(LocalDateTime.now())
-						.createdBy("SYSTEM")
-						.updatedBy("SYSTEM")
-						.isActive(true)
-						.build();
-				userRepository.save(user);
+                // Create user
+                var user = User.builder()
+                        .firstname(faker.name().firstName())
+                        .lastname(faker.name().lastName())
+                        .username(faker.name().username())
+                        .email(faker.internet().emailAddress())
+                        .password(passwordEncoder.encode("123"))
+                        .dob(faker.date().birthday())
+                        .phoneNumber(faker.number().digits(11))
+                        .gender(true)
+                        .bio("Hello this is the " + i + " person")
+                        .avatar(null)
+                        .role(Role.ADMIN)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .createdBy("SYSTEM")
+                        .updatedBy("SYSTEM")
+                        .isVerified(true)
+                        .isActive(true)
+                        .build();
+                userRepository.save(user);
 
-				// Create address
-				var address = Address.builder()
-						.user(user)
-						.addressDescription(faker.address().fullAddress())
-						.addressDetail(faker.address().streetAddress())
-						.ward(faker.address().streetName())
-						.district(faker.address().cityName())
-						.province(faker.address().state())
-						.country(faker.address().country())
-						.isDefault(false)
-						.createdAt(LocalDateTime.now())
-						.updatedAt(LocalDateTime.now())
-						.createdBy(String.valueOf(user.getFirstname() + user.getLastname()))
-						.updatedBy(String.valueOf(user.getFirstname() + user.getLastname()))
-						.isActive(true)
-						.build();
-				addressRepository.save(address);
-			}
-		};
+                // Create address
+                var address = Address.builder()
+                        .user(user)
+                        .addressDescription(faker.address().fullAddress())
+                        .addressDetail(faker.address().streetAddress())
+                        .ward(faker.address().streetName())
+                        .district(faker.address().cityName())
+                        .province(faker.address().state())
+                        .country(faker.address().country())
+                        .isDefault(false)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .createdBy(String.valueOf(user.getFirstname() + user.getLastname()))
+                        .updatedBy(String.valueOf(user.getFirstname() + user.getLastname()))
+                        .isActive(true)
+                        .build();
+                addressRepository.save(address);
+            }
+        };
 	}
 }

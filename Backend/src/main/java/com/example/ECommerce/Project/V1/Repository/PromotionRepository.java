@@ -7,7 +7,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
+
+    @Query("SELECT p FROM Promotion p WHERE p.isActive = true")
+    List<Promotion> getActivePromotions();
 
     @Modifying
     @Transactional

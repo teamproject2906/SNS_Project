@@ -1,6 +1,7 @@
 package com.example.ECommerce.Project.V1.Service.UserService;
 
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +34,7 @@ public interface IUserService {
 
     UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
 
-    void changeForgotPassword(ChangePasswordRequest request, Principal connectedUser);
+    void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser);
 
-    UserDTO getUserById(Integer id);
+//    UserDTO getUserById(Integer id);
 }

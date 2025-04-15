@@ -319,12 +319,9 @@ const ProductTable = () => {
 
     try {
       const token = getToken();
-      await axios.delete(
-        `http://localhost:8080/api/products/${deactivateId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`http://localhost:8080/api/products/${deactivateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setProducts(
         products.map((product) =>
           product.id === deactivateId ? { ...product, active: false } : product
@@ -485,6 +482,44 @@ const ProductTable = () => {
     },
   };
 
+  // Define the background color mapping
+  const colorMap = {
+    Red: "red",
+    "Red-Orange": "#e75113", // Matches Tailwind's bg-orange-600
+    Orange: "orange",
+    "Yellow-Orange": "#f59e0b", // Matches Tailwind's bg-amber-400
+    Yellow: "yellow",
+    "Yellow-Green": "#a3e635", // Matches Tailwind's bg-lime-400
+    Green: "green",
+    Cyan: "cyan",
+    Blue: "blue",
+    "Blue-Purple": "#4f46e5", // Matches Tailwind's bg-indigo-500
+    Purple: "purple",
+    "Red-Purple": "#d946ef", // Matches Tailwind's bg-fuchsia-500
+    White: "white",
+    Black: "black",
+    "": "white", // Default for "Select Color"
+  };
+
+  // Define the text color mapping
+  const textColorMap = {
+    Red: "white",
+    "Red-Orange": "white",
+    Orange: "white",
+    "Yellow-Orange": "black", // Lighter color, so black text is readable
+    Yellow: "black", // Lighter color, so black text is readable
+    "Yellow-Green": "black", // Lighter color, so black text is readable
+    Green: "white",
+    Cyan: "white",
+    Blue: "white",
+    "Blue-Purple": "white",
+    Purple: "white",
+    "Red-Purple": "white",
+    White: "black", // White background, so black text is readable
+    Black: "white", // Black background, so white text is readable
+    "": "black", // Default for "Select Color" (white background)
+  };
+
   const columns = [
     {
       name: "ID",
@@ -510,7 +545,15 @@ const ProductTable = () => {
         textOverflow: "ellipsis",
       },
       cell: (row) => (
-        <div style={{ opacity: row.active ? 1 : 0.5 }}>
+        <div
+          style={{
+            opacity: row.active ? 1 : 0.5,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "90%",
+          }}
+        >
           {row.productCode ? row.productCode : "Null"}
         </div>
       ),
@@ -521,12 +564,17 @@ const ProductTable = () => {
       sortable: true,
       style: {
         width: "100px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
       },
       cell: (row) => (
-        <div style={{ opacity: row.active ? 1 : 0.5 }}>
+        <div
+          style={{
+            opacity: row.active ? 1 : 0.5,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "90%",
+          }}
+        >
           {row.productName ? row.productName : "Null"}
         </div>
       ),
@@ -713,15 +761,63 @@ const ProductTable = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Color
             </label>
-            <input
-              type="text"
-              placeholder="Enter Color"
+            <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
               value={formData.color}
               onChange={(e) =>
                 setFormData({ ...formData, color: e.target.value })
               }
-            />
+              style={{
+                backgroundColor: colorMap[formData.color] || "white",
+                color: textColorMap[formData.color] || "black",
+              }}
+            >
+              <option value="" className="bg-white text-black">
+                Select Color
+              </option>
+              <option value="Red" className="bg-red-500 text-white">
+                Red
+              </option>
+              <option value="Red-Orange" className="bg-orange-600 text-white">
+                Red-Orange
+              </option>
+              <option value="Orange" className="bg-orange-500 text-white">
+                Orange
+              </option>
+              <option value="Yellow-Orange" className="bg-amber-400 text-black">
+                Yellow-Orange
+              </option>
+              <option value="Yellow" className="bg-yellow-500 text-black">
+                Yellow
+              </option>
+              <option value="Yellow-Green" className="bg-lime-400 text-black">
+                Yellow-Green
+              </option>
+              <option value="Green" className="bg-green-500 text-white">
+                Green
+              </option>
+              <option value="Cyan" className="bg-cyan-500 text-white">
+                Cyan
+              </option>
+              <option value="Blue" className="bg-blue-500 text-white">
+                Blue
+              </option>
+              <option value="Blue-Purple" className="bg-indigo-500 text-white">
+                Blue-Purple
+              </option>
+              <option value="Purple" className="bg-purple-500 text-white">
+                Purple
+              </option>
+              <option value="Red-Purple" className="bg-fuchsia-500 text-white">
+                Red-Purple
+              </option>
+              <option value="White" className="bg-white text-black">
+                White
+              </option>
+              <option value="Black" className="bg-black text-white">
+                Black
+              </option>
+            </select>
           </div>
 
           <div className="field-group">
@@ -909,7 +1005,7 @@ const ProductTable = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Color
             </label>
-            <input
+            {/* <input
               type="text"
               placeholder="Enter Color"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
@@ -917,7 +1013,64 @@ const ProductTable = () => {
               onChange={(e) =>
                 setFormData({ ...formData, color: e.target.value })
               }
-            />
+            /> */}
+            <select
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
+              value={formData.color}
+              onChange={(e) =>
+                setFormData({ ...formData, color: e.target.value })
+              }
+              style={{
+                backgroundColor: colorMap[formData.color] || "white",
+                color: textColorMap[formData.color] || "black",
+              }}
+            >
+              <option value="" className="bg-white text-black">
+                Select Color
+              </option>
+              <option value="Red" className="bg-red-500 text-white">
+                Red
+              </option>
+              <option value="Red-Orange" className="bg-orange-600 text-white">
+                Red-Orange
+              </option>
+              <option value="Orange" className="bg-orange-500 text-white">
+                Orange
+              </option>
+              <option value="Yellow-Orange" className="bg-amber-400 text-black">
+                Yellow-Orange
+              </option>
+              <option value="Yellow" className="bg-yellow-500 text-black">
+                Yellow
+              </option>
+              <option value="Yellow-Green" className="bg-lime-400 text-black">
+                Yellow-Green
+              </option>
+              <option value="Green" className="bg-green-500 text-white">
+                Green
+              </option>
+              <option value="Cyan" className="bg-cyan-500 text-white">
+                Cyan
+              </option>
+              <option value="Blue" className="bg-blue-500 text-white">
+                Blue
+              </option>
+              <option value="Blue-Purple" className="bg-indigo-500 text-white">
+                Blue-Purple
+              </option>
+              <option value="Purple" className="bg-purple-500 text-white">
+                Purple
+              </option>
+              <option value="Red-Purple" className="bg-fuchsia-500 text-white">
+                Red-Purple
+              </option>
+              <option value="White" className="bg-white text-black">
+                White
+              </option>
+              <option value="Black" className="bg-black text-white">
+                Black
+              </option>
+            </select>
           </div>
 
           <div className="field-group">

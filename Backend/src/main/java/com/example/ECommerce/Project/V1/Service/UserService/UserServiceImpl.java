@@ -2,6 +2,7 @@ package com.example.ECommerce.Project.V1.Service.UserService;
 
 import com.cloudinary.Cloudinary;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.User;
@@ -187,7 +188,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void changeForgotPassword(ChangePasswordRequest request, Principal connectedUser) {
+    public void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser) {
         Integer userId;
 
         if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
@@ -237,12 +238,6 @@ public class UserServiceImpl implements IUserService {
             e.printStackTrace();
         }
         return null;
-    }
-    @Override
-    public UserDTO getUserById(Integer id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
-        return mapToDTO(user);
     }
 
     private UserDTO mapToDTO(User user) {

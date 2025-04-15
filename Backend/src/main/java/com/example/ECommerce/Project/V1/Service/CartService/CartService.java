@@ -156,6 +156,7 @@ public class CartService implements ICartService{
                         item.getQuantity(),
                         item.getUnitPrice(),
                         item.getProduct().getId(),
+                                                item.getProduct().getProductName(),
                         cart.getId()))
                 .collect(Collectors.toList());
 

@@ -109,6 +109,7 @@ const SizeChart = () => {
         }
       );
       setSizes([...sizes, res.data]);
+      handleGetSizes();
       closeAddModal();
     } catch (error) {
       console.error("Error adding size:", error);

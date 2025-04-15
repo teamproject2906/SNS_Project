@@ -1,6 +1,5 @@
 package com.example.ECommerce.Project.V1.Service.PostService;
 
-import com.cloudinary.Cloudinary;
 import com.example.ECommerce.Project.V1.DTO.CommentDTO;
 import com.example.ECommerce.Project.V1.DTO.PostDTO;
 import com.example.ECommerce.Project.V1.DTO.UserLikeDTO;
@@ -9,298 +8,242 @@ import com.example.ECommerce.Project.V1.Model.Comment;
 import com.example.ECommerce.Project.V1.Model.Post;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Model.UserLike;
+import com.example.ECommerce.Project.V1.Repository.CommentRepository;
 import com.example.ECommerce.Project.V1.Repository.LikeRepository;
 import com.example.ECommerce.Project.V1.Repository.PostRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
+import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements IPostService {
 
-    private final PostRepository postRepository;
-    private final LikeRepository likeRepository;
-    private final UserRepository userRepository;
-    private final Cloudinary cloudinary;
+   private final PostRepository postRepository;
+   private final ModelMapper mapper;
+   private final LikeRepository likeRepository;
+   private final UserRepository userRepository;
+   private final CommentRepository commentRepository;
 
-    private User getCurrentUser(Principal connectedUser) {
-        int userId;
+   private User getCurrentUser(Principal connectedUser) {
+      int userId;
 
-        if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
-            Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
+      if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
+         Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
 
-            if (userIdClaim instanceof Number number) {
-                userId = number.intValue();
-            } else {
-                throw new IllegalArgumentException("Invalid userId claim in JWT");
-            }
-        } else {
-            throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
-        }
+         if (userIdClaim instanceof Number number) {
+            userId = number.intValue();
+         } else {
+            throw new IllegalArgumentException("Invalid userId claim in JWT");
+         }
+      } else {
+         throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
+      }
 
-        return userRepository.findUserById(userId);
-    }
+      return userRepository.findUserById(userId);
+   }
 
-    @Override
-    public PostDTO createPost(PostDTO post, MultipartFile file, Principal connectedUser) throws IOException {
+   @Override
+   public PostDTO createPost(PostDTO post, Principal connectedUser) {
 
-        User userFind = getCurrentUser(connectedUser);
+      User userFind = getCurrentUser(connectedUser);
 
-        Map<String, Object> options = new HashMap<>();
-        options.put("folder", "social");
-        options.put("tags", List.of("post_img"));
+      var newPost = Post.builder()
+            .user(userFind)
+            .content(post.getContent())
+            .imageUrl(post.getImageUrl())
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .createdBy(userFind.getUsername())
+            .updatedBy(userFind.getUsername())
+            .isActive(true)
+            .build();
+      postRepository.save(newPost);
 
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
-        String imageUrl = uploadResult.get("secure_url").toString();
+      return PostDTO.builder()
+            .id(newPost.getId())
+            .user(userFind.getFirstname() + " " + userFind.getLastname())
+            .content(newPost.getContent())
+            .imageUrl(newPost.getImageUrl())
+            .build();
+   }
 
-        var newPost = Post.builder()
-                .user(userFind)
-                .content(post.getContent())
-                .imageUrl(imageUrl)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .createdBy(userFind.getUsername())
-                .updatedBy(userFind.getUsername())
-                .isActive(true)
-                .build();
-        postRepository.save(newPost);
+   @Override
+   public PostDTO updatePost(PostDTO post, UUID postId, Principal connectedUser) {
 
-        return PostDTO.builder()
-                .id(newPost.getId())
-                .user(userFind.getFirstname() + " " + userFind.getLastname())
-                .content(newPost.getContent())
-                .imageUrl(newPost.getImageUrl())
-                .build();
-    }
+      User userFind = getCurrentUser(connectedUser);
 
-    @Override
-    public PostDTO updatePost(PostDTO post, UUID postId, MultipartFile file, Principal connectedUser) throws IOException {
+      Post updatedPost = postRepository.findById(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+      updatedPost.setContent(post.getContent());
+      updatedPost.setImageUrl(post.getImageUrl());
+      updatedPost.setUpdatedAt(LocalDateTime.now());
+      updatedPost.setUpdatedBy(userFind.getUsername());
 
-        User userFind = getCurrentUser(connectedUser);
+      postRepository.save(updatedPost);
 
-        Post updatedPost = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+      return PostDTO.builder()
+            .id(updatedPost.getId())
+            .user(userFind.getFirstname() + " " + userFind.getLastname())
+            .content(updatedPost.getContent())
+            .imageUrl(updatedPost.getImageUrl())
+            .build();
+   }
 
-        // If a new image is uploaded
-        String imageUrl = null;
-        if (file != null && !file.isEmpty()) {
-            String oldImageUrl = updatedPost.getImageUrl();
-            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
-                String publicId = extractPublicIdFromUrl(oldImageUrl);
-                cloudinary.uploader().destroy(publicId, Map.of());
-            }
+   @Override
+   public void deactivatePost(PostDTO post, UUID postId, Principal connectedUser) {
 
-            Map<String, Object> options = new HashMap<>();
-            options.put("folder", "social");
-            options.put("tags", List.of("post_img"));
+      User userFind = getCurrentUser(connectedUser);
 
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
-            imageUrl = uploadResult.get("secure_url").toString();
-        }
+      Post updatedPost = postRepository.findById(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+      updatedPost.setIsActive(post.isActive());
+      updatedPost.setUpdatedAt(LocalDateTime.now());
+      updatedPost.setUpdatedBy(userFind.getUsername());
+      postRepository.save(updatedPost);
+   }
 
+   @Override
+   public List<PostDTO> getAllPostsActive() {
+      List<Post> posts = postRepository.findAllByIsActiveTrue();
 
-        updatedPost.setContent(post.getContent());
-        updatedPost.setImageUrl(imageUrl);
-        updatedPost.setUpdatedAt(LocalDateTime.now());
-        updatedPost.setUpdatedBy(userFind.getUsername());
+      return posts.stream()
+            .map(post -> {
+               User userFind = postRepository.findUserByPostId(post.getId());
+               long totalLikes = likeRepository.countByPostId(post.getId());
+               return PostDTO.builder()
+                     .id(post.getId())
+                     .user(userFind.getFirstname() + " " + userFind.getLastname())
+                     .content(post.getContent())
+                     .imageUrl(post.getImageUrl())
+                     .comments(post.getComments()
+                           .stream()
+                           .map(this::convertToCommentDTO)
+                           .collect(Collectors.toList()))
+                     .userLikes(post.getLikes()
+                           .stream()
+                           .map(this::convertToUserLikeDTO)
+                           .collect(Collectors.toList()))
+                     .totalLiked(totalLikes)
+                     .build();
+            })
+            .collect(Collectors.toList());
+   }
 
-        postRepository.save(updatedPost);
+   @Override
+   public PostDTO getPostById(UUID postId) {
+      Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+      User userFind = postRepository.findUserByPostId(post.getId());
+      long totalLikes = likeRepository.countByPostId(post.getId());
+      return PostDTO.builder()
+            .id(post.getId())
+            .user(userFind.getFirstname() + " " + userFind.getLastname())
+            .content(post.getContent())
+            .imageUrl(post.getImageUrl())
+            .comments(post.getComments()
+                  .stream()
+                  .map(this::convertToCommentDTO)
+                  .collect(Collectors.toList()))
+            .userLikes(post.getLikes()
+                  .stream()
+                  .map(this::convertToUserLikeDTO)
+                  .collect(Collectors.toList()))
+            .totalLiked(totalLikes)
+            .build();
+   }
 
-        return PostDTO.builder()
-                .id(updatedPost.getId())
-                .user(userFind.getFirstname() + " " + userFind.getLastname())
-                .content(updatedPost.getContent())
-                .imageUrl(updatedPost.getImageUrl())
-                .build();
-    }
+   @Override
+   public List<PostDTO> searchPostByTitle(String content, Principal connectedUser) {
+      List<Post> posts;
+      // Kiểm tra vai trò của người dùng
+      if (connectedUser != null) {
+         User userFind = getCurrentUser(connectedUser);
+         boolean isAdmin = userFind.getRole() == Role.ADMIN;
 
-    @Override
-    public void deactivatePost(PostDTO post, UUID postId, Principal connectedUser) {
+         // Admin có thể xem tất cả các bài post (cả active và inactive)
+         if (isAdmin) {
+            posts = postRepository.findPostByContentContainingIgnoreCase(content);
+         } else {
+            // User thường chỉ có thể xem các bài post active
+            posts = postRepository.findPostByContentContainingIgnoreCaseAndIsActiveTrue(content);
+         }
+      } else {
+         // Nếu không đăng nhập, chỉ xem được bài viết active
+         posts = postRepository.findPostByContentContainingIgnoreCaseAndIsActiveTrue(content);
+      }
 
-        User userFind = getCurrentUser(connectedUser);
+      return posts.stream()
+            .map(post -> {
+               User userFind = postRepository.findUserByPostId(post.getId());
+               long totalLikes = likeRepository.countByPostId(post.getId());
+               return PostDTO.builder()
+                     .id(post.getId())
+                     .user(userFind.getFirstname() + " " + userFind.getLastname())
+                     .content(post.getContent())
+                     .imageUrl(post.getImageUrl())
+                     .isActive(post.getIsActive())
+                     .comments(post.getComments()
+                           .stream()
+                           .map(this::convertToCommentDTO)
+                           .collect(Collectors.toList()))
+                     .userLikes(post.getLikes()
+                           .stream()
+                           .map(this::convertToUserLikeDTO)
+                           .collect(Collectors.toList()))
+                     .totalLiked(totalLikes)
+                     .build();
+            })
+            .collect(Collectors.toList());
+   }
 
-        Post updatedPost = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
-        updatedPost.setIsActive(post.isActive());
-        updatedPost.setUpdatedAt(LocalDateTime.now());
-        updatedPost.setUpdatedBy(userFind.getUsername());
-        postRepository.save(updatedPost);
-    }
+   @Override
+   public void likeOrDislikePost(UUID postId, Principal connectedUser) {
 
-    @Override
-    public List<PostDTO> getAllPostsActive() {
-        List<Post> posts = postRepository.findAllByIsActiveTrue();
+      User userFind = getCurrentUser(connectedUser);
 
-        return posts.stream()
-                .map(post -> {
-                    User userFind = postRepository.findUserByPostId(post.getId());
-                    long totalLikes = likeRepository.countByPostId(post.getId());
-                    return PostDTO.builder()
-                            .id(post.getId())
-                            .user(userFind.getFirstname() + " " + userFind.getLastname())
-                            .content(post.getContent())
-                            .imageUrl(post.getImageUrl())
-                            .comments(post.getComments()
-                                    .stream()
-                                    .map(this::convertToCommentDTO)
-                                    .collect(Collectors.toList()))
-                            .userLikes(post.getLikes()
-                                    .stream()
-                                    .map(this::convertToUserLikeDTO)
-                                    .collect(Collectors.toList()))
-                            .totalLiked(totalLikes)
-                            .build();
-                })
-                .collect(Collectors.toList());
-    }
+      Post post = postRepository.findPostById(postId);
+      var findUserLikePost = likeRepository.findUserLikeByUserAndPost(userFind, post);
+      if (findUserLikePost.isEmpty()) {
+         var userLiked = UserLike.builder()
+               .user(userFind)
+               .post(post)
+               .build();
+         likeRepository.save(userLiked);
+      } else {
+         likeRepository.delete(findUserLikePost.get());
+      }
+   }
 
+   private CommentDTO convertToCommentDTO(Comment comment) {
 
-    @Override
-    public PostDTO getPostById(UUID postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
-        User userFind = postRepository.findUserByPostId(post.getId());
-        long totalLikes = likeRepository.countByPostId(post.getId());
-        return PostDTO.builder()
-                .id(post.getId())
-                .user(userFind.getFirstname() + " " + userFind.getLastname())
-                .content(post.getContent())
-                .imageUrl(post.getImageUrl())
-                .comments(post.getComments()
-                        .stream()
-                        .map(this::convertToCommentDTO)
-                        .collect(Collectors.toList()))
-                .userLikes(post.getLikes()
-                        .stream()
-                        .map(this::convertToUserLikeDTO)
-                        .collect(Collectors.toList()))
-                .totalLiked(totalLikes)
-                .build();
-    }
+      return CommentDTO.builder()
+            .id(comment.getId())
+            .user(comment.getUser().getFirstname() + " " + comment.getUser().getLastname())
+            .postId(comment.getPost() != null ? comment.getPost().getId() : null)
+            .content(comment.getContent())
+            .imageUrl(comment.getImageUrl())
+            .commentReplyId(comment.getId())
+            .isActive(comment.getIsActive())
+            .build();
+   }
 
-    @Override
-    public List<PostDTO> searchPostByTitle(String content) {
-        List<Post> posts = postRepository.findPostByContentContainingIgnoreCase(content);
-        return posts.stream()
-                .map(post -> {
-                    User userFind = postRepository.findUserByPostId(post.getId());
-                    long totalLikes = likeRepository.countByPostId(post.getId());
-                    return PostDTO.builder()
-                            .id(post.getId())
-                            .user(userFind.getFirstname() + " " + userFind.getLastname())
-                            .content(post.getContent())
-                            .imageUrl(post.getImageUrl())
-                            .comments(post.getComments()
-                                    .stream()
-                                    .map(this::convertToCommentDTO)
-                                    .collect(Collectors.toList()))
-                            .userLikes(post.getLikes()
-                                    .stream()
-                                    .map(this::convertToUserLikeDTO)
-                                    .collect(Collectors.toList()))
-                            .totalLiked(totalLikes)
-                            .build();
-                })
-                .collect(Collectors.toList());
-    }
+   private UserLikeDTO convertToUserLikeDTO(UserLike userLike) {
+      if (userLike == null) {
+         return null;
+      }
 
-    @Override
-    public void likeOrDislikePost(UUID postId, Principal connectedUser) {
-
-        User userFind = getCurrentUser(connectedUser);
-
-        Post post = postRepository.findPostById(postId);
-        var findUserLikePost = likeRepository.findUserLikeByUserAndPost(userFind, post);
-        if (findUserLikePost.isEmpty()){
-            var userLiked = UserLike.builder()
-                    .user(userFind)
-                    .post(post)
-                    .build();
-            likeRepository.save(userLiked);
-        } else {
-            likeRepository.delete(findUserLikePost.get());
-        }
-    }
-
-    @Override
-    public List<PostDTO> getUserPostByUserId(Integer userId) {
-
-        List<Post> posts = postRepository.findPostByUserId(userId);
-
-        return posts.stream()
-                .map(post -> {
-                    User userFind = postRepository.findUserByPostId(post.getId());
-                    long totalLikes = likeRepository.countByPostId(post.getId());
-                    return PostDTO.builder()
-                            .id(post.getId())
-                            .user(userFind.getFirstname() + " " + userFind.getLastname())
-                            .content(post.getContent())
-                            .imageUrl(post.getImageUrl())
-                            .comments(post.getComments()
-                                    .stream()
-                                    .map(this::convertToCommentDTO)
-                                    .collect(Collectors.toList()))
-                            .userLikes(post.getLikes()
-                                    .stream()
-                                    .map(this::convertToUserLikeDTO)
-                                    .collect(Collectors.toList()))
-                            .totalLiked(totalLikes)
-                            .build();
-                })
-                .collect(Collectors.toList());
-    }
-
-    private CommentDTO convertToCommentDTO(Comment comment) {
-
-        return CommentDTO.builder()
-                .id(comment.getId())
-                .user(comment.getUser().getFirstname() + " " + comment.getUser().getLastname())
-                .postId(comment.getPost() != null ? comment.getPost().getId() : null)
-                .content(comment.getContent())
-                .imageUrl(comment.getImageUrl())
-                .commentReplyId(comment.getId())
-                .isActive(comment.getIsActive())
-                .build();
-    }
-
-    private UserLikeDTO convertToUserLikeDTO(UserLike userLike) {
-        if (userLike == null) {
-            return null;
-        }
-
-        return UserLikeDTO.builder()
-                .userID(userLike.getUser().getId())
-                .postID(userLike.getPost().getId())
-                .build();
-    }
-
-    private String extractPublicIdFromUrl(String url) {
-        try {
-            String[] parts = url.split("/");
-            int index = Arrays.asList(parts).indexOf("upload");
-            if (index != -1 && index + 1 < parts.length) {
-                // Join everything after 'upload' (skip version and extract public_id without extension)
-                StringBuilder publicIdBuilder = new StringBuilder();
-                for (int i = index + 2; i < parts.length; i++) {
-                    String part = parts[i];
-                    if (i == parts.length - 1) {
-                        part = part.substring(0, part.lastIndexOf('.')); // remove .jpg/.png
-                    }
-                    publicIdBuilder.append(part);
-                    if (i < parts.length - 1) publicIdBuilder.append("/");
-                }
-                return publicIdBuilder.toString();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+      return UserLikeDTO.builder()
+            .userID(userLike.getUser().getId())
+            .postID(userLike.getPost().getId())
+            .build();
+   }
 }
