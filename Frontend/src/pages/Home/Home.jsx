@@ -297,7 +297,7 @@ const HomePage = () => {
                   <img
                     loading="lazy"
                     src={item.imageUrl ? item.imageUrl : "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="}
-                    alt={`Product ${item}`}
+                    alt={item.productName}
                     style={{
                       width: "80%",
                       height: "300px",
@@ -323,7 +323,7 @@ const HomePage = () => {
                     className="card-text"
                     style={{ width: "80%", margin: "0 auto" }}
                   >
-                    <p>{item.productName}</p>
+                    <p style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.productName}</p>
                     <p>{formatPrice(item.price)}đ</p>
                   </div>
                 </div>
