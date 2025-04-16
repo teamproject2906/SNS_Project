@@ -74,6 +74,8 @@ public class PostServiceImpl implements IPostService {
             .user(userFind.getFirstname() + " " + userFind.getLastname())
             .content(newPost.getContent())
             .imageUrl(newPost.getImageUrl())
+            .userId(userFind.getId())
+            .userAvatar(userFind.getAvatar())
             .build();
    }
 
@@ -96,6 +98,8 @@ public class PostServiceImpl implements IPostService {
             .user(userFind.getFirstname() + " " + userFind.getLastname())
             .content(updatedPost.getContent())
             .imageUrl(updatedPost.getImageUrl())
+            .userId(userFind.getId())
+            .userAvatar(userFind.getAvatar())
             .build();
    }
 
@@ -134,6 +138,8 @@ public class PostServiceImpl implements IPostService {
                            .map(this::convertToUserLikeDTO)
                            .collect(Collectors.toList()))
                      .totalLiked(totalLikes)
+                     .userId(userFind.getId())
+                     .userAvatar(userFind.getAvatar())
                      .build();
             })
             .collect(Collectors.toList());
@@ -158,6 +164,8 @@ public class PostServiceImpl implements IPostService {
                   .map(this::convertToUserLikeDTO)
                   .collect(Collectors.toList()))
             .totalLiked(totalLikes)
+            .userId(userFind.getId())
+            .userAvatar(userFind.getAvatar())
             .build();
    }
 
@@ -200,6 +208,8 @@ public class PostServiceImpl implements IPostService {
                            .map(this::convertToUserLikeDTO)
                            .collect(Collectors.toList()))
                      .totalLiked(totalLikes)
+                     .userId(userFind.getId())
+                     .userAvatar(userFind.getAvatar())
                      .build();
             })
             .collect(Collectors.toList());

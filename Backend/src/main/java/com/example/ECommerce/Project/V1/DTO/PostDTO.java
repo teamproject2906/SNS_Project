@@ -15,12 +15,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class PostDTO {
-    private UUID id;
-    private String user;
-    private String content;
-    private String imageUrl;
-    private List<CommentDTO> comments;
-    private long totalLiked;
-    private List<UserLikeDTO> userLikes;
-    private boolean isActive;
+   private UUID id;
+   private String user;
+   private String content;
+   private String imageUrl;
+   private List<CommentDTO> comments;
+   private long totalLiked;
+   private List<UserLikeDTO> userLikes;
+   private boolean isActive;
+   private Integer userId;
+   private String userAvatar;
 }
