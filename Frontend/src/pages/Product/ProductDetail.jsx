@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import CommentsSection from "../../components/CommentsSection/CommentsSection";
 import axios from "axios";
 import { getToken } from "../Login/app/static";
