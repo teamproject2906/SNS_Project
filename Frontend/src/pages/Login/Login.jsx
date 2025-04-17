@@ -150,10 +150,6 @@ const Login = () => {
               <FaGoogle className="mr-2" />
               Google
             </button>
-            <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-500">
-              <FaFacebook className="mr-2" />
-              Facebook
-            </button>
           </div>
         </div>
 

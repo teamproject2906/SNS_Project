@@ -128,9 +128,28 @@ const FormClothesChart = () => {
     }
   };
 
+  const customStyles = {
+    cells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "1px",
+      },
+    },
+    headCells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        fontWeight: "bold",
+        padding: "1px",
+        fontSize: "14px",
+      },
+    },
+  };
+
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "form Type", selector: (row) => row.formClothes, sortable: true },
+    { name: "Form Type", selector: (row) => row.formClothes, sortable: true },
     {
       name: "Actions",
       cell: (row) => (
@@ -164,7 +183,7 @@ const FormClothesChart = () => {
           Add form
         </button>
       </div>
-      <DataTable columns={columns} data={formClothes} pagination />
+      <DataTable columns={columns} data={formClothes} pagination customStyles={customStyles} />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}

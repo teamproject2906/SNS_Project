@@ -153,6 +153,7 @@ const UserTable = () => {
         whiteSpace: "nowrap",
         fontWeight: "bold",
         padding: "8px",
+        fontSize: "14px",
       },
     },
   };

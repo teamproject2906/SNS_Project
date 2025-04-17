@@ -189,6 +189,25 @@ const CategoryList = () => {
     }
   };
 
+  const customStyles = {
+    cells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "1px",
+      },
+    },
+    headCells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        fontWeight: "bold",
+        padding: "1px",
+        fontSize: "14px",
+      },
+    },
+  };
+
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
     {
@@ -250,6 +269,7 @@ const CategoryList = () => {
         columns={columns}
         data={categories}
         pagination
+        customStyles={customStyles}
         conditionalRowStyles={[
           {
             when: (row) => !row.active,
