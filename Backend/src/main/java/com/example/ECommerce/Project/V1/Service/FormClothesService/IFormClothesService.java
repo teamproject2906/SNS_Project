@@ -12,5 +12,6 @@ public interface IFormClothesService {
     List<FormClothesResponseDTO> getAllFormClothes();
     FormClothes getFormClothesById(Integer id);
     FormClothes updateFormClothes(Integer id, FormClothes formClothes);
-    void deleteFormClothesById(Integer id);
+    void deActiveFormClothesById(Integer id);
+    FormClothes reActiveFormClothesById(Integer id);
 }
