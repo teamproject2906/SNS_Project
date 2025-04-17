@@ -2,6 +2,7 @@ package com.example.ECommerce.Project.V1.Service.OrderDetailService;
 
 import com.example.ECommerce.Project.V1.DTO.OrderDetailDTO;
 import com.example.ECommerce.Project.V1.DTO.OrderItemDTO;
+import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Model.*;
 import com.example.ECommerce.Project.V1.Repository.OrderDetailRepository;
 import com.example.ECommerce.Project.V1.Repository.OrderItemRepository;
@@ -13,10 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,8 +56,70 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         return modelMapper.map(orderDetail, OrderDetailDTO.class);
     }
 
+    public void validateOrderDetailDTO(OrderDetailDTO orderDetailDTO) {
+        String VALID_ORDER_STATUSES = Arrays.stream(OrderStatus.values())
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
+        String VALID_PAYMENT_METHODS = Arrays.stream(PaymentMethod.values())
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
+        // Kiểm tra các trường bắt buộc không null
+        if (orderDetailDTO.getUserId() == null) {
+            throw new InvalidInputException("User ID cannot be null");
+        }
+
+        if (orderDetailDTO.getOrderItems() == null || orderDetailDTO.getOrderItems().isEmpty()) {
+            throw new InvalidInputException("Order items cannot be null or empty");
+        }
+
+        if (orderDetailDTO.getOrderStatus() == null || orderDetailDTO.getOrderStatus().isEmpty()) {
+            throw new InvalidInputException("Order status cannot be null or empty");
+        }
+
+        if (orderDetailDTO.getPaymentMethod() == null || orderDetailDTO.getPaymentMethod().isEmpty()) {
+            throw new InvalidInputException("Payment method cannot be null or empty");
+        }
+
+        // Kiểm tra orderItems
+        for (int i = 0; i < orderDetailDTO.getOrderItems().size(); i++) {
+            var item = orderDetailDTO.getOrderItems().get(i);
+            if (item.getProductId() == null) {
+                throw new InvalidInputException("Product ID in order item " + i + " cannot be null");
+            }
+            if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                throw new InvalidInputException("Quantity in order item " + i + " must be greater than 0");
+            }
+        }
+
+        // Kiểm tra orderStatus hợp lệ
+        try {
+            OrderStatus.valueOf(orderDetailDTO.getOrderStatus());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidInputException("Invalid order status: " + orderDetailDTO.getOrderStatus() + ". Valid values are: " + VALID_ORDER_STATUSES);
+        }
+
+        // Kiểm tra paymentMethod hợp lệ
+        try {
+            PaymentMethod.valueOf(orderDetailDTO.getPaymentMethod());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidInputException("Invalid payment method: " + orderDetailDTO.getPaymentMethod() + ". Valid values are: " + VALID_PAYMENT_METHODS);
+        }
+
+        // Kiểm tra totalAmount (nếu không null)
+        if (orderDetailDTO.getTotalAmount() != null && orderDetailDTO.getTotalAmount() <= 0) {
+            throw new InvalidInputException("Total amount must be greater than 0");
+        }
+
+        // Kiểm tra shippingDate (nếu có) phải sau orderDate
+        if (orderDetailDTO.getOrderDate() != null && orderDetailDTO.getShippingDate() != null) {
+            if (orderDetailDTO.getShippingDate().isBefore(orderDetailDTO.getOrderDate())) {
+                throw new InvalidInputException("Shipping date must be after order date");
+            }
+        }
+    }
     @Override
     public OrderDetailDTO createOrder(OrderDetailDTO orderDetailDTO) {
+        validateOrderDetailDTO(orderDetailDTO);
         modelMapper.typeMap(OrderDetailDTO.class, OrderDetail.class)
                 .addMappings(mapper -> {
                     mapper.skip(OrderDetail::setId); // Skip setId
