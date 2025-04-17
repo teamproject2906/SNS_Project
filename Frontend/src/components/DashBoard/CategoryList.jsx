@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import ModalUpdate from "../share/ModalUpdate";
 import ModalAdd from "../share/ModalAdd";
-import ModalDelete from "../share/ModalDelete";
+import ModalDeactivate from "../share/ModalDeactivate";
+import ModalActivate from "../share/ModalActivate";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -18,8 +19,10 @@ const CategoryList = () => {
       id: "",
     },
   });
-  const [categoryId, setCategoryId] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deactivateID, setDeactivateID] = useState(null);
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  const [activateID, setActivateID] = useState(null);
+  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
 
   const fetchCategories = async () => {
     try {
@@ -56,10 +59,14 @@ const CategoryList = () => {
     setModalAddIsOpen(true);
   };
 
-  const openDeleteModal = (id) => {
-    console.log("Category ID to delete:", id);
-    setCategoryId(id);
-    setIsDeleteModalOpen(true);
+  const openDeactivateModal = (id) => {
+    setDeactivateID(id);
+    setIsDeactivateModalOpen(true);
+  };
+
+  const openActivateModal = (id) => {
+    setActivateID(id);
+    setIsActivateModalOpen(true);
   };
 
   const closeEditModal = () => setModalEditIsOpen(false);
@@ -98,7 +105,6 @@ const CategoryList = () => {
         categoryName: formData.categoryName,
       };
   
-      // Chỉ thêm parentCategoryID nếu có giá trị hợp lệ
       if (formData.parentCategoryID.id.trim() !== "") {
         requestData.parentCategoryID = { id: formData.parentCategoryID.id };
       }
@@ -119,23 +125,67 @@ const CategoryList = () => {
       toast.error("Lỗi khi thêm danh mục");
     }
   };
-  
 
-  const confirmDelete = async () => {
+  const confirmDeactivate = async () => {
+    if (!deactivateID) return;
+
     try {
       const token = getToken();
-      await axios.delete(`http://localhost:8080/api/categories/${categoryId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCategories(categories.filter((cat) => cat.id !== categoryId));
-      console.log("Deleting category ID:", categoryId);
-      toast.success("Xóa danh mục thành công!");
+      const res = await axios.delete(
+        `http://localhost:8080/api/categories/${deactivateID}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.data) {
+        setCategories(
+          categories.map((cat) =>
+            cat.id === deactivateID ? { ...cat, active: false } : cat
+          )
+        );
+        toast.success("Vô hiệu hóa danh mục thành công!");
+      } else {
+        toast.error("Không thể vô hiệu hóa danh mục");
+      }
     } catch (error) {
-      console.error("Error deleting category:", error);
-      toast.error("Lỗi khi xóa danh mục");
+      console.error("Error deactivating category:", error);
+      toast.error("Lỗi khi vô hiệu hóa danh mục");
     } finally {
-      setIsDeleteModalOpen(false);
-      setCategoryId(null);
+      setIsDeactivateModalOpen(false);
+      setDeactivateID(null);
+    }
+  };
+
+  const confirmActivate = async () => {
+    if (!activateID) return;
+
+    try {
+      const token = getToken();
+      const res = await axios.patch(
+        `http://localhost:8080/api/categories/reactive/${activateID}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.data) {
+        setCategories(
+          categories.map((cat) =>
+            cat.id === activateID ? { ...cat, active: true } : cat
+          )
+        );
+        toast.success("Kích hoạt danh mục thành công!");
+      } else {
+        toast.error("Không thể kích hoạt danh mục");
+      }
+    } catch (error) {
+      console.error("Error activating category:", error);
+      toast.error("Lỗi khi kích hoạt danh mục");
+    } finally {
+      setIsActivateModalOpen(false);
+      setActivateID(null);
     }
   };
 
@@ -156,18 +206,29 @@ const CategoryList = () => {
       name: "Actions",
       cell: (row) => (
         <>
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded mr-2"
-            onClick={() => openEditModal(row)}
-          >
-            Edit
-          </button>
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded"
-            onClick={() => openDeleteModal(row.id)}
-          >
-            Delete
-          </button>
+          {row.active ? (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => openEditModal(row)}
+            >
+              Edit
+            </button>
+          ) : null}
+          {row.active ? (
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded"
+              onClick={() => openDeactivateModal(row.id)}
+            >
+              Deactivate
+            </button>
+          ) : (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded"
+              onClick={() => openActivateModal(row.id)}
+            >
+              Activate
+            </button>
+          )}
         </>
       ),
     },
@@ -185,7 +246,20 @@ const CategoryList = () => {
           Add Category
         </button>
       </div>
-      <DataTable columns={columns} data={categories} pagination />
+      <DataTable
+        columns={columns}
+        data={categories}
+        pagination
+        conditionalRowStyles={[
+          {
+            when: (row) => !row.active,
+            style: {
+              opacity: "0.5",
+              backgroundColor: "#e1e1e1",
+            },
+          },
+        ]}
+      />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
@@ -205,7 +279,7 @@ const CategoryList = () => {
           type="text"
           placeholder="Parent Category ID"
           className="w-full p-2 border mt-2"
-          value={formData.parentCategoryID? formData.parentCategoryID.id : "Null"}
+          value={formData.parentCategoryID ? formData.parentCategoryID.id : "Null"}
           onChange={(e) =>
             setFormData({
               ...formData,
@@ -240,10 +314,15 @@ const CategoryList = () => {
           }
         />
       </ModalAdd>
-      <ModalDelete
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        confirmDelete={confirmDelete}
+      <ModalDeactivate
+        isDeactivateModalOpen={isDeactivateModalOpen}
+        setIsDeactivateModalOpen={setIsDeactivateModalOpen}
+        confirmDeactivate={confirmDeactivate}
+      />
+      <ModalActivate
+        isActivateModalOpen={isActivateModalOpen}
+        setIsActivateModalOpen={setIsActivateModalOpen}
+        confirmActivate={confirmActivate}
       />
     </div>
   );

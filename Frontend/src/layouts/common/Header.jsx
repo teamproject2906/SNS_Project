@@ -219,7 +219,7 @@ const Header = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!token) {
-        setError("Bạn chưa đăng nhập");
+        setError("You are not logged in");
         setLoading(false);
         return;
       }
@@ -254,7 +254,9 @@ const Header = () => {
         setLoading(false);
       } catch (error) {
         console.error("Lỗi khi lấy thông tin người dùng:", error);
-        setError("Không thể lấy thông tin người dùng. Vui lòng thử lại sau.");
+        setError(
+          "Unable to retrieve user information. Please try again later."
+        );
         setLoading(false);
       }
     };
@@ -267,7 +269,7 @@ const Header = () => {
       <div className="bg-black text-white text-sm py-2">
         <div className="container mx-auto flex justify-between items-center px-4">
           <span className="hidden sm:block">
-            STORE: 3A PHÙ ĐỔNG THIÊN VƯƠNG - HAI BÀ TRƯNG - HÀ NỘI
+            STORE: 3A PHU ĐONG THIEN VUONG - HAI BA TRUNG - HA NOI
           </span>
           <div className="flex space-x-4">
             {user ? (
@@ -318,20 +320,22 @@ const Header = () => {
               </div>
             ) : (
               <>
-                <Link
-                  to="/register"
-                  className="flex items-center hover:underline py-2"
-                >
-                  <FaUser className="mr-1" />
-                  ĐĂNG KÍ
-                </Link>
-                <Link
-                  to="/login"
-                  className="flex items-center hover:underline py-2"
-                >
-                  <FaSignInAlt className="mr-1" />
-                  ĐĂNG NHẬP
-                </Link>
+                <div className="container mx-auto flex justify-between items-center px-4 gap-4">
+                  <Link
+                    to="/register"
+                    className="flex items-center hover:underline py-2"
+                  >
+                    <FaUser className="mr-1" />
+                    REGISTER
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="flex items-center hover:underline py-2"
+                  >
+                    <FaSignInAlt className="mr-1" />
+                    LOGIN
+                  </Link>
+                </div>
               </>
             )}
           </div>
@@ -368,7 +372,7 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-2 relative">
             <input
               type="text"
-              placeholder="TÌM KIẾM..."
+              placeholder="SEARCH..."
               className="border border-gray-300 rounded-full px-4 py-1 text-sm focus:outline-none w-64"
               value={searchQuery}
               onChange={handleSearchChange}
@@ -406,7 +410,7 @@ const Header = () => {
                   ))
                 ) : (
                   <p className="p-2 text-sm text-gray-500">
-                    Không tìm thấy sản phẩm.
+                    No products found.
                   </p>
                 )}
               </div>
@@ -447,7 +451,7 @@ const Header = () => {
                     PRODUCTS
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link to="/tshirt" className="hover:underline">
                     T-SHIRT
                   </Link>
@@ -476,7 +480,7 @@ const Header = () => {
                   <Link to="/shorts" className="hover:underline">
                     SHORTS
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </nav>
           </div>

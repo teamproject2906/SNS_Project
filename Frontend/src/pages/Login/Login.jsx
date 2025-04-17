@@ -18,7 +18,7 @@ const Login = () => {
     if (!username) {
       toast.error("Username cannot be blank");
       return;
-    } else if (!password){
+    } else if (!password) {
       toast.error("Password cannot be blank");
       return;
     }
@@ -43,16 +43,16 @@ const Login = () => {
         setUser(decodedUser); // Cập nhật thông tin user trong Context
 
         toast.success("Login successful", {
-          autoClose: 1000, 
+          autoClose: 1000,
           position: "top-right",
         });
         setTimeout(() => {
-                  // Điều hướng theo role
-        if (res.data.role === "ADMIN") {
-          navigate("/dashboard");
-        } else {
-          navigate("/");
-        }
+          // Điều hướng theo role
+          if (res.data.role === "ADMIN") {
+            navigate("/dashboard");
+          } else {
+            navigate("/");
+          }
         }, 1000);
       } else {
         throw new Error("Access token không hợp lệ.");
@@ -62,7 +62,7 @@ const Login = () => {
       toast.error(error.response.data.message);
     }
   };
-  
+
   const registerWithGoogle = async () => {
     try {
       const res = await axios.get(
@@ -89,12 +89,12 @@ const Login = () => {
   return (
     <div className="container mx-auto px-4 py-12">
       <ToastContainer />
-      <h1 className="text-xl font-bold mb-6 border-b pb-2">Đăng nhập</h1>
+      <h1 className="text-xl font-bold mb-6 border-b pb-2">Login</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Form Đăng Nhập */}
         <div className="p-6 shadow-lg border rounded-md">
-          <h2 className="text-lg font-semibold mb-4">Thông tin</h2>
+          <h2 className="text-lg font-semibold mb-4">Information</h2>
           <form onSubmit={handleLoginUser}>
             <div className="mb-4">
               <label htmlFor="username" className="sr-only">
@@ -111,12 +111,12 @@ const Login = () => {
 
             <div className="mb-4">
               <label htmlFor="password" className="sr-only">
-                Mật khẩu
+                Password
               </label>
               <input
                 id="password"
                 type="password"
-                placeholder="Mật khẩu"
+                placeholder="Password"
                 className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700"
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -126,7 +126,7 @@ const Login = () => {
               type="submit"
               className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 text-sm font-semibold"
             >
-              ĐĂNG NHẬP
+              LOGIN
             </button>
           </form>
 
@@ -136,11 +136,11 @@ const Login = () => {
               className="flex items-center hover:underline"
             >
               <FaLock className="mr-1" />
-              Quên mật khẩu
+              Forgot password
             </Link>
           </div>
           <p className="text-center text-sm mb-4 text-gray-500">
-            Hoặc đăng nhập với
+            Or Login with
           </p>
           <div className="flex justify-center space-x-4">
             <button
@@ -159,17 +159,16 @@ const Login = () => {
 
         {/* Đăng Ký Tài Khoản */}
         <div className="p-6 shadow-lg border rounded-md">
-          <h2 className="text-lg font-semibold mb-4">Đăng kí tài khoản mới</h2>
+          <h2 className="text-lg font-semibold mb-4">Register new account</h2>
           <p className="text-sm mb-6">
-            Đăng ký tài khoản ngay để có thể mua hàng nhanh chóng và dễ dàng
-            hơn! Ngoài ra còn có rất nhiều chính sách và ưu đãi cho các thành
-            viên.
+            Register an account now to shop quickly and easily! In addition,
+            there are many policies and special offers available for members.
           </p>
           <Link
             to="/register"
             className="block bg-black text-white py-2 rounded-md text-center hover:bg-gray-800 text-sm font-semibold"
           >
-            TẠO TÀI KHOẢN
+            CREATE NEW ACCOUNT
           </Link>
         </div>
       </div>
