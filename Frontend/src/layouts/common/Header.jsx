@@ -318,20 +318,22 @@ const Header = () => {
               </div>
             ) : (
               <>
-                <Link
-                  to="/register"
-                  className="flex items-center hover:underline py-2"
-                >
-                  <FaUser className="mr-1" />
-                  ĐĂNG KÍ
-                </Link>
-                <Link
-                  to="/login"
-                  className="flex items-center hover:underline py-2"
-                >
-                  <FaSignInAlt className="mr-1" />
-                  ĐĂNG NHẬP
-                </Link>
+                <div className="container mx-auto flex justify-between items-center px-4 gap-4">
+                  <Link
+                    to="/register"
+                    className="flex items-center hover:underline py-2"
+                  >
+                    <FaUser className="mr-1" />
+                    ĐĂNG KÍ
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="flex items-center hover:underline py-2"
+                  >
+                    <FaSignInAlt className="mr-1" />
+                    ĐĂNG NHẬP
+                  </Link>
+                </div>
               </>
             )}
           </div>
