@@ -3,13 +3,16 @@ package com.example.ECommerce.Project.V1.Controller;
 import com.example.ECommerce.Project.V1.Config.TextFileHelper;
 import com.example.ECommerce.Project.V1.DTO.ProductResponseDTO;
 import com.example.ECommerce.Project.V1.Model.Product;
+import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Service.FileUploadService;
+import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.access.IpAddressAuthorizationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,10 +24,12 @@ public class ProductController {
 
     private final IProductService productService;
     private final FileUploadService fileUploadService;
+    private final IProductGalleryService productGalleryService;
 
-    public ProductController(IProductService productService, FileUploadService fileUploadService) {
+    public ProductController(IProductService productService, FileUploadService fileUploadService, IProductGalleryService productGalleryService) {
         this.productService = productService;
         this.fileUploadService = fileUploadService;
+        this.productGalleryService = productGalleryService;
     }
 
     @PostMapping()
@@ -109,6 +114,12 @@ public class ProductController {
         if (products.isEmpty()) return new ResponseEntity<>("There is no product with name: " + name,HttpStatus.NOT_FOUND);
 
         return new ResponseEntity<>(products,HttpStatus.OK);
+    }
+
+    @GetMapping("/images/productCode/{productCode}")
+    public ResponseEntity<?> getImagesOfProductCode(@PathVariable String productCode){
+        List<ProductGallery> productGalleries = productGalleryService.getImageByProductCode(productCode);
+        return new ResponseEntity<>(productGalleries, HttpStatus.OK);
     }
 
     @PatchMapping("/{productId}")
