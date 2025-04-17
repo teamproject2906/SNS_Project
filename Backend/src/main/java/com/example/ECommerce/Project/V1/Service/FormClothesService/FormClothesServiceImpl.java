@@ -93,11 +93,24 @@ public class FormClothesServiceImpl implements IFormClothesService {
     }
 
     @Override
-    public void deleteFormClothesById(Integer id) {
+    public void deActiveFormClothesById(Integer id) {
         FormClothes formClothes = getFormClothesById(id);
 
         if(formClothes != null) {
-            repository.delete(formClothes);
+            formClothes.setIsActive(false);
+            repository.save(formClothes);
         }
+    }
+
+    @Override
+    public FormClothes reActiveFormClothesById(Integer id) {
+        FormClothes formClothes = getFormClothesById(id);
+
+        if(formClothes != null) {
+            formClothes.setIsActive(true);
+            repository.save(formClothes);
+        }
+
+        return formClothes;
     }
 }

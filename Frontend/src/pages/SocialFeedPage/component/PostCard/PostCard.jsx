@@ -99,16 +99,7 @@ const CommentItem = ({
 								</button>
 							</div>
 						</h4>
-						{comment.replyingTo && (
-							<div className="text-blue-600 text-xs font-semibold mb-1 bg-blue-50 inline-block px-2 py-1 rounded">
-								Trả lời @{comment.replyingTo}
-							</div>
-						)}
-						<p className="text-sm mt-1">
-							{comment.content && comment.content.startsWith("@")
-								? comment.content.replace(/^@\S+\s/, "") // Loại bỏ @username ở đầu
-								: comment.content}
-						</p>
+						<p className="text-sm mt-1">{comment.content}</p>
 						<div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
 							<BsClock className="w-3.5 h-3.5" />
 							{comment.createdAt
@@ -136,7 +127,9 @@ const CommentItem = ({
 								<p className="text-xs text-gray-600 mb-1">
 									Trả lời bình luận của{" "}
 									<span className="font-semibold">
-										{comment.user || "User"}
+										{comment.user === "null null"
+											? "(Người dùng chưa đặt tên)"
+											: comment.user || "User"}
 									</span>
 								</p>
 								<textarea
@@ -187,39 +180,6 @@ const CommentItem = ({
 					)}
 				</div>
 			</div>
-
-			{/* Hiển thị các trả lời */}
-			{comment.replies && comment.replies.length > 0 && (
-				<div className="space-y-2">
-					{/* Tiêu đề phần trả lời */}
-					<div className="text-xs text-gray-500 ml-2 mt-1 flex items-center">
-						<span className="mr-1">{comment.replies.length} trả lời</span>
-						{level === 0 && (
-							<div className="h-px flex-grow bg-gray-200 ml-2"></div>
-						)}
-					</div>
-
-					{/* Danh sách trả lời */}
-					<div className="space-y-1">
-						{comment.replies.map((reply) => (
-							<CommentItem
-								key={reply.id}
-								comment={reply}
-								level={level + 1}
-								userAvatar={userAvatar}
-								onReply={onReply}
-								replyingToId={replyingToId}
-								replyText={replyText}
-								setReplyText={setReplyText}
-								onPostReply={onPostReply}
-								isSubmitting={isSubmitting}
-								onEditComment={onEditComment}
-								onDeleteComment={onDeleteComment}
-							/>
-						))}
-					</div>
-				</div>
-			)}
 		</div>
 	);
 };
@@ -239,6 +199,9 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 	const [userProfile, setUserProfile] = useState(null);
 	const [editingComment, setEditingComment] = useState(null);
 	const [editingContent, setEditingContent] = useState("");
+	const [commentCount, setCommentCount] = useState(
+		post?.comments?.length || 0
+	);
 
 	// Add state for editing post
 	const [isEditingPost, setIsEditingPost] = useState(false);
@@ -318,9 +281,12 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 
 	useEffect(() => {
 		const loadComments = async () => {
-			if (showComments && post?.id) {
+			if (post?.id) {
 				try {
-					setIsSubmitting(true);
+					if (showComments) {
+						setIsSubmitting(true);
+					}
+
 					const response = await commentService.getCommentsByPostId(
 						post.id
 					);
@@ -334,19 +300,38 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 									(comment) =>
 										comment &&
 										(comment.isActive === true ||
-											comment.active === true)
+											comment.isActive === 1 ||
+											comment.active === true ||
+											comment.active === 1)
 							  )
 							: [];
 
-						setComments(activeComments);
+						// Cập nhật danh sách comments cho hiển thị
+						if (showComments) {
+							setComments(activeComments);
+						}
+
+						// Đếm tổng số comment và reply để cập nhật số liệu thống kê
+						let totalCommentCount = activeComments.length;
+						activeComments.forEach((comment) => {
+							if (comment.replies && Array.isArray(comment.replies)) {
+								totalCommentCount += comment.replies.length;
+							}
+						});
 					} else {
-						setComments([]);
+						if (showComments) {
+							setComments([]);
+						}
 					}
 				} catch (error) {
 					console.error("Error loading comments:", error);
-					setComments([]);
+					if (showComments) {
+						setComments([]);
+					}
 				} finally {
-					setIsSubmitting(false);
+					if (showComments) {
+						setIsSubmitting(false);
+					}
 				}
 			}
 		};
@@ -470,77 +455,50 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 	const toggleComments = () => setShowComments(!showComments);
 	const toggleSettings = () => setShowSettings(!showSettings);
 
-	const postComment = async () => {
-		if (!commentText.trim() || !post?.id) return;
-
+	// Hàm cập nhật tổng số comments và replies
+	const updateCommentCount = async () => {
 		try {
-			setIsSubmitting(true);
+			if (!post?.id) return;
 
-			// Nếu đang chỉnh sửa một bình luận
-			if (editingComment) {
-				const commentData = {
-					content: commentText,
-					postId: post.id,
-					isActive: true,
-				};
-
-				const response = await commentService.updateComment(
-					editingComment.id,
-					commentData
+			const fetchedComments = await commentService.getCommentsByPostId(
+				post.id
+			);
+			if (Array.isArray(fetchedComments)) {
+				const activeComments = fetchedComments.filter(
+					(comment) =>
+						comment &&
+						(comment.isActive === true ||
+							comment.isActive === 1 ||
+							comment.active === true ||
+							comment.active === 1)
 				);
 
-				if (response) {
-					// Cập nhật bình luận trong danh sách
-					setComments((prevComments) =>
-						prevComments.map((comment) =>
-							comment.id === editingComment.id
-								? { ...comment, content: commentText }
-								: comment
-						)
-					);
-
-					setCommentText("");
-					setEditingComment(null);
-					toast.success("Đã cập nhật bình luận");
-				}
-			} else {
-				// Tạo bình luận mới
-				const commentData = {
-					content: commentText,
-					postId: post.id,
-					userId: user?.id || userInfo?.sub,
-				};
-				const response = await commentService.createComment(commentData);
-				if (response) {
-					// Fetch lại toàn bộ comments sau khi thêm mới
-					const updatedComments = await commentService.getCommentsByPostId(
-						post.id
-					);
-					if (Array.isArray(updatedComments)) {
-						const activeComments = updatedComments.filter(
-							(comment) =>
-								comment &&
-								(comment.isActive === true || comment.active === true)
-						);
-						setComments(activeComments);
+				// Tính tổng số comments và replies
+				let totalCount = 0;
+				activeComments.forEach((comment) => {
+					totalCount++; // Đếm comment
+					if (Array.isArray(comment.replies)) {
+						// Đếm các replies đang active
+						totalCount += comment.replies.filter(
+							(reply) =>
+								reply &&
+								(reply.isActive === true ||
+									reply.isActive === 1 ||
+									reply.active === true ||
+									reply.active === 1)
+						).length;
 					}
-					setCommentText("");
-					toast.success("Đã thêm bình luận thành công");
-				}
+				});
+
+				setCommentCount(totalCount);
+				setComments(activeComments);
 			}
 		} catch (error) {
-			console.error("Error posting comment:", error);
-			toast.error(
-				"Không thể " +
-					(editingComment ? "cập nhật" : "thêm") +
-					" bình luận: " +
-					error.message
-			);
-		} finally {
-			setIsSubmitting(false);
+			console.error("Error updating comment count:", error);
 		}
 	};
 
+	// Cập nhật hàm postReply để gọi updateCommentCount
 	const postReply = async (commentId, level, replyingToUser) => {
 		if (!replyText[commentId]?.trim() || !post?.id) return;
 
@@ -548,9 +506,11 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 			setIsSubmitting(true);
 
 			// Tạo nội dung reply bắt đầu bằng @username để dễ phân biệt
-			const replyContent = `@${replyingToUser} ${replyText[
-				commentId
-			].trim()}`;
+			const replyContent = `@${
+				replyingToUser === "null null"
+					? "(Người dùng chưa đặt tên)"
+					: replyingToUser || "Người dùng chưa đặt tên"
+			} ${replyText[commentId].trim()}`;
 
 			const replyData = {
 				content: replyContent,
@@ -559,7 +519,10 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 				parentCommentId: commentId,
 				commentParentId: commentId,
 				userId: user?.id || userInfo?.sub,
-				replyingTo: replyingToUser,
+				replyingTo:
+					replyingToUser === "null null"
+						? "(Người dùng chưa đặt tên)"
+						: replyingToUser || "Người dùng chưa đặt tên",
 				level: level,
 				isReply: true,
 			};
@@ -643,8 +606,8 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 
 				toast.success("Đã gửi trả lời thành công");
 
-				// QUAN TRỌNG: Không tải lại từ server vì dữ liệu từ server là phẳng và không có cấu trúc phân cấp
-				// Thay vào đó, chúng ta giữ nguyên cấu trúc phân cấp đã xây dựng trong frontend
+				// Gọi updateCommentCount sau khi thêm reply
+				updateCommentCount();
 			}
 		} catch (error) {
 			console.error("Error posting reply:", error);
@@ -655,86 +618,6 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 		} finally {
 			setIsSubmitting(false);
 		}
-	};
-
-	const renderReplies = (
-		replies,
-		level = 1,
-		parentId,
-		expandedReplies,
-		setExpandedReplies,
-		replyingTo,
-		setReplyingTo,
-		replyText,
-		setReplyText,
-		postReply,
-		userAvatar
-	) => {
-		if (!replies || !replies.length) return null;
-
-		const isExpanded = expandedReplies[parentId];
-		const visibleReplies = isExpanded
-			? replies
-			: replies.slice(0, MAX_VISIBLE_REPLIES);
-		const hiddenCount = replies.length - visibleReplies.length;
-
-		return (
-			<div className="transition-all duration-500">
-				{visibleReplies.map((reply) => (
-					<div key={reply.id} className="mt-2">
-						<CommentItem
-							comment={reply}
-							level={level}
-							userAvatar={userAvatar}
-							onReply={setReplyingTo}
-							replyingToId={replyingTo}
-							replyText={replyText}
-							setReplyText={setReplyText}
-							onPostReply={postReply}
-							isSubmitting={isSubmitting}
-							onEditComment={setEditingComment}
-							onDeleteComment={handleDeleteComment}
-						/>
-						{renderReplies(
-							reply.replies,
-							level + 1,
-							reply.id,
-							expandedReplies,
-							setExpandedReplies,
-							replyingTo,
-							setReplyingTo,
-							replyText,
-							setReplyText,
-							postReply,
-							userAvatar
-						)}
-					</div>
-				))}
-
-				{replies.length > MAX_VISIBLE_REPLIES && (
-					<button
-						className="ml-6 text-xs text-gray-700 font-semibold hover:underline mt-2 bg-transparent border-none outline-none cursor-pointer"
-						onClick={() =>
-							setExpandedReplies({
-								...expandedReplies,
-								[parentId]: !isExpanded,
-							})
-						}
-					>
-						{isExpanded ? (
-							<>
-								<BsChevronUp className="inline" /> Thu gọn phản hồi
-							</>
-						) : (
-							<>
-								<BsChevronDown className="inline" /> Xem {hiddenCount}{" "}
-								phản hồi
-							</>
-						)}
-					</button>
-				)}
-			</div>
-		);
 	};
 
 	// Thêm hàm xử lý chỉnh sửa bình luận
@@ -748,37 +631,6 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 	const cancelEditing = () => {
 		setEditingComment(null);
 		setCommentText("");
-	};
-
-	// Thêm hàm xóa bình luận
-	const handleDeleteComment = async (commentId) => {
-		try {
-			setIsSubmitting(true);
-			const commentData = {
-				postId: post.id,
-				isActive: false,
-			};
-
-			await commentService.deleteComment(commentId, commentData);
-
-			// Loại bỏ bình luận khỏi danh sách hiển thị
-			setComments((prevComments) =>
-				prevComments.filter((comment) => comment.id !== commentId)
-			);
-
-			toast.success("Đã xóa bình luận");
-		} catch (error) {
-			console.error("Error deleting comment:", error);
-			toast.error("Không thể xóa bình luận: " + error.message);
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
-
-	// Hàm mở/đóng tooltip likes
-	const toggleLikeTooltip = (e) => {
-		e.stopPropagation(); // Ngăn không cho event lan đến toggleLike
-		setShowLikeTooltip(!showLikeTooltip);
 	};
 
 	// Add handler for editing post
@@ -874,6 +726,205 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 		}
 	};
 
+	// Thêm hàm xóa bình luận
+	const handleDeleteComment = async (commentId) => {
+		try {
+			setIsSubmitting(true);
+			const commentData = {
+				postId: post.id,
+				isActive: false,
+			};
+
+			await commentService.deleteComment(commentId, commentData);
+
+			// Loại bỏ bình luận khỏi danh sách hiển thị
+			setComments((prevComments) =>
+				prevComments.filter((comment) => comment.id !== commentId)
+			);
+
+			toast.success("Đã xóa bình luận");
+
+			// Gọi updateCommentCount để cập nhật số lượng comment
+			updateCommentCount();
+		} catch (error) {
+			console.error("Error deleting comment:", error);
+			toast.error("Không thể xóa bình luận: " + error.message);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const renderReplies = (
+		replies,
+		level = 1,
+		parentId,
+		expandedReplies,
+		setExpandedReplies,
+		replyingTo,
+		setReplyingTo,
+		replyText,
+		setReplyText,
+		postReply,
+		userAvatar
+	) => {
+		if (!replies || !replies.length) return null;
+
+		const isExpanded = expandedReplies[parentId];
+		const visibleReplies = isExpanded
+			? replies
+			: replies.slice(0, MAX_VISIBLE_REPLIES);
+		const hiddenCount = replies.length - visibleReplies.length;
+
+		return (
+			<div className="transition-all duration-500">
+				{visibleReplies.map((reply) => (
+					<div key={reply.id} className="mt-2">
+						<CommentItem
+							comment={reply}
+							level={level}
+							userAvatar={userAvatar}
+							onReply={setReplyingTo}
+							replyingToId={replyingTo}
+							replyText={replyText}
+							setReplyText={setReplyText}
+							onPostReply={postReply}
+							isSubmitting={isSubmitting}
+							onEditComment={handleEditComment}
+							onDeleteComment={handleDeleteComment}
+						/>
+						{renderReplies(
+							reply.replies,
+							level + 1,
+							reply.id,
+							expandedReplies,
+							setExpandedReplies,
+							replyingTo,
+							setReplyingTo,
+							replyText,
+							setReplyText,
+							postReply,
+							userAvatar
+						)}
+					</div>
+				))}
+
+				{replies.length > MAX_VISIBLE_REPLIES && (
+					<button
+						className="ml-6 text-xs text-gray-700 font-semibold hover:underline mt-2 bg-transparent border-none outline-none cursor-pointer"
+						onClick={() =>
+							setExpandedReplies({
+								...expandedReplies,
+								[parentId]: !isExpanded,
+							})
+						}
+					>
+						{isExpanded ? (
+							<>
+								<BsChevronUp className="inline" /> Thu gọn phản hồi
+							</>
+						) : (
+							<>
+								<BsChevronDown className="inline" /> Xem {hiddenCount}{" "}
+								phản hồi
+							</>
+						)}
+					</button>
+				)}
+			</div>
+		);
+	};
+
+	useEffect(() => {
+		// Cập nhật số lượng comment khi component được mount
+		updateCommentCount();
+	}, [post?.id]);
+
+	// Hàm mở/đóng tooltip likes
+	const toggleLikeTooltip = (e) => {
+		e.stopPropagation(); // Ngăn không cho event lan đến toggleLike
+		setShowLikeTooltip(!showLikeTooltip);
+	};
+
+	const postComment = async () => {
+		if (!commentText.trim() || !post?.id) return;
+
+		try {
+			setIsSubmitting(true);
+
+			// Nếu đang chỉnh sửa một bình luận
+			if (editingComment) {
+				const commentData = {
+					content: commentText,
+					postId: post.id,
+					isActive: true,
+				};
+
+				const response = await commentService.updateComment(
+					editingComment.id,
+					commentData
+				);
+
+				if (response) {
+					// Cập nhật bình luận trong danh sách
+					setComments((prevComments) =>
+						prevComments.map((comment) =>
+							comment.id === editingComment.id
+								? { ...comment, content: commentText }
+								: comment
+						)
+					);
+
+					setCommentText("");
+					setEditingComment(null);
+					toast.success("Đã cập nhật bình luận");
+
+					// Gọi updateCommentCount sau khi cập nhật comment
+					updateCommentCount();
+				}
+			} else {
+				// Tạo bình luận mới
+				const commentData = {
+					content: commentText,
+					postId: post.id,
+					userId: user?.id || userInfo?.sub,
+				};
+				const response = await commentService.createComment(commentData);
+				if (response) {
+					// Fetch lại toàn bộ comments sau khi thêm mới
+					const updatedComments = await commentService.getCommentsByPostId(
+						post.id
+					);
+					if (Array.isArray(updatedComments)) {
+						const activeComments = updatedComments.filter(
+							(comment) =>
+								comment &&
+								(comment.isActive === true ||
+									comment.isActive === 1 ||
+									comment.active === true ||
+									comment.active === 1)
+						);
+						setComments(activeComments);
+					}
+					setCommentText("");
+					toast.success("Đã thêm bình luận thành công");
+
+					// Gọi updateCommentCount sau khi thêm comment mới
+					updateCommentCount();
+				}
+			}
+		} catch (error) {
+			console.error("Error posting comment:", error);
+			toast.error(
+				"Không thể " +
+					(editingComment ? "cập nhật" : "thêm") +
+					" bình luận: " +
+					error.message
+			);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
 	return (
 		<div className="bg-white rounded-xl shadow-lg overflow-hidden p-6 mb-4 hover:scale-105 transition-transform duration-300 ease-in-out relative">
 			<button
@@ -915,7 +966,9 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 				</div>
 				<div className="ml-3 flex items-center">
 					<h2 className="font-semibold text-xl text-gray-800">
-						{username}
+						{username === "null null"
+							? "(Người dùng chưa đặt tên)"
+							: username}
 					</h2>
 					<button className="ml-4 text-blue-500 text-sm font-medium hover:underline">
 						Follow
@@ -936,7 +989,28 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 				)}
 			</div>
 
-			{isEditingPost ? (
+			{!isEditingPost ? (
+				<div className="text-gray-800 mb-4">
+					<p style={{ whiteSpace: "pre-line" }}>{post?.content}</p>
+
+					{/* Hiển thị hình ảnh nếu có */}
+					{post?.imageUrl && (
+						<div className="mt-3">
+							<img
+								src={post.imageUrl}
+								alt="Post image"
+								className="max-w-full h-auto rounded-lg object-cover"
+								loading="lazy"
+								onError={(e) => {
+									e.target.onerror = null;
+									e.target.src =
+										"https://via.placeholder.com/500x300?text=Ảnh+không+tồn+tại";
+								}}
+							/>
+						</div>
+					)}
+				</div>
+			) : (
 				<div className="mb-4">
 					<textarea
 						className="w-full p-3 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -997,27 +1071,6 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 							{isSubmitting ? "Đang lưu..." : "Lưu"}
 						</button>
 					</div>
-				</div>
-			) : (
-				<div className="text-gray-800 mb-4">
-					<p>{post?.content}</p>
-
-					{/* Hiển thị hình ảnh nếu có */}
-					{post?.imageUrl && (
-						<div className="mt-3">
-							<img
-								src={post.imageUrl}
-								alt="Post image"
-								className="max-w-full h-auto rounded-lg object-cover"
-								loading="lazy"
-								onError={(e) => {
-									e.target.onerror = null;
-									e.target.src =
-										"https://via.placeholder.com/500x300?text=Ảnh+không+tồn+tại";
-								}}
-							/>
-						</div>
-					)}
 				</div>
 			)}
 
@@ -1099,6 +1152,7 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
 					onClick={toggleComments}
 				>
 					<FaRegComment className="w-6 h-6" />
+					<span className="ml-2">{commentCount} bình luận</span>
 				</button>
 			</div>
 
