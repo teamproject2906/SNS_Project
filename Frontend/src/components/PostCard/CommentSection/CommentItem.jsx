@@ -3,6 +3,7 @@ import { FaEdit, FaTrash, FaRegComment } from "react-icons/fa";
 import { BsClock } from "react-icons/bs";
 import { getTimeAgo } from "../../../utils/timeUtils";
 import CommentForm from "./CommentForm";
+import { DEFAULT_AVATAR } from "../../../constants/ImageConstant";
 
 const CommentItem = ({
   comment,
@@ -19,31 +20,33 @@ const CommentItem = ({
 }) => {
   const bgClass = level > 0 ? "bg-gray-50" : "bg-white";
   const isCommentOwner = currentUserId === comment.userId;
+  const indentLevel = Math.min(level, 3); // tối đa 3 cấp
+  const marginLeft = indentLevel * 24; // 16px mỗi cấp
+  const name =
+    comment?.firstName?.toString()?.trim() &&
+    comment?.firstName?.toString()?.trim() !== ""
+      ? comment?.firstName + " " + comment?.lastName
+      : comment?.username + " (Full name has not been set yet)";
 
   return (
     <div
       className={`flex flex-col gap-2 ${
-        level > 0 ? "ml-8 border-l-2 border-gray-200 pl-4" : "border-b pb-4"
+        level > 0 ? "border-l-2 border-gray-200 pl-4" : "border-t"
       }`}
+      style={{ marginLeft: `${marginLeft}px` }}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 p-3">
         <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
           <img
-            src={
-              comment?.avatar ||
-              `https://i.pravatar.cc/100?img=${(comment.id % 10) + 1}`
-            }
+            src={comment?.avatar || DEFAULT_AVATAR}
             alt="User"
             className="w-full h-full object-cover"
           />
         </div>
         <div className="flex-1 min-w-0">
-          <div className={`${bgClass} rounded-lg p-3 shadow-sm`}>
+          <div className={`${bgClass} rounded-lg shadow-sm`}>
             <div className="flex justify-between items-start mb-1">
-              <h4 className="font-semibold text-sm text-gray-900">
-                {comment?.lastName + " " + comment?.firstName ||
-                  "(Người dùng chưa đặt tên)"}
-              </h4>
+              <h4 className="font-semibold text-sm text-gray-900">{name}</h4>
               {isCommentOwner && (
                 <div className="flex gap-2 ml-2">
                   <button
@@ -97,11 +100,11 @@ const CommentItem = ({
           {replyingToId === comment.id && (
             <div className="mt-3">
               <div className="bg-gray-50 rounded-lg border border-gray-200">
-                <div className="p-3 border-b border-gray-200">
+                <div className="border-b border-gray-200">
                   <p className="text-xs text-gray-600">
                     Trả lời bình luận của{" "}
                     <span className="font-semibold">
-                      {comment?.lastName + " " + comment?.firstName ||
+                      {comment?.firstName + " " + comment?.lastName ||
                         "(Người dùng chưa đặt tên)"}
                     </span>
                   </p>
@@ -141,6 +144,7 @@ CommentItem.propTypes = {
     lastName: PropTypes.string,
     firstName: PropTypes.string,
     avatar: PropTypes.string,
+    username: PropTypes.string,
   }).isRequired,
   level: PropTypes.number,
   onReply: PropTypes.func.isRequired,

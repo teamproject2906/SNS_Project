@@ -87,7 +87,10 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
     <div className="bg-white rounded-xl shadow-lg p-6 mb-4 relative">
       <PostHeader
         userAvatar={post?.userAvatar}
-        username={post?.user}
+        fullName={
+          post?.user?.trim() ||
+          `${post?.username} (Full name has not been set yet)`
+        }
         isCurrentUser={user?.id === post?.userId}
         showSettings={showSettings}
         toggleSettings={toggleSettings}
@@ -151,6 +154,7 @@ PostCard.propTypes = {
     id: PropTypes.string.isRequired,
     content: PropTypes.string,
     imageUrl: PropTypes.string,
+    username: PropTypes.string,
     userAvatar: PropTypes.string,
     user: PropTypes.string,
     userId: PropTypes.number,

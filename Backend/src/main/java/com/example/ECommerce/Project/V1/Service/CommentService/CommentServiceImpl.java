@@ -80,6 +80,8 @@ public class CommentServiceImpl implements ICommentService {
               .imageUrl(newComment.getImageUrl())
               .commentReplyId(replyComment != null ? replyComment.getId() : null)
               .isActive(newComment.getIsActive())
+              .createdAt(newComment.getCreatedAt())
+              .username(userFind.getUsername())
               .build();
    }
 
@@ -107,6 +109,8 @@ public class CommentServiceImpl implements ICommentService {
             .imageUrl(cmtFind.getImageUrl())
             .commentReplyId(cmtFind.getId())
             .isActive(cmtFind.getIsActive())
+              .createdAt(cmtFind.getCreatedAt())
+              .username(userFind.getUsername())
             .build();
    }
 
@@ -150,6 +154,8 @@ public class CommentServiceImpl implements ICommentService {
                         .imageUrl(comment.getImageUrl())
                         .commentReplyId(comment.getReplyCommentId() != null ? comment.getReplyCommentId().getId() : null)
                         .isActive(comment.getIsActive())
+                          .username(comment.getUser().getUsername())
+                          .createdAt(comment.getCreatedAt())
                         .build();
                   return dto;
                })
@@ -183,6 +189,8 @@ public class CommentServiceImpl implements ICommentService {
                         .imageUrl(comment.getImageUrl())
                         .commentReplyId(comment.getId())
                         .isActive(comment.getIsActive())
+                          .username(comment.getUser().getUsername())
+                          .createdAt(comment.getCreatedAt())
                         .build();
                   return dto;
                })

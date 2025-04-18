@@ -98,6 +98,7 @@ const CommentSection = ({
     setEditingComment(null);
     setEditText("");
   };
+  console.log(commentsList);
 
   const handleDeleteComment = async (commentId) => {
     try {
@@ -121,19 +122,33 @@ const CommentSection = ({
       <div className="transition-all duration-500">
         {visibleReplies.map((reply) => (
           <div key={reply.id} className="mt-2">
-            <CommentItem
-              comment={reply}
-              level={level}
-              onReply={setReplyingTo}
-              replyingToId={replyingTo}
-              replyText={replyText}
-              setReplyText={setReplyText}
-              onPostReply={handlePostReply}
-              isSubmitting={isLoading}
-              onEditComment={handleEditComment}
-              onDeleteComment={handleDeleteComment}
-              currentUserId={currentUserId}
-            />
+            {editingComment === reply.id ? (
+              <div className="ml-11 mt-2">
+                <CommentForm
+                  userAvatar={userAvatar}
+                  commentText={editText}
+                  setCommentText={setEditText}
+                  onSubmit={() => handleUpdateComment(reply.id)}
+                  onCancel={handleCancelEdit}
+                  isSubmitting={isLoading}
+                  placeholder="Chỉnh sửa bình luận..."
+                />
+              </div>
+            ) : (
+              <CommentItem
+                comment={reply}
+                level={level}
+                onReply={setReplyingTo}
+                replyingToId={replyingTo}
+                replyText={replyText}
+                setReplyText={setReplyText}
+                onPostReply={handlePostReply}
+                isSubmitting={isLoading}
+                onEditComment={handleEditComment}
+                onDeleteComment={handleDeleteComment}
+                currentUserId={currentUserId}
+              />
+            )}
             {reply.replies &&
               reply.replies.length > 0 &&
               renderReplies(reply.replies, level + 1, reply.id)}

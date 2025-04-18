@@ -5,7 +5,7 @@ import { DEFAULT_AVATAR } from "../../constants/ImageConstant";
 
 const PostHeader = ({
   userAvatar,
-  username,
+  fullName,
   isCurrentUser,
   showSettings,
   toggleSettings,
@@ -58,7 +58,7 @@ const PostHeader = ({
       </div>
       <div className="ml-3 flex items-center">
         <h2 className="font-semibold text-xl text-gray-800">
-          {username || "(Người dùng chưa đặt tên)"}
+          {fullName || "(Người dùng chưa đặt tên)"}
         </h2>
         {!isCurrentUser && (
           <button className="ml-4 text-blue-500 text-sm font-medium hover:underline">
@@ -82,7 +82,7 @@ const PostHeader = ({
 
 PostHeader.propTypes = {
   userAvatar: PropTypes.string,
-  username: PropTypes.string,
+  fullName: PropTypes.string,
   isCurrentUser: PropTypes.bool.isRequired,
   showSettings: PropTypes.bool.isRequired,
   toggleSettings: PropTypes.func.isRequired,

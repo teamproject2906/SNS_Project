@@ -17,6 +17,7 @@ import java.util.UUID;
 public class PostDTO {
    private UUID id;
    private String user;
+   private String username;
    private String content;
    private String imageUrl;
    private List<CommentDTO> comments;

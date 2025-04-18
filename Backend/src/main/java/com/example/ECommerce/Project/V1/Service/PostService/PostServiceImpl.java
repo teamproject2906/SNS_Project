@@ -127,6 +127,7 @@ public class PostServiceImpl implements IPostService {
                return PostDTO.builder()
                      .id(post.getId())
                      .user(userFind.getFirstname() + " " + userFind.getLastname())
+                       .username(userFind.getUsername())
                      .content(post.getContent())
                      .imageUrl(post.getImageUrl())
                      .comments(post.getComments()

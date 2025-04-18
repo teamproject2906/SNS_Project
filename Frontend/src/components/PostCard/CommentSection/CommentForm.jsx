@@ -2,9 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FaPaperPlane } from "react-icons/fa";
 import { DEFAULT_AVATAR } from "../../../constants/ImageConstant";
+import { useUser } from "../../../context/UserContext";
 
 const CommentForm = ({
-  userAvatar,
   commentText,
   setCommentText,
   isSubmitting,
@@ -13,6 +13,8 @@ const CommentForm = ({
   isEditing,
   placeholder,
 }) => {
+  const { user } = useUser();
+  const userAvatar = user?.avatar || DEFAULT_AVATAR;
   return (
     <div className="flex gap-2 mb-4">
       <div className="w-9 h-9 rounded-full overflow-hidden">
