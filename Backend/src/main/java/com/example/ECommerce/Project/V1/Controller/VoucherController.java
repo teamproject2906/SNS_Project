@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/shop")
 @RequiredArgsConstructor
@@ -51,25 +53,25 @@ public class VoucherController {
     }
 
     @GetMapping()
-    public ResponseEntity<PageableResponse<VoucherDTO>> getAllVoucher(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "title", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+    public ResponseEntity<List<VoucherDTO>> getAllVoucher(
+//            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+//            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+//            @RequestParam(value = "sortBy", defaultValue = "title", required = false) String sortBy,
+//            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
     ){
-        PageableResponse<VoucherDTO> pageableResponse = voucherService.getAllVoucher(pageNumber, pageSize, sortBy, sortDir);
+        List<VoucherDTO> pageableResponse = voucherService.getAllVoucher();
         return new ResponseEntity<>(pageableResponse, HttpStatus.OK);
     }
 
     @GetMapping("/search/{keyword}")
-    public ResponseEntity<PageableResponse<VoucherDTO>> searchVoucher(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "voucherCode", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir,
+    public ResponseEntity<List<VoucherDTO>> searchVoucher(
+//            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+//            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+//            @RequestParam(value = "sortBy", defaultValue = "voucherCode", required = false) String sortBy,
+//            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir,
             @PathVariable String keyword
     ){
-        PageableResponse<VoucherDTO> pageableResponse = voucherService.searchVoucher(keyword, pageNumber, pageSize, sortBy, sortDir);
+        List<VoucherDTO> pageableResponse = voucherService.searchVoucher(keyword);
         return new ResponseEntity<>(pageableResponse, HttpStatus.OK);
     }
 }

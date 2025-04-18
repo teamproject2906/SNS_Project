@@ -6,8 +6,10 @@ import com.example.ECommerce.Project.V1.DTO.ResponseDTO.ResponseMessageAPI;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Service.UserService.IUserService;
 import com.example.ECommerce.Project.V1.Service.VoucherService.VoucherService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,9 +39,10 @@ public class UserController {
     @PatchMapping("/changeForgotPassword")
     public ResponseMessageAPI changeForgotPassword(
             @RequestBody ChangeForgotPasswordRequest request,
+            HttpServletRequest servletRequest,
             Principal connectedUser
-    ){
-        userService.changeForgotPassword(request, connectedUser);
+    ) throws BadRequestException {
+        userService.changeForgotPassword(request, servletRequest, connectedUser);
         return ResponseMessageAPI.builder()
                 .message("Change password successfully")
                 .status(HttpStatus.OK)

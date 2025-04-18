@@ -8,7 +8,9 @@ import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -188,7 +190,14 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser) {
+    public void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException {
+
+        String sessionOtp = (String) servletRequest.getSession().getAttribute("code_forgot");
+
+        if (!request.getOtp().equals(sessionOtp)) {
+            throw new BadRequestException("Invalid OTP!");
+        }
+
         Integer userId;
 
         if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
