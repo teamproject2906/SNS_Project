@@ -237,7 +237,10 @@ public class PostServiceImpl implements IPostService {
 
       return CommentDTO.builder()
             .id(comment.getId())
-            .user(comment.getUser().getFirstname() + " " + comment.getUser().getLastname())
+              .userId(comment.getUser().getId())
+              .firstName(comment.getUser().getFirstname())
+              .lastName(comment.getUser().getLastname())
+              .avatar(comment.getUser().getAvatar())
             .postId(comment.getPost() != null ? comment.getPost().getId() : null)
             .content(comment.getContent())
             .imageUrl(comment.getImageUrl())

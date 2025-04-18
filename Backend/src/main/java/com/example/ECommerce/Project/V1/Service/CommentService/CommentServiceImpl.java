@@ -49,7 +49,10 @@ public class CommentServiceImpl implements ICommentService {
    public CommentDTO addComment(CommentDTO commentDTO, Principal currentUser) {
       User userFind = getCurrentUser(currentUser);
       Post postFind = postRepository.findPostById(commentDTO.getPostId());
-      Comment commentFind = commentRepository.findCommentById(commentDTO.getCommentReplyId());
+      Comment commentFind = null;
+      if (commentDTO.getCommentReplyId() != null) {
+         commentFind = commentRepository.findCommentById(commentDTO.getCommentReplyId());
+      }
 
       var newComment = Comment.builder()
             .user(userFind)
@@ -68,11 +71,14 @@ public class CommentServiceImpl implements ICommentService {
 
       return CommentDTO.builder()
             .id(newComment.getId())
-            .user(userFind.getUsername())
+              .userId(userFind.getId())
+              .firstName(userFind.getFirstname())
+              .lastName(userFind.getLastname())
+              .avatar(userFind.getAvatar())
             .postId(postFind.getId())
             .content(newComment.getContent())
             .imageUrl(newComment.getImageUrl())
-            .commentReplyId(newComment.getId())
+            .commentReplyId(commentDTO.getCommentReplyId())
             .isActive(newComment.getIsActive())
             .build();
    }
@@ -92,7 +98,10 @@ public class CommentServiceImpl implements ICommentService {
 
       return CommentDTO.builder()
             .id(cmtFind.getId())
-            .user(userFind.getUsername())
+              .userId(userFind.getId())
+              .firstName(userFind.getFirstname())
+              .lastName(userFind.getLastname())
+              .avatar(userFind.getAvatar())
             .postId(postFind.getId())
             .content(cmtFind.getContent())
             .imageUrl(cmtFind.getImageUrl())
@@ -131,7 +140,10 @@ public class CommentServiceImpl implements ICommentService {
                .map(comment -> {
                   CommentDTO dto = CommentDTO.builder()
                         .id(comment.getId())
-                        .user(comment.getUser().getUsername())
+                        .userId(comment.getUser().getId())
+                          .firstName(comment.getUser().getFirstname())
+                          .lastName(comment.getUser().getLastname())
+                          .avatar(comment.getUser().getAvatar())
                         .postId(comment.getPost().getId())
                         .content(comment.getContent())
                         .imageUrl(comment.getImageUrl())
@@ -161,7 +173,10 @@ public class CommentServiceImpl implements ICommentService {
                .map(comment -> {
                   CommentDTO dto = CommentDTO.builder()
                         .id(comment.getId())
-                        .user(comment.getUser().getUsername())
+                          .userId(comment.getUser().getId())
+                          .firstName(comment.getUser().getFirstname())
+                          .lastName(comment.getUser().getLastname())
+                          .avatar(comment.getUser().getAvatar())
                         .postId(comment.getPost().getId())
                         .content(comment.getContent())
                         .imageUrl(comment.getImageUrl())
