@@ -112,8 +112,8 @@ const SizeChart = () => {
       handleGetSizes();
       closeAddModal();
     } catch (error) {
-      console.error("Error adding size:", error);
-      toast.error("Error adding size");
+      // console.error("Error adding size:", error.response?.data?.message || error);
+      toast.error(error.response?.data?.message || error);
     }
   };
 
@@ -184,6 +184,25 @@ const SizeChart = () => {
     }
   };
 
+  const customStyles = {
+    cells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "1px",
+      },
+    },
+    headCells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        fontWeight: "bold",
+        padding: "1px",
+        fontSize: "14px",
+      },
+    },
+  };
+
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
     { name: "Size Type", selector: (row) => row.sizeChartType, sortable: true },
@@ -238,6 +257,7 @@ const SizeChart = () => {
         columns={columns}
         data={sizes}
         pagination
+        customStyles={customStyles}
         conditionalRowStyles={[
           {
             when: (row) => !row.active, // Nếu user bị ban (active === false)

@@ -162,7 +162,7 @@ const routes = [
 		),
 	},
 	{
-		path: "/change-password",
+		path: "/change-forgot-password",
 		element: (
 			<MainLayout>
 				<ChangePassword />

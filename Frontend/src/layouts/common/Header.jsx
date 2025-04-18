@@ -390,6 +390,7 @@ const Header = () => {
                   filteredProducts.map((item) => (
                     <Link
                       to={`/products/${item.id}`}
+                      state={{ product: item.productCode }}
                       key={item.id}
                       className="flex items-center p-2 hover:bg-gray-100 border-b border-gray-200"
                     >

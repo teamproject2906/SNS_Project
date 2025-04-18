@@ -8,21 +8,20 @@ import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import Modal from "react-modal";
 import { toast, ToastContainer } from "react-toastify";
-import { to } from "@react-spring/web";
 
 Modal.setAppElement("#root");
 
-const PromotionChart = () => {
-  const [promotions, setPromotions] = useState([]);
+const VoucherTable = () => {
+  const [vouchers, setVouchers] = useState([]);
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
-  const [editPromotion, setEditPromotion] = useState(null);
+  const [editVoucher, setEditVoucher] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    discount: "",
-    description: "",
+    voucherCode: "",
     startDate: "",
     endDate: "",
+    discount: "",
+    usageLimit: "",
   });
   const [deactivateID, setDeactivateID] = useState(null);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
@@ -40,35 +39,35 @@ const PromotionChart = () => {
     return `${day}/${month}/${year}`;
   };
 
-  const handleGetPromotion = async () => {
+  const handleGetVouchers = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/promotions", {
+      const res = await axios.get("http://localhost:8080/api/v1/shop", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPromotions(res.data);
+      setVouchers(res.data);
       console.log("Token:", token);
     } catch (error) {
-      console.error("Error fetching promotion:", error);
+      console.error("Error fetching vouchers:", error);
     }
   };
 
   useEffect(() => {
-    handleGetPromotion();
+    handleGetVouchers();
   }, []);
 
-  const openEditModal = (promotion) => {
-    setEditPromotion(promotion.id);
+  const openEditModal = (voucher) => {
+    setEditVoucher(voucher.id);
     setFormData({
-      id: promotion.id,
-      name: promotion.name || "",
-      discount: promotion.discount || "",
-      description: promotion.description || "",
-      startDate: promotion.startDate
-        ? new Date(promotion.startDate).toISOString().split("T")[0]
+      id: voucher.id,
+      voucherCode: voucher.voucherCode || "",
+      discount: voucher.discount || "",
+      usageLimit: voucher.usageLimit || "",
+      startDate: voucher.startDate
+        ? new Date(voucher.startDate).toISOString().split("T")[0]
         : "",
-      endDate: promotion.endDate
-        ? new Date(promotion.endDate).toISOString().split("T")[0]
+      endDate: voucher.endDate
+        ? new Date(voucher.endDate).toISOString().split("T")[0]
         : "",
     });
     setModalEditIsOpen(true);
@@ -76,12 +75,13 @@ const PromotionChart = () => {
 
   const openAddModal = () => {
     setFormData({
-      name: "",
-      discount: "",
-      description: "",
+      voucherCode: "",
       startDate: "",
       endDate: "",
+      discount: "",
+      usageLimit: "",
     });
+    console.log("Form Data:", formData);
     setModalAddIsOpen(true);
   };
 
@@ -103,7 +103,7 @@ const PromotionChart = () => {
     try {
       const token = getToken();
       await axios.patch(
-        `http://localhost:8080/api/promotions/${editPromotion}`,
+        `http://localhost:8080/api/v1/shop/${editVoucher}`,
         {
           ...formData,
           startDate: formData.startDate
@@ -116,16 +116,15 @@ const PromotionChart = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       closeEditModal();
-      toast.success("Cập nhật thành công!");
-      handleGetPromotion();
+      toast.success("Cập nhật voucher thành công!");
+      handleGetVouchers();
     } catch (error) {
-      console.error("Error updating promotion:", error);
-      toast.error("Error updating promotion");
+      console.error("Error updating voucher:", error);
+      toast.error("Lỗi khi cập nhật voucher");
     }
   };
 
-  const handleAddSubmit = async (e) => {
-    e.preventDefault();
+  const handleAddSubmit = async () => {
     try {
       const token = getToken();
       const formattedData = {
@@ -137,19 +136,19 @@ const PromotionChart = () => {
       console.log("Sending data:", formattedData);
 
       const res = await axios.post(
-        "http://localhost:8080/api/promotions",
+        "http://localhost:8080/api/v1/shop",
         formattedData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      setPromotions([...promotions, res.data]);
+      console.log("Response data:", res.data);
+      setVouchers([...vouchers, res.data]);
       closeAddModal();
-      toast.success("Thêm thành công!");
+      toast.success("Thêm voucher thành công!");
     } catch (error) {
-      console.error("Error adding promotion:", error.response?.data || error);
-      toast.error("Error adding promotion");
+      console.error("Error adding voucher:", error.response?.data || error);
+      toast.error("Lỗi khi thêm voucher");
     }
   };
 
@@ -159,27 +158,27 @@ const PromotionChart = () => {
     try {
       const token = getToken();
       const res = await axios.delete(
-        `http://localhost:8080/api/promotions/${deactivateID}`,
+        `http://localhost:8080/api/v1/shop/${deactivateID}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (res.data) {
-        setPromotions(
-          promotions.map((promotion) =>
-            promotion.id === deactivateID
-              ? { ...promotion, active: false }
-              : promotion
+        setVouchers(
+          vouchers.map((voucher) =>
+            voucher.id === deactivateID
+              ? { ...voucher, active: false }
+              : voucher
           )
         );
-        toast.success("Vô hiệu hóa khuyến mãi thành công!");
+        toast.success("Vô hiệu hóa voucher thành công!");
       } else {
-        toast.error("Không thể vô hiệu hóa khuyến mãi");
+        toast.error("Không thể vô hiệu hóa voucher");
       }
     } catch (error) {
-      console.error("Error deactivating promotion:", error);
-      toast.error("Lỗi khi vô hiệu hóa khuyến mãi");
+      console.error("Error deactivating voucher:", error);
+      toast.error("Lỗi khi vô hiệu hóa voucher");
     } finally {
       setIsDeactivateModalOpen(false);
       setDeactivateID(null);
@@ -192,7 +191,7 @@ const PromotionChart = () => {
     try {
       const token = getToken();
       const res = await axios.patch(
-        `http://localhost:8080/api/promotions/reactive/${activateID}`,
+        `http://localhost:8080/api/v1/shop/reactive/${activateID}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -200,20 +199,18 @@ const PromotionChart = () => {
       );
 
       if (res.data) {
-        setPromotions(
-          promotions.map((promotion) =>
-            promotion.id === activateID
-              ? { ...promotion, active: true }
-              : promotion
+        setVouchers(
+          vouchers.map((voucher) =>
+            voucher.id === activateID ? { ...voucher, active: true } : voucher
           )
         );
-        toast.success("Kích hoạt khuyến mãi thành công!");
+        toast.success("Kích hoạt voucher thành công!");
       } else {
-        toast.error("Không thể kích hoạt khuyến mãi");
+        toast.error("Không thể kích hoạt voucher");
       }
     } catch (error) {
-      console.error("Error activating promotion:", error);
-      toast.error("Lỗi khi kích hoạt khuyến mãi");
+      console.error("Error activating voucher:", error);
+      toast.error("Lỗi khi kích hoạt voucher");
     } finally {
       setIsActivateModalOpen(false);
       setActivateID(null);
@@ -242,8 +239,8 @@ const PromotionChart = () => {
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
     {
-      name: "Promotion Name",
-      selector: (row) => row.name,
+      name: "Voucher Code",
+      selector: (row) => row.voucherCode,
       sortable: true,
       cell: (row) => (
         <p
@@ -255,7 +252,7 @@ const PromotionChart = () => {
             maxWidth: "90%",
           }}
         >
-          {row.name}
+          {row.voucherCode}
         </p>
       ),
     },
@@ -265,21 +262,8 @@ const PromotionChart = () => {
       sortable: true,
     },
     {
-      name: "Description",
-      selector: (row) => row.description,
-      cell: (row) => (
-        <p
-          style={{
-            opacity: row.active ? 1 : 0.5,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            maxWidth: "90%",
-          }}
-        >
-          {row.description}
-        </p>
-      ),
+      name: "Usage Limit",
+      selector: (row) => row.usageLimit,
       sortable: true,
     },
     {
@@ -328,17 +312,17 @@ const PromotionChart = () => {
     <div>
       <ToastContainer />
       <div className="flex justify-between my-4">
-        <h3 className="text-lg font-semibold">Promotion Chart</h3>
+        <h3 className="text-lg font-semibold">Voucher Table</h3>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded"
           onClick={openAddModal}
         >
-          Add promotion
+          Add Voucher
         </button>
       </div>
       <DataTable
         columns={columns}
-        data={promotions}
+        data={vouchers}
         pagination
         customStyles={customStyles}
         conditionalRowStyles={[
@@ -354,15 +338,17 @@ const PromotionChart = () => {
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
-        title="Edit promotion"
+        title="Edit Voucher"
         onSubmit={handleEditSubmit}
       >
         <input
           type="text"
-          placeholder="Promotion name"
+          placeholder="Voucher Code"
           className="w-full p-2 border"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          value={formData.voucherCode}
+          onChange={(e) =>
+            setFormData({ ...formData, voucherCode: e.target.value })
+          }
         />
         <input
           type="number"
@@ -374,12 +360,12 @@ const PromotionChart = () => {
           }
         />
         <input
-          type="text"
-          placeholder="Description"
+          type="number"
+          placeholder="Usage Limit"
           className="w-full p-2 border"
-          value={formData.description}
+          value={formData.usageLimit}
           onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
+            setFormData({ ...formData, usageLimit: e.target.value })
           }
         />
         <input
@@ -404,15 +390,17 @@ const PromotionChart = () => {
       <ModalAdd
         isOpen={modalAddIsOpen}
         onClose={closeAddModal}
-        title="Add promotion"
+        title="Add Voucher"
         onSubmit={handleAddSubmit}
       >
         <input
           type="text"
-          placeholder="Promotion name"
+          placeholder="Voucher Code"
           className="w-full p-2 border"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          value={formData.voucherCode}
+          onChange={(e) =>
+            setFormData({ ...formData, voucherCode: e.target.value })
+          }
         />
         <input
           type="number"
@@ -424,12 +412,12 @@ const PromotionChart = () => {
           }
         />
         <input
-          type="text"
-          placeholder="Description"
+          type="number"
+          placeholder="Usage Limit"
           className="w-full p-2 border"
-          value={formData.description}
+          value={formData.usageLimit}
           onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
+            setFormData({ ...formData, usageLimit: e.target.value })
           }
         />
         <input
@@ -465,4 +453,4 @@ const PromotionChart = () => {
   );
 };
 
-export default PromotionChart;
+export default VoucherTable;

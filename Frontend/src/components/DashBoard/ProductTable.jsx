@@ -478,6 +478,7 @@ const ProductTable = () => {
         whiteSpace: "nowrap",
         fontWeight: "bold",
         padding: "1px",
+        fontSize: "14px"
       },
     },
   };
@@ -608,7 +609,7 @@ const ProductTable = () => {
       ),
     },
     {
-      name: "Quantity Inventory",
+      name: "Quantity",
       selector: (row) =>
         row.quantityInventory ? row.quantityInventory : "Null",
       sortable: true,
