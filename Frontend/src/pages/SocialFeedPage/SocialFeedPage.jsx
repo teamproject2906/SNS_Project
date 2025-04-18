@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaCog, FaPlus, FaSearch, FaUser } from "react-icons/fa";
 import Header from "../../layouts/common/Header";
 import CreatePostPopup from "../../components/Popup/CreatePostPopup";
@@ -132,7 +132,7 @@ const SocialFeedPage = () => {
 
   const handlePostDelete = async (postId) => {
     try {
-      const updatedPost = await postService.deactivatePost(postId, {
+      await postService.deactivatePost(postId, {
         active: false,
       });
 

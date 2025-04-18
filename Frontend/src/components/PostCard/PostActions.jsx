@@ -37,7 +37,6 @@ const PostActions = ({
           </span>
         </button>
       </div>
-
       <button
         className="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200"
         onClick={onToggleComments}

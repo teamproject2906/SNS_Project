@@ -37,10 +37,10 @@ export const useComments = (postId) => {
 
       if (response) {
         // Chuyển đổi thành cấu trúc phân cấp và lọc theo active
-        const treeComments = buildCommentTree(response);
-        const activeComments = treeComments.filter((comment) => comment.active);
+        const activeComments = response.filter((comment) => comment.active);
+        const treeComments = buildCommentTree(activeComments);
 
-        setComments(activeComments);
+        setComments(treeComments);
 
         const total = updateCommentCount(activeComments);
         setCommentCount(total);
@@ -92,7 +92,7 @@ export const useComments = (postId) => {
   );
 
   const addReply = useCallback(
-    async (parentId, content, level, replyingToUser) => {
+    async (parentId, content) => {
       if (!content.trim() || !postId || !parentId) return;
 
       try {

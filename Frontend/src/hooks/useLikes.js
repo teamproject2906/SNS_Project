@@ -49,7 +49,7 @@ export const useLikes = (postId, initialLikes = 0, initialIsLiked = false) => {
       setLoadingLikers(true);
       const response = await postService.getPostLikers(postId);
 
-      if (response && Array.isArray(response)) {
+      if (response) {
         setLikersList(response);
       }
     } catch (error) {

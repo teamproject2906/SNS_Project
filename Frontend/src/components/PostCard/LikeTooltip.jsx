@@ -21,14 +21,14 @@ const LikeTooltip = React.forwardRef(
         ) : likersList.length > 0 ? (
           <ul className="max-h-60 overflow-y-auto">
             {likersList.map((liker) => (
-              <li key={liker.id} className="py-2 flex items-center gap-2">
+              <li key={liker.userID} className="py-2 flex items-center gap-2">
                 <img
                   src={liker.avatar || DEFAULT_AVATAR}
-                  alt={liker.username}
+                  alt={liker.fullName}
                   className="w-8 h-8 rounded-full object-cover"
                 />
-                <span className="text-sm font-medium">{liker.username}</span>
-                {currentUserId === liker.id && (
+                <span className="text-sm font-medium">{liker.fullName}</span>
+                {currentUserId === liker.userID && (
                   <span className="ml-auto text-xs text-blue-500">Bạn</span>
                 )}
               </li>

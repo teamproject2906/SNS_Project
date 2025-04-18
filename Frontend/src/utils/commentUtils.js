@@ -7,21 +7,25 @@ export const buildCommentTree = (comments) => {
   const map = new Map();
   const roots = [];
 
-  // Bước 1: Khởi tạo map và thêm trường `replies` cho mỗi comment
   comments.forEach((comment) => {
     comment.replies = [];
+
+    // Normalize nếu comment tự trả lời chính nó
+    if (comment.commentReplyId === comment.id) {
+      comment.commentReplyId = null;
+    }
+
     map.set(comment.id, comment);
   });
 
-  // Bước 2: Gắn replies vào comment cha nếu hợp lệ
   comments.forEach((comment) => {
     const parentId = comment.commentReplyId;
-    // Chỉ gắn nếu: có parentId, khác id chính nó, và parent tồn tại
-    if (parentId !== null && parentId !== comment.id && map.has(parentId)) {
+
+    if (parentId !== null && map.has(parentId)) {
       const parent = map.get(parentId);
       parent.replies.push(comment);
     } else {
-      roots.push(comment); // Comment gốc
+      roots.push(comment);
     }
   });
 

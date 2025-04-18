@@ -101,7 +101,8 @@ const CommentItem = ({
                   <p className="text-xs text-gray-600">
                     Trả lời bình luận của{" "}
                     <span className="font-semibold">
-                      {comment?.user || "(Người dùng chưa đặt tên)"}
+                      {comment?.lastName + " " + comment?.firstName ||
+                        "(Người dùng chưa đặt tên)"}
                     </span>
                   </p>
                 </div>
@@ -116,7 +117,7 @@ const CommentItem = ({
                     }
                     isSubmitting={isSubmitting}
                     onSubmit={() =>
-                      onPostReply(comment.id, level + 1, comment.user)
+                      onPostReply(comment.id, level + 1, comment.userId)
                     }
                     onCancel={() => onReply(null)}
                     placeholder="Viết câu trả lời của bạn..."

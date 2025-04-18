@@ -16,6 +16,9 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
   const [showSettings, setShowSettings] = React.useState(false);
   const [showLikeTooltip, setShowLikeTooltip] = React.useState(false);
   const likeTooltipRef = useRef(null);
+  const { commentCount, isLoading: commentsLoading } = useComments(post?.id);
+  const [localCommentCount, setLocalCommentCount] =
+    React.useState(commentCount);
 
   const {
     isEditing,
@@ -42,33 +45,10 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
     fetchLikers,
   } = useLikes(post?.id, post?.likes, post?.isLiked);
 
-  const {
-    commentCount,
-    addComment,
-    deleteComment,
-    isLoading: commentsLoading,
-  } = useComments(post?.id);
-
-  const handleCommentCreate = async (content) => {
-    if (!content.trim() || !user?.id) return;
-
-    try {
-      const newComment = await addComment(content, user.id);
-
-      if (newComment) {
-        setShowComments(true);
-      }
-    } catch (error) {
-      console.error("Error creating comment:", error);
-    }
-  };
-
-  const handleCommentDelete = async (commentId) => {
-    try {
-      await deleteComment(commentId);
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-    }
+  const toggleSettings = () => setShowSettings(!showSettings);
+  const toggleComments = () => setShowComments(!showComments);
+  const toggleLikeTooltip = () => {
+    setShowLikeTooltip(true);
   };
 
   useEffect(() => {
@@ -97,17 +77,14 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
     if (showLikeTooltip) {
       fetchLikers();
     }
-  }, [showLikeTooltip, fetchLikers]);
+  }, [showLikeTooltip]);
 
-  const toggleSettings = () => setShowSettings(!showSettings);
-  const toggleComments = () => setShowComments(!showComments);
-  const toggleLikeTooltip = (e) => {
-    e.stopPropagation();
-    setShowLikeTooltip(!showLikeTooltip);
-  };
+  useEffect(() => {
+    setLocalCommentCount(commentCount); // cập nhật khi commentCount mới được fetch
+  }, [commentCount]);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden p-6 mb-4 relative">
+    <div className="bg-white rounded-xl shadow-lg p-6 mb-4 relative">
       <PostHeader
         userAvatar={post?.userAvatar}
         username={post?.user}
@@ -134,36 +111,35 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
         handleCancel={handleCancel}
         isSubmitting={isSubmitting}
       />
-
-      <PostActions
-        likes={likes}
-        liked={liked}
-        commentCount={commentCount}
-        onToggleLike={toggleLike}
-        onToggleComments={toggleComments}
-        onToggleLikeTooltip={toggleLikeTooltip}
-        isSubmitting={isSubmitting}
-      />
-
-      {showLikeTooltip && (
-        <LikeTooltip
-          ref={likeTooltipRef}
+      <div className="relative">
+        <PostActions
           likes={likes}
-          likersList={likersList}
-          loadingLikers={loadingLikers}
-          currentUserId={user?.id}
+          liked={liked}
+          commentCount={localCommentCount}
+          onToggleLike={toggleLike}
+          onToggleComments={toggleComments}
+          onToggleLikeTooltip={toggleLikeTooltip}
+          isSubmitting={isSubmitting}
         />
-      )}
+
+        {showLikeTooltip && (
+          <LikeTooltip
+            ref={likeTooltipRef}
+            likes={likes}
+            likersList={likersList}
+            loadingLikers={loadingLikers}
+            currentUserId={user?.id}
+          />
+        )}
+      </div>
 
       {showComments && (
         <CommentSection
           postId={post?.id}
           currentUserId={user?.id}
           userAvatar={user?.avatar}
-          userId={user?.id}
-          onCreateComment={handleCommentCreate}
-          onDeleteComment={handleCommentDelete}
           isLoading={commentsLoading}
+          onChangeCommentCount={setLocalCommentCount}
         />
       )}
     </div>

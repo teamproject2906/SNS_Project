@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { useComments } from "../../../hooks/useComments";
 import CommentItem from "./CommentItem";
@@ -31,10 +31,9 @@ ErrorFallback.propTypes = {
 
 const CommentSection = ({
   postId,
-  onCreateComment,
-  onDeleteComment,
   currentUserId,
   userAvatar,
+  onChangeCommentCount,
 }) => {
   const {
     deleteComment: deleteCommentHook,
@@ -42,6 +41,7 @@ const CommentSection = ({
     updateComment: updateCommentHook,
     comments: commentsList,
     isLoading,
+    addComment,
   } = useComments(postId);
 
   const [newComment, setNewComment] = useState("");
@@ -51,24 +51,20 @@ const CommentSection = ({
   const [replyText, setReplyText] = useState({});
   const [error, setError] = useState(null);
   const [expandedReplies, setExpandedReplies] = useState({});
-  const [comments, setComments] = useState([]);
-
-  useEffect(() => {
-    setComments(commentsList);
-  }, [commentsList, isLoading]);
 
   const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !currentUserId) return;
     try {
-      await onCreateComment(newComment);
+      await addComment(newComment, currentUserId);
       setNewComment("");
+      onChangeCommentCount((prev) => prev + 1);
     } catch (error) {
       console.error("Error submitting comment:", error);
       setError("Failed to submit comment");
     }
   };
 
-  const handlePostReply = async (commentId, level, replyingToUser) => {
+  const handlePostReply = async (commentId) => {
     const replyContent = replyText[commentId];
     if (!replyContent?.trim()) return;
     try {
@@ -106,7 +102,7 @@ const CommentSection = ({
   const handleDeleteComment = async (commentId) => {
     try {
       await deleteCommentHook(commentId);
-      onDeleteComment?.();
+      onChangeCommentCount((prev) => prev - 1);
     } catch (err) {
       setError(err.message || "Failed to delete comment");
     }
@@ -239,7 +235,7 @@ const CommentSection = ({
           {error}
         </div>
       )}
-      <div className="space-y-4">{renderComments(comments)}</div>
+      <div className="space-y-4">{renderComments(commentsList)}</div>
     </div>
   );
 };

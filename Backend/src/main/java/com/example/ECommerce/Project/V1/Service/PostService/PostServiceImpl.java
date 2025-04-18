@@ -257,6 +257,8 @@ public class PostServiceImpl implements IPostService {
       return UserLikeDTO.builder()
             .userID(userLike.getUser().getId())
             .postID(userLike.getPost().getId())
+              .fullName(userLike.getUser().getFirstname() + " " + userLike.getUser().getLastname())
+              .avatar(userLike.getUser().getAvatar())
             .build();
    }
 }
