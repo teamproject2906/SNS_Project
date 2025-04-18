@@ -16,6 +16,7 @@ const PromotionChart = () => {
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editPromotion, setEditPromotion] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     discount: "",
@@ -219,6 +220,23 @@ const PromotionChart = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+  };
+
+  const filteredPromotions = promotions.filter((promotions) => {
+    const promotionName = promotions.name
+      ? `${promotions.name}`.toLowerCase()
+      : "";
+    const id = promotions.id ? promotions.id.toString().toLowerCase() : "";
+    
+    return (
+      promotionName.includes(searchTerm) ||
+      id.includes(searchTerm)
+    );
+  });
+
   const customStyles = {
     cells: {
       style: {
@@ -328,16 +346,26 @@ const PromotionChart = () => {
       <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Promotion Chart</h3>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={openAddModal}
-        >
-          Add promotion
-        </button>
+        <div className="flex flex-row gap-5">
+          <div className="searchBar">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full p-2 border rounded-lg"
+              onChange={handleSearch}
+            />
+          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={openAddModal}
+          >
+            Add promotion
+          </button>
+        </div>
       </div>
       <DataTable
         columns={columns}
-        data={promotions}
+        data={filteredPromotions}
         pagination
         customStyles={customStyles}
         conditionalRowStyles={[

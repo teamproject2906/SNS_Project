@@ -24,6 +24,7 @@ const ProductTable = () => {
   const [modalUploadIsOpen, setModalUploadIsOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [productId, setProductId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     productCode: "",
     productName: "",
@@ -50,6 +51,10 @@ const ProductTable = () => {
   const [activateId, setActivateId] = useState(null);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   console.log("Products:", products);
 
@@ -478,10 +483,30 @@ const ProductTable = () => {
         whiteSpace: "nowrap",
         fontWeight: "bold",
         padding: "1px",
-        fontSize: "14px"
+        fontSize: "14px",
       },
     },
   };
+
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+  };
+
+  const filteredProduct = products.filter((products) => {
+    const productName = products.productName
+      ? `${products.productName}`.toLowerCase()
+      : "";
+    const id = products.id ? products.id.toString().toLowerCase() : "";
+    const productCode = products.productCode
+      ? `${products.productCode}`.toLowerCase()
+      : "";
+    return (
+      productName.includes(searchTerm) ||
+      id.includes(searchTerm) ||
+      productCode.includes(searchTerm)
+    );
+  });
 
   // Define the background color mapping
   const colorMap = {
@@ -582,7 +607,7 @@ const ProductTable = () => {
     },
     {
       name: "Price",
-      selector: (row) => (row.price ? row.price : "Null"),
+      selector: (row) => (row.price ? formatPrice(row.price) : "Null"),
       sortable: true,
       style: {
         width: "100px",
@@ -592,7 +617,7 @@ const ProductTable = () => {
       },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
-          {row.price ? row.price : "Null"}
+          {row.price ? formatPrice(row.price) : "Null"}
         </div>
       ),
     },
@@ -685,16 +710,26 @@ const ProductTable = () => {
       <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Product Chart</h3>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={openAddModal}
-        >
-          Add product
-        </button>
+        <div className="flex flex-row gap-5">
+          <div className="searchBar">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full p-2 border rounded-lg"
+              onChange={handleSearch}
+            />
+          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={openAddModal}
+          >
+            Add product
+          </button>
+        </div>
       </div>
       <DataTable
         columns={columns}
-        data={products}
+        data={filteredProduct}
         pagination
         customStyles={customStyles}
         conditionalRowStyles={[

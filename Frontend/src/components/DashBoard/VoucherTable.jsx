@@ -16,6 +16,7 @@ const VoucherTable = () => {
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editVoucher, setEditVoucher] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     voucherCode: "",
     startDate: "",
@@ -217,6 +218,19 @@ const VoucherTable = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+  };
+
+  const filteredVoucher = vouchers.filter((vouchers) => {
+    const id = vouchers.id ? vouchers.id.toString().toLowerCase() : "";
+    const voucherCode = vouchers.voucherCode
+      ? `${vouchers.voucherCode}`.toLowerCase()
+      : "";
+    return id.includes(searchTerm) || voucherCode.includes(searchTerm);
+  });
+
   const customStyles = {
     cells: {
       style: {
@@ -313,16 +327,26 @@ const VoucherTable = () => {
       <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Voucher Table</h3>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={openAddModal}
-        >
-          Add Voucher
-        </button>
+        <div className="flex flex-row gap-5">
+          <div className="searchBar">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full p-2 border rounded-lg"
+              onChange={handleSearch}
+            />
+          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={openAddModal}
+          >
+            Add Voucher
+          </button>
+        </div>
       </div>
       <DataTable
         columns={columns}
-        data={vouchers}
+        data={filteredVoucher}
         pagination
         customStyles={customStyles}
         conditionalRowStyles={[
@@ -341,6 +365,7 @@ const VoucherTable = () => {
         title="Edit Voucher"
         onSubmit={handleEditSubmit}
       >
+        <label>Voucher Code:</label>
         <input
           type="text"
           placeholder="Voucher Code"
@@ -350,6 +375,7 @@ const VoucherTable = () => {
             setFormData({ ...formData, voucherCode: e.target.value })
           }
         />
+        <label>Discount:</label>
         <input
           type="number"
           placeholder="Discount"
@@ -359,6 +385,7 @@ const VoucherTable = () => {
             setFormData({ ...formData, discount: e.target.value })
           }
         />
+        <label>Usage Limit:</label>
         <input
           type="number"
           placeholder="Usage Limit"
@@ -368,6 +395,7 @@ const VoucherTable = () => {
             setFormData({ ...formData, usageLimit: e.target.value })
           }
         />
+        <label>Start Date:</label>
         <input
           type="date"
           placeholder="Start Date"
@@ -377,6 +405,7 @@ const VoucherTable = () => {
             setFormData({ ...formData, startDate: e.target.value })
           }
         />
+        <label>End Date:</label>
         <input
           type="date"
           placeholder="End Date"
@@ -393,51 +422,68 @@ const VoucherTable = () => {
         title="Add Voucher"
         onSubmit={handleAddSubmit}
       >
-        <input
-          type="text"
-          placeholder="Voucher Code"
-          className="w-full p-2 border"
-          value={formData.voucherCode}
-          onChange={(e) =>
-            setFormData({ ...formData, voucherCode: e.target.value })
-          }
-        />
-        <input
-          type="number"
-          placeholder="Discount"
-          className="w-full p-2 border"
-          value={formData.discount}
-          onChange={(e) =>
-            setFormData({ ...formData, discount: e.target.value })
-          }
-        />
-        <input
-          type="number"
-          placeholder="Usage Limit"
-          className="w-full p-2 border"
-          value={formData.usageLimit}
-          onChange={(e) =>
-            setFormData({ ...formData, usageLimit: e.target.value })
-          }
-        />
-        <input
-          type="date"
-          placeholder="Start Date"
-          className="w-full p-2 border"
-          value={formData.startDate}
-          onChange={(e) =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
-        />
-        <input
-          type="date"
-          placeholder="End Date"
-          className="w-full p-2 border"
-          value={formData.endDate}
-          onChange={(e) =>
-            setFormData({ ...formData, endDate: e.target.value })
-          }
-        />
+        <div className="space-y-4">
+          <div>
+            <label>Voucher Code:</label>
+            <input
+              type="text"
+              placeholder="Voucher Code"
+              className="w-full p-2 border"
+              value={formData.voucherCode}
+              onChange={(e) =>
+                setFormData({ ...formData, voucherCode: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Discount:</label>
+            <input
+              type="number"
+              placeholder="Discount"
+              className="w-full p-2 border"
+              value={formData.discount}
+              onChange={(e) =>
+                setFormData({ ...formData, discount: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Usage Limit:</label>
+            <input
+              type="number"
+              placeholder="Usage Limit"
+              className="w-full p-2 border"
+              value={formData.usageLimit}
+              onChange={(e) =>
+                setFormData({ ...formData, usageLimit: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Start Date:</label>
+            <input
+              type="date"
+              placeholder="Start Date"
+              className="w-full p-2 border"
+              value={formData.startDate}
+              onChange={(e) =>
+                setFormData({ ...formData, startDate: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>End Date:</label>
+            <input
+              type="date"
+              placeholder="End Date"
+              className="w-full p-2 border"
+              value={formData.endDate}
+              onChange={(e) =>
+                setFormData({ ...formData, endDate: e.target.value })
+              }
+            />
+          </div>
+        </div>
       </ModalAdd>
       <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}

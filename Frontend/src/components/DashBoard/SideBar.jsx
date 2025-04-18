@@ -1,8 +1,12 @@
-import { CiUser } from "react-icons/ci";
-import { MdShoppingCart, MdProductionQuantityLimits } from "react-icons/md";
+import { FaUser, FaUsers } from "react-icons/fa";
+import { MdShoppingCart } from "react-icons/md";
 import { BiCategory } from "react-icons/bi";
 import { IoLogOutOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
+import { BiSolidDiscount } from "react-icons/bi";
+import { MdDiscount } from "react-icons/md";
+import { GiClothes } from "react-icons/gi";
+import { BsBoxSeamFill } from "react-icons/bs";
 import {
   getUserInfo,
   removeToken,
@@ -127,7 +131,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
           }`}
           onClick={() => handleTabChange("users")}
         >
-          <CiUser className="mr-2" /> Users
+          <FaUser className="mr-2" /> Users
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
@@ -137,7 +141,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
           }`}
           onClick={() => handleTabChange("products")}
         >
-          <MdProductionQuantityLimits className="mr-2" /> Products
+          <BsBoxSeamFill className="mr-2" /> Products
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
@@ -167,7 +171,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
           }`}
           onClick={() => handleTabChange("promotion")}
         >
-          <BiCategory className="mr-2" /> Promotion
+          <MdDiscount className="mr-2" /> Promotion
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
@@ -177,7 +181,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
           }`}
           onClick={() => handleTabChange("voucher")}
         >
-          <BiCategory className="mr-2" /> Voucher
+          <BiSolidDiscount className="mr-2" /> Voucher
         </button>
         <button
           className={`w-full mb-2 flex items-center p-4 rounded-lg transition duration-200 ${
@@ -198,7 +202,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
           }`}
           onClick={() => handleTabChange("formClothes")}
         >
-          <BiCategory className="mr-2" /> Form Clothes
+          <GiClothes className="mr-2" /> Form Clothes
         </button>
 
         {/* <button
@@ -229,7 +233,7 @@ const SideBar = ({ activeTab, handleTabChange }) => {
               <img
                 src={user.avatar}
                 alt={user.username}
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full border-2 border-white"
               />
 
               <div className="ml-2">
