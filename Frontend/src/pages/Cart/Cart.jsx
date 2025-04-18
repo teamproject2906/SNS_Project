@@ -2,17 +2,19 @@ import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useEffect, useState } from "react";
 import { useUser } from '../../context/UserContext';
-
+import { FaTrash } from 'react-icons/fa';
 
 function Cart() {
   // Use the cart context instead of local state
   const {
     cartItems,
     updateQuantity,
+    removeFromCart,
     getTotalPrice,
     loading,
     error,
     fetchCart,
+    getPriceAfterPromotion
   } = useCart();
   const { user } = useUser();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -32,6 +34,20 @@ function Cart() {
       await fetchCart();
     } catch (error) {
       console.error("Error updating quantity:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Handle item removal
+  const handleRemoveItem = async (itemId) => {
+    setIsUpdating(true);
+    try {
+      await removeFromCart(itemId);
+      // Fetch fresh cart data after removal
+      await fetchCart();
+    } catch (error) {
+      console.error("Error removing item:", error);
     } finally {
       setIsUpdating(false);
     }
@@ -95,46 +111,76 @@ function Cart() {
               cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex justify-between items-center"
+                  className="flex justify-between items-center border-b pb-4"
                 >
                   <div className="flex items-center space-x-4">
                     <img
                       src={item.imageUrl}
-                      alt={`${item.productName}`}
+                      alt={`${item.product.productName}`}
                       className="w-32 h-32 object-cover"
                     />
                     <div>
                       <h3 className="text-xl font-semibold">
-                        {item.productName}
+                        {item.product.productName}
                       </h3>
-                      <p className="text-gray-700">
-                        Giá: {(item.unitPrice * item.quantity).toLocaleString()}
-                        ₫
-                      </p>
-                      {item.color && (
-                        <p className="text-gray-600">Màu: {item.color}</p>
+                      
+                      {/* Display color information */}
+                      <p className="text-gray-600">Màu: {item.product.color}</p>
+                      
+                      {/* Display size information */}
+                      <p className="text-gray-600">Kích thước: {item.product.sizeChart.value}</p>
+                      
+                      {/* Display price after promotion */}
+                      {item.product.promotion && (
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-gray-500 line-through">
+                            {item.unitPrice.toLocaleString()}₫
+                          </span>
+                          <span className="text-red-600 font-semibold">
+                            {getPriceAfterPromotion(item).toLocaleString()}₫
+                          </span>
+                          <span className="bg-red-600 text-white text-xs px-2 py-1 rounded">
+                            -{item.product.promotion.discount * 100}%
+                          </span>
+                        </div>
                       )}
-                      {item.size && (
-                        <p className="text-gray-600">Kích thước: {item.size}</p>
+                      
+                      {!item.product.promotion && (
+                        <p className="text-gray-700 mt-1">
+                          {item.unitPrice.toLocaleString()}₫
+                        </p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      className="form-input border w-16 text-center"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleQuantityUpdate(
-                          item.id,
-                          Math.max(0, parseInt(e.target.value || 0))
-                        )
-                      }
-                    />
-                    <span>x</span>
-                    <span className="text-gray-800 font-semibold">
-                      {item.unitPrice.toLocaleString()}₫
-                    </span>
+                  <div className="flex flex-col items-end space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        className="form-input border w-16 text-center"
+                        value={item.quantity}
+                        min="1"
+                        onChange={(e) =>
+                          handleQuantityUpdate(
+                            item.id,
+                            Math.max(1, parseInt(e.target.value || 1))
+                          )
+                        }
+                      />
+                      <span>x</span>
+                      <span className="text-gray-800 font-semibold">
+                        {getPriceAfterPromotion(item).toLocaleString()}₫
+                      </span>
+                      <button 
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="ml-2 text-red-500 hover:text-red-700"
+                        title="Xóa sản phẩm"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                    <p className="text-gray-600 text-right">
+                      Thành tiền: {(getPriceAfterPromotion(item) * item.quantity).toLocaleString()}₫
+                    </p>
                   </div>
                 </div>
               ))

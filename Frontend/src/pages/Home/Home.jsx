@@ -431,6 +431,7 @@ const HomePage = () => {
             {product.map((item, index) => (
               <Link
                 to={`/products/${item.id}`}
+				state={{ productCode: item.productCode }}
                 key={index}
                 className="product-card"
                 style={{ padding: "10px" }}

@@ -36,7 +36,6 @@ export const FavouriteProvider = ({ children }) => {
       const response = await axios.get(`http://localhost:8080/api/wishlist/user/${user.userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
       if (response.data && response.data.productIds) {
         // We need to fetch the full product details for each productId
         const productPromises = response.data.productIds.map(productId => 
@@ -126,6 +125,14 @@ export const FavouriteProvider = ({ children }) => {
     }
   };
 
+  // Calculate price after promotion
+  const getPriceAfterPromotion = (product) => {
+    if (product?.promotion && product.promotion.discount) {
+      return product.price * (1 - product.promotion.discount);
+    }
+    return product.price;
+  };
+
   // Check if an item is in favourites
   const isInFavourites = (productId) => {
     return favouriteItems.some((item) => item.id === productId);
@@ -145,7 +152,8 @@ export const FavouriteProvider = ({ children }) => {
     removeFromFavourites,
     isInFavourites,
     getTotalFavourites,
-    fetchWishlist
+    fetchWishlist,
+    getPriceAfterPromotion
   };
 
   return <FavouriteContext.Provider value={value}>{children}</FavouriteContext.Provider>;

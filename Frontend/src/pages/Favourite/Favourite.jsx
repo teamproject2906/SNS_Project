@@ -1,15 +1,11 @@
 import { Link } from "react-router-dom";
 import { useFavourite } from "../../context/FavouriteContext";
-import { useCart } from "../../context/CartContext";
 import { useState, useEffect } from "react";
 import { useUser } from "../../context/UserContext";
 
 function Favourite() {
   // Use the favourite context
-  const { favouriteItems, removeFromFavourites, loading, error, fetchWishlist } = useFavourite();
-  
-  // Use the cart context for adding to cart functionality
-  const { addToCart } = useCart();
+  const { favouriteItems, removeFromFavourites, loading, error, fetchWishlist, getPriceAfterPromotion } = useFavourite();
   
   // Use the user context
   const { user } = useUser();
@@ -131,18 +127,37 @@ function Favourite() {
                 />
                 <div>
                   <h3 className="text-xl font-semibold">{product.productName}</h3>
-                  <p className="text-gray-700">
-                    Giá: {product.price.toLocaleString()}₫
-                  </p>
+                  
+                  {/* Display price after promotion */}
+                  {product.promotion && (
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-gray-500 line-through">
+                        {product.price.toLocaleString()}₫
+                      </span>
+                      <span className="text-red-600 font-semibold">
+                        {getPriceAfterPromotion(product).toLocaleString()}₫
+                      </span>
+                      <span className="bg-red-600 text-white text-xs px-2 py-1 rounded">
+                        -{product.promotion.discount * 100}%
+                      </span>
+                    </div>
+                  )}
+                  
+                  {!product.promotion && (
+                    <p className="text-gray-700">
+                      Giá: {product.price.toLocaleString()}₫
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-2">
-                <button
-                  onClick={() => addToCart(product)}
+                <Link
+                  to={`/products/${product.id}`}
+                  state={{ productCode: product.productCode }}
                   className="px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors"
                 >
-                  Thêm vào giỏ hàng
-                </button>
+                  Xem chi tiết sản phẩm
+                </Link>
                 <button
                   onClick={() => handleRemoveClick(product.id)}
                   className="text-red-500 hover:text-red-600 transition-colors"
