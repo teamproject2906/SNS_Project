@@ -127,6 +127,7 @@ public class PostServiceImpl implements IPostService {
                return PostDTO.builder()
                      .id(post.getId())
                      .user(userFind.getFirstname() + " " + userFind.getLastname())
+                       .username(userFind.getUsername())
                      .content(post.getContent())
                      .imageUrl(post.getImageUrl())
                      .comments(post.getComments()
@@ -237,7 +238,10 @@ public class PostServiceImpl implements IPostService {
 
       return CommentDTO.builder()
             .id(comment.getId())
-            .user(comment.getUser().getFirstname() + " " + comment.getUser().getLastname())
+              .userId(comment.getUser().getId())
+              .firstName(comment.getUser().getFirstname())
+              .lastName(comment.getUser().getLastname())
+              .avatar(comment.getUser().getAvatar())
             .postId(comment.getPost() != null ? comment.getPost().getId() : null)
             .content(comment.getContent())
             .imageUrl(comment.getImageUrl())
@@ -254,6 +258,8 @@ public class PostServiceImpl implements IPostService {
       return UserLikeDTO.builder()
             .userID(userLike.getUser().getId())
             .postID(userLike.getPost().getId())
+              .fullName(userLike.getUser().getFirstname() + " " + userLike.getUser().getLastname())
+              .avatar(userLike.getUser().getAvatar())
             .build();
    }
 }

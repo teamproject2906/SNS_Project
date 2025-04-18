@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useUser } from "../../context/UserContext";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
+import { DEFAULT_AVATAR } from "../../constants/ImageConstant";
 
 const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
   const { user } = useUser();
@@ -148,9 +149,12 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
 
   if (!isOpen) return null;
 
-  const userAvatar =
-    userProfile?.avatar || user?.avatar || "https://i.pravatar.cc/100";
-  const username = userProfile?.username || user?.sub || "User 1";
+  const userAvatar = userProfile?.avatar || user?.avatar || DEFAULT_AVATAR;
+  const username =
+    userProfile?.firstname?.toString()?.trim() &&
+    userProfile?.firstname?.toString()?.trim() !== ""
+      ? userProfile?.firstname + " " + userProfile?.lastname
+      : userProfile?.username + " (Full name has not been set yet)";
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
