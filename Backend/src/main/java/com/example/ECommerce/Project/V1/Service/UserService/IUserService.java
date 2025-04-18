@@ -14,29 +14,30 @@ import java.util.List;
 
 public interface IUserService {
 
-    void changePassword(ChangePasswordRequest request, Principal connectedUser);
+   void changePassword(ChangePasswordRequest request, Principal connectedUser);
 
-    UserDTO updateUserInfo(@Valid UserDTO userDTO, Integer userId);
+   UserDTO updateUserInfo(@Valid UserDTO userDTO, Integer userId);
 
-    Integer findUserIdByUsername(@Valid UserDTO userDTO, String username);
+   Integer findUserIdByUsername(@Valid UserDTO userDTO, String username);
 
-    UserDTO updateUserAvatar(Integer userId, MultipartFile file) throws IOException;
+   UserDTO updateUserAvatar(Integer userId, MultipartFile file) throws IOException;
 
-    UserDTO changeEmail(@Valid UserDTO userDTO, Integer userId);
+   UserDTO changeEmail(@Valid UserDTO userDTO, Integer userId);
 
-    UserDTO changePhoneNumber(@Valid UserDTO userDTO, Integer userId);
+   UserDTO changePhoneNumber(@Valid UserDTO userDTO, Integer userId);
 
-    UserDTO getUserProfile(Integer userId);
+   UserDTO getUserProfile(Integer userId);
 
-    List<UserDTO> getAllUsers();
+   List<UserDTO> getAllUsers();
 
-    UserDTO banOrUbanUser(UserDTO userDTO, Integer userId);
+   UserDTO banOrUbanUser(UserDTO userDTO, Integer userId);
 
-    List<UserDTO> searchUserByUsername(String keyword);
+   List<UserDTO> searchUserByUsername(String keyword);
 
-    UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
+   UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
 
-    void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException;
+   void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException;
 
-//    UserDTO getUserById(Integer id);
+   UserDTO getUserById(Integer id);
+
 }

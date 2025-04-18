@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import ModalUpdate from "../share/ModalUpdate";
 import ModalAdd from "../share/ModalAdd";
+import ModalDeactivate from "../share/ModalDeactivate";
+import ModalActivate from "../share/ModalActivate";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import Modal from "react-modal";
 import { toast, ToastContainer } from "react-toastify";
-import ModalDelete from "../share/ModalDelete";
+import { to } from "@react-spring/web";
 
 Modal.setAppElement("#root");
 
@@ -22,15 +24,17 @@ const PromotionChart = () => {
     startDate: "",
     endDate: "",
   });
-  const [deleteId, setDeleteId] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deactivateID, setDeactivateID] = useState(null);
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  const [activateID, setActivateID] = useState(null);
+  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
 
   const formatDate = (dateString) => {
-    if (!dateString) return ""; // Xử lý trường hợp null hoặc undefined
+    if (!dateString) return "";
 
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Tháng trong JS bắt đầu từ 0
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
 
     return `${day}/${month}/${year}`;
@@ -81,9 +85,14 @@ const PromotionChart = () => {
     setModalAddIsOpen(true);
   };
 
-  const openDeleteModal = (id) => {
-    setDeleteId(id);
-    setIsDeleteModalOpen(true);
+  const openDeactivateModal = (id) => {
+    setDeactivateID(id);
+    setIsDeactivateModalOpen(true);
+  };
+
+  const openActivateModal = (id) => {
+    setActivateID(id);
+    setIsActivateModalOpen(true);
   };
 
   const closeEditModal = () => setModalEditIsOpen(false);
@@ -144,27 +153,70 @@ const PromotionChart = () => {
     }
   };
 
-  const confirmDelete = async () => {
-    if (!deleteId) return;
+  const confirmDeactivate = async () => {
+    if (!deactivateID) return;
 
     try {
       const token = getToken();
-      await axios.patch(
-        `http://localhost:8080/api/promotions/reactive${deleteId}`,
+      const res = await axios.delete(
+        `http://localhost:8080/api/promotions/${deactivateID}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setPromotions(
-        promotions.filter((promotion) => promotion.id !== deleteId)
-      );
-      toast.success("Xóa thành công!");
+
+      if (res.data) {
+        setPromotions(
+          promotions.map((promotion) =>
+            promotion.id === deactivateID
+              ? { ...promotion, active: false }
+              : promotion
+          )
+        );
+        toast.success("Vô hiệu hóa khuyến mãi thành công!");
+      } else {
+        toast.error("Không thể vô hiệu hóa khuyến mãi");
+      }
     } catch (error) {
-      console.error("Lỗi khi xóa promotion:", error);
-      toast.error("Lỗi khi xóa promotion");
+      console.error("Error deactivating promotion:", error);
+      toast.error("Lỗi khi vô hiệu hóa khuyến mãi");
     } finally {
-      setIsDeleteModalOpen(false);
-      setDeleteId(null);
+      setIsDeactivateModalOpen(false);
+      setDeactivateID(null);
+    }
+  };
+
+  const confirmActivate = async () => {
+    if (!activateID) return;
+
+    try {
+      const token = getToken();
+      const res = await axios.patch(
+        `http://localhost:8080/api/promotions/reactive/${activateID}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.data) {
+        setPromotions(
+          promotions.map((promotion) =>
+            promotion.id === activateID
+              ? { ...promotion, active: true }
+              : promotion
+          )
+        );
+        toast.success("Kích hoạt khuyến mãi thành công!");
+      } else {
+        toast.error("Không thể kích hoạt khuyến mãi");
+      }
+    } catch (error) {
+      console.error("Error activating promotion:", error);
+      toast.error("Lỗi khi kích hoạt khuyến mãi");
+    } finally {
+      setIsActivateModalOpen(false);
+      setActivateID(null);
     }
   };
 
@@ -177,7 +229,7 @@ const PromotionChart = () => {
     },
     {
       name: "Discount",
-      selector: (row) => row.discount*100 + "%",
+      selector: (row) => row.discount * 100 + "%",
       sortable: true,
     },
     {
@@ -199,18 +251,29 @@ const PromotionChart = () => {
       name: "Actions",
       cell: (row) => (
         <>
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded mr-2"
-            onClick={() => openEditModal(row)}
-          >
-            Edit
-          </button>
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded"
-            onClick={() => openDeleteModal(row.id)}
-          >
-            Delete
-          </button>
+          {row.active ? (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => openEditModal(row)}
+            >
+              Edit
+            </button>
+          ) : null}
+          {row.active ? (
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded"
+              onClick={() => openDeactivateModal(row.id)}
+            >
+              Deactivate
+            </button>
+          ) : (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded"
+              onClick={() => openActivateModal(row.id)}
+            >
+              Activate
+            </button>
+          )}
         </>
       ),
     },
@@ -228,7 +291,20 @@ const PromotionChart = () => {
           Add promotion
         </button>
       </div>
-      <DataTable columns={columns} data={promotions} pagination />
+      <DataTable
+        columns={columns}
+        data={promotions}
+        pagination
+        conditionalRowStyles={[
+          {
+            when: (row) => !row.active,
+            style: {
+              opacity: "0.5",
+              backgroundColor: "#e1e1e1",
+            },
+          },
+        ]}
+      />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
@@ -279,7 +355,6 @@ const PromotionChart = () => {
           }
         />
       </ModalUpdate>
-
       <ModalAdd
         isOpen={modalAddIsOpen}
         onClose={closeAddModal}
@@ -330,10 +405,15 @@ const PromotionChart = () => {
           }
         />
       </ModalAdd>
-      <ModalDelete
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        confirmDelete={confirmDelete}
+      <ModalDeactivate
+        isDeactivateModalOpen={isDeactivateModalOpen}
+        setIsDeactivateModalOpen={setIsDeactivateModalOpen}
+        confirmDeactivate={confirmDeactivate}
+      />
+      <ModalActivate
+        isActivateModalOpen={isActivateModalOpen}
+        setIsActivateModalOpen={setIsActivateModalOpen}
+        confirmActivate={confirmActivate}
       />
     </div>
   );
