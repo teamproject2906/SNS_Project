@@ -30,7 +30,6 @@ const getTimeAgo = (timestamp) => {
 const CommentItem = ({
   comment,
   level = 0,
-  userAvatar,
   onReply,
   replyingToId,
   replyText,
@@ -60,7 +59,6 @@ const CommentItem = ({
           <img
             src={
               comment.user?.avatar ||
-              userAvatar ||
               `https://i.pravatar.cc/100?img=${(comment.id % 10) + 1}`
             }
             alt="User"
@@ -753,8 +751,7 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
     setReplyingTo,
     replyText,
     setReplyText,
-    postReply,
-    userAvatar
+    postReply
   ) => {
     if (!replies || !replies.length) return null;
 
@@ -771,7 +768,6 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
             <CommentItem
               comment={reply}
               level={level}
-              userAvatar={userAvatar}
               onReply={setReplyingTo}
               replyingToId={replyingTo}
               replyText={replyText}
@@ -791,8 +787,7 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
               setReplyingTo,
               replyText,
               setReplyText,
-              postReply,
-              userAvatar
+              postReply
             )}
           </div>
         ))}
@@ -1146,7 +1141,7 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
           <div className="flex gap-2 mb-4">
             <div className="w-9 h-9 rounded-full overflow-hidden">
               <img
-                src={userAvatar}
+                src={post?.userAvatar || DEFAULT_AVATAR}
                 alt="User Avatar"
                 className="w-full h-full object-cover"
               />
@@ -1200,7 +1195,6 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
                 <CommentItem
                   key={comment.id}
                   comment={comment}
-                  userAvatar={userAvatar}
                   onReply={setReplyingTo}
                   replyingToId={replyingTo}
                   replyText={replyText}
