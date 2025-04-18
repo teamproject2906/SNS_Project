@@ -18,16 +18,14 @@ const FormClothesChart = () => {
   const [formData, setFormData] = useState({ formClothes: "" });
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleGetFormClothes = async () => {
     try {
       const token = getToken();
-      const res = await axios.get(
-        "http://localhost:8080/api/formclothes",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await axios.get("http://localhost:8080/api/formclothes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setFormClothes(res.data);
       console.log("Token:", token);
     } catch (error) {
@@ -111,12 +109,9 @@ const FormClothesChart = () => {
 
     try {
       const token = getToken();
-      await axios.delete(
-        `http://localhost:8080/api/formclothes/${deleteId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`http://localhost:8080/api/formclothes/${deleteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setFormClothes(formClothes.filter((form) => form.id !== deleteId));
       toast.success("Xóa thành công!");
     } catch (error) {
@@ -127,6 +122,22 @@ const FormClothesChart = () => {
       setDeleteId(null);
     }
   };
+
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+  };
+
+  const filteredForms = formClothes.filter((forms) => {
+    const formsCloth = forms.formClothes
+      ? `${forms.formClothes}`.toLowerCase()
+      : "";
+    const id = forms.id ? forms.id.toString().toLowerCase() : "";
+    return (
+      formsCloth.includes(searchTerm) ||
+      id.includes(searchTerm)
+    );
+  });
 
   const customStyles = {
     cells: {
@@ -176,14 +187,29 @@ const FormClothesChart = () => {
       <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Form Clothes Chart</h3>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={openAddModal}
-        >
-          Add form
-        </button>
+        <div className="flex flex-row gap-5">
+          <div className="searchBar">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full p-2 border rounded-lg"
+              onChange={handleSearch}
+            />
+          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={openAddModal}
+          >
+            Add form
+          </button>
+        </div>
       </div>
-      <DataTable columns={columns} data={formClothes} pagination customStyles={customStyles} />
+      <DataTable
+        columns={columns}
+        data={filteredForms}
+        pagination
+        customStyles={customStyles}
+      />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
