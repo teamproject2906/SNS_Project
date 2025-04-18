@@ -1,7 +1,5 @@
 package com.example.ECommerce.Project.V1.DTO;
 
-import com.example.ECommerce.Project.V1.Model.Comment;
-import com.example.ECommerce.Project.V1.Model.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +13,10 @@ import java.util.UUID;
 @Builder
 public class CommentDTO {
     private Integer id;
-    private String user;
+    private Integer userId;
+    private String firstName;
+    private String lastName;
+    private String avatar;
     private UUID postId;
     private String content;
     private String imageUrl;

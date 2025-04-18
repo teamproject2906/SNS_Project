@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import PostCard from "../SocialFeedPage/component/PostCard/PostCard";
 import { FaCog, FaHome, FaSearch, FaUser } from "react-icons/fa";
+import PostCard from "../../components/PostCard";
 
 const ProfileSocial = () => {
   const [bio, setBio] = useState("Bio here"); // State để lưu bio

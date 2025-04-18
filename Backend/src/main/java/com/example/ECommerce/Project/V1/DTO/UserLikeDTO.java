@@ -14,4 +14,6 @@ import java.util.UUID;
 public class UserLikeDTO {
     private Integer userID;
     private UUID postID;
+    private String fullName;
+    private String avatar;
 }

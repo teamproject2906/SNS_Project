@@ -49,32 +49,38 @@ public class CommentServiceImpl implements ICommentService {
    public CommentDTO addComment(CommentDTO commentDTO, Principal currentUser) {
       User userFind = getCurrentUser(currentUser);
       Post postFind = postRepository.findPostById(commentDTO.getPostId());
-      Comment commentFind = commentRepository.findCommentById(commentDTO.getCommentReplyId());
 
-      var newComment = Comment.builder()
-            .user(userFind)
-            .post(postFind)
-            .content(commentDTO.getContent())
-            .imageUrl(commentDTO.getImageUrl())
-            .replyCommentId(commentFind)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .createdBy(userFind.getUsername())
-            .updatedAt(LocalDateTime.now())
-            .isActive(true)
-            .build();
+      Comment replyComment = null;
+      if (commentDTO.getCommentReplyId() != null) {
+         replyComment = commentRepository.findCommentById(commentDTO.getCommentReplyId());
+      }
+
+      Comment newComment = Comment.builder()
+              .user(userFind)
+              .post(postFind)
+              .content(commentDTO.getContent())
+              .imageUrl(commentDTO.getImageUrl())
+              .replyCommentId(replyComment)  // gán entity nếu có
+              .createdAt(LocalDateTime.now())
+              .updatedAt(LocalDateTime.now())
+              .createdBy(userFind.getUsername())
+              .isActive(true)
+              .build();
 
       commentRepository.save(newComment);
 
       return CommentDTO.builder()
-            .id(newComment.getId())
-            .user(userFind.getUsername())
-            .postId(postFind.getId())
-            .content(newComment.getContent())
-            .imageUrl(newComment.getImageUrl())
-            .commentReplyId(newComment.getId())
-            .isActive(newComment.getIsActive())
-            .build();
+              .id(newComment.getId())
+              .userId(userFind.getId())
+              .firstName(userFind.getFirstname())
+              .lastName(userFind.getLastname())
+              .avatar(userFind.getAvatar())
+              .postId(postFind.getId())
+              .content(newComment.getContent())
+              .imageUrl(newComment.getImageUrl())
+              .commentReplyId(replyComment != null ? replyComment.getId() : null)
+              .isActive(newComment.getIsActive())
+              .build();
    }
 
    @Override
@@ -92,7 +98,10 @@ public class CommentServiceImpl implements ICommentService {
 
       return CommentDTO.builder()
             .id(cmtFind.getId())
-            .user(userFind.getUsername())
+              .userId(userFind.getId())
+              .firstName(userFind.getFirstname())
+              .lastName(userFind.getLastname())
+              .avatar(userFind.getAvatar())
             .postId(postFind.getId())
             .content(cmtFind.getContent())
             .imageUrl(cmtFind.getImageUrl())
@@ -126,16 +135,20 @@ public class CommentServiceImpl implements ICommentService {
          // Tìm tất cả comment cho post đã cho, không quan tâm trạng thái active
          List<Comment> comments = commentRepository.findAllByPostId(postId);
 
+
          // Map comments to DTOs
          List<CommentDTO> commentDTOs = comments.stream()
                .map(comment -> {
                   CommentDTO dto = CommentDTO.builder()
                         .id(comment.getId())
-                        .user(comment.getUser().getUsername())
+                        .userId(comment.getUser().getId())
+                          .firstName(comment.getUser().getFirstname())
+                          .lastName(comment.getUser().getLastname())
+                          .avatar(comment.getUser().getAvatar())
                         .postId(comment.getPost().getId())
                         .content(comment.getContent())
                         .imageUrl(comment.getImageUrl())
-                        .commentReplyId(comment.getId())
+                        .commentReplyId(comment.getReplyCommentId() != null ? comment.getReplyCommentId().getId() : null)
                         .isActive(comment.getIsActive())
                         .build();
                   return dto;
@@ -161,7 +174,10 @@ public class CommentServiceImpl implements ICommentService {
                .map(comment -> {
                   CommentDTO dto = CommentDTO.builder()
                         .id(comment.getId())
-                        .user(comment.getUser().getUsername())
+                          .userId(comment.getUser().getId())
+                          .firstName(comment.getUser().getFirstname())
+                          .lastName(comment.getUser().getLastname())
+                          .avatar(comment.getUser().getAvatar())
                         .postId(comment.getPost().getId())
                         .content(comment.getContent())
                         .imageUrl(comment.getImageUrl())
