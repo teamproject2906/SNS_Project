@@ -3,7 +3,9 @@ package com.example.ECommerce.Project.V1.Service.UserService;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -34,7 +36,7 @@ public interface IUserService {
 
    UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
 
-   void changeForgotPassword(ChangeForgotPasswordRequest request, Principal connectedUser);
+   void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException;
 
    UserDTO getUserById(Integer id);
 
