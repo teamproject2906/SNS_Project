@@ -24,12 +24,12 @@ const Register = () => {
 
     const trimmedEmail = emailOrPhoneNumber.toLowerCase().trim();
     if (!username || !trimmedEmail || !password) {
-      toast.error("Vui lòng điền đầy đủ thông tin!");
+      toast.error("Please fill in all the required information!");
       setLoading(false);
       return;
     }
     if (!emailPattern.test(trimmedEmail)) {
-      toast.error("Email không hợp lệ!");
+      toast.error("Email invalid!");
       setLoading(false);
       return;
     }
@@ -78,13 +78,15 @@ const Register = () => {
             toast.error(error.response.data.message);
             break;
           case 500:
-            toast.error("Lỗi máy chủ, vui lòng thử lại sau!");
+            toast.error("Server error, please try again later!");
             break;
           default:
-            toast.error(error.response.data.message || "Có lỗi xảy ra!");
+            toast.error(
+              error.response.data.message || "An error has occurred!"
+            );
         }
       } else {
-        toast.error(error.message || "Có lỗi xảy ra!");
+        toast.error(error.message || "An error has occurred!");
       }
     }
     setLoading(false);
@@ -105,10 +107,10 @@ const Register = () => {
       if (res.data && res.data.auth_url) {
         window.location.href = res.data.auth_url; // Chuyển hướng đến Google
       } else {
-        toast.error("Không tìm thấy URL chuyển hướng!");
+        toast.error("Redirect URL not found!");
       }
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi đăng nhập với Google!");
+      toast.error("An error occurred while signing in with Google!");
       console.error(error);
     }
   };
@@ -117,10 +119,10 @@ const Register = () => {
     <div className="container mx-auto px-4 py-12">
       <ToastContainer />
       <h1 className="text-xl font-bold mb-6 border-b-2 border-black pb-2">
-        Đăng ký
+        Register
       </h1>
       <div className="max-w-lg mx-auto p-8 shadow-lg border border-gray-200 rounded-md bg-white">
-        <h2 className="text-lg font-medium mb-6 text-center">Thông tin</h2>
+        <h2 className="text-lg font-medium mb-6 text-center">Information</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -130,7 +132,7 @@ const Register = () => {
           <div className="mb-6">
             <input
               type="text"
-              placeholder="Họ và tên"
+              placeholder="Full Name"
               className="w-full border rounded px-4 py-3 shadow-md"
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -148,7 +150,7 @@ const Register = () => {
           <div className="mb-6">
             <input
               type="password"
-              placeholder="Mật khẩu"
+              placeholder="Password"
               className="w-full border rounded px-4 py-3 shadow-md"
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -163,12 +165,12 @@ const Register = () => {
                 : "bg-black text-white hover:bg-gray-800"
             }`}
           >
-            {loading ? "Đang xử lý..." : "ĐĂNG KÝ"}
+            {loading ? "Processing..." : "REGISTER"}
           </button>
         </form>
         <div className="mt-8">
           <p className="text-center text-sm mb-4 text-gray-500">
-            Hoặc đăng nhập với
+            Or sign in with
           </p>
           <div className="flex justify-center space-x-4">
             <button

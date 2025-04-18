@@ -21,4 +21,6 @@ public interface IProductGalleryService {
     void deleteProductGalleryById(Integer imageId);
     void deleteProductGalleryByProductId(Integer productId);
     long getImageCountForProduct(Integer productId);
+
+    List<ProductGallery> getImageByProductCode(String productCode);
 }

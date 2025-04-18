@@ -40,9 +40,14 @@ public class FormClothesController {
         return new ResponseEntity<FormClothes>(formClothesService.updateFormClothes(formClothesId, formClothes), HttpStatus.OK);
     }
 
+    @PatchMapping("/reactive/{formClothesId}")
+    public ResponseEntity<FormClothes> reActiveFormClothesById(@PathVariable("formClothesId")Integer formClothesId) {
+        return new ResponseEntity<>(formClothesService.reActiveFormClothesById(formClothesId), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{formClothesId}")
     public ResponseEntity<String> deleteFormClothesById(@PathVariable("formClothesId")Integer formClothesId) {
-        formClothesService.deleteFormClothesById(formClothesId);
+        formClothesService.deActiveFormClothesById(formClothesId);
         return new ResponseEntity<String>("Delete FormClothes with id: " + formClothesId, HttpStatus.OK);
     }
 }

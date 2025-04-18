@@ -85,6 +85,7 @@ public class PromotionServiceImpl implements IPromotionService {
         promotionResponseDTO.setName(promotion.getName());
         promotionResponseDTO.setDiscount(promotion.getDiscount());
         promotionResponseDTO.setDescription(promotion.getDescription());
+        promotionResponseDTO.setActive(promotion.getIsActive());
         promotionResponseDTO.setStartDate(promotion.getStartDate());
         promotionResponseDTO.setEndDate(promotion.getEndDate());
 
