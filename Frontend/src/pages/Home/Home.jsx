@@ -410,77 +410,70 @@ const HomePage = () => {
 				<img src={BackgroundImage} alt="background" width="100%" />
 			</div>
 
-			{/* Featured Products Section */}
-			<div
-				className="featured-products-section"
-				style={{
-					padding: "40px",
-					marginTop: "20px",
-					backgroundColor: "#E9E9E9",
-				}}
-			>
-				<h2 style={{ marginBottom: "20px" }}>SẢN PHẨM NỔI BẬT</h2>
-				{loading ? (
-					<p style={{ textAlign: "center" }}>Loading...</p>
-				) : error ? (
-					<p style={{ textAlign: "center", color: "red" }}>{error}</p>
-				) : product.length === 0 ? (
-					<p style={{ textAlign: "center" }}>Không có sản phẩm nào</p>
-				) : (
-					<Slider {...productSettings}>
-						{product.map((item, index) => (
-							<Link
-								to={`/products/${item.id}`}
-								key={index}
-								className="product-card"
-								style={{ padding: "10px" }}
-							>
-								<div
-									className="product-image"
-									style={{ position: "relative" }}
-								>
-									<img
-										loading="lazy"
-										src={
-											item.imageUrl
-												? item.imageUrl
-												: "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="
-										}
-										alt={`Product ${item}`}
-										style={{
-											width: "80%",
-											height: "300px",
-											borderRadius: "8px",
-											margin: "0 auto",
-										}}
-									/>
-									<span
-										className="product-badge"
-										style={{
-											position: "absolute",
-											top: "5%",
-											left: "15%",
-											backgroundColor: "red",
-											color: "#fff",
-											padding: "5px 10px",
-											borderRadius: "5px",
-										}}
-									>
-										HOT
-									</span>
-									<div
-										className="card-text"
-										style={{ width: "80%", margin: "0 auto" }}
-									>
-										<p>{item.productName}</p>
-										<p>{formatPrice(item.price)}đ</p>
-									</div>
-								</div>
-							</Link>
-						))}
-					</Slider>
-				)}
-			</div>
+      {/* Featured Products Section */}
+      <div
+        className="featured-products-section"
+        style={{
+          padding: "40px",
+          marginTop: "20px",
+          backgroundColor: "#E9E9E9",
+        }}
+      >
+        <h2 style={{ marginBottom: "20px" }}>SẢN PHẨM NỔI BẬT</h2>
+        {loading ? (
+          <p style={{ textAlign: "center" }}>Loading...</p>
+        ) : error ? (
+          <p style={{ textAlign: "center", color: "red" }}>{error}</p>
+        ) : product.length === 0 ? (
+          <p style={{ textAlign: "center" }}>Không có sản phẩm nào</p>
+        ) : (
+          <Slider {...productSettings}>
+            {product.map((item, index) => (
+              <Link
+                to={`/products/${item.id}`}
+                key={index}
+                className="product-card"
+                style={{ padding: "10px" }}
+              >
+                <div className="product-image" style={{ position: "relative" }}>
+                  <img
+                    loading="lazy"
+                    src={item.imageUrl ? item.imageUrl : "https://media.istockphoto.com/id/1206425636/vector/image-photo-icon.jpg?s=612x612&w=0&k=20&c=zhxbQ98vHs6Xnvnnw4l6Nh9n6VgXLA0mvW58krh-laI="}
+                    alt={`Product ${item}`}
+                    style={{
+                      width: "80%",
+                      height: "300px",
+                      borderRadius: "8px",
+                      margin: "0 auto",
+                    }}
+                  />
+                  <span
+                    className="product-badge"
+                    style={{
+                      position: "absolute",
+                      top: "5%",
+                      left: "15%",
+                      backgroundColor: "red",
+                      color: "#fff",
+                      padding: "5px 10px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    HOT
+                  </span>
+                  <div
+                    className="card-text"
+                    style={{ width: "80%", margin: "0 auto" }}
+                  >
+                    <p>{item.productName}</p>
+                    <p>{formatPrice(item.price)}đ</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </Slider>
+        )}
+      </div>
 
 			{/* Social Section */}
 			<div
