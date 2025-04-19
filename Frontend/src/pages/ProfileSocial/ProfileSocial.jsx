@@ -7,6 +7,7 @@ import { getToken } from "../Login/app/static";
 import userService from "../../services/userService";
 import { DEFAULT_AVATAR } from "../../constants/ImageConstant";
 import postService from "../../services/postService";
+import { toast } from "react-toastify";
 
 const ProfileSocial = () => {
   const { user } = useUser();
@@ -38,6 +39,54 @@ const ProfileSocial = () => {
       setPosts(posts);
     } catch (error) {
       console.error("Error fetching posts:", error);
+    }
+  };
+
+  const handlePostUpdate = async (postId, newContent, imageFile) => {
+    try {
+      let updatedPost;
+
+      // Nếu có imageFile, sử dụng API updatePostWithImage
+      if (imageFile !== undefined) {
+        updatedPost = await postService.updatePostWithImage(
+          postId,
+          newContent,
+          imageFile
+        );
+      } else {
+        // Nếu chỉ cập nhật content, sử dụng API updatePost thông thường
+        updatedPost = await postService.updatePost(postId, {
+          content: newContent,
+        });
+      }
+
+      // Ngược lại, tải lại tất cả các post
+      fetchPosts();
+
+      toast.success("Cập nhật bài viết thành công");
+      return updatedPost;
+    } catch (error) {
+      console.error("Error updating post:", error);
+      toast.error(
+        "Cập nhật bài viết thất bại: " +
+          (error.response?.data?.message || error.message)
+      );
+      throw error;
+    }
+  };
+
+  const handlePostDelete = async (postId) => {
+    try {
+      await postService.deactivatePost(postId, {
+        active: false,
+      });
+
+      fetchPosts();
+
+      toast.success("Ẩn bài viết thành công");
+    } catch (error) {
+      console.error("Error hiding post:", error);
+      toast.error("Ẩn bài viết thất bại");
     }
   };
 
@@ -81,23 +130,16 @@ const ProfileSocial = () => {
             {/* Profile Header */}
             <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center mb-6">
               <div className="flex flex-row items-center justify-between w-full">
-                <div className="flex flex-col items-start max-w-[30%] justify-between gap-3">
-                  <div className="flex flex-col">
-                    <h2
-                      className="font-semibold text-2xl text-gray-800"
-                      style={{ lineHeight: "28px" }}
-                    >
-                      {name}
-                    </h2>
-                    <p className="text-gray-600 text-sm">
-                      {userProfile?.username}
-                    </p>
-                  </div>
-                  <div className="flex flex-row items-start justify-between gap-1">
-                    <p className="text-gray-600 text-sm line-clamp-2">
-                      {userProfile?.bio}
-                    </p>
-                  </div>
+                <div className="flex flex-col items-start max-w-[80%] justify-between gap-3">
+                  <h2
+                    className="font-bold text-2xl line-clamp-1"
+                    style={{ lineHeight: "30px" }}
+                  >
+                    {name}
+                  </h2>
+                  <p className="text-gray-600 text-sm line-clamp-2">
+                    {userProfile?.bio}
+                  </p>
                 </div>
                 <div className="h-24 w-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
                   <img
@@ -107,19 +149,14 @@ const ProfileSocial = () => {
                   />
                 </div>
               </div>
-              <div className="w-full flex-1 flex flex-col items-center justify-center mt-5">
-                <div className="mx-auto mb-5">
-                  <h2 className="text-2xl font-bold border-b-4 px-1 border-gray-300 text-center">
-                    POSTS
-                  </h2>
-                </div>
+              <div className="w-full flex-1 flex flex-col items-center justify-center mt-10">
                 {posts.map((post) => (
                   <PostCard
-                    className="outline-2 outline-double"
+                    className="border-t border-gray-300 mb-2 shadow-none rounded-none"
                     key={post.id}
                     post={post}
-                    onPostUpdate={() => {}}
-                    onPostDelete={() => {}}
+                    onPostUpdate={handlePostUpdate}
+                    onPostDelete={handlePostDelete}
                     showStatus={true}
                   />
                 ))}

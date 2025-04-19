@@ -117,13 +117,27 @@ public class CommentServiceImpl implements ICommentService {
    @Override
    public void deactivateComment(CommentDTO commentDTO, Integer cmtId, Principal currentUser) {
       User userFind = getCurrentUser(currentUser);
-      var cmtFind = commentRepository.findById(cmtId)
-            .orElseThrow(() -> new ResourceNotFoundException("Not found with comment ID"));
-      cmtFind.setIsActive(commentDTO.isActive());
-      cmtFind.setUpdatedAt(LocalDateTime.now());
-      cmtFind.setUpdatedBy(userFind.getUsername());
-      commentRepository.save(cmtFind);
+
+      Comment cmtFind = commentRepository.findById(cmtId)
+              .orElseThrow(() -> new ResourceNotFoundException("Not found with comment ID"));
+
+      deactivateCommentAndChildren(cmtFind, userFind);
    }
+
+   private void deactivateCommentAndChildren(Comment comment, User user) {
+      comment.setIsActive(false);
+      comment.setUpdatedAt(LocalDateTime.now());
+      comment.setUpdatedBy(user.getUsername());
+      commentRepository.save(comment);
+
+      // Tìm các comment con (reply)
+      List<Comment> replies = commentRepository.findCommentsByReplyCommentId(comment);
+
+      for (Comment reply : replies) {
+         deactivateCommentAndChildren(reply, user); // đệ quy
+      }
+   }
+
 
    @Override
    public CommentDTO getCommentById(Integer id) {

@@ -11,23 +11,6 @@ export const useComments = (postId) => {
   const [editingComment, setEditingComment] = useState(null);
   const [commentCount, setCommentCount] = useState(0);
 
-  const updateCommentCount = useCallback((commentsList) => {
-    if (!Array.isArray(commentsList)) return 0;
-
-    let total = 0;
-    commentsList.forEach((comment) => {
-      // Đếm comment nếu nó active
-      if (comment?.active) {
-        total++; // Count main comment
-        // Đếm replies
-        if (comment.replies && Array.isArray(comment.replies)) {
-          total += comment.replies.filter((reply) => reply?.active).length;
-        }
-      }
-    });
-    return total;
-  }, []);
-
   const loadComments = useCallback(async () => {
     if (!postId) return;
 
@@ -41,9 +24,7 @@ export const useComments = (postId) => {
         const treeComments = buildCommentTree(activeComments);
 
         setComments(treeComments);
-
-        const total = updateCommentCount(activeComments);
-        setCommentCount(total);
+        setCommentCount(activeComments.length);
       }
     } catch (error) {
       console.error("Error loading comments:", error);
@@ -51,7 +32,7 @@ export const useComments = (postId) => {
     } finally {
       setIsLoading(false);
     }
-  }, [postId, updateCommentCount]);
+  }, [postId]);
 
   // Load comments khi postId thay đổi
   useEffect(() => {

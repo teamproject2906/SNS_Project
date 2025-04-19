@@ -71,6 +71,7 @@ const CommentSection = ({
       await addReply(commentId, replyContent);
       setReplyText((prev) => ({ ...prev, [commentId]: "" }));
       setReplyingTo(null);
+      onChangeCommentCount((prev) => prev + 1);
     } catch (error) {
       console.error("Error posting reply:", error);
       setError("Failed to post reply");
@@ -98,12 +99,41 @@ const CommentSection = ({
     setEditingComment(null);
     setEditText("");
   };
-  console.log(commentsList);
+
+  const countNestedComments = (comments, parentId) => {
+    let total = 0;
+
+    const findAndCount = (commentList) => {
+      for (const comment of commentList) {
+        if (comment.id === parentId) {
+          total += countAllNested(comment);
+          break;
+        } else if (comment.replies && comment.replies.length > 0) {
+          findAndCount(comment.replies);
+        }
+      }
+    };
+
+    const countAllNested = (comment) => {
+      let count = 1; // tính chính nó
+      if (comment.replies && comment.replies.length > 0) {
+        for (const reply of comment.replies) {
+          count += countAllNested(reply);
+        }
+      }
+      return count;
+    };
+
+    findAndCount(comments);
+    return total;
+  };
 
   const handleDeleteComment = async (commentId) => {
     try {
       await deleteCommentHook(commentId);
-      onChangeCommentCount((prev) => prev - 1);
+      onChangeCommentCount(
+        (prev) => prev - countNestedComments(commentsList, commentId)
+      );
     } catch (err) {
       setError(err.message || "Failed to delete comment");
     }
@@ -204,40 +234,48 @@ const CommentSection = ({
       );
     }
 
-    return commentsList.map((comment) => (
-      <div key={comment.id} className="mb-4">
-        {editingComment === comment.id ? (
-          <div className="ml-11 mt-2">
-            <CommentForm
-              userAvatar={userAvatar}
-              commentText={editText}
-              setCommentText={setEditText}
-              onSubmit={() => handleUpdateComment(comment.id)}
-              onCancel={handleCancelEdit}
+    return commentsList.map((comment) => {
+      const name =
+        comment?.firstName?.toString()?.trim() &&
+        comment?.firstName?.toString()?.trim() !== ""
+          ? comment?.firstName + " " + comment?.lastName
+          : comment?.username;
+
+      return (
+        <div key={comment.id} className="mb-4">
+          {editingComment === comment.id ? (
+            <div className="ml-11 mt-2">
+              <CommentForm
+                userAvatar={userAvatar}
+                commentText={editText}
+                setCommentText={setEditText}
+                onSubmit={() => handleUpdateComment(comment.id)}
+                onCancel={handleCancelEdit}
+                isSubmitting={isLoading}
+                placeholder="Chỉnh sửa bình luận..."
+              />
+            </div>
+          ) : (
+            <CommentItem
+              comment={comment}
+              level={0}
+              onReply={() => handleReplyClick(comment.id, name)}
+              replyingToId={replyingTo}
+              replyText={replyText}
+              setReplyText={setReplyText}
+              onPostReply={handlePostReply}
               isSubmitting={isLoading}
-              placeholder="Chỉnh sửa bình luận..."
+              onEditComment={handleEditComment}
+              onDeleteComment={handleDeleteComment}
+              currentUserId={currentUserId}
             />
-          </div>
-        ) : (
-          <CommentItem
-            comment={comment}
-            level={0}
-            onReply={() => handleReplyClick(comment.id, comment.username)}
-            replyingToId={replyingTo}
-            replyText={replyText}
-            setReplyText={setReplyText}
-            onPostReply={handlePostReply}
-            isSubmitting={isLoading}
-            onEditComment={handleEditComment}
-            onDeleteComment={handleDeleteComment}
-            currentUserId={currentUserId}
-          />
-        )}
-        {comment.replies &&
-          comment.replies.length > 0 &&
-          renderReplies(comment.replies, 1, comment.id)}
-      </div>
-    ));
+          )}
+          {comment.replies &&
+            comment.replies.length > 0 &&
+            renderReplies(comment.replies, 1, comment.id)}
+        </div>
+      );
+    });
   };
 
   if (isLoading) {

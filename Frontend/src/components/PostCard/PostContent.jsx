@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { FaImage } from "react-icons/fa";
 
@@ -19,13 +18,15 @@ const PostContent = ({
   if (!isEditing) {
     return (
       <div className="text-gray-800 mb-4">
-        <p style={{ whiteSpace: "pre-line" }}>{content}</p>
+        <p className="px-6" style={{ whiteSpace: "pre-line" }}>
+          {content}
+        </p>
         {imageUrl && (
-          <div className="mt-3">
+          <div className="mt-3 bg-black flex justify-center items-center">
             <img
               src={imageUrl}
               alt="Post image"
-              className="max-w-full h-auto rounded-lg object-cover"
+              className="max-w-full h-auto object-cover"
               loading="lazy"
               onError={(e) => {
                 e.target.onerror = null;

@@ -22,5 +22,5 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
    @Query("SELECT p.user FROM Post p WHERE p.id = :postId")
    User findUserByPostId(@Param("postId") UUID postId);
 
-   List<Post> findPostByUserId(Integer userId);
+   List<Post> findPostByUserIdAndIsActive(Integer user_id, Boolean isActive);
 }

@@ -91,7 +91,7 @@ const PostCard = ({
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-lg p-6 mb-4 relative w-full ${className}`}
+      className={`bg-white rounded-xl shadow-lgmb-4 relative w-full ${className}`}
     >
       <PostHeader
         userAvatar={post?.userAvatar}

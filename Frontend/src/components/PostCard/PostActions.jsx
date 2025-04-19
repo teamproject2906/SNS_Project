@@ -12,7 +12,7 @@ const PostActions = ({
   isSubmitting,
 }) => {
   return (
-    <div className="flex justify-between items-center mt-4 space-x-6">
+    <div className="flex justify-between items-center mt-4 space-x-6 px-6 pb-6">
       <div className="relative">
         <button
           className={`flex items-center ${

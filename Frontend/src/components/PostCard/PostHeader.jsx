@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { CiSettings } from "react-icons/ci";
 import { DEFAULT_AVATAR } from "../../constants/ImageConstant";
@@ -15,7 +14,7 @@ const PostHeader = ({
   isActive,
 }) => {
   return (
-    <div className="flex items-center mb-4 relative">
+    <div className="flex items-center mb-4 relative pt-6 px-6">
       <button
         className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
         onClick={toggleSettings}

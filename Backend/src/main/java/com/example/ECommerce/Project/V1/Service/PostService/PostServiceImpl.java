@@ -181,7 +181,7 @@ public class PostServiceImpl implements IPostService {
 
    @Override
    public List<PostDTO> getPostsByUID(Integer userId) {
-      List<Post> postsByUserId = postRepository.findPostByUserId(userId);
+      List<Post> postsByUserId = postRepository.findPostByUserIdAndIsActive(userId, true);
       User userFind = userRepository.findUserById(userId);
 
       String fullName = (userFind.getFirstname() != null && userFind.getLastname() != null)
