@@ -13,6 +13,7 @@ const CategoryList = () => {
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     categoryName: "",
     parentCategoryID: {
@@ -104,11 +105,11 @@ const CategoryList = () => {
       const requestData = {
         categoryName: formData.categoryName,
       };
-  
+
       if (formData.parentCategoryID.id.trim() !== "") {
         requestData.parentCategoryID = { id: formData.parentCategoryID.id };
       }
-  
+
       const res = await axios.post(
         "http://localhost:8080/api/categories",
         requestData,
@@ -116,7 +117,7 @@ const CategoryList = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       setCategories([...categories, res.data]);
       closeAddModal();
       toast.success("Thêm danh mục thành công!");
@@ -189,6 +190,49 @@ const CategoryList = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+  };
+
+  const filteredCategories = categories.filter((categories) => {
+    const categoryName = categories.categoryName
+      ? `${categories.categoryName}`.toLowerCase()
+      : "";
+    const id = categories.id ? categories.id.toString().toLowerCase() : "";
+    // const parentCategoryId = categories.parentCategoryID.id
+    //   ? categories.parentCategoryID.id.toString().toLowerCase()
+    //   : "";
+    // const categoriesWithParentsId = categories.parentCategoryID.categoryName
+    //   ? `${categories.parentCategoryID.categoryName}`.toLowerCase()
+    //   : "";
+    return (
+      categoryName.includes(searchTerm) ||
+      id.includes(searchTerm)
+      // categoriesWithParentsId.includes(searchTerm)
+      // parentCategoryId.includes(searchTerm)
+    );
+  });
+
+  const customStyles = {
+    cells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "1px",
+      },
+    },
+    headCells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        fontWeight: "bold",
+        padding: "1px",
+        fontSize: "14px",
+      },
+    },
+  };
+
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
     {
@@ -239,17 +283,28 @@ const CategoryList = () => {
       <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Category List</h3>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={openAddModal}
-        >
-          Add Category
-        </button>
+        <div className="flex flex-row gap-5">
+          <div className="searchBar">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full p-2 border rounded-lg"
+              onChange={handleSearch}
+            />
+          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={openAddModal}
+          >
+            Add Category
+          </button>
+        </div>
       </div>
       <DataTable
         columns={columns}
-        data={categories}
+        data={filteredCategories}
         pagination
+        customStyles={customStyles}
         conditionalRowStyles={[
           {
             when: (row) => !row.active,
@@ -279,7 +334,9 @@ const CategoryList = () => {
           type="text"
           placeholder="Parent Category ID"
           className="w-full p-2 border mt-2"
-          value={formData.parentCategoryID ? formData.parentCategoryID.id : "Null"}
+          value={
+            formData.parentCategoryID ? formData.parentCategoryID.id : "Null"
+          }
           onChange={(e) =>
             setFormData({
               ...formData,

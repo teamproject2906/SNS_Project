@@ -62,17 +62,25 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
+      // Xóa cookie
       document.cookie =
         "id_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       document.cookie =
         "emailTokenForGG=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       document.cookie =
         "other_cookie=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      removeToken(); // Xóa token khỏi localStorage
-      removeUserInfo(); // Xóa thông tin người dùng khỏi localStorage
-      setTokenState(null); // Cập nhật state token ngay lập tức
-      setUser(null); // Đặt user về null
-      navigate("/login"); // Điều hướng đến trang đăng nhập
+
+      // Xóa token và thông tin người dùng khỏi localStorage
+      removeToken();
+      removeUserInfo();
+      localStorage.removeItem("user");
+
+      // Cập nhật trạng thái
+      setTokenState(null);
+      setUser(null);
+
+      // Điều hướng đến trang đăng nhập
+      navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -92,7 +100,8 @@ const Header = () => {
     const ggCookieToken = getCookie("emailTokenForGG");
 
     // Handle id_token (authentication token)
-    if (cookieToken) {
+    if (cookieToken && !user) {
+      // Chỉ chạy nếu chưa có user
       try {
         setToken(cookieToken);
         setTokenState(cookieToken);
@@ -137,7 +146,7 @@ const Header = () => {
     //   };
     //   verifyEmail();
     // }
-  }, []);
+  }, [user, setUser]);
 
   useEffect(() => {
     const fetchedProducts = async () => {
@@ -269,7 +278,10 @@ const Header = () => {
               <div className="relative">
                 <button className="flex items-center" onClick={toggleDropdown}>
                   <img
-                    src={user.avatar}
+                    src={
+                      user.avatar ||
+                      "https://pro-bel.com/wp-content/uploads/2019/11/blank-avatar-1-450x450.png"
+                    }
                     alt="Avatar"
                     className="rounded-full w-8 h-8 sm:w-10 sm:h-10"
                   />
@@ -312,24 +324,22 @@ const Header = () => {
                 )}
               </div>
             ) : (
-              <>
-                <div className="container mx-auto flex justify-between items-center px-4 gap-4">
-                  <Link
-                    to="/register"
-                    className="flex items-center hover:underline py-2"
-                  >
-                    <FaUser className="mr-1" />
-                    REGISTER
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="flex items-center hover:underline py-2"
-                  >
-                    <FaSignInAlt className="mr-1" />
-                    LOGIN
-                  </Link>
-                </div>
-              </>
+              <div className="container mx-auto flex justify-between items-center px-4 gap-4">
+                <Link
+                  to="/register"
+                  className="flex items-center hover:underline py-2"
+                >
+                  <FaUser className="mr-1" />
+                 REGISTER
+                </Link>
+                <Link
+                  to="/login"
+                  className="flex items-center hover:underline py-2"
+                >
+                  <FaSignInAlt className="mr-1" />
+                  LOGIN
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -383,6 +393,7 @@ const Header = () => {
                   filteredProducts.map((item) => (
                     <Link
                       to={`/products/${item.id}`}
+                      state={{ product: item.productCode }}
                       key={item.id}
                       className="flex items-center p-2 hover:bg-gray-100 border-b border-gray-200"
                     >

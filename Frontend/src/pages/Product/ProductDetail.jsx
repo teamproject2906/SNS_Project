@@ -22,7 +22,8 @@ const ProductDetail = () => {
   const [averageRating, setAverageRating] = useState(0);
   const thumbnailsRef = useRef(null);
   const { addToCart } = useCart();
-  const { addToFavourites, removeFromFavourites, isInFavourites } = useFavourite();
+  const { addToFavourites, removeFromFavourites, isInFavourites } =
+    useFavourite();
   const { user } = useUser();
   const location = useLocation();
 
@@ -49,7 +50,9 @@ const ProductDetail = () => {
         );
 
         // Handle API response (expecting an array)
-        const products = Array.isArray(productRes.data) ? productRes.data : [productRes.data];
+        const products = Array.isArray(productRes.data)
+          ? productRes.data
+          : [productRes.data];
         if (!products.length || !products[0].price) {
           throw new Error("Dữ liệu sản phẩm không hợp lệ hoặc thiếu giá");
         }
@@ -165,7 +168,7 @@ const ProductDetail = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
     } else {
-      alert("Số lượng phải lớn hơn 0");
+      alert("Quantity must be at least 1");
     }
   };
 
@@ -192,12 +195,12 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!selectedColor) {
-      toast.error("Vui lòng chọn màu sắc");
+      toast.error("Please select a color!");
       return;
     }
 
     if (!selectedSize) {
-      toast.error("Vui lòng chọn kích thước");
+      toast.error("Please select a size!");
       return;
     }
 
@@ -207,7 +210,7 @@ const ProductDetail = () => {
     );
 
     if (!selectedVariant) {
-      toast.error("Biến thể sản phẩm không tồn tại");
+      toast.error("Selected variant not found!");
       return;
     }
 
@@ -215,7 +218,8 @@ const ProductDetail = () => {
       id: selectedVariant.id,
       productName: selectedVariant.productName,
       price: selectedVariant.promotion
-        ? selectedVariant.price - selectedVariant.price * selectedVariant.promotion.discount
+        ? selectedVariant.price -
+          selectedVariant.price * selectedVariant.promotion.discount
         : selectedVariant.price,
       quantity: quantity,
       imageUrl: selectedImage || selectedVariant.imageUrl,
@@ -224,12 +228,12 @@ const ProductDetail = () => {
     };
 
     addToCart(productToAdd);
-    toast.success("Đã thêm vào giỏ hàng!");
+    toast.success("Added to cart successfully!");
   };
 
   const handleToggleFavourite = () => {
     if (!user) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích");
+      toast.warn("Please log in to add to favourites!");
       return;
     }
 
@@ -241,7 +245,7 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return <p style={{ textAlign: "center" }}>Đang tải...</p>;
+    return <p style={{ textAlign: "center" }}>Loading...</p>;
   }
 
   if (error) {
@@ -249,27 +253,41 @@ const ProductDetail = () => {
   }
 
   if (!product || !productVariants.length) {
-    return <p style={{ textAlign: "center" }}>Không tìm thấy sản phẩm.</p>;
+    return <p style={{ textAlign: "center" }}>Product not found</p>;
   }
 
   // All colors and sizes (for rendering)
   const allColors = [...new Set(productVariants.map((p) => p.color))];
   const allSizes = [...new Set(productVariants.map((p) => p.sizeChart.value))];
+  // Convert specialColor array to a lookup object
+  const specialColorMap = Object.fromEntries(
+    [
+      { name: "Red-Orange", value: "#e75113" },
+      { name: "Yellow-Orange", value: "#f59e0b" },
+      { name: "Yellow-Green", value: "#a3e635" },
+      { name: "Blue-Purple", value: "#4f46e5" },
+      { name: "Red-Purple", value: "#d946ef" },
+    ].map((sc) => [sc.name, sc.value])
+  );
 
   // Valid colors and sizes for disabling
   const validColors = selectedSize
-    ? [...new Set(
-        productVariants
-          .filter((p) => p.sizeChart.value === selectedSize)
-          .map((p) => p.color)
-      )]
+    ? [
+        ...new Set(
+          productVariants
+            .filter((p) => p.sizeChart.value === selectedSize)
+            .map((p) => p.color)
+        ),
+      ]
     : allColors;
   const validSizes = selectedColor
-    ? [...new Set(
-        productVariants
-          .filter((p) => p.color === selectedColor)
-          .map((p) => p.sizeChart.value)
-      )]
+    ? [
+        ...new Set(
+          productVariants
+            .filter((p) => p.color === selectedColor)
+            .map((p) => p.sizeChart.value)
+        ),
+      ]
     : allSizes;
 
   return (
@@ -329,18 +347,19 @@ const ProductDetail = () => {
               {product.productName}
               {product.quantityInventory ? (
                 <span className="ml-2 bg-green-500 text-white py-1 px-2 rounded text-sm">
-                  Còn hàng
+                  IN STOCK
                 </span>
               ) : (
                 <span className="ml-2 bg-red-500 text-white py-1 px-2 rounded text-sm">
-                  Hết hàng
+                  SOLD OUT
                 </span>
               )}
             </h1>
             <div className="average-rating mt-2 flex items-center">
               {[1, 2, 3, 4, 5].map((star) => {
                 const isFull = averageRating >= star;
-                const isHalf = averageRating >= star - 0.5 && averageRating < star;
+                const isHalf =
+                  averageRating >= star - 0.5 && averageRating < star;
 
                 return (
                   <span
@@ -360,14 +379,16 @@ const ProductDetail = () => {
                 );
               })}
               <span className="ml-2 text-gray-600">
-                {averageRating > 0 ? `${averageRating} stars` : "Chưa có đánh giá"}
+                {averageRating > 0 ? `${averageRating} stars` : "No reviews"}
               </span>
             </div>
           </div>
 
           <div className="mb-4 flex flex-row items-center gap-2">
-            <p className="text-base font-medium">Mã sản phẩm:</p>
-            <p className="text-base text-Montserrat-500">{product.productCode}</p>
+            <p className="text-base font-medium">Product Code:</p>
+            <p className="text-base text-Montserrat-500">
+              {product.productCode}
+            </p>
             <button
               className={`favoriteBtn border-2 rounded-full p-1 ${
                 isInFavourites(product.id) ? "text-red-500" : "text-gray-400"
@@ -416,7 +437,7 @@ const ProductDetail = () => {
           </div>
 
           <div className="mb-4 flex flex-row items-center gap-2">
-            <h3 className="text-sm font-medium">Chọn màu:</h3>
+            <h3 className="text-sm font-medium">Choose color:</h3>
             <div className="flex gap-2 flex-wrap">
               {allColors.length > 0 ? (
                 allColors.map((color) => (
@@ -432,7 +453,9 @@ const ProductDetail = () => {
                     onClick={() => handleColorSelect(color)}
                     disabled={!validColors.includes(color)}
                     style={{
-                      backgroundColor: color,
+                      backgroundColor: specialColorMap[color]
+                        ? specialColorMap[color]
+                        : color,
                       color: color === "White" ? "black" : "white",
                       padding: "1rem",
                       borderRadius: "10rem",
@@ -442,13 +465,13 @@ const ProductDetail = () => {
                   </button>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">Không có màu sắc</p>
+                <p className="text-sm text-gray-500">Color not available</p>
               )}
             </div>
           </div>
 
           <div className="mb-4 flex flex-row gap-2 items-center">
-            <h3 className="text-sm font-medium">Chọn kích thước:</h3>
+            <h3 className="text-sm font-medium">Choose size:</h3>
             <div className="flex gap-2 flex-wrap">
               {allSizes.length > 0 ? (
                 allSizes.map((size) => (
@@ -468,7 +491,7 @@ const ProductDetail = () => {
                   </button>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">Không có kích thước</p>
+                <p className="text-sm text-gray-500">Size not available</p>
               )}
             </div>
           </div>
@@ -491,13 +514,13 @@ const ProductDetail = () => {
               className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full"
               onClick={handleAddToCart}
             >
-              THÊM VÀO GIỎ HÀNG
+              ADD TO CART
             </button>
           </div>
 
           <div className="mb-4 flex flex-row gap-2">
             <button className="bg-red-500 text-white px-6 py-3 rounded-lg w-full">
-              MUA NGAY
+              BUY NOW
             </button>
           </div>
         </div>
@@ -516,15 +539,15 @@ const ProductDetail = () => {
         <h2 className="text-2xl font-bold mb-4">{product.productName}</h2>
         <ul className="flex flex-col gap-2">
           <div className="flex flex-row gap-2">
-            <li className="font-bold underline">Chất liệu:</li>
+            <li className="font-bold underline">Material:</li>
             <div>{product.material}</div>
           </div>
           <div className="flex flex-row gap-2">
-            <li className="font-bold underline">Kiểu dáng:</li>
+            <li className="font-bold underline">Form:</li>
             <div>{product.formClothes?.formClothes}</div>
           </div>
         </ul>
-        <p className="font-bold underline">Mô tả:</p>
+        <p className="font-bold underline">Description:</p>
         <p>{product.description}</p>
       </div>
 

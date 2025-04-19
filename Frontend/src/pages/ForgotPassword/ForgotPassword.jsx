@@ -4,7 +4,6 @@ import { toast, ToastContainer } from "react-toastify";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
 
   const validateEmail = (email) => {
@@ -38,8 +37,10 @@ export default function ForgotPassword() {
           withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
         }
       );
-      console.log("Response:", res.data);
-      toast.success(res.data);
+
+      localStorage.setItem("tokenTemp", res.data.refresh_token);
+      console.log("Response:", res);
+      toast.success(res.data.access_token);
     } catch (error) {
       console.error("Error:", error);
       const errorMessage =

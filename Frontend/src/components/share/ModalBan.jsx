@@ -11,19 +11,19 @@ const ModalBan = ({
       onRequestClose={() => setIsBanModalOpen(false)}
       className="p-6 mt-[5%] bg-white rounded-lg shadow-lg max-w-md mx-auto"
     >
-      <h2>Bạn có chắc chắn muốn ban user này?</h2>
+      <h2>Are you sure you want to ban this account?</h2>
       <div className="flex justify-end mt-10">
         <button
           className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
           onClick={() => setIsBanModalOpen(false)}
         >
-          Không
+          Cancel
         </button>
         <button
           className="bg-red-500 text-white px-4 py-2 rounded"
           onClick={confirmBan}
         >
-          Có
+          Confirm
         </button>
       </div>
     </Modal>
