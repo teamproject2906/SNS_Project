@@ -47,9 +47,35 @@ public class CommentServiceImpl implements ICommentService {
 
    @Override
    public CommentDTO addComment(CommentDTO commentDTO, Principal currentUser) {
+
+      // Validate input
+      if (commentDTO.getPostId() == null) {
+         throw new IllegalArgumentException("PostId cannot be null");
+      }
+      if (commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {
+         throw new IllegalArgumentException("Content cannot be empty");
+      }
+
+      // Get current user
       User userFind = getCurrentUser(currentUser);
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
+
+      // Validate post
       Post postFind = postRepository.findPostById(commentDTO.getPostId());
-      Comment commentFind = commentRepository.findCommentById(commentDTO.getCommentReplyId());
+      if (postFind == null) {
+         throw new ResourceNotFoundException("Post not found");
+      }
+
+      // Validate reply comment
+      Comment commentFind = null;
+      if (commentDTO.getCommentReplyId() != null && commentDTO.getCommentReplyId() != 0) {
+         commentFind = commentRepository.findCommentById(commentDTO.getCommentReplyId());
+         if (commentFind == null) {
+            throw new ResourceNotFoundException("Comment reply not found");
+         }
+      }
 
       var newComment = Comment.builder()
             .user(userFind)

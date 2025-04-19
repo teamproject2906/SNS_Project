@@ -14,7 +14,20 @@ import java.util.Map;
 public class PaymentService {
     private final VNPAYConfig vnPayConfig;
     public PaymentDTO.VNPayResponse createVnPayPayment(HttpServletRequest request) {
-        long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
+        // Validate amount
+        String amountStr = request.getParameter("amount");
+        if (amountStr == null || amountStr.isEmpty()) {
+            throw new IllegalArgumentException("Amount cannot be null or empty");
+        }
+        long amount;
+        try {
+            amount = Integer.parseInt(amountStr) * 100L;
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Invalid amount format");
+        }
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0");
+        }
         String bankCode = request.getParameter("bankCode");
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));

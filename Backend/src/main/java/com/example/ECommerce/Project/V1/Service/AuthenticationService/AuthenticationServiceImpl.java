@@ -54,8 +54,9 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
 
+    @Override
     // 2. Handle the business logic code for registration
-    public ResponseEntity<String> register(RegisterRequest request) {
+    public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse httpServletResponse) {
 
         validateRequestRegister(request);
 
@@ -121,11 +122,6 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         if (request.getPassword().length() < 8 || request.getPassword().length() > 50) {
             throw new IllegalArgumentException("Password must be between 8 and 50 characters");
         }
-    }
-
-    @Override
-    public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse) {
-        return null;
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

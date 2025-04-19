@@ -1,10 +1,12 @@
 package com.example.ECommerce.Project.V1.Repository;
 
 import com.example.ECommerce.Project.V1.Model.OrderDetail;
+import com.example.ECommerce.Project.V1.Model.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -13,5 +15,6 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
 
     @Query("SELECT o from OrderDetail o order by o.id DESC LIMIT 1")
     OrderDetail findLastInsertedOrder();
+    List<OrderDetail> findByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus);
 }
 
