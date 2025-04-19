@@ -65,6 +65,11 @@ export const postService = {
 		}
 	},
 
+	getPostsByUserId: async (userId) => {
+		const response = await api.get(`/social/api/post/getPostsByUid/${userId}`);
+		return response.data;
+	},
+
 	// Get all posts
 	getAllPosts: async () => {
 		const response = await api.get("/social/api/post/getAllPostActive");

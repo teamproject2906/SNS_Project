@@ -86,7 +86,7 @@ const CommentItem = ({
               </div>
               <button
                 className="flex items-center gap-1 hover:text-blue-500 transition-colors"
-                onClick={() => onReply(comment.id)}
+                onClick={onReply}
                 disabled={isSubmitting}
               >
                 <FaRegComment

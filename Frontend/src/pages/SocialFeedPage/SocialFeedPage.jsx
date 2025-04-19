@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
-import { FaCog, FaPlus, FaSearch, FaUser } from "react-icons/fa";
 import Header from "../../layouts/common/Header";
-import CreatePostPopup from "../../components/Popup/CreatePostPopup";
-import SearchPopup from "../../components/Popup/SearchPopup";
 import { postService } from "../../services/postService";
 import { toast } from "react-toastify";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../../components/PostCard";
+import Sidebar from "../../components/Social/Sidebar";
 
 const SocialFeedPage = () => {
   const { id: postId } = useParams(); // Lấy ID bài đăng từ URL nếu có
   const navigate = useNavigate();
-  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -86,6 +82,7 @@ const SocialFeedPage = () => {
       // Nếu có postId trong URL, tải bài post cụ thể
       fetchPostById(postId);
     } else {
+      setSelectedPost(null);
       // Ngược lại tải tất cả bài post
       fetchPosts();
     }
@@ -160,25 +157,7 @@ const SocialFeedPage = () => {
       </div>
       <div className="flex min-h-screen bg-gray-50">
         {/* Sidebar */}
-        <div className="w-16 flex flex-col items-start justify-start p-4 h-100">
-          <div className="space-y-6">
-            <button className="text-2xl" onClick={() => setIsSearchOpen(true)}>
-              <FaSearch /> {/* Search */}
-            </button>
-            <button className="text-2xl">
-              <FaUser /> {/* Profile */}
-            </button>
-            <button className="text-2xl">
-              <FaCog /> {/* Settings */}
-            </button>
-            <button
-              className="text-2xl"
-              onClick={() => setIsCreatePostOpen(true)}
-            >
-              <FaPlus /> {/* Add Post Button */}
-            </button>
-          </div>
-        </div>
+        <Sidebar onPostCreated={fetchPosts} />
         {/* Main Content */}
         <div className="flex-1 bg-gray-100 p-6">
           <div className="max-w-3xl mx-auto space-y-6">
@@ -220,20 +199,6 @@ const SocialFeedPage = () => {
           </div>
         </div>
         {/* Create Post Popup */}
-        <CreatePostPopup
-          isOpen={isCreatePostOpen}
-          onClose={() => setIsCreatePostOpen(false)}
-          onPostCreated={fetchPosts}
-        />
-        {/* Search Popup */}
-        <SearchPopup
-          isOpen={isSearchOpen}
-          onClose={() => setIsSearchOpen(false)}
-          onPostSelect={(post) => {
-            setSelectedPost(post);
-            setIsSearchOpen(false);
-          }}
-        />
       </div>
     </>
   );

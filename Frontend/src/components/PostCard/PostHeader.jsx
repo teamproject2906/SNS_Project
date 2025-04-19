@@ -60,11 +60,6 @@ const PostHeader = ({
         <h2 className="font-semibold text-xl text-gray-800">
           {fullName || "(Người dùng chưa đặt tên)"}
         </h2>
-        {!isCurrentUser && (
-          <button className="ml-4 text-blue-500 text-sm font-medium hover:underline">
-            Follow
-          </button>
-        )}
       </div>
 
       {showStatus && isActive !== undefined && (

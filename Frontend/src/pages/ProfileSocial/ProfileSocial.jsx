@@ -1,97 +1,136 @@
-import React, { useState } from "react";
-import { FaCog, FaHome, FaSearch, FaUser } from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
 import PostCard from "../../components/PostCard";
+import Header from "../../layouts/common/Header";
+import Sidebar from "../../components/Social/Sidebar";
+import { useUser } from "../../context/UserContext";
+import { getToken } from "../Login/app/static";
+import userService from "../../services/userService";
+import { DEFAULT_AVATAR } from "../../constants/ImageConstant";
+import postService from "../../services/postService";
 
 const ProfileSocial = () => {
-  const [bio, setBio] = useState("Bio here"); // State để lưu bio
-  const [isEditing, setIsEditing] = useState(false); // Trạng thái chỉnh sửa Bio
-  const [newBio, setNewBio] = useState(bio); // State để lưu Bio mới khi người dùng chỉnh sửa
+  const { user } = useUser();
+  const [userProfile, setUserProfile] = useState(user);
+  const [posts, setPosts] = useState([]);
 
-  // Hàm xử lý khi nhấn vào Edit Profile
-  const handleEditProfile = () => {
-    setIsEditing(true); // Mở chế độ chỉnh sửa
+  const name = useMemo(() => {
+    return userProfile?.firstname?.toString()?.trim() &&
+      userProfile?.lastname?.toString()?.trim() !== ""
+      ? userProfile?.firstname + " " + userProfile?.lastname
+      : userProfile?.username;
+  }, [userProfile]);
+
+  const token = getToken();
+
+  const parseJwt = (token) => {
+    if (!token) return null;
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (e) {
+      console.error("Error parsing JWT:", e);
+      return null;
+    }
   };
 
-  // Hàm xử lý khi lưu Bio mới
-  const handleSaveBio = () => {
-    setBio(newBio); // Cập nhật Bio mới
-    setIsEditing(false); // Đóng chế độ chỉnh sửa
+  const fetchPosts = async () => {
+    try {
+      const posts = await postService.getPostsByUserId(userProfile?.id);
+      setPosts(posts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
   };
+
+  // Debug thông tin user
+  useEffect(() => {
+    if (token) {
+      const fetchUserProfile = async () => {
+        try {
+          const decodedToken = parseJwt(token);
+          const userId = decodedToken?.userId;
+
+          if (!userId) return;
+
+          const response = await userService.getUserProfile(userId);
+          setUserProfile(response);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      };
+
+      fetchUserProfile();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [userProfile?.id]);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-16 flex flex-col items-center justify-around p-4 h-100">
-        <div className="space-y-6">
-          <button className="text-2xl">
-            <FaHome /> {/* Home */}
-          </button>
-          <button className="text-2xl">
-            <FaSearch /> {/* Search */}
-          </button>
-          <button className="text-2xl">
-            <FaUser /> {/* Profile */}
-          </button>
-          <button className="text-2xl">
-            <FaCog /> {/* Settings */}
-          </button>
-        </div>
-        <button className="text-2xl mt-auto bg-gray-700 rounded-full p-3 hover:bg-gray-600">
-          + {/* Add Post Button */}
-        </button>
+    <>
+      <div>
+        <Header />
       </div>
+      <div className="flex min-h-screen bg-gray-50">
+        {/* Sidebar */}
+        <Sidebar onPostCreated={fetchPosts} />
 
-      {/* Main Content */}
-      <div className="flex-1 bg-gray-100 p-6">
-        <div className="max-w-3xl mx-auto space-y-6">
-          {/* Profile Header */}
-          <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center mb-6">
-            <div className="h-24 w-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mb-4">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbiigxlSItMGEINLKB2wgjZ9b21BxWYei0mg&s"
-                alt="User Avatar"
-                className="w-full h-full object-cover"
-              />
+        {/* Main Content */}
+        <div className="flex-1 bg-gray-100 p-6">
+          <div className="max-w-3xl mx-auto space-y-6">
+            {/* Profile Header */}
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center justify-center mb-6">
+              <div className="flex flex-row items-center justify-between w-full">
+                <div className="flex flex-col items-start max-w-[30%] justify-between gap-3">
+                  <div className="flex flex-col">
+                    <h2
+                      className="font-semibold text-2xl text-gray-800"
+                      style={{ lineHeight: "28px" }}
+                    >
+                      {name}
+                    </h2>
+                    <p className="text-gray-600 text-sm">
+                      {userProfile?.username}
+                    </p>
+                  </div>
+                  <div className="flex flex-row items-start justify-between gap-1">
+                    <p className="text-gray-600 text-sm line-clamp-2">
+                      {userProfile?.bio}
+                    </p>
+                  </div>
+                </div>
+                <div className="h-24 w-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={userProfile?.avatar || DEFAULT_AVATAR}
+                    alt="User Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              <div className="w-full flex-1 flex flex-col items-center justify-center mt-5">
+                <div className="mx-auto mb-5">
+                  <h2 className="text-2xl font-bold border-b-4 px-1 border-gray-300 text-center">
+                    POSTS
+                  </h2>
+                </div>
+                {posts.map((post) => (
+                  <PostCard
+                    className="outline-2 outline-double"
+                    key={post.id}
+                    post={post}
+                    onPostUpdate={() => {}}
+                    onPostDelete={() => {}}
+                    showStatus={true}
+                  />
+                ))}
+              </div>
             </div>
-            <h2 className="font-semibold text-2xl text-gray-800">User 1</h2>
-            {/* Nếu đang chỉnh sửa thì hiển thị input, ngược lại hiển thị bio */}
 
-            <p className="text-gray-600 text-sm mt-1">5 followers</p>
-            {isEditing ? (
-              <div className="flex flex-col w-[100%]  items-center">
-                <textarea
-                  className="mt-2 p-2 border rounded-lg w-full max-w-md"
-                  value={newBio}
-                  onChange={(e) => setNewBio(e.target.value)} // Cập nhật bio mới
-                  rows="4"
-                />
-                <button
-                  className="mt-4 w-[100%] border px-6 py-2 rounded-lg"
-                  onClick={handleSaveBio} // Lưu bio mới
-                >
-                  Save
-                </button>
-              </div>
-            ) : (
-              <div className="text-gray-600 text-sm mt-2">
-                <p className="text-center">{bio}</p>
-                <button
-                  className="mt-4 border w-[100%] px-6 py-2 rounded-lg"
-                  onClick={handleEditProfile} // Bật chế độ chỉnh sửa
-                >
-                  Edit profile
-                </button>
-              </div>
-            )}
+            {/* PostCard */}
           </div>
-
-          {/* PostCard */}
-          <PostCard />
-          <PostCard />
-          <PostCard />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

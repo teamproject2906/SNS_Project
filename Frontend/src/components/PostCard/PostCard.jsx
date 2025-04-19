@@ -10,7 +10,13 @@ import PostActions from "./PostActions";
 import CommentSection from "./CommentSection/CommentSection";
 import LikeTooltip from "./LikeTooltip";
 
-const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
+const PostCard = ({
+  post,
+  onPostUpdate,
+  onPostDelete,
+  showStatus,
+  className,
+}) => {
   const { user } = useUser();
   const [showComments, setShowComments] = React.useState(false);
   const [showSettings, setShowSettings] = React.useState(false);
@@ -84,7 +90,9 @@ const PostCard = ({ post, onPostUpdate, onPostDelete, showStatus }) => {
   }, [commentCount]);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-4 relative">
+    <div
+      className={`bg-white rounded-xl shadow-lg p-6 mb-4 relative w-full ${className}`}
+    >
       <PostHeader
         userAvatar={post?.userAvatar}
         fullName={
@@ -165,6 +173,7 @@ PostCard.propTypes = {
   onPostUpdate: PropTypes.func.isRequired,
   onPostDelete: PropTypes.func.isRequired,
   showStatus: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export default PostCard;

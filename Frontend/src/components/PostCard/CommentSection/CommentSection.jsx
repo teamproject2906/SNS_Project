@@ -120,40 +120,47 @@ const CommentSection = ({
 
     return (
       <div className="transition-all duration-500">
-        {visibleReplies.map((reply) => (
-          <div key={reply.id} className="mt-2">
-            {editingComment === reply.id ? (
-              <div className="ml-11 mt-2">
-                <CommentForm
-                  userAvatar={userAvatar}
-                  commentText={editText}
-                  setCommentText={setEditText}
-                  onSubmit={() => handleUpdateComment(reply.id)}
-                  onCancel={handleCancelEdit}
+        {visibleReplies.map((reply) => {
+          const name =
+            reply?.firstName?.toString()?.trim() &&
+            reply?.firstName?.toString()?.trim() !== ""
+              ? reply?.firstName + " " + reply?.lastName
+              : reply?.username;
+          return (
+            <div key={reply.id} className="mt-2">
+              {editingComment === reply.id ? (
+                <div className="ml-11 mt-2">
+                  <CommentForm
+                    userAvatar={userAvatar}
+                    commentText={editText}
+                    setCommentText={setEditText}
+                    onSubmit={() => handleUpdateComment(reply.id)}
+                    onCancel={handleCancelEdit}
+                    isSubmitting={isLoading}
+                    placeholder="Chỉnh sửa bình luận..."
+                  />
+                </div>
+              ) : (
+                <CommentItem
+                  comment={reply}
+                  level={level}
+                  onReply={() => handleReplyClick(reply.id, name)}
+                  replyingToId={replyingTo}
+                  replyText={replyText}
+                  setReplyText={setReplyText}
+                  onPostReply={handlePostReply}
                   isSubmitting={isLoading}
-                  placeholder="Chỉnh sửa bình luận..."
+                  onEditComment={handleEditComment}
+                  onDeleteComment={handleDeleteComment}
+                  currentUserId={currentUserId}
                 />
-              </div>
-            ) : (
-              <CommentItem
-                comment={reply}
-                level={level}
-                onReply={setReplyingTo}
-                replyingToId={replyingTo}
-                replyText={replyText}
-                setReplyText={setReplyText}
-                onPostReply={handlePostReply}
-                isSubmitting={isLoading}
-                onEditComment={handleEditComment}
-                onDeleteComment={handleDeleteComment}
-                currentUserId={currentUserId}
-              />
-            )}
-            {reply.replies &&
-              reply.replies.length > 0 &&
-              renderReplies(reply.replies, level + 1, reply.id)}
-          </div>
-        ))}
+              )}
+              {reply.replies &&
+                reply.replies.length > 0 &&
+                renderReplies(reply.replies, level + 1, reply.id)}
+            </div>
+          );
+        })}
 
         {replies.length > MAX_VISIBLE_REPLIES && (
           <button
@@ -178,6 +185,14 @@ const CommentSection = ({
         )}
       </div>
     );
+  };
+
+  const handleReplyClick = (commentId, authorName) => {
+    setReplyingTo(commentId);
+    setReplyText((prev) => ({
+      ...prev,
+      [commentId]: `@${authorName} `,
+    }));
   };
 
   const renderComments = (commentsList) => {
@@ -207,7 +222,7 @@ const CommentSection = ({
           <CommentItem
             comment={comment}
             level={0}
-            onReply={setReplyingTo}
+            onReply={() => handleReplyClick(comment.id, comment.username)}
             replyingToId={replyingTo}
             replyText={replyText}
             setReplyText={setReplyText}
