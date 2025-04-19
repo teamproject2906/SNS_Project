@@ -6,9 +6,10 @@ import { useCart } from "../../context/CartContext";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useUser } from "../../context/UserContext";
+import PropTypes from "prop-types";
 
-const ProductCard = () => {
-  const [products, setProducts] = useState([]);
+const ProductCard = ({ products }) => {
+  const [product, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,7 +96,7 @@ const ProductCard = () => {
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <div className="product-card grid grid-cols-4 gap-6">
         {currentItems.map((item) => (
           <div
@@ -209,6 +210,23 @@ const ProductCard = () => {
       )}
     </div>
   );
+};
+
+// Add PropTypes validation
+ProductCard.propTypes = {
+  products: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      productName: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+      promotion: PropTypes.shape({
+        discount: PropTypes.number,
+      }),
+      imageUrl: PropTypes.string,
+      color: PropTypes.string,
+      size: PropTypes.string,
+    })
+  ).isRequired,
 };
 
 export default ProductCard;

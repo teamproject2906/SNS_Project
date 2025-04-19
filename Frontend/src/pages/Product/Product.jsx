@@ -12,20 +12,20 @@ export default function Product() {
   const [sortOption, setSortOption] = useState("Sản phẩm nổi bật");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFiltered, setIsFiltered] = useState(false); // Track if filtering is applied
-  const [modalIsOpen, setModalIsOpen] = useState(false); // Control modal visibility
+  const [isFiltered, setIsFiltered] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  // Fetch products on mount
   useEffect(() => {
     const fetchedProducts = async () => {
       try {
         const token = getToken();
-        const res = await axios.get("http://localhost:8080/api/products", {
+        const res = await axios.get("http://localhost:8080/api/products/productcode", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const safeProducts = Array.isArray(res.data) ? res.data : [];
+        console.log("Fetched products:", safeProducts); // Kiểm tra dữ liệu
         setProducts(safeProducts);
-        setFilteredProducts(safeProducts); // Initially show all products
+        setFilteredProducts(safeProducts);
       } catch (err) {
         setError(err.message);
         setProducts([]);
@@ -38,20 +38,18 @@ export default function Product() {
     fetchedProducts();
   }, []);
 
-  // Hàm xử lý lọc
   const handleFilter = ({ priceRange, category }) => {
+    console.log("Filter values:", { priceRange, category });
     const [minPrice, maxPrice] = priceRange;
     let filtered = [...products];
 
-    // Lọc theo giá
     filtered = filtered.filter((product) => {
       const price = product.promotion
-        ? product.price * (1 - product.promotion.discount)
-        : product.price;
+        ? product.price * (1 - (product.promotion.discount || 0))
+        : product.price || 0;
       return price >= minPrice && price <= maxPrice;
     });
 
-    // Lọc theo category
     if (category) {
       filtered = filtered.filter(
         (product) => product.category?.categoryName === category
@@ -59,75 +57,76 @@ export default function Product() {
     }
 
     setFilteredProducts(filtered);
-    setIsFiltered(true); // Mark that filtering is applied
+    setIsFiltered(true);
     setSortOption("Sản phẩm nổi bật");
   };
 
-  // Handle sorting logic
   const handleSort = (option) => {
+    console.log("Sort option:", option);
     setSortOption(option.label);
-    let sortedProducts = [...(isFiltered ? filteredProducts : products)]; // Sort the active list
+    let sortedProducts = [...(isFiltered ? filteredProducts : products)];
 
     switch (option.value) {
       case "price-asc":
         sortedProducts.sort((a, b) => {
           const priceA = a.promotion
-            ? a.price * (1 - a.promotion.discount)
-            : a.price;
+            ? a.price * (1 - (a.promotion.discount || 0))
+            : a.price || 0;
           const priceB = b.promotion
-            ? b.price * (1 - b.promotion.discount)
-            : b.price;
+            ? b.price * (1 - (b.promotion.discount || 0))
+            : b.price || 0;
           return priceA - priceB;
         });
         break;
       case "price-desc":
         sortedProducts.sort((a, b) => {
           const priceA = a.promotion
-            ? a.price * (1 - a.promotion.discount)
-            : a.price;
+            ? a.price * (1 - (a.promotion.discount || 0))
+            : a.price || 0;
           const priceB = b.promotion
-            ? b.price * (1 - b.promotion.discount)
-            : b.price;
+            ? b.price * (1 - (b.promotion.discount || 0))
+            : b.price || 0;
           return priceB - priceA;
         });
         break;
       case "name-asc":
         sortedProducts.sort((a, b) =>
-          a.productName.localeCompare(b.productName)
+          (a.productName || "").localeCompare(b.productName || "")
         );
         break;
       case "name-desc":
         sortedProducts.sort((a, b) =>
-          b.productName.localeCompare(a.productName)
+          (b.productName || "").localeCompare(a.productName || "")
         );
         break;
       case "oldest":
         sortedProducts.sort(
-          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          (a, b) =>
+            new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
         );
         break;
       case "newest":
         sortedProducts.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          (a, b) =>
+            new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
         );
         break;
       case "best-selling":
         sortedProducts.sort((a, b) => (b.sales || 0) - (a.sales || 0));
         break;
       default:
-        sortedProducts = [...(isFiltered ? filteredProducts : products)]; // Preserve current list
+        sortedProducts = [...(isFiltered ? filteredProducts : products)];
         break;
     }
 
     setFilteredProducts(sortedProducts);
   };
 
-  // Open modal
   const openModal = () => {
+    console.log("Opening modal");
     setModalIsOpen(true);
   };
 
-  // Close modal
   const closeModal = () => {
     setModalIsOpen(false);
   };
@@ -140,7 +139,7 @@ export default function Product() {
             onClick={openModal}
             className="px-4 py-2 rounded flex flex-row items-center gap-2 cursor-pointer bg-gray-200 hover:bg-gray-300"
           >
-            <IoFilter className="text-2xl"/>
+            <IoFilter className="text-2xl" />
             <label>FILTER</label>
           </button>
           <FilterButton
@@ -156,7 +155,7 @@ export default function Product() {
       </div>
       <div className="w-full">
         <ProductCard
-          products={filteredProducts} // Always use filteredProducts
+          products={filteredProducts}
           loading={loading}
           error={error}
         />

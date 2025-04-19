@@ -182,7 +182,7 @@ const UserTable = () => {
         </div>
       ),
       style: {
-        minWidth: "auto",
+        width: "100px",
         whiteSpace: "nowrap",
         padding: "8px",
         overflow: "hidden",
@@ -198,7 +198,7 @@ const UserTable = () => {
         </div>
       ),
       style: {
-        minWidth: "auto",
+        width: "100px",
         whiteSpace: "nowrap",
         padding: "8px",
         overflow: "hidden",

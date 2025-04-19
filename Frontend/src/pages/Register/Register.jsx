@@ -14,25 +14,52 @@ const Register = () => {
   const [emailOrPhoneNumber, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({});
   const navigate = useNavigate();
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleRegister = async () => {
-    if (loading) return;
-    setLoading(true);
+    const newError = {};
 
     const trimmedEmail = emailOrPhoneNumber.toLowerCase().trim();
-    if (!username || !trimmedEmail || !password) {
-      toast.error("Please fill in all the required information!");
-      setLoading(false);
-      return;
+    // if (!username || !trimmedEmail || !password) {
+    //   toast.error("Vui lòng điền đầy đủ thông tin!");
+    //   setLoading(false);
+    //   return;
+    // }
+
+    // if (!emailPattern.test(trimmedEmail)) {
+    //   // toast.error("Email không hợp lệ!");
+    //   // setLoading(false);
+    //   // return;
+    //   newError.email = "Invalid email format";
+    // } 
+
+    if (password.length < 8) {
+      // toast.error("Mật khâu phải nhất 9 ky tự!");
+      // setLoading(false);
+      // return;
+      newError.password = "Password must be at least 8 characters";
     }
-    if (!emailPattern.test(trimmedEmail)) {
-      toast.error("Email invalid!");
-      setLoading(false);
-      return;
+
+    if (!username.trim()) {
+      newError.username = "Username cannot be blank";
     }
+
+    if (!trimmedEmail.trim()) {
+      newError.email = "Email cannot be blank";
+    }
+
+    if (!password.trim()) {
+      newError.password = "Password cannot be blank";
+    }
+
+    setError(newError);
+
+    if (Object.keys(newError).length > 0) {
+      return; // Có lỗi thì không tiếp tục
+    }
+
     try {
       const res = await axios.post(
         "http://localhost:8080/Authentication/Register",
@@ -132,11 +159,13 @@ const Register = () => {
           <div className="mb-6">
             <input
               type="text"
-              placeholder="Full Name"
+              placeholder="Username"
               className="w-full border rounded px-4 py-3 shadow-md"
               onChange={(e) => setUsername(e.target.value)}
-              required
             />
+            {error.username && (
+              <p className="text-red-500 text-sm mt-1">{error.username}</p>
+            )}
           </div>
           <div className="mb-6">
             <input
@@ -144,8 +173,10 @@ const Register = () => {
               placeholder="Email"
               className="w-full border rounded px-4 py-3 shadow-md"
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
+            {error.email && (
+              <p className="text-red-500 text-sm mt-1">{error.email}</p>
+            )}
           </div>
           <div className="mb-6">
             <input
@@ -153,8 +184,10 @@ const Register = () => {
               placeholder="Password"
               className="w-full border rounded px-4 py-3 shadow-md"
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
+            {error.password && (
+              <p className="text-red-500 text-sm mt-1">{error.password}</p>
+            )}
           </div>
           <button
             aria-label="Register"
@@ -165,12 +198,12 @@ const Register = () => {
                 : "bg-black text-white hover:bg-gray-800"
             }`}
           >
-            {loading ? "Processing..." : "REGISTER"}
+            {loading ? "On Progress..." : "REGISTER"}
           </button>
         </form>
         <div className="mt-8">
           <p className="text-center text-sm mb-4 text-gray-500">
-            Or sign in with
+            Or register with
           </p>
           <div className="flex justify-center space-x-4">
             <button
@@ -179,10 +212,6 @@ const Register = () => {
             >
               <FaGoogle className="mr-2" />
               Google
-            </button>
-            <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-500">
-              <FaFacebook className="mr-2" />
-              Facebook
             </button>
           </div>
         </div>

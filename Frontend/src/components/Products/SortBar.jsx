@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import styles from '../../assets/styles/SortBar.module.css'; // Import CSS module
+import { useState } from "react";
+import styles from "../../assets/styles/SortBar.module.css";
 
 const SortBar = ({ onSort, selectedOption }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = [
-    { label: 'Giá: Tăng dần', value: 'price-asc' },
-    { label: 'Giá: Giảm dần', value: 'price-desc' },
-    { label: 'Tên: A-Z', value: 'name-asc' },
-    { label: 'Tên: Z-A', value: 'name-desc' },
-    { label: 'Cũ nhất', value: 'oldest' },
-    { label: 'Mới nhất', value: 'newest' },
-    { label: 'Bán chạy nhất', value: 'best-selling' },
+    { label: "Giá: Tăng dần", value: "price-asc" },
+    { label: "Giá: Giảm dần", value: "price-desc" },
+    { label: "Tên: A-Z", value: "name-asc" },
+    { label: "Tên: Z-A", value: "name-desc" },
+    { label: "Cũ nhất", value: "oldest" },
+    { label: "Mới nhất", value: "newest" },
+    { label: "Bán chạy nhất", value: "best-selling" },
   ];
 
   const toggleDropdown = () => {
@@ -19,14 +19,15 @@ const SortBar = ({ onSort, selectedOption }) => {
   };
 
   const handleOptionClick = (option) => {
+    console.log("Selected option:", option);
     setIsOpen(false);
-    onSort(option); // Trigger sorting in parent
+    onSort(option);
   };
 
   return (
     <div className={styles.dropdownContainer}>
       <div className={styles.dropdownHeader} onClick={toggleDropdown}>
-        {selectedOption} <span className={styles.arrow}>{isOpen ? '▲' : '▼'}</span>
+        {selectedOption} <span className={styles.arrow}>{isOpen ? "▲" : "▼"}</span>
       </div>
       {isOpen && (
         <ul className={styles.dropdownMenu}>
