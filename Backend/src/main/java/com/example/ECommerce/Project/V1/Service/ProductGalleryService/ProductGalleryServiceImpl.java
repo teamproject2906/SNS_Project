@@ -255,4 +255,9 @@ public class ProductGalleryServiceImpl implements IProductGalleryService {
         return "product_gallery/" + publicId;
     }
 
+    @Override
+    public List<ProductGallery> getImageByProductCode(String productCode){
+        return productGalleryRepository.getProductGalleriesByProductCode(productCode);
+    }
+
 }

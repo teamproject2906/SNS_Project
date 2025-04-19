@@ -16,4 +16,5 @@ public class VoucherDTO {
     private LocalDateTime endDate;
     private Double discount;
     private Integer usageLimit;
+    private Boolean isActive;
 }

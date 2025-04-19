@@ -184,6 +184,7 @@ const Login = () => {
 
         {/* Đăng Ký Tài Khoản */}
         <div className="p-6 shadow-lg border rounded-md">
+
           <h2 className="text-lg font-semibold mb-4">Create new account</h2>
           <p className="text-sm mb-6">
             Register an account now to make your purchases faster and easier.

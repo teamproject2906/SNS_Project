@@ -105,13 +105,15 @@ const Register = () => {
             toast.error(error.response.data.message);
             break;
           case 500:
-            toast.error("Lỗi máy chủ, vui lòng thử lại sau!");
+            toast.error("Server error, please try again later!");
             break;
           default:
-            toast.error(error.response.data.message || "Có lỗi xảy ra!");
+            toast.error(
+              error.response.data.message || "An error has occurred!"
+            );
         }
       } else {
-        toast.error(error.message || "Có lỗi xảy ra!");
+        toast.error(error.message || "An error has occurred!");
       }
     }
     setLoading(false);
@@ -132,10 +134,10 @@ const Register = () => {
       if (res.data && res.data.auth_url) {
         window.location.href = res.data.auth_url; // Chuyển hướng đến Google
       } else {
-        toast.error("Không tìm thấy URL chuyển hướng!");
+        toast.error("Redirect URL not found!");
       }
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi đăng nhập với Google!");
+      toast.error("An error occurred while signing in with Google!");
       console.error(error);
     }
   };

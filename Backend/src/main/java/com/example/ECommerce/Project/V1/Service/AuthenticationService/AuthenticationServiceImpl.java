@@ -3,7 +3,6 @@ package com.example.ECommerce.Project.V1.Service.AuthenticationService;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationRequest;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResponse;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.RegisterRequest;
-import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
 import com.example.ECommerce.Project.V1.Mailing.AccountVerificationEmailContext;
 import com.example.ECommerce.Project.V1.Mailing.EmailService;
 import com.example.ECommerce.Project.V1.Model.User;
@@ -13,7 +12,6 @@ import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.example.ECommerce.Project.V1.Service.CartService.ICartService;
 import com.example.ECommerce.Project.V1.Service.JWTService;
 import com.example.ECommerce.Project.V1.Service.SecureTokenService.ISecureTokenService;
-import com.example.ECommerce.Project.V1.Service.WishlistService.WishlistService;
 import com.example.ECommerce.Project.V1.Token.SecureToken;
 import com.example.ECommerce.Project.V1.Token.Token;
 import com.example.ECommerce.Project.V1.Token.TokenType;
@@ -34,7 +32,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.ErrorResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
@@ -55,13 +52,10 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     @Autowired
     private ICartService cartService;
 
-    @Autowired
-    private WishlistService wishlistService;
-
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
-    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,50}$");
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
 
-    // 2. Handle the business logic code for registration
+    @Override
     public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse) {
 
         validateRequestRegister(request);
@@ -75,22 +69,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .updatedAt(LocalDateTime.now())
                 .createdBy("SYSTEM")
                 .updatedBy("SYSTEM")
-                .isVerified(true)
+                .isVerified(false)
                 .isActive(true)
                 .build();
         var savedUser = userRepository.save(user); // Save user in DB
         cartService.initializeCartForUser(savedUser.getId());
-        wishlistService.createWishlist(savedUser.getId());
 
         // Generate secure token
         var secureToken = secureTokenService.createToken();
         secureToken.setUser(savedUser);
         secureTokenService.saveSecureToken(secureToken);
 
-        // Prepare and send verification email
-        AccountVerificationEmailContext emailContext = new AccountVerificationEmailContext();
-        emailContext.init(savedUser);
-        emailContext.setToken(secureToken.getToken());
 
 //        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
 //        emailToken.setHttpOnly(false);
@@ -102,6 +91,11 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
         String cookie = String.format("emailTokenForGG=%s; Max-Age=3600; Path=/; SameSite=Lax", secureToken.getToken());
         servletResponse.setHeader("Set-Cookie", cookie);
+
+        // Prepare and send verification email
+        AccountVerificationEmailContext emailContext = new AccountVerificationEmailContext();
+        emailContext.init(savedUser);
+        emailContext.setToken(secureToken.getToken());
 
 //        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
         String baseUrl = "http://localhost:5173";
@@ -131,7 +125,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
 
         if (!USERNAME_PATTERN.matcher(request.getUsername()).matches()) {
-            throw new IllegalArgumentException("Invalid username. Only alphanumeric characters and underscores are allowed (3-50 characters).");
+            throw new IllegalArgumentException("Invalid username. Only alphanumeric characters and underscores are allowed (3-20 characters).");
         }
 
         if (!EMAIL_PATTERN.matcher(request.getEmailOrPhoneNumber()).matches()) {
@@ -143,6 +137,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
     }
 
+    @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
         var user = userRepository.findByUsername(request.getUsername())
@@ -164,7 +159,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                     )
             );
         } catch (BadCredentialsException e) {
-            throw new IllegalArgumentException("Password not correct!");
+            throw new IllegalArgumentException("Username and password not correct!");
         }
 
         var jwtToken = jwtService.generateToken(user);
@@ -178,6 +173,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .build();
     }
 
+    @Override
     public AuthenticationResponse verifyEmail(String token) {
 
         SecureToken secureToken = secureTokenService.findByToken(token);
@@ -201,6 +197,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .build();
     }
 
+    @Override
     public void saveUserToken(User savedUser, String jwtToken) {
         var token = Token.builder()
                 .user(savedUser)
@@ -224,10 +221,12 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    @Override
     public void cleanUpExpiredTokens(User user) {
         tokenRepository.deleteExpiredAndRevokedTokensByUserId(user.getId());
     }
 
+    @Override
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
@@ -248,13 +247,13 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 var authenticateResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
-                        .role(userDetails.getRole())
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authenticateResponse);
             }
         }
     }
 
+    @Override
     public void registerByGoogle(String jwt) {
         Jwt decodedJwt = jwtService.jwtDecoder.decode(jwt);
         String email = decodedJwt.getClaim("email");
@@ -282,46 +281,38 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public ResponseEntity<String> forgotPassword(String email, HttpServletResponse response) {
+    public ResponseEntity<String> forgotPassword(String email, HttpServletResponse response){
 
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new IllegalArgumentException("Invalid email format.");
         }
 
-        var savedUser = userRepository.findByEmail(email);
-        if (savedUser != null) {
-            // Generate secure token
-            var secureToken = secureTokenService.createToken();
-            secureToken.setUser(savedUser);
-            secureTokenService.saveSecureToken(secureToken);
+        User savedUser = userRepository.findByEmail(email);
+        var secureToken = secureTokenService.createToken();
+        secureToken.setUser(savedUser);
+        secureTokenService.saveSecureToken(secureToken);
 
-            // Prepare and send verification email
-            AccountVerificationEmailContext emailContext = new AccountVerificationEmailContext();
-            emailContext.init(savedUser);
-            emailContext.setToken(secureToken.getToken());
+        // Prepare and send verification email
+        AccountVerificationEmailContext emailContext = new AccountVerificationEmailContext();
+        emailContext.init(savedUser);
+        emailContext.setToken(secureToken.getToken());
 
-//            Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
-//            emailToken.setHttpOnly(false);
-//            emailToken.setSecure(false);
-//            emailToken.setPath("/");
-//            emailToken.setMaxAge(3600);
-//            emailToken.setAttribute("SameSite", "Lax");
-//            response.addCookie(emailToken);
-            String cookie = String.format("emailTokenForForgot=%s; Max-Age=3600; Path=/; SameSite=Lax", secureToken.getToken());
-            response.setHeader("Set-Cookie", cookie);
+        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
+        emailToken.setHttpOnly(false);
+        emailToken.setSecure(false);
+        emailToken.setPath("/");
+        emailToken.setMaxAge(3600);
+        emailToken.setAttribute("SameSite", "Lax");
+        response.addCookie(emailToken);
 
-//          String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
-            String baseUrl = "http://localhost:5173";
-            emailContext.buildVerificationUrlForgotPass(baseUrl, secureToken.getToken());
+        String baseUrl = "http://localhost:5173";
+        emailContext.buildVerificationUrl(baseUrl, secureToken.getToken());
 
-            try {
-                emailService.sendMail(emailContext);
-                return ResponseEntity.ok("We have send to your email a verification, please check have a check and complete your forgot password session!");
-            } catch (MessagingException e) {
-                throw new RuntimeException("Failed to send verification email", e);
-            }
-        } else {
-            throw new ResourceNotFoundException("Account not found with given email.");
+        try {
+            emailService.sendMail(emailContext);
+            return ResponseEntity.ok("We have send to your email a verification, please check have a check and complete your registration!");
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send verification email", e);
         }
     }
 }
