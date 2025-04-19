@@ -37,4 +37,5 @@ public interface IUserService {
    UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
 
    void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException;
+
 }
