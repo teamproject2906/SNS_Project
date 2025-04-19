@@ -17,10 +17,10 @@ import com.example.ECommerce.Project.V1.Token.Token;
 import com.example.ECommerce.Project.V1.Token.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.regex.Pattern;
 
 @Service
@@ -56,8 +55,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
 
-    // 2. Handle the business logic code for registration
-    public ResponseEntity<String> register(RegisterRequest request) {
+    @Override
+    public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse) {
 
         validateRequestRegister(request);
 
@@ -81,12 +80,25 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         secureToken.setUser(savedUser);
         secureTokenService.saveSecureToken(secureToken);
 
+
+//        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
+//        emailToken.setHttpOnly(false);
+//        emailToken.setSecure(false);
+//        emailToken.setPath("/");
+//        emailToken.setMaxAge(3600);
+//        emailToken.setAttribute("SameSite", "Lax");
+//        servletResponse.addCookie(emailToken);
+
+        String cookie = String.format("emailTokenForGG=%s; Max-Age=3600; Path=/; SameSite=Lax", secureToken.getToken());
+        servletResponse.setHeader("Set-Cookie", cookie);
+
         // Prepare and send verification email
         AccountVerificationEmailContext emailContext = new AccountVerificationEmailContext();
         emailContext.init(savedUser);
         emailContext.setToken(secureToken.getToken());
 
-        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
+//        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
+        String baseUrl = "http://localhost:5173";
         emailContext.buildVerificationUrl(baseUrl, secureToken.getToken());
 
         try {
@@ -126,17 +138,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse) {
-        return null;
-    }
-
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Username not exist!"));
 
-        if (!user.getIsActive() && !user.getIsVerified()) {
-            throw new DisabledException("Your account is banned or not verified");
+        if (!user.getIsActive()) {
+            throw new DisabledException("Your account is banned");
+        }
+
+        if (!user.getIsVerified()) {
+            throw new DisabledException("Your account is not verified");
         }
 
         try {
@@ -147,7 +159,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                     )
             );
         } catch (BadCredentialsException e) {
-            throw new IllegalArgumentException("Password not correct!");
+            throw new IllegalArgumentException("Username and password not correct!");
         }
 
         var jwtToken = jwtService.generateToken(user);
@@ -161,6 +173,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .build();
     }
 
+    @Override
     public AuthenticationResponse verifyEmail(String token) {
 
         SecureToken secureToken = secureTokenService.findByToken(token);
@@ -184,6 +197,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .build();
     }
 
+    @Override
     public void saveUserToken(User savedUser, String jwtToken) {
         var token = Token.builder()
                 .user(savedUser)
@@ -207,10 +221,12 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    @Override
     public void cleanUpExpiredTokens(User user) {
         tokenRepository.deleteExpiredAndRevokedTokensByUserId(user.getId());
     }
 
+    @Override
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
@@ -237,6 +253,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
     }
 
+    @Override
     public void registerByGoogle(String jwt) {
         Jwt decodedJwt = jwtService.jwtDecoder.decode(jwt);
         String email = decodedJwt.getClaim("email");
@@ -264,20 +281,10 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public ResponseEntity<String> forgotPassword(String email, HttpServletResponse response) {
-        return null;
-    }
-
-    public ResponseEntity<String> forgotPassword(String email){
+    public ResponseEntity<String> forgotPassword(String email, HttpServletResponse response){
 
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new IllegalArgumentException("Invalid email format.");
-        }
-
-        if (email.contains("@")) {
-            if (userRepository.findByEmail(email) != null ) {
-                throw new IllegalArgumentException("Email already exists");
-            }
         }
 
         User savedUser = userRepository.findByEmail(email);
@@ -290,7 +297,15 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         emailContext.init(savedUser);
         emailContext.setToken(secureToken.getToken());
 
-        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
+        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
+        emailToken.setHttpOnly(false);
+        emailToken.setSecure(false);
+        emailToken.setPath("/");
+        emailToken.setMaxAge(3600);
+        emailToken.setAttribute("SameSite", "Lax");
+        response.addCookie(emailToken);
+
+        String baseUrl = "http://localhost:5173";
         emailContext.buildVerificationUrl(baseUrl, secureToken.getToken());
 
         try {

@@ -38,6 +38,4 @@ public interface IUserService {
 
    void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException;
 
-   UserDTO getUserById(Integer id);
-
 }
