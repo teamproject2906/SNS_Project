@@ -45,10 +45,6 @@ const Header = () => {
   const searchDropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("User thay đổi:", user);
-  }, [user]);
-
   const menuAnimation = useSpring({
     opacity: isMenuOpen ? 1 : 1,
     transform: isMenuOpen ? "translateY(45%)" : "translateY(-100%)",
@@ -102,8 +98,6 @@ const Header = () => {
   useEffect(() => {
     const cookieToken = getCookie("id_token");
     const ggCookieToken = getCookie("emailTokenForGG");
-    console.log("Token verify email từ cookie:", ggCookieToken);
-    console.log("Token từ cookie:", cookieToken);
 
     // Handle id_token (authentication token)
     if (cookieToken && !user) {
@@ -171,7 +165,6 @@ const Header = () => {
           }
         );
         setProduct(Array.isArray(res.data) ? res.data : []);
-        console.log("Product", res.data);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError(err.message);

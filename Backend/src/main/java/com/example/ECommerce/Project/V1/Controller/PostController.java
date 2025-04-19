@@ -32,6 +32,12 @@ public class PostController {
       return ResponseEntity.ok(postService.getAllPostsActive());
    }
 
+   @GetMapping("/getPostsByUid/{userId}")
+   public ResponseEntity<List<PostDTO>> getPostsByUid(
+           @PathVariable Integer userId) {
+      return ResponseEntity.ok(postService.getPostsByUID(userId));
+   }
+
    @PostMapping("/createPost")
    public ResponseEntity<PostDTO> createPost(
          @RequestBody PostDTO postDTO,

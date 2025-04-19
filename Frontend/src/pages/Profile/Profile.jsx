@@ -77,7 +77,7 @@ const Profile = () => {
         const userId = decodedToken?.userId;
 
         if (!userId) {
-          throw new Error("Unable to identify user information");
+          throw new Error("Không thể xác định thông tin người dùng");
         }
 
         const response = await axios.get(
@@ -126,7 +126,7 @@ const Profile = () => {
         setLoading(false);
       } catch (error) {
         console.error("Lỗi khi lấy thông tin người dùng:", error);
-        setError("Unable to fetch user information. Please try again later");
+        setError("Không thể lấy thông tin người dùng. Vui lòng thử lại sau.");
         setLoading(false);
       }
     };
@@ -150,7 +150,7 @@ const Profile = () => {
   // Thêm hàm xử lý upload avatar
   const handleSaveAvatar = async () => {
     if (!selectedFile) {
-      toast.error("Please select an image");
+      toast.error("Vui lòng chọn ảnh");
       return;
     }
 
@@ -159,7 +159,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Unable to identify user information.");
+        toast.error("Không thể xác định thông tin người dùng");
         return;
       }
 
@@ -183,9 +183,9 @@ const Profile = () => {
       });
 
       setIsEditingAvatar(false);
-      toast.success("Profile picture updated successfully.");
+      toast.success("Cập nhật ảnh đại diện thành công");
     } catch (error) {
-      toast.error("Error updating profile picture!");
+      toast.error("Lỗi khi cập nhật ảnh đại diện!");
       console.error("Lỗi:", error);
     }
   };
@@ -197,7 +197,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Unable to identify user information.");
+        toast.error("Không thể xác định thông tin người dùng");
         return;
       }
 
@@ -217,7 +217,7 @@ const Profile = () => {
         }
       );
 
-      toast.success("Edited successfully.");
+      toast.success("Chỉnh sửa thành công");
 
       setUser({
         ...response.data,
@@ -230,7 +230,7 @@ const Profile = () => {
 
       setIsEditing(false);
     } catch (error) {
-      toast.error("Failed to update information.");
+      toast.error("Cập nhật thông tin thất bại");
       console.error("Lỗi khi cập nhật thông tin:", error);
     }
   };
@@ -242,7 +242,7 @@ const Profile = () => {
 
   const submitChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error("New password and confirmation do not match!");
+      toast.error("Mật khẩu mới và xác nhận không khớp!");
       return;
     }
 
@@ -251,7 +251,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Unable to identify user information.");
+        toast.error("Không thể xác định thông tin người dùng");
         return;
       }
 
@@ -266,7 +266,7 @@ const Profile = () => {
         }
       );
 
-      toast.success("Password changed successfully");
+      toast.success("Đổi mật khẩu thành công");
       setIsChangingPassword(false);
       setPasswordData({
         currentPassword: "",
@@ -275,7 +275,7 @@ const Profile = () => {
       });
     } catch (error) {
       console.error("Lỗi khi đổi mật khẩu:", error);
-      toast.error("Failed to change password!");
+      toast.error("Đổi mật khẩu thất bại!");
     }
   };
 
@@ -285,7 +285,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Unable to identify user information.");
+        toast.error("Không thể xác định thông tin người dùng");
         return;
       }
 
@@ -306,9 +306,9 @@ const Profile = () => {
       });
 
       setIsEditingEmail(false);
-      toast.success("Email updated successfully.");
+      toast.success("Chỉnh sửa email thành công");
     } catch (error) {
-      toast.error("Error updating email!");
+      toast.error("Lỗi khi cập nhật email!");
       console.error("Lỗi:", error);
     }
   };
@@ -319,7 +319,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Unable to identify user information.");
+        toast.error("Không thể xác định thông tin người dùng");
         return;
       }
 
@@ -340,9 +340,9 @@ const Profile = () => {
       });
 
       setIsEditingPhone(false);
-      toast.success("Phone number updated successfully.");
+      toast.success("Chỉnh sửa số điện thoại thành công");
     } catch (error) {
-      toast.error("Error updating phone number!");
+      toast.error("Lỗi khi cập nhật số điện thoại!");
       console.error("Lỗi:", error);
     }
   };
@@ -353,7 +353,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Unable to identify user information.");
+        toast.error("Không thể xác định thông tin người dùng");
         return;
       }
 
@@ -374,55 +374,55 @@ const Profile = () => {
       });
 
       setIsEditingUsername(false);
-      toast.success("Username updated successfully.");
+      toast.success("Chỉnh sửa tên người dùng thành công");
     } catch (error) {
-      toast.error("Error updating username!");
+      toast.error("Lỗi khi cập nhật tên người dùng!");
       console.error("Lỗi:", error);
     }
   };
 
-  const handleSaveRole = async () => {
-    try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+  //   const handleSaveRole = async () => {
+  //     try {
+  //       const decodedToken = parseJwt(token);
+  //       const userId = decodedToken?.userId;
 
-      if (!userId) {
-        toast.error("Unable to identify user information.");
-        return;
-      }
-      console.log(editedRole);
-      // Giả sử API endpoint cần được thêm vào backend
-      const response = await axios.patch(
-        `http://localhost:8080/User/setUserRole/${userId}`,
-        { role: editedRole },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  //       if (!userId) {
+  //         toast.error("Không thể xác định thông tin người dùng");
+  //         return;
+  //       }
+  //       console.log(editedRole);
+  //       // Giả sử API endpoint cần được thêm vào backend
+  //       const response = await axios.patch(
+  //         `http://localhost:8080/User/setUserRole/${userId}`,
+  //         { role: editedRole },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
 
-      setUser({
-        ...user,
-        role: editedRole,
-      });
-      console.log({
-        ...user,
-        role: editedRole,
-      });
-      setIsEditingRole(false);
-      toast.success("Role updated successfully.");
-    } catch (error) {
-      toast.error("Error updating role!");
-      console.error("Lỗi:", error);
-    }
-  };
+  //       setUser({
+  //         ...user,
+  //         role: editedRole,
+  //       });
+  //       console.log({
+  //         ...user,
+  //         role: editedRole,
+  //       });
+  //       setIsEditingRole(false);
+  //       toast.success("Chỉnh sửa vai trò thành công");
+  //     } catch (error) {
+  //       toast.error("Lỗi khi cập nhật vai trò!");
+  //       console.error("Lỗi:", error);
+  //     }
+  //   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-xl">Loading information...</p>
+        <p className="text-xl">Đang tải thông tin...</p>
       </div>
     );
   }
@@ -470,7 +470,7 @@ const Profile = () => {
               className="bg-red-600 text-white px-4 py-2 rounded-md text-sm flex items-center space-x-2 hover:bg-red-700 transition"
             >
               <FaKey />
-              <span>Change password</span>
+              <span>Đổi mật khẩu</span>
             </button>
           </div>
         </div>
@@ -494,7 +494,7 @@ const Profile = () => {
           <div className="flex justify-between border-b border-black pb-3">
             <ProfileField
               icon={<FaPhone />}
-              label="Phone number"
+              label="Số điện thoại"
               value={user.phoneNumber}
             />
             <button
@@ -507,33 +507,18 @@ const Profile = () => {
 
           <ProfileField
             icon={<FaTransgender />}
-            label="Gender"
-            value={user.gender ? "Male" : "Female"}
+            label="Giới tính"
+            value={user.gender ? "Nam" : "Nữ"}
           />
 
           <ProfileField
             icon={<FaBirthdayCake />}
-            label="Date of birth"
+            label="Ngày sinh"
             value={user.dob}
           />
-
-          <div className="flex justify-between border-b border-black pb-3">
-            <ProfileField
-              icon={<FaUserShield />}
-              label="Role"
-              value={user.role}
-            />
-            <button
-              className="font-bold text-lg text-blue-500 hover:text-blue-700"
-              onClick={() => setIsEditingRole(true)}
-            >
-              Edit
-            </button>
-          </div>
-
           <ProfileField
             icon={<FaInfoCircle />}
-            label="Description"
+            label="Mô tả"
             value={user.bio}
           />
         </div>
@@ -545,7 +530,7 @@ const Profile = () => {
             className="flex items-center space-x-2 bg-black text-white px-5 py-2 rounded-md text-lg font-medium hover:opacity-80 transition"
           >
             <FaEdit />
-            <span>Edit profile</span>
+            <span>Chỉnh sửa hồ sơ</span>
           </button>
         </div>
       </div>
@@ -555,7 +540,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Edit profile</h2>
+              <h2 className="text-xl font-semibold">Chỉnh sửa hồ sơ</h2>
               <button
                 onClick={() => setIsEditing(false)}
                 className="text-red-500 hover:text-red-700"
@@ -606,14 +591,14 @@ const Profile = () => {
                   onClick={() => setIsEditing(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleSave}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Save</span>
+                  <span>Lưu</span>
                 </button>
               </div>
             </div>
@@ -626,7 +611,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Change password</h2>
+              <h2 className="text-xl font-semibold">Đổi mật khẩu</h2>
               <button
                 onClick={() => setIsChangingPassword(false)}
                 className="text-red-500 hover:text-red-700"
@@ -638,21 +623,21 @@ const Profile = () => {
             {/* Form nhập mật khẩu */}
             <div className="space-y-4 mt-4">
               <InputField
-                label="Current password"
+                label="Mật khẩu hiện tại"
                 name="currentPassword"
                 type="password"
                 value={passwordData.currentPassword}
                 onChange={handleChangePassword}
               />
               <InputField
-                label="New password"
+                label="Mật khẩu mới"
                 name="newPassword"
                 type="password"
                 value={passwordData.newPassword}
                 onChange={handleChangePassword}
               />
               <InputField
-                label="Confirm password"
+                label="Xác nhận mật khẩu"
                 name="confirmPassword"
                 type="password"
                 value={passwordData.confirmPassword}
@@ -665,14 +650,14 @@ const Profile = () => {
                   onClick={() => setIsChangingPassword(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={submitChangePassword}
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Confirm</span>
+                  <span>Xác nhận</span>
                 </button>
               </div>
             </div>
@@ -685,7 +670,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Edit email</h2>
+              <h2 className="text-xl font-semibold">Chỉnh sửa Email</h2>
               <button
                 onClick={() => setIsEditingEmail(false)}
                 className="text-red-500 hover:text-red-700"
@@ -710,14 +695,14 @@ const Profile = () => {
                   onClick={() => setIsEditingEmail(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleSaveEmail}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Save</span>
+                  <span>Lưu</span>
                 </button>
               </div>
             </div>
@@ -730,7 +715,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Edit phone number</h2>
+              <h2 className="text-xl font-semibold">Chỉnh sửa Số điện thoại</h2>
               <button
                 onClick={() => setIsEditingPhone(false)}
                 className="text-red-500 hover:text-red-700"
@@ -742,7 +727,7 @@ const Profile = () => {
             {/* Form nhập số điện thoại */}
             <div className="space-y-4 mt-4">
               <InputField
-                label="Phone number"
+                label="Số điện thoại"
                 name="phoneNumber"
                 type="tel"
                 value={editedPhone}
@@ -755,14 +740,14 @@ const Profile = () => {
                   onClick={() => setIsEditingPhone(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleSavePhone}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Save</span>
+                  <span>Lưu</span>
                 </button>
               </div>
             </div>
@@ -775,7 +760,9 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Edit username</h2>
+              <h2 className="text-xl font-semibold">
+                Chỉnh sửa Tên người dùng
+              </h2>
               <button
                 onClick={() => setIsEditingUsername(false)}
                 className="text-red-500 hover:text-red-700"
@@ -787,7 +774,7 @@ const Profile = () => {
             {/* Form nhập username */}
             <div className="space-y-4 mt-4">
               <InputField
-                label="Username"
+                label="Tên người dùng"
                 name="username"
                 type="text"
                 value={editedUsername}
@@ -800,14 +787,14 @@ const Profile = () => {
                   onClick={() => setIsEditingUsername(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleSaveUsername}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Save</span>
+                  <span>Lưu</span>
                 </button>
               </div>
             </div>
@@ -816,61 +803,59 @@ const Profile = () => {
       )}
 
       {/* Popup Edit Role */}
-      {isEditingRole && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Edit role</h2>
-              <button
-                onClick={() => setIsEditingRole(false)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            {/* Form nhập role */}
-            <div className="space-y-4 mt-4">
-              <InputField
-                label="Role"
-                name="role"
-                type="select"
-                value={editedRole}
-                onChange={(e) => setEditedRole(e.target.value)}
-                options={{
-                  CUSTOMER: "USER",
-                  STAFF: "STAFF",
-                  MODERATOR: "MODERATOR",
-                }}
-              />
-
-              {/* Nút lưu */}
-              <div className="flex justify-end space-x-2">
-                <button
-                  onClick={() => setIsEditingRole(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveRole}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
-                >
-                  <FaSave />
-                  <span>Save</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* <>
+      	{isEditingRole && (
+	        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+	          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+	            <div className="flex justify-between items-center border-b pb-3">
+	              <h2 className="text-xl font-semibold">Chỉnh sửa Vai trò</h2>
+	              <button
+	                onClick={() => setIsEditingRole(false)}
+	                className="text-red-500 hover:text-red-700"
+	              >
+	                <FaTimes />
+	              </button>
+	            </div>
+	            <div className="space-y-4 mt-4">
+	              <InputField
+	                label="Vai trò"
+	                name="role"
+	                type="select"
+	                value={editedRole}
+	                onChange={(e) => setEditedRole(e.target.value)}
+	                options={{
+	                  CUSTOMER: "USER",
+	                  STAFF: "STAFF",
+	                  MODERATOR: "MODERATOR",
+	                }}
+	              />
+	              <div className="flex justify-end space-x-2">
+	                <button
+	                  onClick={() => setIsEditingRole(false)}
+	                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+	                >
+	                  Hủy
+	                </button>
+	                <button
+	                  onClick={handleSaveRole}
+	                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
+	                >
+	                  <FaSave />
+	                  <span>Lưu</span>
+	                </button>
+	              </div>
+	            </div>
+	          </div>
+	        </div>
+	      )}
+      </> */}
 
       {/* Popup Edit Avatar - thêm vào cuối file trước thẻ đóng div cuối cùng */}
       {isEditingAvatar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Change profile picture</h2>
+              <h2 className="text-xl font-semibold">Thay đổi ảnh đại diện</h2>
               <button
                 onClick={() => setIsEditingAvatar(false)}
                 className="text-red-500 hover:text-red-700"
@@ -899,7 +884,7 @@ const Profile = () => {
                   onClick={() => fileInputRef.current.click()}
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 >
-                  Choose image
+                  Chọn ảnh
                 </button>
               </div>
 
@@ -909,14 +894,14 @@ const Profile = () => {
                   onClick={() => setIsEditingAvatar(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleSaveAvatar}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Save</span>
+                  <span>Lưu</span>
                 </button>
               </div>
             </div>
@@ -934,7 +919,7 @@ const ProfileField = ({ icon, label, value }) => (
     <div className="flex-1">
       <span className="text-lg font-medium text-black">{label}</span>
       <p className="text-xl font-light text-black">
-        {value || "Not updated yet."}
+        {value || "Chưa cập nhật"}
       </p>
     </div>
   </div>

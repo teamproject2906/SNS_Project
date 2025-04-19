@@ -102,6 +102,9 @@ export const CartProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
   // Remove item from cart
   const removeFromCart = async (cartItemId) => {
@@ -189,10 +192,21 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Calculate price after promotion
+  const getPriceAfterPromotion = (item) => {
+    if (item.product?.promotion && item.product.promotion.discount) {
+      return item.unitPrice * (1 - item.product.promotion.discount);
+    }
+    return item.unitPrice;
+  };
+
   // Calculate total price
   const getTotalPrice = () => {
     return cartItems.reduce(
-      (total, item) => total + item.unitPrice * item.quantity,
+      (total, item) => {
+        const priceAfterPromotion = getPriceAfterPromotion(item);
+        return total + priceAfterPromotion * item.quantity;
+      },
       0
     );
   };
@@ -213,7 +227,8 @@ export const CartProvider = ({ children }) => {
     clearCart,
     getTotalPrice,
     getTotalItems,
-    fetchCart
+    fetchCart,
+    getPriceAfterPromotion
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

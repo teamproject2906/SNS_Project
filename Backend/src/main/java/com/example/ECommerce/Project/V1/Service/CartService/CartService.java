@@ -12,6 +12,7 @@ import com.example.ECommerce.Project.V1.Repository.CartItemRepository;
 import com.example.ECommerce.Project.V1.Repository.CartRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
+import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGalleryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CartService implements ICartService{
+public class CartService implements ICartService {
     @Autowired
     private CartRepository cartRepository;
     @Autowired
@@ -33,6 +34,8 @@ public class CartService implements ICartService{
     private ProductRepository productRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private IProductGalleryService productGalleryService;
 
 
 //    @Override
@@ -59,7 +62,19 @@ public class CartService implements ICartService{
     @Override
     public CartDTO getCartByUserId(int userId) {
         Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
-        return modelMapper.map(cart, CartDTO.class);
+
+        List<CartItemDTO> cartItemDTOs = cart.getItems().stream()
+                .map(item -> new CartItemDTO(
+                        item.getId(),
+                        item.getQuantity(),
+                        item.getUnitPrice(),
+                        item.getProduct().getId(),
+                        item.getProduct(),
+                        productGalleryService.getProductGalleryByIdAndMinSortOrder(item.getProduct().getId()),
+                        cart.getId()))
+                .collect(Collectors.toList());
+
+        return new CartDTO(cart.getId(), userId, cartItemDTOs, cart.getTotalAmount());
     }
 
     @Override
@@ -156,11 +171,12 @@ public class CartService implements ICartService{
                         item.getQuantity(),
                         item.getUnitPrice(),
                         item.getProduct().getId(),
-                                                item.getProduct().getProductName(),
+                        item.getProduct(),
+                        productGalleryService.getProductGalleryByIdAndMinSortOrder(item.getProduct().getId()),
                         cart.getId()))
                 .collect(Collectors.toList());
 
-        return new CartDTO(cart.getId(),userId, items, cart.getTotalAmount());
+        return new CartDTO(cart.getId(), userId, items, cart.getTotalAmount());
     }
 
     @Override

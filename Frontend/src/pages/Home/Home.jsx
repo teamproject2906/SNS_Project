@@ -117,14 +117,10 @@ const HomePage = () => {
     const fetchedProducts = async () => {
       try {
         const token = getToken();
-        const res = await axios.get(
-          "http://localhost:8080/api/products/productcode",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await axios.get("http://localhost:8080/api/products", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setProduct(Array.isArray(res.data) ? res.data : []);
-        console.log("Product", res.data);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError(err.message);

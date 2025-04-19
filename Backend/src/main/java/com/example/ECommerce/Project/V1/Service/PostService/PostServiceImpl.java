@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -121,12 +122,17 @@ public class PostServiceImpl implements IPostService {
       List<Post> posts = postRepository.findAllByIsActiveTrue();
 
       return posts.stream()
+              .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
             .map(post -> {
                User userFind = postRepository.findUserByPostId(post.getId());
                long totalLikes = likeRepository.countByPostId(post.getId());
+               String fullName = (userFind.getFirstname() != null && userFind.getLastname() != null)
+                       ? userFind.getFirstname() + " " + userFind.getLastname()
+                       : null;
                return PostDTO.builder()
                      .id(post.getId())
-                     .user(userFind.getFirstname() + " " + userFind.getLastname())
+                     .user(fullName)
+                       .username(userFind.getUsername())
                      .content(post.getContent())
                      .imageUrl(post.getImageUrl())
                      .comments(post.getComments()
@@ -150,9 +156,13 @@ public class PostServiceImpl implements IPostService {
       Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
       User userFind = postRepository.findUserByPostId(post.getId());
       long totalLikes = likeRepository.countByPostId(post.getId());
+      String fullName = (userFind.getFirstname() != null && userFind.getLastname() != null)
+              ? userFind.getFirstname() + " " + userFind.getLastname()
+              : null;
       return PostDTO.builder()
             .id(post.getId())
-            .user(userFind.getFirstname() + " " + userFind.getLastname())
+            .user(fullName)
+              .username(userFind.getUsername())
             .content(post.getContent())
             .imageUrl(post.getImageUrl())
             .comments(post.getComments()
@@ -168,6 +178,42 @@ public class PostServiceImpl implements IPostService {
             .userAvatar(userFind.getAvatar())
             .build();
    }
+
+   @Override
+   public List<PostDTO> getPostsByUID(Integer userId) {
+      List<Post> postsByUserId = postRepository.findPostByUserIdAndIsActive(userId, true);
+      User userFind = userRepository.findUserById(userId);
+
+      String fullName = (userFind.getFirstname() != null && userFind.getLastname() != null)
+              ? userFind.getFirstname() + " " + userFind.getLastname()
+              : null;
+
+      return postsByUserId.stream()
+              .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+              .map(post -> {
+         long totalLikes = likeRepository.countByPostId(post.getId());
+
+         return PostDTO.builder()
+                 .id(post.getId())
+                 .user(fullName)
+                 .username(userFind.getUsername())
+                 .content(post.getContent())
+                 .imageUrl(post.getImageUrl())
+                 .comments(post.getComments()
+                         .stream()
+                         .map(this::convertToCommentDTO)
+                         .collect(Collectors.toList()))
+                 .userLikes(post.getLikes()
+                         .stream()
+                         .map(this::convertToUserLikeDTO)
+                         .collect(Collectors.toList()))
+                 .totalLiked(totalLikes)
+                 .userId(userFind.getId())
+                 .userAvatar(userFind.getAvatar())
+                 .build();
+      }).collect(Collectors.toList());
+   }
+
 
    @Override
    public List<PostDTO> searchPostByTitle(String content, Principal connectedUser) {
@@ -237,7 +283,10 @@ public class PostServiceImpl implements IPostService {
 
       return CommentDTO.builder()
             .id(comment.getId())
-            .user(comment.getUser().getFirstname() + " " + comment.getUser().getLastname())
+              .userId(comment.getUser().getId())
+              .firstName(comment.getUser().getFirstname())
+              .lastName(comment.getUser().getLastname())
+              .avatar(comment.getUser().getAvatar())
             .postId(comment.getPost() != null ? comment.getPost().getId() : null)
             .content(comment.getContent())
             .imageUrl(comment.getImageUrl())
@@ -254,6 +303,8 @@ public class PostServiceImpl implements IPostService {
       return UserLikeDTO.builder()
             .userID(userLike.getUser().getId())
             .postID(userLike.getPost().getId())
+              .fullName(userLike.getUser().getFirstname() + " " + userLike.getUser().getLastname())
+              .avatar(userLike.getUser().getAvatar())
             .build();
    }
 }
