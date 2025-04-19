@@ -86,7 +86,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         emailContext.init(savedUser);
         emailContext.setToken(secureToken.getToken());
 
-        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
+//        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
+        String baseUrl = "http://localhost:5173";
         emailContext.buildVerificationUrl(baseUrl, secureToken.getToken());
 
         try {
@@ -285,7 +286,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         emailContext.init(savedUser);
         emailContext.setToken(secureToken.getToken());
 
-        String baseUrl = "http://localhost:8080/Authentication"; // hoặc lấy từ HttpServletRequest nếu muốn động
+        String baseUrl = "http://localhost:5173"; // hoặc lấy từ HttpServletRequest nếu muốn động
         emailContext.buildVerificationUrl(baseUrl, secureToken.getToken());
 
         try {
