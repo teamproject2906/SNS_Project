@@ -1,81 +1,86 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
-import { setToken, setUserInfo } from "../Login/app/static";
+import {
+  getToken,
+  removeToken,
+  removeUserInfo,
+  setToken,
+  setUserInfo,
+} from "../Login/app/static";
 import { useUser } from "../../context/UserContext";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [token, setTokenState] = useState(
-    localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
-  );
   const { user, setUser } = useUser();
+  const tokenTemp = localStorage.getItem("tokenTemp");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (newPassword === "" || confirmPassword === "") {
-      setMessage("Vui lòng điền đầy đủ thông tin");
-    } else if (newPassword !== confirmPassword) {
-      setMessage("Mật khẩu không khớp");
-    } else {
-      setMessage("Đổi mật khẩu thành công!");
-      setNewPassword("");
-      setConfirmPassword("");
-    }
-  };
-
-  const getCookie = (name) => {
-    const cookies = document.cookie.split("; ");
-    for (let cookie of cookies) {
-      const [key, value] = cookie.split("=");
-      if (key === name) return decodeURIComponent(value);
-    }
-    return null;
-  };
+  console.log("New Password:", newPassword);
+  console.log("Confirm Password:", confirmPassword);
 
   useEffect(() => {
-    const resetPassswordCookie = getCookie("emailToken")
-    console.log("Token verify email từ cookie:", resetPassswordCookie);
-
-    // Handle emailToken (email verification token)
-    if (resetPassswordCookie) {
-      const verifyEmail = async () => {
-        try {
-          const res = await axios.get(
-            "http://localhost:8080/Authentication/register/verify",
-            {
-              params: { token: resetPassswordCookie }, // Pass token as query parameter
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-              withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
-            }
-          );
-          console.log("Email verification response:", res.data);
-          const token = res.data.access_token;
-          console.log("Token:", token);
-          // Optionally clear the emailToken cookie after successful verification
-          // setToken(token);
-          // setTokenState(token);
-          // const decoded = jwtDecode(token);
-          // setUser(decoded);
-          // setUserInfo(decoded);
-          // document.cookie =
-          //   "emailToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        } catch (error) {
-          console.error(
-            "Error verifying email:",
-            error.response ? error.response.data : error.message
-          );
+    try {
+      const res = axios.get(
+        "http://localhost:8080/Authentication/register/verify",
+        {
+          params: { token: tokenTemp },
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Thêm dòng này nếu backend có session hoặc JWT
         }
-      };
-      verifyEmail();
+      );
+      res.then((data) => setToken(data.data.access_token));
+      localStorage.removeItem("tokenTemp");
+      const token = getToken();
+      console.log("Token fetched:", token);
+      console.log(res.then((data) => console.log("Data:", data)));
+    } catch (error) {
+      console.log(error);
+      toast.error("Error when get response", error);
     }
-  }, []);
+  }, [tokenTemp]);
+
+  const handleSubmit = async () => {
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    const token = getToken();
+    console.log("Token trong function:", token);
+
+    try {
+      const res = await axios.patch(
+        "http://localhost:8080/User/changeForgotPassword",
+        {
+          newPassword: newPassword,
+          confirmPassword: confirmPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
+        }
+      );
+      toast.success(res.data.message || "Change password successfully");
+
+      localStorage.removeItem("REFRESH_TOKEN");
+      removeToken();
+      removeUserInfo();
+    } catch (error) {
+      toast.error("Error when get response", error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

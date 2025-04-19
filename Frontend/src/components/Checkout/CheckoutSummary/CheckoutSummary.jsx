@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const CheckoutSummary = () => {
   const [discountCode, setDiscountCode] = useState("");
-  const { cartItems, getTotalPrice } = useCart();
+  const { cartItems, getTotalPrice, getPriceAfterPromotion } = useCart();
   const shippingFee = 0; // Phí vận chuyển
   
   // Calculate subtotal and total from cart items
@@ -31,20 +31,45 @@ const CheckoutSummary = () => {
       ) : (
         <div className="border-b pb-6">
           {cartItems.map((item) => (
-            <div key={item.id} className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
+            <div key={item.id} className="flex items-start justify-between mb-6 border-b pb-4 last:border-b-0 last:pb-0">
+              <div className="flex items-start">
                 <img
                   src={item.imageUrl}
-                  alt={item.productName}
+                  alt={item.product.productName}
                   className="w-16 h-16 rounded-md mr-4 object-cover"
                 />
                 <div>
-                  <p className="text-lg font-semibold">{item.productName}</p>
-                  <span className="text-sm text-gray-500">Số lượng: {item.quantity}</span>
+                  <p className="text-lg font-semibold">{item.product.productName}</p>
+                  
+                  {/* Display color and size */}
+                  <p className="text-sm text-gray-600">Màu: {item.product.color}</p>
+                  <p className="text-sm text-gray-600">Kích thước: {item.product.sizeChart.value}</p>
+                  <p className="text-sm text-gray-600">Số lượng: {item.quantity}</p>
+                  
+                  {/* Display price with promotion */}
+                  {item.product.promotion && (
+                    <div className="flex items-center mt-1 space-x-2">
+                      <span className="text-sm text-gray-500 line-through">
+                        {item.unitPrice.toLocaleString()}₫
+                      </span>
+                      <span className="text-sm text-red-600 font-semibold">
+                        {getPriceAfterPromotion(item).toLocaleString()}₫
+                      </span>
+                      <span className="bg-red-600 text-white text-xs px-1.5 py-0.5 rounded">
+                        -{item.product.promotion.discount * 100}%
+                      </span>
+                    </div>
+                  )}
+                  
+                  {!item.product.promotion && (
+                    <p className="text-sm text-gray-700 mt-1">
+                      {item.unitPrice.toLocaleString()}₫
+                    </p>
+                  )}
                 </div>
               </div>
-              <p className="text-lg font-bold text-gray-900">
-                {(item.unitPrice * item.quantity).toLocaleString()}₫
+              <p className="text-lg font-bold text-gray-900 ml-4">
+                {(getPriceAfterPromotion(item) * item.quantity).toLocaleString()}₫
               </p>
             </div>
           ))}

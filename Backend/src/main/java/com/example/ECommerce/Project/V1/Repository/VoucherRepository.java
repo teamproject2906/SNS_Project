@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
-    Page<Voucher> findByVoucherCodeContaining(String keyword, Pageable pageable);
+    List<Voucher> findByVoucherCodeContaining(String keyword);
 }

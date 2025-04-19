@@ -17,6 +17,8 @@ public interface IPostService {
 
    List<PostDTO> getAllPostsActive();
 
+   List<PostDTO> getPostsByUID(Integer userId);
+
    PostDTO getPostById(UUID postId);
 
    List<PostDTO> searchPostByTitle(String title, Principal connectedUser);

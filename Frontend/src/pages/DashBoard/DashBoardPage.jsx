@@ -6,12 +6,16 @@ import OrderTable from "../../components/DashBoard/OrderTable";
 import CategoryList from "../../components/DashBoard/CategoryList";
 import SizeChart from "../../components/DashBoard/SizeChart";
 import FormClothesChart from "../../components/DashBoard/FormClothesChart";
+
+import VoucherTable from "../../components/DashBoard/VoucherTable";
+import ChartData from "../../components/DashBoard/ChartData";
 import PromotionChart from "../../components/DashBoard/PromotionChart.";
 
 const DashBoardPage = () => {
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem("activeTab") || "users";
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Trạng thái sidebar
 
   useEffect(() => {
     localStorage.setItem("activeTab", activeTab);
@@ -21,20 +25,32 @@ const DashBoardPage = () => {
     setActiveTab(tab);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="flex">
-      <SideBar activeTab={activeTab} handleTabChange={handleTabChange} />
-      <div className="p-6 w-4/5">
-        <h2 className="text-xl font-bold">Dashboard</h2>
+      <SideBar
+        activeTab={activeTab}
+        handleTabChange={handleTabChange}
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
+      <div
+        className={`p-6 transition-all duration-300 ${
+          isSidebarOpen ? "w-4/5" : "w-full"
+        }`}
+      >
         {activeTab === "users" && <UserTable />}
         {activeTab === "products" && <ProductTable />}
         {activeTab === "orders" && <OrderTable />}
         {activeTab === "category" && <CategoryList />}
         {activeTab === "size" && <SizeChart />}
-        {/* {activeTab === "alphabet" && <AlphabetChart />}
-        {activeTab === "numeric" && <NumericChart />} */}
         {activeTab === "formClothes" && <FormClothesChart />}
         {activeTab === "promotion" && <PromotionChart />}
+        {activeTab === "voucher" && <VoucherTable />}
+        {activeTab === "chart" && <ChartData />}
       </div>
     </div>
   );

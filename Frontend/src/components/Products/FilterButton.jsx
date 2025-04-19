@@ -4,22 +4,15 @@ import axios from "axios";
 import styles from "../../assets/styles/FilterButton.module.css";
 import { getToken } from "../../pages/Login/app/static";
 import ModalFilter from "../share/ModalFilter";
+import PropTypes from "prop-types";
 
 const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
-  // State để lưu giá trị giá tiền
-  const [priceRange, setPriceRange] = useState([100000, 1000000]);
-
-  // State để lưu giá trị category
+  const [priceRange, setPriceRange] = useState([100000, 10000000]);
   const [category, setCategory] = useState("");
-
-  // State để lưu danh sách categories từ API
   const [categories, setCategories] = useState([]);
-
-  // State để xử lý trạng thái loading và error
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch categories từ API khi component mount
   useEffect(() => {
     const handleGetCategory = async () => {
       setLoading(true);
@@ -28,6 +21,7 @@ const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
         const res = await axios.get("http://localhost:8080/api/categories", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log("Categories:", res.data);
         const safeCategories = Array.isArray(res.data) ? res.data : [];
         setCategories(safeCategories);
       } catch (error) {
@@ -42,33 +36,28 @@ const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
     handleGetCategory();
   }, []);
 
-  // Hàm xử lý thay đổi giá tiền
   const handlePriceChange = (value) => {
     setPriceRange(value);
   };
 
-  // Hàm xử lý thay đổi category
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
   };
 
-  // Hàm format giá tiền
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
   };
 
-  // Gửi giá trị lọc lên component cha và đóng modal
   const handleFilter = () => {
+    console.log("Applying filter:", { priceRange, category });
     onFilter({ priceRange, category });
     onClose();
   };
 
-  // Reset filters
   const handleReset = () => {
-    setPriceRange([100000, 1000000]);
+    setPriceRange([100000, 10000000]);
     setCategory("");
-    onFilter({ priceRange: [100000, 1000000], category: "" });
-    // Note: Not closing modal to allow further adjustments
+    onFilter({ priceRange: [100000, 10000000], category: "" });
   };
 
   return (
@@ -80,7 +69,6 @@ const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
       onSubmit={handleFilter}
     >
       <div>
-        {/* Phần Giá */}
         <div className={styles["filter-section"]}>
           <h3>Price range</h3>
           <div className={styles["price-range"]}>
@@ -89,7 +77,7 @@ const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
               thumbClassName={styles["thumb"]}
               trackClassName={styles["track"]}
               min={100000}
-              max={1000000}
+              max={10000000}
               value={priceRange}
               onChange={handlePriceChange}
               pearling
@@ -102,7 +90,6 @@ const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Phần Category */}
         <div className={styles["filter-section"]}>
           <h3>Category</h3>
           {loading ? (
@@ -123,6 +110,13 @@ const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
       </div>
     </ModalFilter>
   );
+};
+
+FilterButton.propTypes = {
+  products: PropTypes.array.isRequired,
+  onFilter: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default FilterButton;

@@ -21,6 +21,7 @@ const SizeChart = () => {
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [activateID, setActivateID] = useState(null);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleGetSizes = async () => {
     try {
@@ -112,8 +113,8 @@ const SizeChart = () => {
       handleGetSizes();
       closeAddModal();
     } catch (error) {
-      console.error("Error adding size:", error);
-      toast.error("Error adding size");
+      // console.error("Error adding size:", error.response?.data?.message || error);
+      toast.error(error.response?.data?.message || error);
     }
   };
 
@@ -184,6 +185,36 @@ const SizeChart = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchTerm(value);
+  };
+
+  const filteredSizes = sizes.filter((sizes) => {
+    const id = sizes.id ? sizes.id.toString().toLowerCase() : "";
+    const sizeValue = sizes.value ? `${sizes.value}`.toLowerCase() : "";
+    return id.includes(searchTerm) || sizeValue.includes(searchTerm);
+  });
+
+  const customStyles = {
+    cells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        padding: "1px",
+      },
+    },
+    headCells: {
+      style: {
+        minWidth: "auto",
+        whiteSpace: "nowrap",
+        fontWeight: "bold",
+        padding: "1px",
+        fontSize: "14px",
+      },
+    },
+  };
+
   const columns = [
     { name: "ID", selector: (row) => row.id, sortable: true },
     { name: "Size Type", selector: (row) => row.sizeChartType, sortable: true },
@@ -227,17 +258,28 @@ const SizeChart = () => {
       <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Size Chart</h3>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={openAddModal}
-        >
-          Add size
-        </button>
+        <div className="flex flex-row gap-5">
+          <div className="searchBar">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full p-2 border rounded-lg"
+              onChange={handleSearch}
+            />
+          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={openAddModal}
+          >
+            Add size
+          </button>
+        </div>
       </div>
       <DataTable
         columns={columns}
-        data={sizes}
+        data={filteredSizes}
         pagination
+        customStyles={customStyles}
         conditionalRowStyles={[
           {
             when: (row) => !row.active, // Nếu user bị ban (active === false)

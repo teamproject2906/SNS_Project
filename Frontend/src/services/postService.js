@@ -65,6 +65,11 @@ export const postService = {
 		}
 	},
 
+	getPostsByUserId: async (userId) => {
+		const response = await api.get(`/social/api/post/getPostsByUid/${userId}`);
+		return response.data;
+	},
+
 	// Get all posts
 	getAllPosts: async () => {
 		const response = await api.get("/social/api/post/getAllPostActive");
@@ -175,13 +180,7 @@ export const postService = {
 			const response = await postService.getPostById(postId);
 			if (response && response.userLikes) {
 				// Chuyển đổi dữ liệu UserLikeDTO thành format phù hợp cho UI
-				return response.userLikes.map((like) => ({
-					id: like.userID,
-					username: like.userName || "User " + like.userID, // Backend có thể không trả về userName
-					avatar:
-						like.userAvatar ||
-						`https://i.pravatar.cc/100?img=${(like.userID % 10) + 1}`,
-				}));
+				return response.userLikes
 			}
 			return [];
 		} catch (error) {

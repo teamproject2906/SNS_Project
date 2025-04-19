@@ -21,4 +21,6 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
    // Add method to find all comments by postId regardless of active status
    @Query("SELECT c FROM Comment c WHERE c.post.id = :postId")
    List<Comment> findAllByPostId(@Param("postId") UUID postId);
+
+   List<Comment> findCommentsByReplyCommentId(Comment comment);
 }

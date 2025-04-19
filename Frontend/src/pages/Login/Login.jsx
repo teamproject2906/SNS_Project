@@ -12,16 +12,34 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const { setUser } = useUser(); // Lấy setUser để cập nhật thông tin user
   const navigate = useNavigate();
+  const [error, setError] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleLoginUser = async (event) => {
     event.preventDefault();
-    if (!username) {
-      toast.error("Username cannot be blank");
-      return;
-    } else if (!password) {
-      toast.error("Password cannot be blank");
-      return;
+
+    const newError = {};
+    if (!username.trim() && !password.trim()) {
+      newError.username = "Username cannot be blank";
+      newError.password = "Password cannot be blank";
     }
+
+    if (!username.trim()) {
+      newError.username = "Username cannot be blank";
+    }
+
+    if (!password.trim()) {
+      newError.password = "Password cannot be blank";
+    }
+
+    setError(newError);
+
+    if (Object.keys(newError).length > 0) {
+      return; // Có lỗi thì không tiếp tục
+    }
+
+    if (loading) return;
+    setLoading(true);
 
     try {
       const res = await axios.post(
@@ -46,21 +64,22 @@ const Login = () => {
           autoClose: 1000,
           position: "top-right",
         });
-        setTimeout(() => {
-          // Điều hướng theo role
-          if (res.data.role === "ADMIN") {
-            navigate("/dashboard");
-          } else {
-            navigate("/");
-          }
-        }, 1000);
+        // Điều hướng theo role
+        if (res.data.role === "ADMIN") {
+          navigate("/dashboard");
+        } else {
+          navigate("/");
+        }
       } else {
         throw new Error("Access token không hợp lệ.");
       }
     } catch (error) {
-      console.error("Lỗi đăng nhập:", error.response?.data || error.message);
-      toast.error(error.response.data.message);
+      if (error.response && error.response.status === 400) {
+        console.error("Lỗi đăng nhập:", error.response?.data || error.message);
+        toast.error(error.response.data.message);
+      }
     }
+    setLoading(false);
   };
 
   const registerWithGoogle = async () => {
@@ -107,6 +126,9 @@ const Login = () => {
                 className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700"
                 onChange={(e) => setUsername(e.target.value)}
               />
+              {error.username && (
+                <p className="text-red-500 text-sm mt-1">{error.username}</p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -120,13 +142,20 @@ const Login = () => {
                 className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700"
                 onChange={(e) => setPassword(e.target.value)}
               />
+              {error.password && (
+                <p className="text-red-500 text-sm mt-1">{error.password}</p>
+              )}
             </div>
-
             <button
-              type="submit"
-              className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 text-sm font-semibold"
+              aria-label="Login"
+              disabled={loading}
+              className={`w-full py-3 rounded text-sm font-medium shadow-lg ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-black text-white hover:bg-gray-800"
+              }`}
             >
-              LOGIN
+              {loading ? "On Progress..." : "LOGIN"}
             </button>
           </form>
 
@@ -136,11 +165,11 @@ const Login = () => {
               className="flex items-center hover:underline"
             >
               <FaLock className="mr-1" />
-              Forgot password
+              Forget password
             </Link>
           </div>
           <p className="text-center text-sm mb-4 text-gray-500">
-            Or Login with
+            Or sign in with
           </p>
           <div className="flex justify-center space-x-4">
             <button
@@ -150,25 +179,22 @@ const Login = () => {
               <FaGoogle className="mr-2" />
               Google
             </button>
-            <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-500">
-              <FaFacebook className="mr-2" />
-              Facebook
-            </button>
           </div>
         </div>
 
         {/* Đăng Ký Tài Khoản */}
         <div className="p-6 shadow-lg border rounded-md">
-          <h2 className="text-lg font-semibold mb-4">Register new account</h2>
+
+          <h2 className="text-lg font-semibold mb-4">Create new account</h2>
           <p className="text-sm mb-6">
-            Register an account now to shop quickly and easily! In addition,
-            there are many policies and special offers available for members.
+            Register an account now to make your purchases faster and easier.
+            There are also many policies and incentives for members!
           </p>
           <Link
             to="/register"
             className="block bg-black text-white py-2 rounded-md text-center hover:bg-gray-800 text-sm font-semibold"
           >
-            CREATE NEW ACCOUNT
+            REGISTER NOW
           </Link>
         </div>
       </div>

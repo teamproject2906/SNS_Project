@@ -13,7 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +26,12 @@ public class VoucherService implements IVoucherService{
     private final ModelMapper modelMapper;
 
     @Override
-    public PageableResponse<VoucherDTO> getAllVoucher(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Voucher> page = voucherRepository.findAll(pageable);
-        return Helper.getPageableResponse(page, VoucherDTO.class);
+    public List<VoucherDTO> getAllVoucher() {
+//        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        List<Voucher> page = voucherRepository.findAll();
+        return Collections.singletonList(modelMapper.map(page, VoucherDTO.class));
+//        return Helper.getPageableResponse(page, VoucherDTO.class);
     }
 
     @Override
@@ -37,15 +41,40 @@ public class VoucherService implements IVoucherService{
     }
 
     @Override
-    public PageableResponse<VoucherDTO> searchVoucher(String keyword, int pageNumber, int pageSize, String sortBy, String sortDir) {
-        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Voucher> page = voucherRepository.findByVoucherCodeContaining(keyword, pageable);
-        return Helper.getPageableResponse(page, VoucherDTO.class);
+    public List<VoucherDTO> searchVoucher(String keyword) {
+//        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        List<Voucher> page = voucherRepository.findByVoucherCodeContaining(keyword);
+        return Collections.singletonList(modelMapper.map(page, VoucherDTO.class));
     }
 
     @Override
     public VoucherDTO createVoucher(VoucherDTO voucherDTO) {
+
+        if (!(voucherRepository.findByVoucherCodeContaining(voucherDTO.getVoucherCode()).isEmpty())) {
+            throw new IllegalArgumentException("Voucher code already exists.");
+        }
+
+        // Validate usage limit > 0
+        if (voucherDTO.getUsageLimit() <= 0) {
+            throw new IllegalArgumentException("Usage limit must be greater than 0.");
+        }
+
+        // Validate discount > 0 and < 1
+        if (!(voucherDTO.getDiscount() > 0 && voucherDTO.getDiscount() < 1)) {
+            throw new IllegalArgumentException("Discount must be greater than 0 and less than 1.");
+        }
+
+        // Validate start date > now
+        if (voucherDTO.getStartDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Start date must be after today.");
+        }
+
+        // Validate voucher code (uppercase letters and numbers only)
+        if (!voucherDTO.getVoucherCode().matches("^[A-Z0-9]+$")) {
+            throw new IllegalArgumentException("Voucher code must contain only uppercase letters and numbers.");
+        }
+
         var voucher = Voucher.builder()
                 .voucherCode(voucherDTO.getVoucherCode())
                 .startDate(voucherDTO.getStartDate())
@@ -64,6 +93,31 @@ public class VoucherService implements IVoucherService{
 
     @Override
     public VoucherDTO updateVoucher(VoucherDTO voucherDTO, Integer id) {
+
+        if (!(voucherRepository.findByVoucherCodeContaining(voucherDTO.getVoucherCode()).isEmpty())) {
+            throw new IllegalArgumentException("Voucher code already exists.");
+        }
+
+        // Validate usage limit > 0
+        if (voucherDTO.getUsageLimit() <= 0) {
+            throw new IllegalArgumentException("Usage limit must be greater than 0.");
+        }
+
+        // Validate discount > 0 and < 1
+        if (!(voucherDTO.getDiscount() > 0 && voucherDTO.getDiscount() < 1)) {
+            throw new IllegalArgumentException("Discount must be greater than 0 and less than 1.");
+        }
+
+        // Validate start date > now
+        if (voucherDTO.getStartDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Start date must be after today.");
+        }
+
+        // Validate voucher code (uppercase letters and numbers only)
+        if (!voucherDTO.getVoucherCode().matches("^[A-Z0-9]+$")) {
+            throw new IllegalArgumentException("Voucher code must contain only uppercase letters and numbers.");
+        }
+
         Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new RuntimeException("Voucher Not Found"));
         voucher.setVoucherCode(voucherDTO.getVoucherCode());
         voucher.setStartDate(voucherDTO.getStartDate());
