@@ -4,9 +4,9 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Lấy user từ localStorage nếu có
     const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+    const token = localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "");
+    return token && storedUser ? JSON.parse(storedUser) : null;
   });
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export const UserProvider = ({ children }) => {
     } else {
       localStorage.removeItem("user");
     }
-  }, [user]); // Mỗi khi user thay đổi, cập nhật localStorage
+  }, [user]);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -24,5 +24,4 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-// Hook để sử dụng user ở các component khác
 export const useUser = () => useContext(UserContext);

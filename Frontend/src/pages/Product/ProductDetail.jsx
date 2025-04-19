@@ -22,7 +22,8 @@ const ProductDetail = () => {
   const [averageRating, setAverageRating] = useState(0);
   const thumbnailsRef = useRef(null);
   const { addToCart } = useCart();
-  const { addToFavourites, removeFromFavourites, isInFavourites } = useFavourite();
+  const { addToFavourites, removeFromFavourites, isInFavourites } =
+    useFavourite();
   const { user } = useUser();
   const location = useLocation();
 
@@ -49,7 +50,9 @@ const ProductDetail = () => {
         );
 
         // Handle API response (expecting an array)
-        const products = Array.isArray(productRes.data) ? productRes.data : [productRes.data];
+        const products = Array.isArray(productRes.data)
+          ? productRes.data
+          : [productRes.data];
         if (!products.length || !products[0].price) {
           throw new Error("Dữ liệu sản phẩm không hợp lệ hoặc thiếu giá");
         }
@@ -215,7 +218,8 @@ const ProductDetail = () => {
       id: selectedVariant.id,
       productName: selectedVariant.productName,
       price: selectedVariant.promotion
-        ? selectedVariant.price - selectedVariant.price * selectedVariant.promotion.discount
+        ? selectedVariant.price -
+          selectedVariant.price * selectedVariant.promotion.discount
         : selectedVariant.price,
       quantity: quantity,
       imageUrl: selectedImage || selectedVariant.imageUrl,
@@ -255,21 +259,35 @@ const ProductDetail = () => {
   // All colors and sizes (for rendering)
   const allColors = [...new Set(productVariants.map((p) => p.color))];
   const allSizes = [...new Set(productVariants.map((p) => p.sizeChart.value))];
+  // Convert specialColor array to a lookup object
+  const specialColorMap = Object.fromEntries(
+    [
+      { name: "Red-Orange", value: "#e75113" },
+      { name: "Yellow-Orange", value: "#f59e0b" },
+      { name: "Yellow-Green", value: "#a3e635" },
+      { name: "Blue-Purple", value: "#4f46e5" },
+      { name: "Red-Purple", value: "#d946ef" },
+    ].map((sc) => [sc.name, sc.value])
+  );
 
   // Valid colors and sizes for disabling
   const validColors = selectedSize
-    ? [...new Set(
-        productVariants
-          .filter((p) => p.sizeChart.value === selectedSize)
-          .map((p) => p.color)
-      )]
+    ? [
+        ...new Set(
+          productVariants
+            .filter((p) => p.sizeChart.value === selectedSize)
+            .map((p) => p.color)
+        ),
+      ]
     : allColors;
   const validSizes = selectedColor
-    ? [...new Set(
-        productVariants
-          .filter((p) => p.color === selectedColor)
-          .map((p) => p.sizeChart.value)
-      )]
+    ? [
+        ...new Set(
+          productVariants
+            .filter((p) => p.color === selectedColor)
+            .map((p) => p.sizeChart.value)
+        ),
+      ]
     : allSizes;
 
   return (
@@ -340,7 +358,8 @@ const ProductDetail = () => {
             <div className="average-rating mt-2 flex items-center">
               {[1, 2, 3, 4, 5].map((star) => {
                 const isFull = averageRating >= star;
-                const isHalf = averageRating >= star - 0.5 && averageRating < star;
+                const isHalf =
+                  averageRating >= star - 0.5 && averageRating < star;
 
                 return (
                   <span
@@ -367,7 +386,9 @@ const ProductDetail = () => {
 
           <div className="mb-4 flex flex-row items-center gap-2">
             <p className="text-base font-medium">Product Code:</p>
-            <p className="text-base text-Montserrat-500">{product.productCode}</p>
+            <p className="text-base text-Montserrat-500">
+              {product.productCode}
+            </p>
             <button
               className={`favoriteBtn border-2 rounded-full p-1 ${
                 isInFavourites(product.id) ? "text-red-500" : "text-gray-400"
@@ -432,7 +453,9 @@ const ProductDetail = () => {
                     onClick={() => handleColorSelect(color)}
                     disabled={!validColors.includes(color)}
                     style={{
-                      backgroundColor: color,
+                      backgroundColor: specialColorMap[color]
+                        ? specialColorMap[color]
+                        : color,
                       color: color === "White" ? "black" : "white",
                       padding: "1rem",
                       borderRadius: "10rem",
