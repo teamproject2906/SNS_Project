@@ -149,21 +149,18 @@ const ProfileSocial = () => {
                   />
                 </div>
               </div>
-              <div className="w-full flex-1 flex flex-col items-center justify-center mt-10">
-                {posts.map((post) => (
-                  <PostCard
-                    className="border-t border-gray-300 mb-2 shadow-none rounded-none"
-                    key={post.id}
-                    post={post}
-                    onPostUpdate={handlePostUpdate}
-                    onPostDelete={handlePostDelete}
-                    showStatus={true}
-                  />
-                ))}
-              </div>
             </div>
-
-            {/* PostCard */}
+            <div className="w-full flex-1 flex flex-col items-center justify-center mt-5">
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onPostUpdate={handlePostUpdate}
+                  onPostDelete={handlePostDelete}
+                  showStatus={true}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
