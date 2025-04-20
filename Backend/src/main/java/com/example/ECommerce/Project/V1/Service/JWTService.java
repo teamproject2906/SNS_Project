@@ -1,6 +1,5 @@
 package com.example.ECommerce.Project.V1.Service;
 
-import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

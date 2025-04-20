@@ -82,6 +82,42 @@ public class SecurityConfiguration implements AuthenticationProvider {
       return source;
    }
 
+   private static String[] permittedPaths() {
+      return new String[]{
+              "/api/categories/getAll",
+              "/api/products/getAll",
+              "/api/products/getDetail/",
+              "/api/products/productCode",
+              "/api/products/productCode/",
+              "/api/products/images/productCode/",
+              "/api/product-gallery/getAllImage",
+              "/api/product-gallery/getImageByProductId/",
+              "/api/product-gallery/getImageById/",
+              "/api/feedbacks/product/",
+              "/api/formclothes/getAll",
+              "/api/v1/payment/**",
+              "/social/api/post/getAllPostActive",
+              "/social/api/post/getPostById/",
+              "/social/api/post/searchPost/",
+              "/social/api/comment/getAllCommentsByPostId/",
+              "/social/api/comment/getCommentsByPostId/",
+              "/social/api/comment/getCommentById/",
+              "/Authentication/**",
+              "/oauth2/**",
+
+              /*==SWAGGER==*/
+
+              "/v2/api-docs/**",
+              "/v3/api-docs/**",
+              "/swagger-resources/**",
+              "/configuration/ui",
+              "/configuration/security",
+              "/swagger-ui/**",
+              "/webjars/**",
+              "/swagger-ui.html",
+      };
+   }
+
    @Bean
    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
       JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
@@ -99,22 +135,7 @@ public class SecurityConfiguration implements AuthenticationProvider {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                  .requestMatchers(
-                        "Google/**",
-                        "/oauth2/**",
-                        "/login",
-                        "/Authentication/**",
-                        "/api/v1/payment/**",
-                        "/v2/api-docs/**",
-                        "/v3/api-docs/**",
-                        "/swagger-resources/**",
-                        "/configuration/ui",
-                        "/configuration/security",
-                        "/swagger-ui/**",
-                        "/webjars/**",
-                        "/swagger-ui.html",
-                        "/social/api/comment/getCommentsByPostId/**",
-                        "/social/api/comment/getAllCommentsByPostId/**")
+                  .requestMatchers(permittedPaths())
                   .permitAll()
                   .requestMatchers("/Admin/AdminManagement/**").hasRole("ADMIN")
                   .requestMatchers(GET, "/Admin/AdminManagement/**").hasAuthority(ADMIN_VIEW.name())
@@ -147,6 +168,8 @@ public class SecurityConfiguration implements AuthenticationProvider {
       // .sessionManagement();
       return http.build();
    }
+
+
 
    private AuthenticationManager googleAuthenticationManager() {
       NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri("https://www.googleapis.com/oauth2/v3/certs")

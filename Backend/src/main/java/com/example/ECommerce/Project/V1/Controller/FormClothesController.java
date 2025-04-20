@@ -24,7 +24,7 @@ public class FormClothesController {
         return new ResponseEntity<FormClothes>(formClothesService.createFormClothes(formClothes), HttpStatus.CREATED);
     }
 
-    @GetMapping()
+    @GetMapping("/getAll")
     public ResponseEntity<List<FormClothesResponseDTO>> getAllFormClothes() {
         return new ResponseEntity<>(formClothesService.getAllFormClothes(), HttpStatus.OK);
     }
