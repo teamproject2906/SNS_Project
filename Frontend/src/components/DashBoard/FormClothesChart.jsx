@@ -7,6 +7,8 @@ import axios from "axios";
 import Modal from "react-modal";
 import { toast, ToastContainer } from "react-toastify";
 import ModalDelete from "../share/ModalDelete";
+import ModalDeactivate from "../share/ModalDeactivate";
+import ModalActivate from "../share/ModalActivate";
 
 Modal.setAppElement("#root");
 
@@ -18,6 +20,10 @@ const FormClothesChart = () => {
   const [formData, setFormData] = useState({ formClothes: "" });
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deactivateId, setDeactivateId] = useState(null);
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  const [activateId, setActivateId] = useState(null);
+  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleGetFormClothes = async () => {
@@ -52,9 +58,19 @@ const FormClothesChart = () => {
     setModalAddIsOpen(true);
   };
 
-  const openDeleteModal = (id) => {
-    setDeleteId(id);
-    setIsDeleteModalOpen(true);
+  // const openDeleteModal = (id) => {
+  //   setDeleteId(id);
+  //   setIsDeleteModalOpen(true);
+  // };
+
+  const openDeactivateModal = (id) => {
+    setDeactivateId(id);
+    setIsDeactivateModalOpen(true);
+  };
+
+  const openActivateModal = (id) => {
+    setActivateId(id);
+    setIsActivateModalOpen(true);
   };
 
   const closeEditModal = () => setModalEditIsOpen(false);
@@ -81,12 +97,17 @@ const FormClothesChart = () => {
       toast.success("Cập nhật thành công!");
     } catch (error) {
       console.error("Error updating form:", error);
-      toast.error("Error updating form");
+      toast.error(error.response?.data?.message || "Error updating form");
     }
   };
 
   const handleAddSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.formClothes) {
+      toast.error("Please fill in the form clothes field!");
+      return;
+    }
+
     try {
       const token = getToken();
       const res = await axios.post(
@@ -98,9 +119,10 @@ const FormClothesChart = () => {
       );
       setFormClothes([...formClothes, res.data]);
       closeAddModal();
+      toast.success("Thêm thành công!");
     } catch (error) {
       console.error("Error adding form:", error);
-      toast.error("Error adding form");
+      toast.error(error.response?.data?.message || "Error adding form");
     }
   };
 
@@ -116,10 +138,63 @@ const FormClothesChart = () => {
       toast.success("Xóa thành công!");
     } catch (error) {
       console.error("Lỗi khi xóa form:", error);
-      toast.error("Lỗi khi xóa form");
+      toast.error(error.response?.data?.message || "Lỗi khi xóa form");
     } finally {
       setIsDeleteModalOpen(false);
       setDeleteId(null);
+    }
+  };
+
+  const confirmDeactivate = async () => {
+    if (!deactivateId) return;
+
+    try {
+      const token = getToken();
+      await axios.delete(
+        `http://localhost:8080/api/formclothes/${deactivateId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setFormClothes(
+        formClothes.map((form) =>
+          form.id === deactivateId ? { ...form, active: false } : form
+        )
+      );
+      toast.success("Deactivate thành công!");
+    } catch (error) {
+      console.error("Lỗi khi deactivate form:", error);
+      toast.error(error.response?.data?.message || "Lỗi khi deactivate form");
+    } finally {
+      setIsDeactivateModalOpen(false);
+      setDeactivateId(null);
+    }
+  };
+
+  const confirmActivate = async () => {
+    if (!activateId) return;
+
+    try {
+      const token = getToken();
+      await axios.patch(
+        `http://localhost:8080/api/formclothes/reactive/${activateId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setFormClothes(
+        formClothes.map((form) =>
+          form.id === activateId ? { ...form, active: true } : form
+        )
+      );
+      toast.success("Activate thành công!");
+    } catch (error) {
+      console.error("Lỗi khi activate form:", error);
+      toast.error(error.response?.data?.message || "Lỗi khi activate form");
+    } finally {
+      setIsActivateModalOpen(false);
+      setActivateId(null);
     }
   };
 
@@ -133,10 +208,7 @@ const FormClothesChart = () => {
       ? `${forms.formClothes}`.toLowerCase()
       : "";
     const id = forms.id ? forms.id.toString().toLowerCase() : "";
-    return (
-      formsCloth.includes(searchTerm) ||
-      id.includes(searchTerm)
-    );
+    return formsCloth.includes(searchTerm) || id.includes(searchTerm);
   });
 
   const customStyles = {
@@ -159,8 +231,26 @@ const FormClothesChart = () => {
   };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "Form Type", selector: (row) => row.formClothes, sortable: true },
+    {
+      name: "ID",
+      selector: (row) => row.id,
+      sortable: true,
+      cell: (row) => (
+        <div style={{ opacity: row.active ? 1 : 0.5 }}>
+          {row.id ? row.id : "Null"}
+        </div>
+      ),
+    },
+    {
+      name: "Form Type",
+      selector: (row) => row.formClothes,
+      sortable: true,
+      cell: (row) => (
+        <div style={{ opacity: row.active ? 1 : 0.5 }}>
+          {row.formClothes ? row.formClothes : "Null"}
+        </div>
+      ),
+    },
     {
       name: "Actions",
       cell: (row) => (
@@ -168,15 +258,33 @@ const FormClothesChart = () => {
           <button
             className="bg-green-500 text-white px-4 py-2 rounded mr-2"
             onClick={() => openEditModal(row)}
+            disabled={!row.active}
+            style={{ opacity: row.active ? 1 : 0.5 }}
           >
             Edit
           </button>
-          <button
+          {row.active ? (
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => openDeactivateModal(row.id)}
+            >
+              Deactivate
+            </button>
+          ) : (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => openActivateModal(row.id)}
+            >
+              Activate
+            </button>
+          )}
+          {/* <button
             className="bg-red-500 text-white px-4 py-2 rounded"
             onClick={() => openDeleteModal(row.id)}
+            style={{ opacity: row.active ? 1 : 0.5 }}
           >
             Delete
-          </button>
+          </button> */}
         </>
       ),
     },
@@ -186,7 +294,7 @@ const FormClothesChart = () => {
     <div>
       <ToastContainer />
       <div className="flex justify-between my-4">
-        <h3 className="text-lg font-semibold">Form Clothes Chart</h3>
+        <h3 className="text-lg font-semibold">Form Clothes</h3>
         <div className="flex flex-row gap-5">
           <div className="searchBar">
             <input
@@ -202,6 +310,7 @@ const FormClothesChart = () => {
           >
             Add form
           </button>
+          nodded{" "}
         </div>
       </div>
       <DataTable
@@ -209,6 +318,14 @@ const FormClothesChart = () => {
         data={filteredForms}
         pagination
         customStyles={customStyles}
+        conditionalRowStyles={[
+          {
+            when: (row) => !row.active,
+            style: {
+              backgroundColor: "#e1e1e1",
+            },
+          },
+        ]}
       />
       <ModalUpdate
         isOpen={modalEditIsOpen}
@@ -246,6 +363,16 @@ const FormClothesChart = () => {
         isDeleteModalOpen={isDeleteModalOpen}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
         confirmDelete={confirmDelete}
+      />
+      <ModalDeactivate
+        isDeactivateModalOpen={isDeactivateModalOpen}
+        setIsDeactivateModalOpen={setIsDeactivateModalOpen}
+        confirmDeactivate={confirmDeactivate}
+      />
+      <ModalActivate
+        isActivateModalOpen={isActivateModalOpen}
+        setIsActivateModalOpen={setIsActivateModalOpen}
+        confirmActivate={confirmActivate}
       />
     </div>
   );

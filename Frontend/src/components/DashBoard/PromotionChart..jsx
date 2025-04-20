@@ -30,14 +30,32 @@ const PromotionChart = () => {
   const [activateID, setActivateID] = useState(null);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
 
+  const parseDateForInput = (dateString) => {
+    if (!dateString) return "";
+
+    // Handle both YYYY-MM-DD and YYYY-MM-DDTHH:mm:ss formats
+    const simpleDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (simpleDateRegex.test(dateString)) {
+      return dateString; // Already in YYYY-MM-DD
+    }
+
+    // Extract YYYY-MM-DD from YYYY-MM-DDTHH:mm:ss
+    if (dateString.includes("T")) {
+      return dateString.split("T")[0]; // Get the date part
+    }
+
+    return ""; // Invalid format
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
 
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
+    // Get YYYY-MM-DD part
+    const yyyymmdd = parseDateForInput(dateString);
+    if (!yyyymmdd) return "";
 
+    // Convert YYYY-MM-DD to DD/MM/YYYY
+    const [year, month, day] = yyyymmdd.split("-");
     return `${day}/${month}/${year}`;
   };
 
@@ -56,7 +74,7 @@ const PromotionChart = () => {
 
   useEffect(() => {
     handleGetPromotion();
-  }, []);
+  }, [promotions]);
 
   const openEditModal = (promotion) => {
     setEditPromotion(promotion.id);
@@ -65,12 +83,8 @@ const PromotionChart = () => {
       name: promotion.name || "",
       discount: promotion.discount || "",
       description: promotion.description || "",
-      startDate: promotion.startDate
-        ? new Date(promotion.startDate).toISOString().split("T")[0]
-        : "",
-      endDate: promotion.endDate
-        ? new Date(promotion.endDate).toISOString().split("T")[0]
-        : "",
+      startDate: parseDateForInput(promotion.startDate),
+      endDate: parseDateForInput(promotion.endDate),
     });
     setModalEditIsOpen(true);
   };
@@ -117,11 +131,11 @@ const PromotionChart = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       closeEditModal();
-      toast.success("Cập nhật thành công!");
-      handleGetPromotion();
+      toast.success("Update promotion successfully!");
+  
     } catch (error) {
-      console.error("Error updating promotion:", error);
-      toast.error("Error updating promotion");
+      console.error("Error updating promotion:", error.response?.data.message);
+      toast.error(error.response?.data.message);
     }
   };
 
@@ -147,10 +161,14 @@ const PromotionChart = () => {
 
       setPromotions([...promotions, res.data]);
       closeAddModal();
-      toast.success("Thêm thành công!");
+
+      toast.success("Add promotion successfully!");
     } catch (error) {
-      console.error("Error adding promotion:", error.response?.data || error);
-      toast.error("Error adding promotion");
+      console.error(
+        "Error adding promotion:",
+        error.response?.data.message || error
+      );
+      toast.error(error.response?.data.message);
     }
   };
 
@@ -174,13 +192,13 @@ const PromotionChart = () => {
               : promotion
           )
         );
-        toast.success("Vô hiệu hóa khuyến mãi thành công!");
+        toast.success("Deactivate promotion successfully!");
       } else {
-        toast.error("Không thể vô hiệu hóa khuyến mãi");
+        toast.error("Failed to deactivate promotion");
       }
     } catch (error) {
       console.error("Error deactivating promotion:", error);
-      toast.error("Lỗi khi vô hiệu hóa khuyến mãi");
+      toast.error(error.response?.data.message);
     } finally {
       setIsDeactivateModalOpen(false);
       setDeactivateID(null);
@@ -208,13 +226,13 @@ const PromotionChart = () => {
               : promotion
           )
         );
-        toast.success("Kích hoạt khuyến mãi thành công!");
+        toast.success("Activate promotion successfully!");
       } else {
-        toast.error("Không thể kích hoạt khuyến mãi");
+        toast.error("Failed to activate promotion");
       }
     } catch (error) {
       console.error("Error activating promotion:", error);
-      toast.error("Lỗi khi kích hoạt khuyến mãi");
+      toast.error(error.response?.data.message);
     } finally {
       setIsActivateModalOpen(false);
       setActivateID(null);
@@ -231,11 +249,8 @@ const PromotionChart = () => {
       ? `${promotions.name}`.toLowerCase()
       : "";
     const id = promotions.id ? promotions.id.toString().toLowerCase() : "";
-    
-    return (
-      promotionName.includes(searchTerm) ||
-      id.includes(searchTerm)
-    );
+
+    return promotionName.includes(searchTerm) || id.includes(searchTerm);
   });
 
   const customStyles = {
@@ -385,49 +400,78 @@ const PromotionChart = () => {
         title="Edit promotion"
         onSubmit={handleEditSubmit}
       >
-        <input
-          type="text"
-          placeholder="Promotion name"
-          className="w-full p-2 border"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Discount"
-          className="w-full p-2 border"
-          value={formData.discount}
-          onChange={(e) =>
-            setFormData({ ...formData, discount: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          className="w-full p-2 border"
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-        />
-        <input
-          type="date"
-          placeholder="Start Date"
-          className="w-full p-2 border"
-          value={formData.startDate || ""}
-          onChange={(e) =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
-        />
-        <input
-          type="date"
-          placeholder="End Date"
-          className="w-full p-2 border"
-          value={formData.endDate || ""}
-          onChange={(e) =>
-            setFormData({ ...formData, endDate: e.target.value })
-          }
-        />
+        <div className="space-y-4">
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Promotion Name
+            </label>
+            <input
+              type="text"
+              placeholder="Promotion name"
+              className="w-full p-2 border"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Discount
+            </label>
+            <input
+              type="number"
+              placeholder="Discount"
+              className="w-full p-2 border"
+              value={formData.discount}
+              onChange={(e) =>
+                setFormData({ ...formData, discount: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Description
+            </label>
+            <input
+              type="text"
+              placeholder="Description"
+              className="w-full p-2 border"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Start Date
+            </label>
+            <input
+              type="date"
+              placeholder="Start Date"
+              className="w-full p-2 border"
+              value={formData.startDate || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, startDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              End Date
+            </label>
+            <input
+              type="date"
+              placeholder="End Date"
+              className="w-full p-2 border"
+              value={formData.endDate || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, endDate: e.target.value })
+              }
+            />
+          </div>
+        </div>
       </ModalUpdate>
       <ModalAdd
         isOpen={modalAddIsOpen}
@@ -435,49 +479,78 @@ const PromotionChart = () => {
         title="Add promotion"
         onSubmit={handleAddSubmit}
       >
-        <input
-          type="text"
-          placeholder="Promotion name"
-          className="w-full p-2 border"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Discount"
-          className="w-full p-2 border"
-          value={formData.discount}
-          onChange={(e) =>
-            setFormData({ ...formData, discount: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          className="w-full p-2 border"
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-        />
-        <input
-          type="date"
-          placeholder="Start Date"
-          className="w-full p-2 border"
-          value={formData.startDate}
-          onChange={(e) =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
-        />
-        <input
-          type="date"
-          placeholder="End Date"
-          className="w-full p-2 border"
-          value={formData.endDate}
-          onChange={(e) =>
-            setFormData({ ...formData, endDate: e.target.value })
-          }
-        />
+        <div className="space-y-4">
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Promotion Name
+            </label>
+            <input
+              type="text"
+              placeholder="Promotion name"
+              className="w-full p-2 border"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Discount
+            </label>
+            <input
+              type="number"
+              placeholder="Discount"
+              className="w-full p-2 border"
+              value={formData.discount}
+              onChange={(e) =>
+                setFormData({ ...formData, discount: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Description
+            </label>
+            <input
+              type="text"
+              placeholder="Description"
+              className="w-full p-2 border"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Start Date
+            </label>
+            <input
+              type="date"
+              placeholder="Start Date"
+              className="w-full p-2 border"
+              value={formData.startDate}
+              onChange={(e) =>
+                setFormData({ ...formData, startDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              End Date
+            </label>
+            <input
+              type="date"
+              placeholder="End Date"
+              className="w-full p-2 border"
+              value={formData.endDate}
+              onChange={(e) =>
+                setFormData({ ...formData, endDate: e.target.value })
+              }
+            />
+          </div>
+        </div>
       </ModalAdd>
       <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}

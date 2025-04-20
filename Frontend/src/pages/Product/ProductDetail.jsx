@@ -65,7 +65,7 @@ const ProductDetail = () => {
 
         // Fetch product images
         const imagesRes = await axios.get(
-          `http://localhost:8080/api/product-gallery/product/${productId}`,
+          `http://localhost:8080/api/products/images/productCode/${productCode}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

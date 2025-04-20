@@ -13,11 +13,14 @@ import {
   getUserInfo,
   removeToken,
   removeUserInfo,
+  setToken,
+  setUserInfo,
 } from "../../pages/Login/app/static";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../../context/UserContext";
+import { jwtDecode } from "jwt-decode";
 
 const SideBar = ({
   activeTab,
@@ -29,7 +32,9 @@ const SideBar = ({
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "");
+  const [token, setTokenState] = useState(
+    localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
+  ); // Thêm state cho token
 
   const handleLogout = () => {
     console.log("Before logout:", {
@@ -49,6 +54,15 @@ const SideBar = ({
       user: localStorage.getItem("USER_KEY"),
     });
     navigate("/login");
+  };
+
+  const getCookie = (name) => {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+      const [key, value] = cookie.split("=");
+      if (key === name) return decodeURIComponent(value);
+    }
+    return null;
   };
 
   const parseJwt = (token) => {
@@ -107,6 +121,55 @@ const SideBar = ({
     fetchUserProfile();
   }, [token, setUser]);
 
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      if (token) {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        if (decoded.exp < currentTime) {
+          handleLogout();
+        }
+      }
+    };
+
+    checkTokenExpiration();
+    const interval = setInterval(checkTokenExpiration, 60000); // Kiểm tra mỗi 60 giây
+    return () => clearInterval(interval);
+  }, [token]);
+
+  useEffect(() => {
+    const cookieToken = getCookie("id_token");
+    const storedToken = localStorage
+      .getItem("AUTH_TOKEN")
+      ?.replace(/^"|"$/g, "");
+    const validToken = cookieToken || storedToken;
+
+    if (validToken && !user) {
+      try {
+        setToken(validToken);
+        setTokenState(validToken);
+        const decoded = jwtDecode(validToken);
+        setUser(decoded);
+        setUserInfo(decoded);
+      } catch (error) {
+        console.error("Error decoding token:", error.message);
+        handleLogout();
+      }
+    }
+  }, [user, setUser]);
+
+  // Interceptor cho axios
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        handleLogout();
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      }
+      return Promise.reject(error);
+    }
+  );
+
   return (
     <div
       className={`min-h-screen bg-white shadow-lg transition-all duration-300 flex flex-col justify-between ${
@@ -158,7 +221,10 @@ const SideBar = ({
               </div>
               {isSidebarOpen && (
                 <div className="flex items-center flex-col">
-                  <button className="text-white px-2 py-1 rounded-lg" onClick={() => navigate(`/profile-page`)}>
+                  <button
+                    className="text-white px-2 py-1 rounded-lg"
+                    onClick={() => navigate(`/profile-page`)}
+                  >
                     <FaEdit />
                   </button>
                   <button

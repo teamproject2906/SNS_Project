@@ -9,6 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import ModalDeactivate from "../share/ModalDeactivate";
 import ModalUpload from "../share/ModalUpload";
 import ModalActivate from "../share/ModalActivate";
+import ModalDetail from "../share/ModalDetail";
 
 Modal.setAppElement("#root");
 
@@ -22,6 +23,7 @@ const ProductTable = () => {
   const [modalAddIsOpen, setModalAddIsOpen] = useState(false);
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [modalUploadIsOpen, setModalUploadIsOpen] = useState(false);
+  const [modalDetailIsOpen, setModalDetailIsOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [productId, setProductId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,18 +35,10 @@ const ProductTable = () => {
     material: "",
     description: "",
     quantityInventory: "",
-    category: {
-      id: "",
-    },
-    sizeChart: {
-      id: "",
-    },
-    formClothes: {
-      id: "",
-    },
-    promotion: {
-      id: "",
-    },
+    category: { id: "", categoryName: "" },
+    sizeChart: { id: "", value: "" },
+    formClothes: { id: "", formClothes: "" },
+    promotion: { id: "", name: "" },
     imageUrl: "",
   });
   const [deactivateId, setDeactivateId] = useState(null);
@@ -55,8 +49,6 @@ const ProductTable = () => {
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
-
-  console.log("Products:", products);
 
   const handleGetProduct = async () => {
     try {
@@ -135,6 +127,25 @@ const ProductTable = () => {
 
   const openEditModal = (product) => {
     setEditProduct(product.id);
+    const category = categories.find((c) => c.id === product.category.id) || {
+      id: product.category.id,
+      categoryName: "",
+    };
+    const sizeChart = sizes.find((s) => s.id === product.sizeChart.id) || {
+      id: product.sizeChart.id,
+      value: "",
+    };
+    const formCloth = formClothes.find((f) => f.id === product.formClothes.id) || {
+      id: product.formClothes.id,
+      formClothes: "",
+    };
+    const promotion = product.promotion
+      ? promotions.find((p) => p.id === product.promotion.id) || {
+          id: product.promotion.id,
+          name: "",
+        }
+      : { id: "", name: "" };
+
     setFormData({
       productCode: product.productCode,
       productName: product.productName,
@@ -143,21 +154,50 @@ const ProductTable = () => {
       material: product.material,
       description: product.description,
       quantityInventory: product.quantityInventory,
-      category: {
-        id: product.category.id,
-      },
-      sizeChart: {
-        id: product.sizeChart.id,
-      },
-      formClothes: {
-        id: product.formClothes.id,
-      },
-      promotion: {
-        id: product.promotion ? product.promotion.id : null,
-      },
+      category,
+      sizeChart,
+      formClothes: formCloth,
+      promotion,
       imageUrl: product.imageUrl ? product.imageUrl : "",
     });
     setModalEditIsOpen(true);
+  };
+
+  const openDetailModal = (product) => {
+    const category = categories.find((c) => c.id === product.category.id) || {
+      id: product.category.id,
+      categoryName: "N/A",
+    };
+    const sizeChart = sizes.find((s) => s.id === product.sizeChart.id) || {
+      id: product.sizeChart.id,
+      value: "N/A",
+    };
+    const formCloth = formClothes.find((f) => f.id === product.formClothes.id) || {
+      id: product.formClothes.id,
+      formClothes: "N/A",
+    };
+    const promotion = product.promotion
+      ? promotions.find((p) => p.id === product.promotion.id) || {
+          id: product.promotion.id,
+          name: "N/A",
+        }
+      : { id: "", name: "None" };
+
+    setFormData({
+      productCode: product.productCode || "N/A",
+      productName: product.productName || "N/A",
+      price: product.price ? formatPrice(product.price) : "N/A",
+      color: product.color || "N/A",
+      material: product.material || "N/A",
+      description: product.description || "N/A",
+      quantityInventory: product.quantityInventory || "N/A",
+      category,
+      sizeChart,
+      formClothes: formCloth,
+      promotion,
+      imageUrl: product.imageUrl || "",
+    });
+    setModalDetailIsOpen(true);
   };
 
   const openAddModal = () => {
@@ -169,18 +209,11 @@ const ProductTable = () => {
       material: "",
       description: "",
       quantityInventory: "",
-      category: {
-        id: "",
-      },
-      sizeChart: {
-        id: "",
-      },
-      formClothes: {
-        id: "",
-      },
-      promotion: {
-        id: "",
-      },
+      category: { id: "", categoryName: "" },
+      sizeChart: { id: "", value: "" },
+      formClothes: { id: "", formClothes: "" },
+      promotion: { id: "", name: "" },
+      imageUrl: "",
     });
     setModalAddIsOpen(true);
   };
@@ -190,7 +223,7 @@ const ProductTable = () => {
     setProductId(id);
     setFormData({
       ...formData,
-      imageUrl: product.imageUrl,
+      imageUrl: product.imageUrl || "",
     });
 
     try {
@@ -223,11 +256,28 @@ const ProductTable = () => {
   const closeEditModal = () => setModalEditIsOpen(false);
   const closeAddModal = () => setModalAddIsOpen(false);
   const closeUploadModal = () => setModalUploadIsOpen(false);
+  const closeDetailModal = () => setModalDetailIsOpen(false); // Fixed to close the detail modal
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!editProduct) {
       toast.error("No product selected for editing!");
+      return;
+    }
+
+    if (
+      !formData.productCode ||
+      !formData.productName ||
+      !formData.price ||
+      !formData.color ||
+      !formData.material ||
+      !formData.description ||
+      !formData.quantityInventory ||
+      !formData.category.id ||
+      !formData.sizeChart.id ||
+      !formData.formClothes.id
+    ) {
+      toast.error("Please fill in all required fields!");
       return;
     }
 
@@ -239,15 +289,9 @@ const ProductTable = () => {
       material: formData.material,
       description: formData.description,
       quantityInventory: Number(formData.quantityInventory),
-      category: {
-        id: formData.category.id,
-      },
-      sizeChart: {
-        id: formData.sizeChart.id,
-      },
-      formClothes: {
-        id: formData.formClothes.id,
-      },
+      category: { id: formData.category.id },
+      sizeChart: { id: formData.sizeChart.id },
+      formClothes: { id: formData.formClothes.id },
       promotion: formData.promotion.id ? { id: formData.promotion.id } : null,
     };
 
@@ -280,24 +324,34 @@ const ProductTable = () => {
   const handleAddSubmit = async (e) => {
     e.preventDefault();
 
+    if (
+      !formData.productCode ||
+      !formData.productName ||
+      !formData.price ||
+      !formData.color ||
+      !formData.material ||
+      !formData.description ||
+      !formData.quantityInventory ||
+      !formData.category.id ||
+      !formData.sizeChart.id ||
+      !formData.formClothes.id
+    ) {
+      toast.error("Please fill in all required fields!");
+      return;
+    }
+
     const productData = {
       productCode: formData.productCode,
       productName: formData.productName,
-      price: formData.price,
+      price: Number(formData.price),
       color: formData.color,
       material: formData.material,
       description: formData.description,
-      quantityInventory: formData.quantityInventory,
-      category: {
-        id: formData.category,
-      },
-      sizeChart: {
-        id: formData.sizeChart,
-      },
-      formClothes: {
-        id: formData.formClothes,
-      },
-      promotion: formData.promotion.id ? formData.promotion : null,
+      quantityInventory: Number(formData.quantityInventory),
+      category: { id: formData.category.id },
+      sizeChart: { id: formData.sizeChart.id },
+      formClothes: { id: formData.formClothes.id },
+      promotion: formData.promotion.id ? { id: formData.promotion.id } : null,
     };
 
     try {
@@ -332,7 +386,7 @@ const ProductTable = () => {
           product.id === deactivateId ? { ...product, active: false } : product
         )
       );
-      toast.success("Deactivate thành công!");
+      toast.success("Deactivate successfully!");
     } catch (error) {
       console.error("Lỗi khi deactivate product:", error);
       toast.error("Lỗi khi deactivate product");
@@ -359,7 +413,7 @@ const ProductTable = () => {
           product.id === activateId ? { ...product, active: true } : product
         )
       );
-      toast.success("Activate thành công!");
+      toast.success("Activate successfully!");
     } catch (error) {
       console.error("Lỗi khi activate product:", error);
       toast.error("Lỗi khi activate product");
@@ -392,15 +446,13 @@ const ProductTable = () => {
     }
 
     if (totalImagesAfterUpload > 10) {
-      toast.error(
-        `Cannot upload. Total images would exceed 10 (current: ${productImages.length}, trying to add: ${files.length}).`
-      );
+      toast.error(`Cannot upload. Total images would exceed 10`);
       e.target.value = null;
       return;
     }
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-    const maxFileSize = 2 * 1024 * 1024;
+    const maxFileSize = 1 * 1024 * 1024;
     for (let i = 0; i < files.length; i++) {
       if (!allowedTypes.includes(files[i].type)) {
         toast.error(
@@ -410,7 +462,7 @@ const ProductTable = () => {
         return;
       }
       if (files[i].size > maxFileSize) {
-        toast.error(`File ${files[i].name} exceeds 2MB limit!`);
+        toast.error(`File ${files[i].name} exceeds 1MB limit!`);
         e.target.value = null;
         return;
       }
@@ -465,7 +517,7 @@ const ProductTable = () => {
       setProductImages([]);
     } catch (error) {
       console.error("Error deleting images:", error);
-      toast.error("Error deleting images");
+      toast.error("No image to delete!");
     }
   };
 
@@ -493,13 +545,13 @@ const ProductTable = () => {
     setSearchTerm(value);
   };
 
-  const filteredProduct = products.filter((products) => {
-    const productName = products.productName
-      ? `${products.productName}`.toLowerCase()
+  const filteredProduct = products.filter((product) => {
+    const productName = product.productName
+      ? `${product.productName}`.toLowerCase()
       : "";
-    const id = products.id ? products.id.toString().toLowerCase() : "";
-    const productCode = products.productCode
-      ? `${products.productCode}`.toLowerCase()
+    const id = product.id ? product.id.toString().toLowerCase() : "";
+    const productCode = product.productCode
+      ? `${product.productCode}`.toLowerCase()
       : "";
     return (
       productName.includes(searchTerm) ||
@@ -508,42 +560,40 @@ const ProductTable = () => {
     );
   });
 
-  // Define the background color mapping
   const colorMap = {
     Red: "red",
-    "Red-Orange": "#e75113", // Matches Tailwind's bg-orange-600
+    "Red-Orange": "#e75113",
     Orange: "orange",
-    "Yellow-Orange": "#f59e0b", // Matches Tailwind's bg-amber-400
+    "Yellow-Orange": "#f59e0b",
     Yellow: "yellow",
-    "Yellow-Green": "#a3e635", // Matches Tailwind's bg-lime-400
+    "Yellow-Green": "#a3e635",
     Green: "green",
     Cyan: "cyan",
     Blue: "blue",
-    "Blue-Purple": "#4f46e5", // Matches Tailwind's bg-indigo-500
+    "Blue-Purple": "#4f46e5",
     Purple: "purple",
-    "Red-Purple": "#d946ef", // Matches Tailwind's bg-fuchsia-500
+    "Red-Purple": "#d946ef",
     White: "white",
     Black: "black",
-    "": "white", // Default for "Select Color"
+    "": "white",
   };
 
-  // Define the text color mapping
   const textColorMap = {
     Red: "white",
     "Red-Orange": "white",
     Orange: "white",
-    "Yellow-Orange": "black", // Lighter color, so black text is readable
-    Yellow: "black", // Lighter color, so black text is readable
-    "Yellow-Green": "black", // Lighter color, so black text is readable
+    "Yellow-Orange": "black",
+    Yellow: "black",
+    "Yellow-Green": "black",
     Green: "white",
     Cyan: "white",
     Blue: "white",
     "Blue-Purple": "white",
     Purple: "white",
     "Red-Purple": "white",
-    White: "black", // White background, so black text is readable
-    Black: "white", // Black background, so white text is readable
-    "": "black", // Default for "Select Color" (white background)
+    White: "black",
+    Black: "white",
+    "": "black",
   };
 
   const columns = [
@@ -551,9 +601,7 @@ const ProductTable = () => {
       name: "ID",
       selector: (row) => (row.id ? row.id : "Null"),
       sortable: true,
-      style: {
-        width: "100px",
-      },
+      style: { width: "100px" },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
           {row.id ? row.id : "Null"}
@@ -588,9 +636,7 @@ const ProductTable = () => {
       name: "Product Name",
       selector: (row) => (row.productName ? row.productName : "Null"),
       sortable: true,
-      style: {
-        width: "100px",
-      },
+      style: { width: "100px" },
       cell: (row) => (
         <div
           style={{
@@ -624,9 +670,7 @@ const ProductTable = () => {
     {
       name: "Color",
       selector: (row) => (row.color ? row.color : "Null"),
-      style: {
-        width: "100px",
-      },
+      style: { width: "100px" },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
           {row.color ? row.color : "Null"}
@@ -635,12 +679,9 @@ const ProductTable = () => {
     },
     {
       name: "Quantity",
-      selector: (row) =>
-        row.quantityInventory ? row.quantityInventory : "Null",
+      selector: (row) => (row.quantityInventory ? row.quantityInventory : "Null"),
       sortable: true,
-      style: {
-        width: "100px",
-      },
+      style: { width: "100px" },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
           {row.quantityInventory ? row.quantityInventory : "Null"}
@@ -651,9 +692,7 @@ const ProductTable = () => {
       name: "Size",
       selector: (row) => (row.sizeChart.value ? row.sizeChart.value : "Null"),
       sortable: true,
-      style: {
-        width: "100px",
-      },
+      style: { width: "100px" },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
           {row.sizeChart.value ? row.sizeChart.value : "Null"}
@@ -668,7 +707,14 @@ const ProductTable = () => {
             onClick={() => openUploadModal(row)}
             disabled={!row.active}
           >
-            Upload Image
+            Upload
+          </button>
+          <button
+            className="bg-green-500 text-white px-2 py-2 rounded"
+            onClick={() => openDetailModal(row)}
+            // Removed disabled to allow viewing inactive products
+          >
+            View
           </button>
         </div>
       ),
@@ -735,9 +781,7 @@ const ProductTable = () => {
         conditionalRowStyles={[
           {
             when: (row) => !row.active,
-            style: {
-              backgroundColor: "#e1e1e1",
-            },
+            style: { backgroundColor: "#e1e1e1" },
           },
         ]}
       />
@@ -762,7 +806,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Product Name
@@ -777,7 +820,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Price
@@ -792,7 +834,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Color
@@ -832,9 +873,6 @@ const ProductTable = () => {
               <option value="Green" className="bg-green-500 text-white">
                 Green
               </option>
-              <option value="Cyan" className="bg-cyan-500 text-white">
-                Cyan
-              </option>
               <option value="Blue" className="bg-blue-500 text-white">
                 Blue
               </option>
@@ -855,7 +893,6 @@ const ProductTable = () => {
               </option>
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Material
@@ -870,7 +907,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Description
@@ -884,7 +920,6 @@ const ProductTable = () => {
               }
             ></textarea>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Quantity Inventory
@@ -899,7 +934,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Category
@@ -907,9 +941,15 @@ const ProductTable = () => {
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
               value={formData.category.id}
-              onChange={(e) =>
-                setFormData({ ...formData, category: { id: e.target.value } })
-              }
+              onChange={(e) => {
+                const selectedCategory = categories.find(
+                  (cate) => cate.id === e.target.value
+                ) || { id: e.target.value, categoryName: "" };
+                setFormData({
+                  ...formData,
+                  category: selectedCategory,
+                });
+              }}
             >
               <option value="">Select Category</option>
               {categories.map((cate) => (
@@ -919,7 +959,6 @@ const ProductTable = () => {
               ))}
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Size Chart
@@ -927,9 +966,15 @@ const ProductTable = () => {
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
               value={formData.sizeChart.id}
-              onChange={(e) =>
-                setFormData({ ...formData, sizeChart: { id: e.target.value } })
-              }
+              onChange={(e) => {
+                const selectedSize = sizes.find(
+                  (size) => size.id === e.target.value
+                ) || { id: e.target.value, value: "" };
+                setFormData({
+                  ...formData,
+                  sizeChart: selectedSize,
+                });
+              }}
             >
               <option value="">Select Size Chart</option>
               {sizes.map((size) => (
@@ -939,7 +984,6 @@ const ProductTable = () => {
               ))}
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Form Clothes
@@ -947,12 +991,15 @@ const ProductTable = () => {
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
               value={formData.formClothes.id}
-              onChange={(e) =>
+              onChange={(e) => {
+                const selectedForm = formClothes.find(
+                  (form) => form.id === e.target.value
+                ) || { id: e.target.value, formClothes: "" };
                 setFormData({
                   ...formData,
-                  formClothes: { id: e.target.value },
-                })
-              }
+                  formClothes: selectedForm,
+                });
+              }}
             >
               <option value="">Select Form Clothes</option>
               {formClothes.map((form) => (
@@ -962,17 +1009,22 @@ const ProductTable = () => {
               ))}
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Promotion
             </label>
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
-              value={formData.promotion.id ? formData.promotion.id : ""}
-              onChange={(e) =>
-                setFormData({ ...formData, promotion: { id: e.target.value } })
-              }
+              value={formData.promotion.id}
+              onChange={(e) => {
+                const selectedPromo = promotions.find(
+                  (promo) => promo.id === e.target.value
+                ) || { id: e.target.value, name: "" };
+                setFormData({
+                  ...formData,
+                  promotion: selectedPromo,
+                });
+              }}
             >
               <option value="">Select Promotion</option>
               {promotions.map((promo) => (
@@ -984,7 +1036,108 @@ const ProductTable = () => {
           </div>
         </div>
       </ModalUpdate>
-
+      <ModalDetail
+        isOpen={modalDetailIsOpen}
+        onClose={closeDetailModal}
+        title="Product Detail"
+      >
+        <div className="space-y-4">
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Product Code
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.productCode || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Product Name
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.productName || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Price
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.price || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Color
+            </label>
+            <p
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
+              style={{
+                backgroundColor: colorMap[formData.color] || "white",
+                color: textColorMap[formData.color] || "black",
+              }}
+            >
+              {formData.color || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Material
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.material || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Description
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1 min-h-[100px]">
+              {formData.description || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Quantity
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.quantityInventory || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Category
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.category.categoryName || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Size Chart
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.sizeChart.value || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Form Clothes
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.formClothes.formClothes || "N/A"}
+            </p>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Promotion
+            </label>
+            <p className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1">
+              {formData.promotion.name || "None"}
+            </p>
+          </div>
+        </div>
+      </ModalDetail>
       <ModalAdd
         isOpen={modalAddIsOpen}
         onClose={closeAddModal}
@@ -1006,7 +1159,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Product Name
@@ -1021,7 +1173,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Price
@@ -1036,20 +1187,10 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Color
             </label>
-            {/* <input
-              type="text"
-              placeholder="Enter Color"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
-              value={formData.color}
-              onChange={(e) =>
-                setFormData({ ...formData, color: e.target.value })
-              }
-            /> */}
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
               value={formData.color}
@@ -1085,9 +1226,6 @@ const ProductTable = () => {
               <option value="Green" className="bg-green-500 text-white">
                 Green
               </option>
-              <option value="Cyan" className="bg-cyan-500 text-white">
-                Cyan
-              </option>
               <option value="Blue" className="bg-blue-500 text-white">
                 Blue
               </option>
@@ -1108,7 +1246,6 @@ const ProductTable = () => {
               </option>
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Material
@@ -1123,7 +1260,6 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Description
@@ -1137,7 +1273,6 @@ const ProductTable = () => {
               }
             ></textarea>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Quantity Inventory
@@ -1152,17 +1287,22 @@ const ProductTable = () => {
               }
             />
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Category
             </label>
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
-              value={formData.category}
-              onChange={(e) =>
-                setFormData({ ...formData, category: e.target.value })
-              }
+              value={formData.category.id}
+              onChange={(e) => {
+                const selectedCategory = categories.find(
+                  (cate) => cate.id === e.target.value
+                ) || { id: e.target.value, categoryName: "" };
+                setFormData({
+                  ...formData,
+                  category: selectedCategory,
+                });
+              }}
             >
               <option value="">Select Category</option>
               {categories.map((cate) => (
@@ -1172,17 +1312,22 @@ const ProductTable = () => {
               ))}
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Size Chart
             </label>
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
-              value={formData.sizeChart}
-              onChange={(e) =>
-                setFormData({ ...formData, sizeChart: e.target.value })
-              }
+              value={formData.sizeChart.id}
+              onChange={(e) => {
+                const selectedSize = sizes.find(
+                  (size) => size.id === e.target.value
+                ) || { id: e.target.value, value: "" };
+                setFormData({
+                  ...formData,
+                  sizeChart: selectedSize,
+                });
+              }}
             >
               <option value="">Select Size Chart</option>
               {sizes.map((size) => (
@@ -1192,17 +1337,22 @@ const ProductTable = () => {
               ))}
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Form Clothes
             </label>
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
-              value={formData.formClothes}
-              onChange={(e) =>
-                setFormData({ ...formData, formClothes: e.target.value })
-              }
+              value={formData.formClothes.id}
+              onChange={(e) => {
+                const selectedForm = formClothes.find(
+                  (form) => form.id === e.target.value
+                ) || { id: e.target.value, formClothes: "" };
+                setFormData({
+                  ...formData,
+                  formClothes: selectedForm,
+                });
+              }}
             >
               <option value="">Select Form Clothes</option>
               {formClothes.map((form) => (
@@ -1212,17 +1362,22 @@ const ProductTable = () => {
               ))}
             </select>
           </div>
-
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
               Promotion
             </label>
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
-              value={formData.promotion.id || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, promotion: { id: e.target.value } })
-              }
+              value={formData.promotion.id}
+              onChange={(e) => {
+                const selectedPromo = promotions.find(
+                  (promo) => promo.id === e.target.value
+                ) || { id: e.target.value, name: "" };
+                setFormData({
+                  ...formData,
+                  promotion: selectedPromo,
+                });
+              }}
             >
               <option value="">Select Promotion</option>
               {promotions.map((promo) => (
@@ -1242,6 +1397,9 @@ const ProductTable = () => {
         onSubmit={(e) => handleUploadImage(e, productId)}
         productId={productId}
         onDelete={handleDeleteAllImages}
+        description={
+          "Maximum limit of 10 images, each image size < 1MB, format: .jpg, .jpeg, .png, .webp"
+        }
       />
       <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}

@@ -13,12 +13,12 @@ import PromotionChart from "../../components/DashBoard/PromotionChart.";
 
 const DashBoardPage = () => {
   const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem("activeTab") || "users";
+    return sessionStorage.getItem("activeTab") || "users";
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Trạng thái sidebar
 
   useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
+    sessionStorage.setItem("activeTab", activeTab);
   }, [activeTab]);
 
   const handleTabChange = (tab) => {
