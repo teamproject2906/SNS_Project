@@ -17,10 +17,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class VoucherService implements IVoucherService{
+public class VoucherServiceImpl implements IVoucherService{
 
     private final VoucherRepository voucherRepository;
     private final ModelMapper modelMapper;
@@ -29,8 +30,8 @@ public class VoucherService implements IVoucherService{
     public List<VoucherDTO> getAllVoucher() {
 //        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 //        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        List<Voucher> page = voucherRepository.findAll();
-        return Collections.singletonList(modelMapper.map(page, VoucherDTO.class));
+        List<Voucher> pages = voucherRepository.findAll();
+        return pages.stream().map(voucher -> modelMapper.map(voucher, VoucherDTO.class)).collect(Collectors.toList());
 //        return Helper.getPageableResponse(page, VoucherDTO.class);
     }
 
@@ -44,36 +45,14 @@ public class VoucherService implements IVoucherService{
     public List<VoucherDTO> searchVoucher(String keyword) {
 //        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
 //        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        List<Voucher> page = voucherRepository.findByVoucherCodeContaining(keyword);
-        return Collections.singletonList(modelMapper.map(page, VoucherDTO.class));
+        List<Voucher> pages = voucherRepository.findByVoucherCodeContaining(keyword);
+        return pages.stream().map(voucher -> modelMapper.map(voucher, VoucherDTO.class)).collect(Collectors.toList());
     }
 
     @Override
     public VoucherDTO createVoucher(VoucherDTO voucherDTO) {
 
-        if (!(voucherRepository.findByVoucherCodeContaining(voucherDTO.getVoucherCode()).isEmpty())) {
-            throw new IllegalArgumentException("Voucher code already exists.");
-        }
-
-        // Validate usage limit > 0
-        if (voucherDTO.getUsageLimit() <= 0) {
-            throw new IllegalArgumentException("Usage limit must be greater than 0.");
-        }
-
-        // Validate discount > 0 and < 1
-        if (!(voucherDTO.getDiscount() > 0 && voucherDTO.getDiscount() < 1)) {
-            throw new IllegalArgumentException("Discount must be greater than 0 and less than 1.");
-        }
-
-        // Validate start date > now
-        if (voucherDTO.getStartDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Start date must be after today.");
-        }
-
-        // Validate voucher code (uppercase letters and numbers only)
-        if (!voucherDTO.getVoucherCode().matches("^[A-Z0-9]+$")) {
-            throw new IllegalArgumentException("Voucher code must contain only uppercase letters and numbers.");
-        }
+        validateVoucher(voucherDTO);
 
         var voucher = Voucher.builder()
                 .voucherCode(voucherDTO.getVoucherCode())
@@ -94,6 +73,28 @@ public class VoucherService implements IVoucherService{
     @Override
     public VoucherDTO updateVoucher(VoucherDTO voucherDTO, Integer id) {
 
+        validateVoucher(voucherDTO);
+
+        Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new RuntimeException("Voucher Not Found"));
+        voucher.setVoucherCode(voucherDTO.getVoucherCode());
+        voucher.setStartDate(voucherDTO.getStartDate());
+        voucher.setEndDate(voucherDTO.getEndDate());
+        voucher.setDiscount(voucherDTO.getDiscount());
+        voucher.setUsageLimit(voucherDTO.getUsageLimit());
+        voucher.setUpdatedAt(LocalDateTime.now());
+        voucher.setUpdatedBy("ADMIN");
+        voucherRepository.save(voucher);
+        return modelMapper.map(voucher, VoucherDTO.class);
+    }
+
+    @Override
+    public void deactivateVoucher(Integer id) {
+        Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new RuntimeException("Voucher Not Found"));
+        voucher.setIsActive(false);
+        voucherRepository.save(voucher);
+    }
+
+    private void validateVoucher(VoucherDTO voucherDTO) {
         if (!(voucherRepository.findByVoucherCodeContaining(voucherDTO.getVoucherCode()).isEmpty())) {
             throw new IllegalArgumentException("Voucher code already exists.");
         }
@@ -117,23 +118,5 @@ public class VoucherService implements IVoucherService{
         if (!voucherDTO.getVoucherCode().matches("^[A-Z0-9]+$")) {
             throw new IllegalArgumentException("Voucher code must contain only uppercase letters and numbers.");
         }
-
-        Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new RuntimeException("Voucher Not Found"));
-        voucher.setVoucherCode(voucherDTO.getVoucherCode());
-        voucher.setStartDate(voucherDTO.getStartDate());
-        voucher.setEndDate(voucherDTO.getEndDate());
-        voucher.setDiscount(voucherDTO.getDiscount());
-        voucher.setUsageLimit(voucherDTO.getUsageLimit());
-        voucher.setUpdatedAt(LocalDateTime.now());
-        voucher.setUpdatedBy("ADMIN");
-        voucherRepository.save(voucher);
-        return modelMapper.map(voucher, VoucherDTO.class);
-    }
-
-    @Override
-    public void deactivateVoucher(Integer id) {
-        Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new RuntimeException("Voucher Not Found"));
-        voucher.setIsActive(false);
-        voucherRepository.save(voucher);
     }
 }

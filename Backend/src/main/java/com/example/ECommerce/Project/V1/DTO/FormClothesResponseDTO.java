@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class FormClothesResponseDTO {
     private Integer id;
     private String formClothes;
+    private Boolean active;
 }

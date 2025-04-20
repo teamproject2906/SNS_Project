@@ -5,7 +5,7 @@ import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.ResponseDTO.ResponseMessageAPI;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Service.UserService.IUserService;
-import com.example.ECommerce.Project.V1.Service.VoucherService.VoucherService;
+import com.example.ECommerce.Project.V1.Service.VoucherService.IVoucherService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import java.util.List;
 public class UserController {
 
     private final IUserService userService;
-    private final VoucherService voucherService;
+    private final IVoucherService voucherService;
 
     @PatchMapping("/changePassword")
     public ResponseEntity<?> changePassword(
