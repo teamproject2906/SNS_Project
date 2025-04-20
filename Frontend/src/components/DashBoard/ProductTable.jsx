@@ -53,7 +53,7 @@ const ProductTable = () => {
   const handleGetProduct = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/products", {
+      const res = await axios.get("http://localhost:8080/api/products/getAll", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (Array.isArray(res.data)) {
@@ -229,7 +229,7 @@ const ProductTable = () => {
     try {
       const token = getToken();
       const res = await axios.get(
-        `http://localhost:8080/api/product-gallery/product/${id}`,
+        `http://localhost:8080/api/product-gallery/getImageByProductId/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

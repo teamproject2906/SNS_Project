@@ -74,7 +74,7 @@ const PromotionChart = () => {
 
   useEffect(() => {
     handleGetPromotion();
-  }, [promotions]);
+  }, []);
 
   const openEditModal = (promotion) => {
     setEditPromotion(promotion.id);
@@ -132,7 +132,7 @@ const PromotionChart = () => {
       );
       closeEditModal();
       toast.success("Update promotion successfully!");
-  
+      handleGetPromotion();
     } catch (error) {
       console.error("Error updating promotion:", error.response?.data.message);
       toast.error(error.response?.data.message);
@@ -161,7 +161,7 @@ const PromotionChart = () => {
 
       setPromotions([...promotions, res.data]);
       closeAddModal();
-
+      handleGetPromotion();
       toast.success("Add promotion successfully!");
     } catch (error) {
       console.error(

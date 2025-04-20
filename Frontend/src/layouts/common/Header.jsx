@@ -26,6 +26,7 @@ import { jwtDecode } from "jwt-decode";
 import "../../assets/styles/Header.module.css";
 import { useCart } from "../../context/CartContext";
 import { useFavourite } from "../../context/FavouriteContext";
+import { toast } from "react-toastify";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -103,7 +104,7 @@ const Header = () => {
     (error) => {
       if (error.response && error.response.status === 401) {
         handleLogout();
-        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       }
       return Promise.reject(error);
     }
@@ -208,7 +209,7 @@ const Header = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:8080/api/products/productcode",
+          "http://localhost:8080/api/products/productCode",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -442,7 +443,7 @@ const Header = () => {
                   filteredProducts.map((item) => (
                     <Link
                       to={`/products/${item.id}`}
-                      state={{ product: item.productCode }}
+                      state={{ productCode: item.productCode }}
                       key={item.id}
                       className="flex items-center p-2 hover:bg-gray-100 border-b border-gray-200"
                     >

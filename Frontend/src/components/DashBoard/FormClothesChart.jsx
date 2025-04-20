@@ -29,7 +29,7 @@ const FormClothesChart = () => {
   const handleGetFormClothes = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/formclothes", {
+      const res = await axios.get("http://localhost:8080/api/formclothes/getAll", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFormClothes(res.data);
@@ -310,7 +310,6 @@ const FormClothesChart = () => {
           >
             Add form
           </button>
-          nodded{" "}
         </div>
       </div>
       <DataTable

@@ -28,7 +28,7 @@ const CategoryList = () => {
   const fetchCategories = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/categories", {
+      const res = await axios.get("http://localhost:8080/api/categories/getAll", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCategories(res.data);

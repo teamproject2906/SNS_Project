@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import Modal from "react-modal";
+import { getToken } from "../../pages/Login/app/static";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 import DataTable from "react-data-table-component";
 import ModalUpdate from "../share/ModalUpdate";
 import ModalAdd from "../share/ModalAdd";
 import ModalDeactivate from "../share/ModalDeactivate";
 import ModalActivate from "../share/ModalActivate";
-import { getToken } from "../../pages/Login/app/static";
-import axios from "axios";
-import Modal from "react-modal";
-import { toast, ToastContainer } from "react-toastify";
-import ModalDelete from "../share/ModalDelete";
 
 Modal.setAppElement("#root");
 
@@ -25,21 +24,39 @@ const VoucherTable = () => {
     discount: "",
     usageLimit: "",
   });
-  // const [deactivateID, setDeactivateID] = useState(null);
-  // const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
-  // const [activateID, setActivateID] = useState(null);
-  // const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
+  const [deactivateID, setDeactivateID] = useState(null);
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  const [activateID, setActivateID] = useState(null);
+  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+  // const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  // const [deleteId, setDeleteId] = useState(null);
+
+  const parseDateForInput = (dateString) => {
+    if (!dateString) return "";
+
+    // Handle both YYYY-MM-DD and YYYY-MM-DDTHH:mm:ss formats
+    const simpleDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (simpleDateRegex.test(dateString)) {
+      return dateString; // Already in YYYY-MM-DD
+    }
+
+    // Extract YYYY-MM-DD from YYYY-MM-DDTHH:mm:ss
+    if (dateString.includes("T")) {
+      return dateString.split("T")[0]; // Get the date part
+    }
+
+    return ""; // Invalid format
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
 
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
+    // Get YYYY-MM-DD part
+    const yyyymmdd = parseDateForInput(dateString);
+    if (!yyyymmdd) return "";
 
+    // Convert YYYY-MM-DD to DD/MM/YYYY
+    const [year, month, day] = yyyymmdd.split("-");
     return `${day}/${month}/${year}`;
   };
 
@@ -67,12 +84,8 @@ const VoucherTable = () => {
       voucherCode: voucher.voucherCode || "",
       discount: voucher.discount || "",
       usageLimit: voucher.usageLimit || "",
-      startDate: voucher.startDate
-        ? new Date(voucher.startDate).toISOString().split("T")[0]
-        : "",
-      endDate: voucher.endDate
-        ? new Date(voucher.endDate).toISOString().split("T")[0]
-        : "",
+      startDate: parseDateForInput(voucher.startDate),
+      endDate: parseDateForInput(voucher.endDate),
     });
     setModalEditIsOpen(true);
   };
@@ -85,18 +98,22 @@ const VoucherTable = () => {
       discount: "",
       usageLimit: "",
     });
-    console.log("Form Data:", formData);
     setModalAddIsOpen(true);
   };
 
-  // const openDeactivateModal = (id) => {
-  //   setDeactivateID(id);
-  //   setIsDeactivateModalOpen(true);
-  // };
+  const openDeactivateModal = (id) => {
+    setDeactivateID(id);
+    setIsDeactivateModalOpen(true);
+  };
 
   // const openActivateModal = (id) => {
   //   setActivateID(id);
   //   setIsActivateModalOpen(true);
+  // };
+
+  // const openDeleteModal = (id) => {
+  //   setDeleteId(id);
+  //   setIsDeleteModalOpen(true);
   // };
 
   const closeEditModal = () => setModalEditIsOpen(false);
@@ -106,7 +123,7 @@ const VoucherTable = () => {
     e.preventDefault();
     try {
       const token = getToken();
-      await axios.patch(
+      await axios.put(
         `http://localhost:8080/api/v1/shop/${editVoucher}`,
         {
           ...formData,
@@ -124,7 +141,7 @@ const VoucherTable = () => {
       handleGetVouchers();
     } catch (error) {
       console.error("Error updating voucher:", error);
-      toast.error("Lỗi khi cập nhật voucher");
+      toast.error(error.response?.data.message);
     }
   };
 
@@ -137,8 +154,6 @@ const VoucherTable = () => {
         endDate: formData.endDate ? `${formData.endDate}T00:00:00` : null,
       };
 
-      console.log("Sending data:", formattedData);
-
       const res = await axios.post(
         "http://localhost:8080/api/v1/shop",
         formattedData,
@@ -146,91 +161,69 @@ const VoucherTable = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Response data:", res.data);
       setVouchers([...vouchers, res.data]);
       closeAddModal();
       toast.success("Thêm voucher thành công!");
+      handleGetVouchers();
     } catch (error) {
       console.error("Error adding voucher:", error.response?.data || error);
-      toast.error("Lỗi khi thêm voucher");
+      toast.error(error.response?.data.message);
     }
   };
 
-  const confirmDelete = async () => {
-    if (!deleteId) return;
+  const confirmDeactivate = async () => {
+    if (!deactivateID) return;
+
+    console.log("deactivateID", deactivateID);
 
     try {
       const token = getToken();
-      await axios.delete(`http://localhost:8080/api/voucher/${deleteId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setVouchers(vouchers.filter((voucher) => voucher.id !== deleteId));
-      toast.success("Xóa thành công!");
+      console.log("Đã tới token", token);
+      const res = await axios.delete(
+        `http://localhost:8080/api/v1/shop/${deactivateID}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log("Vouchers after deactivation:", res.data);
+      setVouchers(
+        vouchers.map((voucher) =>
+          voucher.id === deactivateID
+            ? { ...voucher, isActive: false }
+            : voucher
+        )
+      );
+      toast.success("Vô hiệu hóa voucher thành công!");
     } catch (error) {
-      console.error("Lỗi khi xóa voucher:", error);
-      toast.error("Lỗi khi xóa voucher");
+      console.error("Error deactivating voucher:", error);
+      toast.error(
+        error.response?.data?.message || "Lỗi khi vô hiệu hóa voucher"
+      );
     } finally {
-      setIsDeleteModalOpen(false);
-      setDeleteId(null);
+      setIsDeactivateModalOpen(false);
+      setDeactivateID(null);
     }
   };
-
-  // const confirmDeactivate = async () => {
-  //   if (!deactivateID) return;
-
-  //   try {
-  //     const token = getToken();
-  //     const res = await axios.delete(
-  //       `http://localhost:8080/api/v1/shop/${deactivateID}`,
-  //       {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       }
-  //     );
-
-  //     if (res.data) {
-  //       setVouchers(
-  //         vouchers.map((voucher) =>
-  //           voucher.id === deactivateID
-  //             ? { ...voucher, active: false }
-  //             : voucher
-  //         )
-  //       );
-  //       toast.success("Vô hiệu hóa voucher thành công!");
-  //     } else {
-  //       toast.error("Không thể vô hiệu hóa voucher");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deactivating voucher:", error);
-  //     toast.error("Lỗi khi vô hiệu hóa voucher");
-  //   } finally {
-  //     setIsDeactivateModalOpen(false);
-  //     setDeactivateID(null);
-  //   }
-  // };
 
   // const confirmActivate = async () => {
   //   if (!activateID) return;
 
+  //   console.log("activateID", activateID);
+
   //   try {
   //     const token = getToken();
-  //     const res = await axios.patch(
-  //       `http://localhost:8080/api/v1/shop/reactive/${activateID}`,
-  //       {},
+  //     const res = await axios.delete(
+  //       `http://localhost:8080/api/v1/shop/${activateID}`,
   //       {
   //         headers: { Authorization: `Bearer ${token}` },
   //       }
   //     );
-
-  //     if (res.data) {
-  //       setVouchers(
-  //         vouchers.map((voucher) =>
-  //           voucher.id === activateID ? { ...voucher, active: true } : voucher
-  //         )
-  //       );
-  //       toast.success("Kích hoạt voucher thành công!");
-  //     } else {
-  //       toast.error("Không thể kích hoạt voucher");
-  //     }
+  //     setVouchers(
+  //       vouchers.map((voucher) =>
+  //         voucher.id === activateID ? { ...voucher, isActive: true } : voucher
+  //       )
+  //     );
+  //     toast.success("Kích hoạt voucher thành công!");
   //   } catch (error) {
   //     console.error("Error activating voucher:", error);
   //     toast.error("Lỗi khi kích hoạt voucher");
@@ -240,15 +233,34 @@ const VoucherTable = () => {
   //   }
   // };
 
+  // const confirmDelete = async () => {
+  //   if (!deleteId) return;
+
+  //   try {
+  //     const token = getToken();
+  //     await axios.delete(`http://localhost:8080/api/voucher/${deleteId}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     setVouchers(vouchers.filter((voucher) => voucher.id !== deleteId));
+  //     toast.success("Xóa thành công!");
+  //   } catch (error) {
+  //     console.error("Lỗi khi xóa voucher:", error);
+  //     toast.error("Lỗi khi xóa voucher");
+  //   } finally {
+  //     setIsDeleteModalOpen(false);
+  //     setDeleteId(null);
+  //   }
+  // };
+
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
   };
 
-  const filteredVoucher = vouchers.filter((vouchers) => {
-    const id = vouchers.id ? vouchers.id.toString().toLowerCase() : "";
-    const voucherCode = vouchers.voucherCode
-      ? `${vouchers.voucherCode}`.toLowerCase()
+  const filteredVoucher = vouchers.filter((voucher) => {
+    const id = voucher.id ? voucher.id.toString().toLowerCase() : "";
+    const voucherCode = voucher.voucherCode
+      ? `${voucher.voucherCode}`.toLowerCase()
       : "";
     return id.includes(searchTerm) || voucherCode.includes(searchTerm);
   });
@@ -273,15 +285,22 @@ const VoucherTable = () => {
   };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
+    {
+      name: "ID",
+      selector: (row) => row.id,
+      sortable: true,
+      cell: (row) => (
+        <div style={{ opacity: row.isActive ? 1 : 0.5 }}>{row.id}</div>
+      ),
+    },
     {
       name: "Voucher Code",
       selector: (row) => row.voucherCode,
       sortable: true,
       cell: (row) => (
-        <p
+        <div
           style={{
-            opacity: row.active ? 1 : 0.5,
+            opacity: row.isActive ? 1 : 0.5,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -289,57 +308,68 @@ const VoucherTable = () => {
           }}
         >
           {row.voucherCode}
-        </p>
+        </div>
       ),
     },
     {
       name: "Discount",
       selector: (row) => row.discount * 100 + "%",
       sortable: true,
+      cell: (row) => (
+        <div style={{ opacity: row.isActive ? 1 : 0.5 }}>
+          {row.discount * 100 + "%"}
+        </div>
+      ),
     },
     {
       name: "Usage Limit",
       selector: (row) => row.usageLimit,
       sortable: true,
+      cell: (row) => (
+        <div style={{ opacity: row.isActive ? 1 : 0.5 }}>{row.usageLimit}</div>
+      ),
     },
     {
       name: "Start Date",
       selector: (row) => formatDate(row.startDate),
       sortable: true,
+      cell: (row) => (
+        <div style={{ opacity: row.isActive ? 1 : 0.5 }}>
+          {formatDate(row.startDate)}
+        </div>
+      ),
     },
     {
       name: "End Date",
       selector: (row) => formatDate(row.endDate),
       sortable: true,
+      cell: (row) => (
+        <div style={{ opacity: row.isActive ? 1 : 0.5 }}>
+          {formatDate(row.endDate)}
+        </div>
+      ),
     },
     {
       name: "Actions",
       cell: (row) => (
-        <>
-          {/* {row.active ? ( */}
+        <div className="flex gap-2">
           <button
-            className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+            className="bg-green-500 text-white px-4 py-2 rounded"
             onClick={() => openEditModal(row)}
+            disabled={!row.isActive}
+            style={{ opacity: row.isActive ? 1 : 0.5 }}
           >
             Edit
           </button>
-          {/* ) : null} */}
-          {/* {row.active ? (
+          {row.isActive ? (
             <button
               className="bg-red-500 text-white px-4 py-2 rounded"
               onClick={() => openDeactivateModal(row.id)}
             >
               Deactivate
             </button>
-          ) : (
-            <button
-              className="bg-green-500 text-white px-4 py-2 rounded"
-              onClick={() => openActivateModal(row.id)}
-            >
-              Activate
-            </button>
-          )} */}
-        </>
+          ) : null}
+        </div>
       ),
     },
   ];
@@ -373,9 +403,8 @@ const VoucherTable = () => {
         customStyles={customStyles}
         conditionalRowStyles={[
           {
-            when: (row) => !row.active,
+            when: (row) => !row.isActive,
             style: {
-              opacity: "0.5",
               backgroundColor: "#e1e1e1",
             },
           },
@@ -387,56 +416,78 @@ const VoucherTable = () => {
         title="Edit Voucher"
         onSubmit={handleEditSubmit}
       >
-        <label>Voucher Code:</label>
-        <input
-          type="text"
-          placeholder="Voucher Code"
-          className="w-full p-2 border"
-          value={formData.voucherCode}
-          onChange={(e) =>
-            setFormData({ ...formData, voucherCode: e.target.value })
-          }
-        />
-        <label>Discount:</label>
-        <input
-          type="number"
-          placeholder="Discount"
-          className="w-full p-2 border"
-          value={formData.discount}
-          onChange={(e) =>
-            setFormData({ ...formData, discount: e.target.value })
-          }
-        />
-        <label>Usage Limit:</label>
-        <input
-          type="number"
-          placeholder="Usage Limit"
-          className="w-full p-2 border"
-          value={formData.usageLimit}
-          onChange={(e) =>
-            setFormData({ ...formData, usageLimit: e.target.value })
-          }
-        />
-        <label>Start Date:</label>
-        <input
-          type="date"
-          placeholder="Start Date"
-          className="w-full p-2 border"
-          value={formData.startDate || ""}
-          onChange={(e) =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
-        />
-        <label>End Date:</label>
-        <input
-          type="date"
-          placeholder="End Date"
-          className="w-full p-2 border"
-          value={formData.endDate || ""}
-          onChange={(e) =>
-            setFormData({ ...formData, endDate: e.target.value })
-          }
-        />
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Voucher Code:
+            </label>
+            <input
+              type="text"
+              placeholder="Voucher Code"
+              className="w-full p-2 border rounded-lg"
+              value={formData.voucherCode}
+              onChange={(e) =>
+                setFormData({ ...formData, voucherCode: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Discount:
+            </label>
+            <input
+              type="number"
+              placeholder="Discount"
+              className="w-full p-2 border rounded-lg"
+              value={formData.discount}
+              onChange={(e) =>
+                setFormData({ ...formData, discount: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Usage Limit:
+            </label>
+            <input
+              type="number"
+              placeholder="Usage Limit"
+              className="w-full p-2 border rounded-lg"
+              value={formData.usageLimit}
+              onChange={(e) =>
+                setFormData({ ...formData, usageLimit: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Date:
+            </label>
+            <input
+              type="date"
+              placeholder="Start Date"
+              className="w-full p-2 border rounded-lg"
+              value={formData.startDate || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, startDate: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              End Date:
+            </label>
+            <input
+              type="date"
+              placeholder="End Date"
+              className="w-full p-2 border rounded-lg"
+              value={formData.endDate || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, endDate: e.target.value })
+              }
+            />
+          </div>
+        </div>
       </ModalUpdate>
       <ModalAdd
         isOpen={modalAddIsOpen}
@@ -446,11 +497,13 @@ const VoucherTable = () => {
       >
         <div className="space-y-4">
           <div>
-            <label>Voucher Code:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Voucher Code:
+            </label>
             <input
               type="text"
               placeholder="Voucher Code"
-              className="w-full p-2 border"
+              className="w-full p-2 border rounded-lg"
               value={formData.voucherCode}
               onChange={(e) =>
                 setFormData({ ...formData, voucherCode: e.target.value })
@@ -458,11 +511,13 @@ const VoucherTable = () => {
             />
           </div>
           <div>
-            <label>Discount:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Discount:
+            </label>
             <input
               type="number"
               placeholder="Discount"
-              className="w-full p-2 border"
+              className="w-full p-2 border rounded-lg"
               value={formData.discount}
               onChange={(e) =>
                 setFormData({ ...formData, discount: e.target.value })
@@ -470,11 +525,13 @@ const VoucherTable = () => {
             />
           </div>
           <div>
-            <label>Usage Limit:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Usage Limit:
+            </label>
             <input
               type="number"
               placeholder="Usage Limit"
-              className="w-full p-2 border"
+              className="w-full p-2 border rounded-lg"
               value={formData.usageLimit}
               onChange={(e) =>
                 setFormData({ ...formData, usageLimit: e.target.value })
@@ -482,11 +539,13 @@ const VoucherTable = () => {
             />
           </div>
           <div>
-            <label>Start Date:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Date:
+            </label>
             <input
               type="date"
               placeholder="Start Date"
-              className="w-full p-2 border"
+              className="w-full p-2 border rounded-lg"
               value={formData.startDate}
               onChange={(e) =>
                 setFormData({ ...formData, startDate: e.target.value })
@@ -494,11 +553,13 @@ const VoucherTable = () => {
             />
           </div>
           <div>
-            <label>End Date:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              End Date:
+            </label>
             <input
               type="date"
               placeholder="End Date"
-              className="w-full p-2 border"
+              className="w-full p-2 border rounded-lg"
               value={formData.endDate}
               onChange={(e) =>
                 setFormData({ ...formData, endDate: e.target.value })
@@ -507,21 +568,16 @@ const VoucherTable = () => {
           </div>
         </div>
       </ModalAdd>
-      {/* <ModalDeactivate
+      <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}
         setIsDeactivateModalOpen={setIsDeactivateModalOpen}
         confirmDeactivate={confirmDeactivate}
       />
-      <ModalActivate
+      {/* <ModalActivate
         isActivateModalOpen={isActivateModalOpen}
         setIsActivateModalOpen={setIsActivateModalOpen}
         confirmActivate={confirmActivate}
       /> */}
-      <ModalDelete
-        isDeleteModalOpen={isDeleteModalOpen}
-        setIsDeleteModalOpen={setIsDeleteModalOpen}
-        confirmDelete={confirmDelete}
-      />
     </div>
   );
 };

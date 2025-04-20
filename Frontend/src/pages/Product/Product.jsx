@@ -19,7 +19,7 @@ export default function Product() {
     const fetchedProducts = async () => {
       try {
         const token = getToken();
-        const res = await axios.get("http://localhost:8080/api/products/productcode", {
+        const res = await axios.get("http://localhost:8080/api/products/productCode", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const safeProducts = Array.isArray(res.data) ? res.data : [];
