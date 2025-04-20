@@ -54,7 +54,7 @@ public class ProductController {
         return new ResponseEntity<>(productService.addMultipleProducts(products),HttpStatus.CREATED);
     }
 
-    @GetMapping()
+    @GetMapping("/getAll")
     public ResponseEntity<Object> getAllProducts() {
         List<ProductResponseDTO> products = productService.getAllProducts();
 
@@ -64,7 +64,7 @@ public class ProductController {
         return new ResponseEntity<>(productService.getAllProducts(),HttpStatus.OK);
     }
 
-    @GetMapping("/productcode")
+    @GetMapping("/productCode")
     public ResponseEntity<Object> getAllProductsUsingProductCode() {
         List<ProductResponseDTO> products = productService.getAllProductsUsingProductCode();
 
@@ -91,7 +91,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProducts(page,size, sortBy, direction));
     }
     
-    @GetMapping("/{productId}")
+    @GetMapping("/getDetail/{productId}")
     public ResponseEntity<ProductResponseDTO> getProductDetailById(@PathVariable Integer productId) {
         return new ResponseEntity<>(productService.getProductDTOById(productId),HttpStatus.OK);
     }

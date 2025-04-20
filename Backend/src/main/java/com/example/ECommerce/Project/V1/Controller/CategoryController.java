@@ -32,7 +32,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
 
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<List<CategoryResponseDTO>> getAllCategories() {
         boolean isAdminOrStaff = validateRole.isAdminOrStaff();
 
