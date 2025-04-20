@@ -55,8 +55,16 @@ public class PostServiceImpl implements IPostService {
 
    @Override
    public PostDTO createPost(PostDTO post, Principal connectedUser) {
+      // Validate content
+      if (post.getContent() == null || post.getContent().trim().isEmpty()) {
+         throw new IllegalArgumentException("Content cannot be empty");
+      }
 
+      // Get current user
       User userFind = getCurrentUser(connectedUser);
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
 
       var newPost = Post.builder()
             .user(userFind)

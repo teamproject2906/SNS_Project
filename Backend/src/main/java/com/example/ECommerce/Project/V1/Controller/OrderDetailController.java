@@ -2,9 +2,13 @@ package com.example.ECommerce.Project.V1.Controller;
 
 import com.example.ECommerce.Project.V1.DTO.BestSellerDTO;
 import com.example.ECommerce.Project.V1.DTO.OrderDetailDTO;
+import com.example.ECommerce.Project.V1.Exception.ErrorResponse;
+import com.example.ECommerce.Project.V1.Model.OrderDetail;
+import com.example.ECommerce.Project.V1.Model.OrderStatus;
 import com.example.ECommerce.Project.V1.Service.BestSellerService;
 import com.example.ECommerce.Project.V1.Service.OrderDetailService.OrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,5 +58,21 @@ public class OrderDetailController {
     @GetMapping("/best")
     public List<BestSellerDTO> getTopBestSellers() {
         return bestSellerService.getTopBestSellers(10);
+    }
+
+    @GetMapping("/user/{userId}/status/{orderStatus}")
+    public ResponseEntity<?> getOrdersByUserIdAndOrderStatus(
+            @PathVariable Integer userId,
+            @PathVariable String orderStatus) {
+        try {
+            // Convert orderStatus string to OrderStatus enum (case-insensitive)
+            OrderStatus status = OrderStatus.valueOf(orderStatus.toUpperCase());
+            List<OrderDetail> orders = orderDetailService.getOrdersByUserIdAndOrderStatus(userId, status);
+            return ResponseEntity.ok(orders);
+        } catch (IllegalArgumentException e) {
+            // Handle invalid enum value or service validation errors
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("Error", e.getMessage()));
+        }
     }
 }

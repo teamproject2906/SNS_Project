@@ -29,6 +29,22 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public FeedbackDTO createFeedback(FeedbackDTO dto, MultipartFile file) throws IOException {
+        // Validate userId and productId
+        if (dto.getUserId() == null) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
+        if (dto.getProductId() == null) {
+            throw new IllegalArgumentException("productId cannot be null");
+        }
+
+        // Validate rate
+        if (dto.getRate() == null) {
+            throw new IllegalArgumentException("rate cannot be null");
+        }
+        if (dto.getRate() < 0 || dto.getRate() > 5) {
+            throw new IllegalArgumentException("rate must be between 0 and 5");
+        }
+
         // Upload ảnh lên Cloudinary
         String imageUrl = uploadImageToCloudinary(file);
 
@@ -86,6 +102,9 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     // ======= Helper methods ========
     private String uploadImageToCloudinary(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            return null; // Không có file, trả về null
+        }
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), Map.of(
                 "folder", "feedback_images"
         ));

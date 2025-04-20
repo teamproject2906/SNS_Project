@@ -7,6 +7,7 @@ import com.example.ECommerce.Project.V1.Model.*;
 import com.example.ECommerce.Project.V1.Repository.OrderDetailRepository;
 import com.example.ECommerce.Project.V1.Repository.OrderItemRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
+import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.Service.BestSellerService;
 import com.example.ECommerce.Project.V1.Service.OrderItemService.OrderItemService;
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
@@ -40,6 +41,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Autowired
     private BestSellerService bestSellerService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<OrderDetailDTO> getAllOrders() {
@@ -54,6 +57,28 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     public OrderDetailDTO getOrderById(Integer id) {
         OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
         return modelMapper.map(orderDetail, OrderDetailDTO.class);
+    }
+
+    @Override
+    public List<OrderDetail> getOrdersByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus) {
+        if (userId == null || userId.describeConstable().isEmpty()) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
+        if (orderStatus == null || orderStatus.describeConstable().isEmpty()){
+            throw new IllegalArgumentException("orderStatus cannot be null");
+        }
+        // Check if orderStatus is a valid enum value
+        List<OrderStatus> validStatuses = Arrays.asList(OrderStatus.values());
+        if (!validStatuses.contains(orderStatus)) {
+            throw new IllegalArgumentException("Invalid orderStatus. Must be one of: "
+                    + Arrays.toString(OrderStatus.values()));
+        }
+
+        // Check if userId exists
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("User not found with userId: " + userId);
+        }
+        return orderDetailRepository.findByUserIdAndOrderStatus(userId, orderStatus);
     }
 
     public void validateOrderDetailDTO(OrderDetailDTO orderDetailDTO) {

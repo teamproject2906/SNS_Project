@@ -48,6 +48,6 @@ public class Feedback extends BaseEntity {
     @Column
     private Float rate;
 
-    @Column(name = "feedback_image_url", nullable = false)
+    @Column(name = "feedback_image_url")
     private String imageUrl;
 }
