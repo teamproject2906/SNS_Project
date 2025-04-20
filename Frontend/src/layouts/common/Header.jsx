@@ -64,6 +64,55 @@ const Header = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      if (token) {
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        if (decoded.exp < currentTime) {
+          handleLogout();
+        }
+      }
+    };
+
+    checkTokenExpiration();
+    const interval = setInterval(checkTokenExpiration, 60000); // Kiểm tra mỗi 60 giây
+    return () => clearInterval(interval);
+  }, [token]);
+
+  useEffect(() => {
+    const cookieToken = getCookie("id_token");
+    const storedToken = localStorage
+      .getItem("AUTH_TOKEN")
+      ?.replace(/^"|"$/g, "");
+    const validToken = cookieToken || storedToken;
+
+    if (validToken && !user) {
+      try {
+        setToken(validToken);
+        setTokenState(validToken);
+        const decoded = jwtDecode(validToken);
+        setUser(decoded);
+        setUserInfo(decoded);
+      } catch (error) {
+        console.error("Error decoding token:", error.message);
+        handleLogout();
+      }
+    }
+  }, [user, setUser]);
+
+  // Interceptor cho axios
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        handleLogout();
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      }
+      return Promise.reject(error);
+    }
+  );
+
   const handleLogout = async () => {
     try {
       // Xóa cookie
@@ -337,7 +386,7 @@ const Header = () => {
                   className="flex items-center hover:underline py-2"
                 >
                   <FaUser className="mr-1" />
-                 REGISTER
+                  REGISTER
                 </Link>
                 <Link
                   to="/login"

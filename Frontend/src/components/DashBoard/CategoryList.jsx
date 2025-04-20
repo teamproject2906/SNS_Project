@@ -44,10 +44,10 @@ const CategoryList = () => {
   const openEditModal = (category) => {
     setEditCategory(category.id);
     setFormData({
-      categoryName: category.categoryName,
+      categoryName: category.categoryName || "",
       parentCategoryID: category.parentCategoryID
-        ? { id: category.parentCategoryID.id }
-        : { id: "" },
+        ? { id: category.parentCategoryID.id.toString() }
+        : null,
     });
     setModalEditIsOpen(true);
   };
@@ -70,31 +70,53 @@ const CategoryList = () => {
     setIsActivateModalOpen(true);
   };
 
-  const closeEditModal = () => setModalEditIsOpen(false);
+  const closeEditModal = () => {
+    setModalEditIsOpen(false);
+    setFormData({
+      categoryName: "",
+      parentCategoryID: null,
+    });
+    setEditCategory(null);
+  };
   const closeAddModal = () => setModalAddIsOpen(false);
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = getToken();
-      const res = await axios.patch(
+      const parentId = formData.parentCategoryID?.id
+        ? parseInt(formData.parentCategoryID.id, 10)
+        : null;
+
+      if (parentId) {
+        const parentExists = categories.some(
+          (cat) => cat.id === parentId && cat.active && cat.id !== editCategory
+        );
+        if (!parentExists) {
+          toast.error("Parent category does not exist or is inactive!");
+          return;
+        }
+      }
+
+      const requestData = {
+        categoryName: formData.categoryName,
+        parentCategoryID: parentId ? { id: parentId } : null,
+      };
+
+      await axios.patch(
         `http://localhost:8080/api/categories/${editCategory}`,
-        {
-          categoryName: formData.categoryName,
-          parentCategoryID: formData.parentCategoryID.id
-            ? formData.parentCategoryID
-            : null,
-        },
+        requestData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setCategories(
-        categories.map((cate) => (cate.id === editCategory ? res.data : cate))
-      );
+
+      await fetchCategories();
       closeEditModal();
-      toast.success("Cập nhật danh mục thành công!");
+      toast.success("Update category successfully!");
     } catch (error) {
-      console.error("Error updating category:", error);
-      toast.error("Lỗi khi cập nhật danh mục");
+      if (error.response.status === 400) {
+        console.error("Error updating category:", error.response?.data);
+        toast.error(error.response?.data?.message || error.message);
+      }
     }
   };
 
@@ -106,8 +128,15 @@ const CategoryList = () => {
         categoryName: formData.categoryName,
       };
 
+      if (!formData.categoryName.trim()) {
+        toast.error("Please enter a category name");
+        return;
+      }
+
       if (formData.parentCategoryID.id.trim() !== "") {
         requestData.parentCategoryID = { id: formData.parentCategoryID.id };
+      } else {
+        requestData.parentCategoryID = null;
       }
 
       const res = await axios.post(
@@ -120,10 +149,11 @@ const CategoryList = () => {
 
       setCategories([...categories, res.data]);
       closeAddModal();
-      toast.success("Thêm danh mục thành công!");
+      fetchCategories();
+      toast.success("Add category successfully!");
     } catch (error) {
       console.error("Error adding category:", error);
-      toast.error("Lỗi khi thêm danh mục");
+      toast.error("Error adding category");
     }
   };
 
@@ -145,13 +175,13 @@ const CategoryList = () => {
             cat.id === deactivateID ? { ...cat, active: false } : cat
           )
         );
-        toast.success("Vô hiệu hóa danh mục thành công!");
+        toast.success("Deactivate category successfully!");
       } else {
-        toast.error("Không thể vô hiệu hóa danh mục");
+        toast.error("Failed to deactivate category");
       }
     } catch (error) {
       console.error("Error deactivating category:", error);
-      toast.error("Lỗi khi vô hiệu hóa danh mục");
+      toast.error("Error deactivating category");
     } finally {
       setIsDeactivateModalOpen(false);
       setDeactivateID(null);
@@ -177,13 +207,13 @@ const CategoryList = () => {
             cat.id === activateID ? { ...cat, active: true } : cat
           )
         );
-        toast.success("Kích hoạt danh mục thành công!");
+        toast.success("Activating category successfully!");
       } else {
-        toast.error("Không thể kích hoạt danh mục");
+        toast.error("Failed to activate category");
       }
     } catch (error) {
       console.error("Error activating category:", error);
-      toast.error("Lỗi khi kích hoạt danh mục");
+      toast.error("Error activating category");
     } finally {
       setIsActivateModalOpen(false);
       setActivateID(null);
@@ -207,8 +237,7 @@ const CategoryList = () => {
     //   ? `${categories.parentCategoryID.categoryName}`.toLowerCase()
     //   : "";
     return (
-      categoryName.includes(searchTerm) ||
-      id.includes(searchTerm)
+      categoryName.includes(searchTerm) || id.includes(searchTerm)
       // categoriesWithParentsId.includes(searchTerm)
       // parentCategoryId.includes(searchTerm)
     );
@@ -242,8 +271,7 @@ const CategoryList = () => {
     },
     {
       name: "Parent Category",
-      selector: (row) =>
-        row.parentCategoryID ? row.parentCategoryID.id : "Null",
+      selector: (row) => (row.parentCategory ? row.parentCategory.id : "None"),
       sortable: true,
     },
     {
@@ -321,29 +349,48 @@ const CategoryList = () => {
         title="Edit Category"
         onSubmit={handleEditSubmit}
       >
-        <input
-          type="text"
-          placeholder="Category Name"
-          className="w-full p-2 border"
-          value={formData.categoryName}
-          onChange={(e) =>
-            setFormData({ ...formData, categoryName: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Parent Category ID"
-          className="w-full p-2 border mt-2"
-          value={
-            formData.parentCategoryID ? formData.parentCategoryID.id : "Null"
-          }
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              parentCategoryID: { id: e.target.value },
-            })
-          }
-        />
+        <div className="space-y-4">
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Category Name
+            </label>
+            <input
+              type="text"
+              placeholder="Category Name"
+              className="w-full p-2 border"
+              value={formData.categoryName}
+              onChange={(e) =>
+                setFormData({ ...formData, categoryName: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Parent Category ID
+            </label>
+            <select
+              className="w-full p-2 border mt-2"
+              value={formData.parentCategoryID?.id || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  parentCategoryID: e.target.value
+                    ? { id: e.target.value }
+                    : null,
+                })
+              }
+            >
+              <option value="">No Parent Category</option>
+              {categories
+                .filter((cat) => cat.active && cat.id !== editCategory) // Loại bỏ danh mục đang chỉnh sửa
+                .map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.categoryName} (ID: {cat.id})
+                  </option>
+                ))}
+            </select>
+          </div>
+        </div>
       </ModalUpdate>
       <ModalAdd
         isOpen={modalAddIsOpen}
@@ -351,7 +398,7 @@ const CategoryList = () => {
         title="Add Category"
         onSubmit={handleAddSubmit}
       >
-        <input
+        {/* <input
           type="text"
           placeholder="Category Name"
           className="w-full p-2 border"
@@ -369,7 +416,38 @@ const CategoryList = () => {
               parentCategoryID: { id: e.target.value },
             })
           }
-        />
+        /> */}
+        <div className="space-y-4">
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Category Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Category Name"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
+              onChange={(e) =>
+                setFormData({ ...formData, categoryName: e.target.value })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Parent Category ID
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Parent Category ID"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ml-1"
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  parentCategoryID: { id: e.target.value },
+                })
+              }
+            />
+          </div>
+        </div>
       </ModalAdd>
       <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}

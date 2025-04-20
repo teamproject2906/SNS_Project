@@ -77,6 +77,9 @@ const SizeChart = () => {
     e.preventDefault();
     if (!formData.id) return;
 
+    console.log("Edit Size:", formData);
+    console.log("Edit Size ID:", editSize);
+
     try {
       const token = getToken();
       const res = await axios.patch(

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect } from "react";
 import Modal from "react-modal";
 // import PropTypes from "prop-types";
@@ -27,6 +28,7 @@ const ModalUpload = ({
   onDelete,
   onSubmit,
   productId,
+  description,
 }) => {
   const handleFileChange = (e) => {
     onSubmit(e, productId);
@@ -54,37 +56,62 @@ const ModalUpload = ({
             />
           ))
         ) : (
-          <p>No images available</p>
+          <p className="col-span-5 text-center">No images available</p>
         )}
       </div>
-      <div className="flex justify-end gap-2 mt-4">
-        <button
-          onClick={onClose}
-          className="bg-gray-400 text-white px-4 py-2 rounded"
-        >
-          Cancel
-        </button>
-        <button onClick={onDelete} className="bg-red-500 text-white px-4 py-2 rounded">
-          Delete All
-        </button>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          multiple
-          style={{ display: "none" }}
-          id="file-upload"
-          data-product-id={productId}
-        />
-        <label
-          htmlFor="file-upload"
-          className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Upload Image
-        </label>
+      <div className="flex justify-between items-center mt-4">
+        <div>
+          <p className="w-[70%]">{description ? description : ""}</p>
+        </div>
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={onClose}
+            className="bg-gray-400 text-white px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Delete All
+          </button>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            multiple
+            style={{ display: "none" }}
+            id="file-upload"
+            data-product-id={productId}
+          />
+          <label
+            htmlFor="file-upload"
+            className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Upload Image
+          </label>
+        </div>
       </div>
     </Modal>
   );
+};
+
+ModalUpload.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  productId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    .isRequired,
+  productImages: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      imageUrl: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  description: PropTypes.string,
 };
 
 export default ModalUpload;

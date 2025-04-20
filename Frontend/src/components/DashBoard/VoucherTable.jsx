@@ -8,6 +8,7 @@ import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import Modal from "react-modal";
 import { toast, ToastContainer } from "react-toastify";
+import ModalDelete from "../share/ModalDelete";
 
 Modal.setAppElement("#root");
 
@@ -24,10 +25,12 @@ const VoucherTable = () => {
     discount: "",
     usageLimit: "",
   });
-  const [deactivateID, setDeactivateID] = useState(null);
-  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
-  const [activateID, setActivateID] = useState(null);
-  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+  // const [deactivateID, setDeactivateID] = useState(null);
+  // const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  // const [activateID, setActivateID] = useState(null);
+  // const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -47,7 +50,7 @@ const VoucherTable = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setVouchers(res.data);
-      console.log("Token:", token);
+      console.log("Vouchers:", res.data);
     } catch (error) {
       console.error("Error fetching vouchers:", error);
     }
@@ -86,15 +89,15 @@ const VoucherTable = () => {
     setModalAddIsOpen(true);
   };
 
-  const openDeactivateModal = (id) => {
-    setDeactivateID(id);
-    setIsDeactivateModalOpen(true);
-  };
+  // const openDeactivateModal = (id) => {
+  //   setDeactivateID(id);
+  //   setIsDeactivateModalOpen(true);
+  // };
 
-  const openActivateModal = (id) => {
-    setActivateID(id);
-    setIsActivateModalOpen(true);
-  };
+  // const openActivateModal = (id) => {
+  //   setActivateID(id);
+  //   setIsActivateModalOpen(true);
+  // };
 
   const closeEditModal = () => setModalEditIsOpen(false);
   const closeAddModal = () => setModalAddIsOpen(false);
@@ -153,70 +156,89 @@ const VoucherTable = () => {
     }
   };
 
-  const confirmDeactivate = async () => {
-    if (!deactivateID) return;
+  const confirmDelete = async () => {
+    if (!deleteId) return;
 
     try {
       const token = getToken();
-      const res = await axios.delete(
-        `http://localhost:8080/api/v1/shop/${deactivateID}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (res.data) {
-        setVouchers(
-          vouchers.map((voucher) =>
-            voucher.id === deactivateID
-              ? { ...voucher, active: false }
-              : voucher
-          )
-        );
-        toast.success("Vô hiệu hóa voucher thành công!");
-      } else {
-        toast.error("Không thể vô hiệu hóa voucher");
-      }
+      await axios.delete(`http://localhost:8080/api/voucher/${deleteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setVouchers(vouchers.filter((voucher) => voucher.id !== deleteId));
+      toast.success("Xóa thành công!");
     } catch (error) {
-      console.error("Error deactivating voucher:", error);
-      toast.error("Lỗi khi vô hiệu hóa voucher");
+      console.error("Lỗi khi xóa voucher:", error);
+      toast.error("Lỗi khi xóa voucher");
     } finally {
-      setIsDeactivateModalOpen(false);
-      setDeactivateID(null);
+      setIsDeleteModalOpen(false);
+      setDeleteId(null);
     }
   };
 
-  const confirmActivate = async () => {
-    if (!activateID) return;
+  // const confirmDeactivate = async () => {
+  //   if (!deactivateID) return;
 
-    try {
-      const token = getToken();
-      const res = await axios.patch(
-        `http://localhost:8080/api/v1/shop/reactive/${activateID}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+  //   try {
+  //     const token = getToken();
+  //     const res = await axios.delete(
+  //       `http://localhost:8080/api/v1/shop/${deactivateID}`,
+  //       {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       }
+  //     );
 
-      if (res.data) {
-        setVouchers(
-          vouchers.map((voucher) =>
-            voucher.id === activateID ? { ...voucher, active: true } : voucher
-          )
-        );
-        toast.success("Kích hoạt voucher thành công!");
-      } else {
-        toast.error("Không thể kích hoạt voucher");
-      }
-    } catch (error) {
-      console.error("Error activating voucher:", error);
-      toast.error("Lỗi khi kích hoạt voucher");
-    } finally {
-      setIsActivateModalOpen(false);
-      setActivateID(null);
-    }
-  };
+  //     if (res.data) {
+  //       setVouchers(
+  //         vouchers.map((voucher) =>
+  //           voucher.id === deactivateID
+  //             ? { ...voucher, active: false }
+  //             : voucher
+  //         )
+  //       );
+  //       toast.success("Vô hiệu hóa voucher thành công!");
+  //     } else {
+  //       toast.error("Không thể vô hiệu hóa voucher");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deactivating voucher:", error);
+  //     toast.error("Lỗi khi vô hiệu hóa voucher");
+  //   } finally {
+  //     setIsDeactivateModalOpen(false);
+  //     setDeactivateID(null);
+  //   }
+  // };
+
+  // const confirmActivate = async () => {
+  //   if (!activateID) return;
+
+  //   try {
+  //     const token = getToken();
+  //     const res = await axios.patch(
+  //       `http://localhost:8080/api/v1/shop/reactive/${activateID}`,
+  //       {},
+  //       {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       }
+  //     );
+
+  //     if (res.data) {
+  //       setVouchers(
+  //         vouchers.map((voucher) =>
+  //           voucher.id === activateID ? { ...voucher, active: true } : voucher
+  //         )
+  //       );
+  //       toast.success("Kích hoạt voucher thành công!");
+  //     } else {
+  //       toast.error("Không thể kích hoạt voucher");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error activating voucher:", error);
+  //     toast.error("Lỗi khi kích hoạt voucher");
+  //   } finally {
+  //     setIsActivateModalOpen(false);
+  //     setActivateID(null);
+  //   }
+  // };
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
@@ -294,15 +316,15 @@ const VoucherTable = () => {
       name: "Actions",
       cell: (row) => (
         <>
-          {row.active ? (
-            <button
-              className="bg-green-500 text-white px-4 py-2 rounded mr-2"
-              onClick={() => openEditModal(row)}
-            >
-              Edit
-            </button>
-          ) : null}
-          {row.active ? (
+          {/* {row.active ? ( */}
+          <button
+            className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+            onClick={() => openEditModal(row)}
+          >
+            Edit
+          </button>
+          {/* ) : null} */}
+          {/* {row.active ? (
             <button
               className="bg-red-500 text-white px-4 py-2 rounded"
               onClick={() => openDeactivateModal(row.id)}
@@ -316,7 +338,7 @@ const VoucherTable = () => {
             >
               Activate
             </button>
-          )}
+          )} */}
         </>
       ),
     },
@@ -485,7 +507,7 @@ const VoucherTable = () => {
           </div>
         </div>
       </ModalAdd>
-      <ModalDeactivate
+      {/* <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}
         setIsDeactivateModalOpen={setIsDeactivateModalOpen}
         confirmDeactivate={confirmDeactivate}
@@ -494,6 +516,11 @@ const VoucherTable = () => {
         isActivateModalOpen={isActivateModalOpen}
         setIsActivateModalOpen={setIsActivateModalOpen}
         confirmActivate={confirmActivate}
+      /> */}
+      <ModalDelete
+        isDeleteModalOpen={isDeleteModalOpen}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
+        confirmDelete={confirmDelete}
       />
     </div>
   );

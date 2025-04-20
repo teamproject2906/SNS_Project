@@ -449,20 +449,26 @@ const HomePage = () => {
                       margin: "0 auto",
                     }}
                   />
-                  <span
-                    className="product-badge"
-                    style={{
-                      position: "absolute",
-                      top: "5%",
-                      left: "15%",
-                      backgroundColor: "red",
-                      color: "#fff",
-                      padding: "5px 10px",
-                      borderRadius: "5px",
-                    }}
-                  >
-                    HOT
-                  </span>
+                  {item.promotion ? (
+                    <span
+                      className="product-badge"
+                      style={{
+                        position: "absolute",
+                        top: "5%",
+                        left: "15%",
+                        backgroundColor: "red",
+                        color: "#fff",
+                        padding: "5px",
+                        borderRadius: "5px",
+                      }}
+                    >
+                      <p className="product-card__promotion bg-red-500 p-1 text-sm w-12 flex justify-center rounded-md font-bold text-white">
+                        -{formatPrice(item.promotion.discount * 100)}%
+                      </p>
+                    </span>
+                  ) : (
+                    ""
+                  )}
                   <div
                     className="card-text"
                     style={{ width: "80%", margin: "0 auto" }}
@@ -476,7 +482,30 @@ const HomePage = () => {
                     >
                       {item.productName}
                     </p>
-                    <p>{formatPrice(item.price)}đ</p>
+                    <div className="flex flex-row gap-2 items-center">
+                      {item.promotion ? (
+                        <p className="product-card__discount-price text-base text-[#021f58] font-extrabold">
+                          {formatPrice(
+                            item.price - item.price * item.promotion.discount
+                          )}
+                          đ
+                        </p>
+                      ) : (
+                        <p className="product-card__original-price text-base text-[#021f58] font-extrabold">
+                          {formatPrice(item.price)}đ
+                        </p>
+                      )}
+                      {item.promotion ? (
+                        <p
+                          className="product-card__original-price text-md text-gray-400"
+                          style={{ textDecoration: "line-through" }}
+                        >
+                          {formatPrice(item.price)}đ
+                        </p>
+                      ) : (
+                        ""
+                      )}
+                    </div>
                   </div>
                 </div>
               </Link>
