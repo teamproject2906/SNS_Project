@@ -51,7 +51,7 @@ public class PromotionServiceImpl implements IPromotionService {
         if (description != null) {
             if (description.length() > 100) {
                 throw new InvalidInputException("Description cannot exceed 100 characters");
-            } else if(!description.matches("^[a-zA-Z0-9% '!]+$")) {
+            } else if(!description.matches("^[a-zA-Z0-9%,.$ '!]+$")) {
                 throw new InvalidInputException("Description cannot contain special characters");
             }
         }
