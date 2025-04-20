@@ -24,18 +24,18 @@ public class ProductGalleryController {
         this.productGalleryService = productGalleryService;
     }
 
-    @GetMapping("")
+    @GetMapping("/getAllImage")
     public ResponseEntity<List<ProductGallery>> getAllProductGallery() {
         return ResponseEntity.ok(productGalleryService.getAllProductGallery());
     }
 
-    @GetMapping("/product/{productId}")
+    @GetMapping("/getImageByProductId/{productId}")
     public ResponseEntity<List<ProductGallery>> getImagesByProductId(@PathVariable("productId") Integer productId) {
         List<ProductGallery> images = productGalleryService.getAllProductGalleryByProductId(productId);
         return ResponseEntity.ok(images);
     }
 
-    @GetMapping("/{imageId}")
+    @GetMapping("/getImageById/{imageId}")
     public ResponseEntity<ProductGallery> getProductGalleryById(@PathVariable("imageId") Integer imageId) {
         ProductGallery productGallery = productGalleryService.getProductGalleryById(imageId);
         return ResponseEntity.ok(productGallery);

@@ -52,7 +52,7 @@ public class FormClothesServiceImpl implements IFormClothesService {
         FormClothesResponseDTO dto = new FormClothesResponseDTO();
         dto.setId(entity.getId());
         dto.setFormClothes(entity.getFormClothes());
-
+        dto.setActive(entity.getIsActive());
         return dto;
     }
 
