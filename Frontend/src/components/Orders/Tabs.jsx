@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 
 const Tabs = ({ tabs, activeTab, setActiveTab }) => {
   return (
-    <div className="w-full mx-auto ">
+    <div className="w-full mx-auto bg-white">
       {/* Tab headers */}
       <div className="flex border-b-2 border-gray-200">
         {tabs.map((tab) => (

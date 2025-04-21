@@ -99,7 +99,7 @@ const routes = [
   {
     path: "/order",
     element: (
-      <MainLayout>
+      <MainLayout className="p-0 bg-[#f5f5f5]">
         {/* <Breadcrumb /> */}
         <Order />
       </MainLayout>
