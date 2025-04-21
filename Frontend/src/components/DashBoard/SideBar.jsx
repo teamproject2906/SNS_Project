@@ -21,6 +21,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../../context/UserContext";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 const SideBar = ({
   activeTab,
@@ -36,7 +37,7 @@ const SideBar = ({
     localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
   ); // Thêm state cho token
 
-  const handleLogout = () => {
+  const handleLogout = (notify) => {
     console.log("Before logout:", {
       token: localStorage.getItem("AUTH_TOKEN"),
       user: localStorage.getItem("USER_KEY"),
@@ -53,6 +54,7 @@ const SideBar = ({
       token: localStorage.getItem("AUTH_TOKEN"),
       user: localStorage.getItem("USER_KEY"),
     });
+    toast.info(notify);
     navigate("/login");
   };
 
@@ -127,13 +129,14 @@ const SideBar = ({
         const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000;
         if (decoded.exp < currentTime) {
-          handleLogout();
+          toast.error("Your session has expired. Please log in again.");
+          setTimeout(() => handleLogout(), 2000);
         }
       }
     };
 
     checkTokenExpiration();
-    const interval = setInterval(checkTokenExpiration, 60000); // Kiểm tra mỗi 60 giây
+    const interval = setInterval(checkTokenExpiration, 3000); // Kiểm tra mỗi 60 giây
     return () => clearInterval(interval);
   }, [token]);
 
@@ -163,8 +166,8 @@ const SideBar = ({
     (response) => response,
     (error) => {
       if (error.response && error.response.status === 401) {
-        handleLogout();
-        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        toast.error("Your session has expired. Please log in again.");
+        setTimeout(() => handleLogout(), 2000);
       }
       return Promise.reject(error);
     }

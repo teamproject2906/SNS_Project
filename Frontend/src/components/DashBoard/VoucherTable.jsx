@@ -193,7 +193,7 @@ const VoucherTable = () => {
             : voucher
         )
       );
-      toast.success("Vô hiệu hóa voucher thành công!");
+      toast.success("Deactivate voucher successfully!");
     } catch (error) {
       console.error("Error deactivating voucher:", error);
       toast.error(
