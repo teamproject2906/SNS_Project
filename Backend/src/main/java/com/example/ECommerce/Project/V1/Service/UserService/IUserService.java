@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Service.UserService;
 
+import com.example.ECommerce.Project.V1.DTO.AuditLogDTO;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
@@ -38,4 +39,5 @@ public interface IUserService {
 
    void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException;
 
+    List<AuditLogDTO> getUserLog() throws Exception;
 }

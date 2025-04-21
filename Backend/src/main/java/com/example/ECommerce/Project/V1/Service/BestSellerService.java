@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,6 +96,35 @@ public class BestSellerService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    public List<BestSellerDTO> getTopBestSellersByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        Pageable pageable = PageRequest.of(0, 3); // Giới hạn 3 sản phẩm
+
+        List<Object[]> results = orderItemRepository.findTopSellingProductIdsByDateRange(
+                OrderStatus.COMPLETED,
+                startDate,
+                endDate,
+                pageable
+        );
+
+        List<BestSellerDTO> dtos = new ArrayList<>();
+        for (Object[] row : results) {
+            Integer productId = (Integer) row[0];
+            Long quantitySold = (Long) row[1]; // vì SUM trả về Long
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + productId));
+
+            dtos.add(BestSellerDTO.builder()
+                    .id(null) // Không có BestSeller ID trong logic này, để null hoặc bỏ qua
+                    .productId(productId)
+                    .quantitySold(quantitySold.intValue())
+                    .build());
+        }
+
+        return dtos;
+    }
+
 
     /**
      * Lấy BestSellerDTO theo productId

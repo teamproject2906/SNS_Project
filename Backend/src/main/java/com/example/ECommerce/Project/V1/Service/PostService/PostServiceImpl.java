@@ -4,14 +4,8 @@ import com.example.ECommerce.Project.V1.DTO.CommentDTO;
 import com.example.ECommerce.Project.V1.DTO.PostDTO;
 import com.example.ECommerce.Project.V1.DTO.UserLikeDTO;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
-import com.example.ECommerce.Project.V1.Model.Comment;
-import com.example.ECommerce.Project.V1.Model.Post;
-import com.example.ECommerce.Project.V1.Model.User;
-import com.example.ECommerce.Project.V1.Model.UserLike;
-import com.example.ECommerce.Project.V1.Repository.CommentRepository;
-import com.example.ECommerce.Project.V1.Repository.LikeRepository;
-import com.example.ECommerce.Project.V1.Repository.PostRepository;
-import com.example.ECommerce.Project.V1.Repository.UserRepository;
+import com.example.ECommerce.Project.V1.Model.*;
+import com.example.ECommerce.Project.V1.Repository.*;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -34,6 +28,7 @@ public class PostServiceImpl implements IPostService {
    private final LikeRepository likeRepository;
    private final UserRepository userRepository;
    private final CommentRepository commentRepository;
+   private final ReportRepository reportRepository;
 
    private User getCurrentUser(Principal connectedUser) {
       int userId;
@@ -133,7 +128,8 @@ public class PostServiceImpl implements IPostService {
               .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
             .map(post -> {
                User userFind = postRepository.findUserByPostId(post.getId());
-               long totalLikes = likeRepository.countByPostId(post.getId());
+               long totalLikes = likeRepository.countLikeByPostId(post.getId());
+               long totalReports = reportRepository.countReportByPostId(post.getId());
                String fullName = (userFind.getFirstname() != null && userFind.getLastname() != null)
                        ? userFind.getFirstname() + " " + userFind.getLastname()
                        : null;
@@ -152,6 +148,7 @@ public class PostServiceImpl implements IPostService {
                            .map(this::convertToUserLikeDTO)
                            .collect(Collectors.toList()))
                      .totalLiked(totalLikes)
+                     .totalReported(totalReports)
                      .userId(userFind.getId())
                      .userAvatar(userFind.getAvatar())
                      .build();
@@ -163,7 +160,8 @@ public class PostServiceImpl implements IPostService {
    public PostDTO getPostById(UUID postId) {
       Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
       User userFind = postRepository.findUserByPostId(post.getId());
-      long totalLikes = likeRepository.countByPostId(post.getId());
+      long totalLikes = likeRepository.countLikeByPostId(post.getId());
+      long totalReports = reportRepository.countReportByPostId(post.getId());
       String fullName = (userFind.getFirstname() != null && userFind.getLastname() != null)
               ? userFind.getFirstname() + " " + userFind.getLastname()
               : null;
@@ -182,6 +180,7 @@ public class PostServiceImpl implements IPostService {
                   .map(this::convertToUserLikeDTO)
                   .collect(Collectors.toList()))
             .totalLiked(totalLikes)
+              .totalReported(totalReports)
             .userId(userFind.getId())
             .userAvatar(userFind.getAvatar())
             .build();
@@ -199,8 +198,8 @@ public class PostServiceImpl implements IPostService {
       return postsByUserId.stream()
               .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
               .map(post -> {
-         long totalLikes = likeRepository.countByPostId(post.getId());
-
+         long totalLikes = likeRepository.countLikeByPostId(post.getId());
+         long totalReports = reportRepository.countReportByPostId(post.getId());
          return PostDTO.builder()
                  .id(post.getId())
                  .user(fullName)
@@ -216,6 +215,7 @@ public class PostServiceImpl implements IPostService {
                          .map(this::convertToUserLikeDTO)
                          .collect(Collectors.toList()))
                  .totalLiked(totalLikes)
+                 .totalReported(totalReports)
                  .userId(userFind.getId())
                  .userAvatar(userFind.getAvatar())
                  .build();
@@ -246,7 +246,8 @@ public class PostServiceImpl implements IPostService {
       return posts.stream()
             .map(post -> {
                User userFind = postRepository.findUserByPostId(post.getId());
-               long totalLikes = likeRepository.countByPostId(post.getId());
+               long totalLikes = likeRepository.countLikeByPostId(post.getId());
+               long totalReports = reportRepository.countReportByPostId(post.getId());
                return PostDTO.builder()
                      .id(post.getId())
                      .user(userFind.getFirstname() + " " + userFind.getLastname())
@@ -262,6 +263,7 @@ public class PostServiceImpl implements IPostService {
                            .map(this::convertToUserLikeDTO)
                            .collect(Collectors.toList()))
                      .totalLiked(totalLikes)
+                     .totalReported(totalReports)
                      .userId(userFind.getId())
                      .userAvatar(userFind.getAvatar())
                      .build();
@@ -284,6 +286,23 @@ public class PostServiceImpl implements IPostService {
          likeRepository.save(userLiked);
       } else {
          likeRepository.delete(findUserLikePost.get());
+      }
+   }
+
+   @Override
+   public void reportOrUnreportPost(UUID postId, Principal connectedUser) {
+      User userFind = getCurrentUser(connectedUser);
+
+      Post post = postRepository.findPostById(postId);
+      var findUserReportPost = reportRepository.findUserReportByUserAndPost(userFind, post);
+      if (findUserReportPost.isEmpty()) {
+         var userReported = UserReport.builder()
+                 .user(userFind)
+                 .post(post)
+                 .build();
+         reportRepository.save(userReported);
+      } else {
+         reportRepository.delete(findUserReportPost.get());
       }
    }
 

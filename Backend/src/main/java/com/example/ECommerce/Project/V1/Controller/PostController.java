@@ -187,4 +187,18 @@ public class PostController {
             .build();
       return new ResponseEntity<>(responseMessageAPI, HttpStatus.OK);
    }
+
+   @PostMapping("/reportPost/{postId}")
+   public ResponseEntity<ResponseMessageAPI> reportPost(
+           @PathVariable UUID postId,
+           Principal connectedUser
+   ) {
+      postService.reportOrUnreportPost(postId, connectedUser);
+      ResponseMessageAPI responseMessageAPI = ResponseMessageAPI.builder()
+              .message("Report/Un-report post successfully")
+              .status(HttpStatus.OK)
+              .success(true)
+              .build();
+      return new ResponseEntity<>(responseMessageAPI, HttpStatus.OK);
+   }
 }

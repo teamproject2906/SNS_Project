@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.Controller;
 
+import com.example.ECommerce.Project.V1.DTO.AuditLogDTO;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.ResponseDTO.ResponseMessageAPI;
@@ -153,5 +154,11 @@ public class UserController {
     ){
         List<UserDTO> pageableResponse = userService.searchUserByUsername(keyword);
         return new ResponseEntity<>(pageableResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/getUserLog")
+    public ResponseEntity<?> getUserLog() throws Exception {
+        List<AuditLogDTO> auditLog = userService.getUserLog();
+        return new ResponseEntity<>(auditLog, HttpStatus.OK);
     }
 }

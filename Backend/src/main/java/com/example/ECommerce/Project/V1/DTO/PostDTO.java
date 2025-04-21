@@ -2,6 +2,7 @@ package com.example.ECommerce.Project.V1.DTO;
 
 import com.example.ECommerce.Project.V1.Model.Comment;
 import com.example.ECommerce.Project.V1.Model.UserLike;
+import com.example.ECommerce.Project.V1.Model.UserReport;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class PostDTO {
    private String imageUrl;
    private List<CommentDTO> comments;
    private long totalLiked;
+   private long totalReported;
    private List<UserLikeDTO> userLikes;
    private boolean isActive;
    private Integer userId;

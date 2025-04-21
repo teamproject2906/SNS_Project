@@ -5,7 +5,9 @@ import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResp
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.RegisterRequest;
 import com.example.ECommerce.Project.V1.Mailing.AccountVerificationEmailContext;
 import com.example.ECommerce.Project.V1.Mailing.EmailService;
+import com.example.ECommerce.Project.V1.Model.AuditLog;
 import com.example.ECommerce.Project.V1.Model.User;
+import com.example.ECommerce.Project.V1.Repository.AuditLogRepository;
 import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
@@ -54,6 +56,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
+    @Autowired
+    private AuditLogRepository auditLogRepository;
 
     @Override
     public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse) {
@@ -79,7 +83,6 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         var secureToken = secureTokenService.createToken();
         secureToken.setUser(savedUser);
         secureTokenService.saveSecureToken(secureToken);
-
 
 //        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
 //        emailToken.setHttpOnly(false);
@@ -138,7 +141,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletRequest servletRequest) {
 
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Username not exist!"));
@@ -162,10 +165,25 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             throw new IllegalArgumentException("Username and password not correct!");
         }
 
-        var jwtToken = jwtService.generateToken(user);
+        // Extract IP address from the request
+        String ipAddress = servletRequest.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = servletRequest.getRemoteAddr();
+        }
+
+        AuditLog auditLog = AuditLog.builder()
+                .user(user)
+                .tableName("Authentication")
+                .actionType("LOGIN")
+                .actionTime(LocalDateTime.now())
+                .ipAddress(ipAddress).build();
+        auditLogRepository.save(auditLog);
+
+        var jwtToken = jwtService.generateToken(user, ipAddress);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserToken(user);
         saveUserToken(user, jwtToken);
+
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -174,7 +192,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse verifyEmail(String token) {
+    public AuthenticationResponse verifyEmail(String token, HttpServletRequest servletRequest) {
 
         SecureToken secureToken = secureTokenService.findByToken(token);
 
@@ -187,7 +205,21 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         var savedUser = userRepository.save(user);
         secureTokenService.removeToken(secureToken);
 
-        var jwtToken = jwtService.generateToken(user);
+        // Extract IP address from the request
+        String ipAddress = servletRequest.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = servletRequest.getRemoteAddr();
+        }
+
+        AuditLog auditLog = AuditLog.builder()
+                .user(user)
+                .tableName("Authentication")
+                .actionType("REGISTER")
+                .actionTime(LocalDateTime.now())
+                .ipAddress(ipAddress).build();
+        auditLogRepository.save(auditLog);
+
+        var jwtToken = jwtService.generateToken(user, ipAddress);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
@@ -236,12 +268,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             return;
         }
 
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();
+        }
+
         refreshToken = authorizationHeader.substring(7);
         username = jwtService.extractUsername(refreshToken);
         if (username != null) {
             var userDetails = this.userRepository.findByUsername(username).orElseThrow();
             if (jwtService.isTokenValid(refreshToken, userDetails)) {
-                var accessToken = jwtService.generateToken(userDetails);
+                var accessToken = jwtService.generateToken(userDetails, ipAddress);
                 revokeAllUserToken(userDetails);
                 saveUserToken(userDetails, accessToken);
                 var authenticateResponse = AuthenticationResponse.builder()
@@ -254,7 +291,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public void registerByGoogle(String jwt) {
+    public void registerByGoogle(String jwt, HttpServletRequest servletRequest) {
         Jwt decodedJwt = jwtService.jwtDecoder.decode(jwt);
         String email = decodedJwt.getClaim("email");
         var userEmail = userRepository.findByEmail(email);
@@ -274,6 +311,20 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                     .isActive(true)
                     .build();
             var savedUser = userRepository.save(user);
+
+            String ipAddress = servletRequest.getHeader("X-Forwarded-For");
+            if (ipAddress == null || ipAddress.isEmpty()) {
+                ipAddress = servletRequest.getRemoteAddr();
+            }
+
+            AuditLog auditLog = AuditLog.builder()
+                    .user(user)
+                    .tableName("Authentication")
+                    .actionType("LOGIN GOOGLE")
+                    .actionTime(LocalDateTime.now())
+                    .ipAddress(ipAddress).build();
+            auditLogRepository.save(auditLog);
+
             saveUserToken(savedUser, jwt);
         } else {
             saveUserToken(userEmail, jwt);

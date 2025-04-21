@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,9 +56,15 @@ public class OrderDetailController {
         orderDetailService.deactivateOrder(id);
         return ResponseEntity.ok("OrderDetail has been deactivated successfully");
     }
+
     @GetMapping("/best")
     public List<BestSellerDTO> getTopBestSellers() {
         return bestSellerService.getTopBestSellers(10);
+    }
+
+    @GetMapping("/best/inRangeTime/{startDate}&{endDate}")
+    public List<BestSellerDTO> getTopBestSellersInRange(@PathVariable LocalDateTime startDate, @PathVariable LocalDateTime endDate) {
+        return bestSellerService.getTopBestSellersByDateRange(startDate, endDate);
     }
 
     @GetMapping("/user/{userId}/status/{orderStatus}")
