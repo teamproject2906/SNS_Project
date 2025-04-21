@@ -77,6 +77,27 @@ const SizeChart = () => {
     e.preventDefault();
     if (!formData.id) return;
 
+    if (!formData.sizeChartType || !formData.value) {
+      toast.error("Please fill in all fields!");
+      return;
+    }
+
+    if (
+      formData.sizeChartType === "Alphabet" &&
+      !/^[a-zA-Z\s]*$/.test(formData.value)
+    ) {
+      toast.error("Please enter a valid alphabet!");
+      return;
+    }
+
+    if (
+      formData.sizeChartType === "Numeric" &&
+      !/^[0-9\s]*$/.test(formData.value)
+    ) {
+      toast.error("Please enter a valid number!");
+      return;
+    }
+
     console.log("Edit Size:", formData);
     console.log("Edit Size ID:", editSize);
 
@@ -94,7 +115,7 @@ const SizeChart = () => {
         sizes.map((size) => (size.id === formData.id ? res.data : size))
       );
       closeEditModal();
-      toast.success("Cập nhật thành công!");
+      toast.success("Update size successfully!");
     } catch (error) {
       console.error("Error updating size:", error);
       toast.error("Error updating size");
@@ -103,6 +124,28 @@ const SizeChart = () => {
 
   const handleAddSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.sizeChartType || !formData.value) {
+      toast.error("Please fill in all fields!");
+      return;
+    }
+
+    if (
+      formData.sizeChartType === "Alphabet" &&
+      !/^[a-zA-Z\s]*$/.test(formData.value)
+    ) {
+      toast.error("Please enter a valid alphabet!");
+      return;
+    }
+
+    if (
+      formData.sizeChartType === "Numeric" &&
+      !/^[0-9\s]*$/.test(formData.value)
+    ) {
+      toast.error("Please enter a valid number!");
+      return;
+    }
+
     try {
       const token = getToken();
       const res = await axios.post(
@@ -113,6 +156,7 @@ const SizeChart = () => {
         }
       );
       setSizes([...sizes, res.data]);
+      toast.success("Add size successfully!");
       handleGetSizes();
       closeAddModal();
     } catch (error) {
@@ -219,9 +263,33 @@ const SizeChart = () => {
   };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "Size Type", selector: (row) => row.sizeChartType, sortable: true },
-    { name: "Value", selector: (row) => row.value, sortable: true },
+    {
+      name: "ID",
+      cell: (row) => (
+        <div style={{ opacity: row.active ? 1 : 0.5 }}>{row.id}</div>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Size Type",
+      cell: (row) => (
+        <>
+          <div style={{ opacity: row.active ? 1 : 0.5 }}>
+            {row.sizeChartType}
+          </div>
+        </>
+      ),
+      sortable: true,
+    },
+    {
+      name: "Value",
+      cell: (row) => (
+        <>
+          <div style={{ opacity: row.active ? 1 : 0.5 }}>{row.value}</div>
+        </>
+      ),
+      sortable: true,
+    },
     {
       name: "Actions",
       cell: (row) => (
@@ -230,6 +298,7 @@ const SizeChart = () => {
             <button
               className="bg-green-500 text-white px-4 py-2 rounded mr-2"
               onClick={() => openEditModal(row)}
+              style={{ opacity: row.active ? 1 : 0.5 }}
             >
               Edit
             </button>
@@ -287,7 +356,6 @@ const SizeChart = () => {
           {
             when: (row) => !row.active, // Nếu user bị ban (active === false)
             style: {
-              opacity: "0.5", // Làm mờ
               backgroundColor: "#e1e1e1", // Màu nền để dễ nhận diện
             },
           },
@@ -299,22 +367,47 @@ const SizeChart = () => {
         title="Edit size"
         onSubmit={handleEditSubmit}
       >
-        <input
-          type="text"
-          placeholder="Size chart type"
-          className="w-full p-2 border"
-          value={formData.sizeChartType}
-          onChange={(e) =>
-            setFormData({ ...formData, sizeChartType: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Value"
-          className="w-full p-2 border"
-          value={formData.value}
-          onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-        />
+        <div className="space-y-4">
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Size Chart Type
+            </label>
+            {/* <input
+              type="text"
+              placeholder="Size chart type"
+              className="w-full p-2 border"
+              value={formData.sizeChartType}
+              onChange={(e) =>
+                setFormData({ ...formData, sizeChartType: e.target.value })
+              }
+            /> */}
+            <select
+              className="w-full p-2 border"
+              value={formData.sizeChartType}
+              onChange={(e) =>
+                setFormData({ ...formData, sizeChartType: e.target.value })
+              }
+            >
+              <option value="">Select size chart type</option>
+              <option value="Alphabet">Alphabet</option>
+              <option value="Numeric">Numeric</option>
+            </select>
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Value
+            </label>
+            <input
+              type="text"
+              placeholder="Value"
+              className="w-full p-2 border"
+              value={formData.value}
+              onChange={(e) =>
+                setFormData({ ...formData, value: e.target.value })
+              }
+            />
+          </div>
+        </div>
       </ModalUpdate>
       <ModalAdd
         isOpen={modalAddIsOpen}
@@ -322,22 +415,46 @@ const SizeChart = () => {
         title="Add size"
         onSubmit={handleAddSubmit}
       >
-        <input
-          type="text"
-          placeholder="Size chart type"
-          className="w-full p-2 border"
-          value={formData.sizeChartType}
-          onChange={(e) =>
-            setFormData({ ...formData, sizeChartType: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Value"
-          className="w-full p-2 border"
-          value={formData.value}
-          onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-        />
+        <div className="space-y-4">
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Size Chart Type
+            </label>
+            <select
+              className="w-full p-2 border"
+              value={formData.sizeChartType}
+              onChange={(e) =>
+                setFormData({ ...formData, sizeChartType: e.target.value })
+              }
+            >
+              <option value="Alphabet">ALPHABET</option>
+              <option value="Numeric">NUMERIC</option>
+            </select>
+            {/* <input
+              type="text"
+              placeholder="Size chart type"
+              className="w-full p-2 border"
+              value={formData.sizeChartType}
+              onChange={(e) =>
+                setFormData({ ...formData, sizeChartType: e.target.value })
+              }
+            /> */}
+          </div>
+          <div className="field-group">
+            <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+              Value
+            </label>
+            <input
+              type="text"
+              placeholder="Value"
+              className="w-full p-2 border"
+              value={formData.value}
+              onChange={(e) =>
+                setFormData({ ...formData, value: e.target.value })
+              }
+            />
+          </div>
+        </div>
       </ModalAdd>
       <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}

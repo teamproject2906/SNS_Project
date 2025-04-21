@@ -9,6 +9,8 @@ import {
   Legend,
 } from "chart.js";
 import { useMemo } from "react";
+import TotalUserChart from "./TotalUserChart";
+import TotalProductChart from "./TotalProductChart";
 
 // Register Chart.js components
 ChartJS.register(
@@ -228,22 +230,32 @@ const ChartData = ({ orders: propOrders }) => {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-row gap-4">
-        <div className="p-6 w-full h-[600px] bg-white shadow-lg rounded-lg">
-          <Bar data={chartData} options={options} />
+    // <div>
+    //   <div>
+    //     {/* <div className="p-6 w-full h-[600px] bg-white shadow-lg rounded-lg">
+    //       <Bar data={chartData} options={options} />
+    //     </div> */}
+    //     {/* <div className="p-6 w-1/2 h-[600px] bg-white shadow-lg rounded-lg">
+    //       <Bar data={chartData} options={options} />
+    //     </div>
+    //   </div>
+    //   <div className="flex flex-row gap-4">
+    //     <div className="p-6 w-1/2 h-[600px] bg-white shadow-lg rounded-lg">
+    //       <Bar data={chartData} options={options} />
+    //     </div>
+    //     <div className="p-6 w-1/2 h-[600px] bg-white shadow-lg rounded-lg">
+    //       <Bar data={chartData} options={options} />
+    //     </div> */}
+    //   </div>
+    // </div>
+    <div className="layout_container">
+      <div className="layout_content flex flex-row gap-5">
+        <div className="chart_content w-1/2">
+          <TotalUserChart />
         </div>
-        {/* <div className="p-6 w-1/2 h-[600px] bg-white shadow-lg rounded-lg">
-          <Bar data={chartData} options={options} />
+        <div className="chart_content w-1/2">
+          <TotalProductChart />
         </div>
-      </div>
-      <div className="flex flex-row gap-4">
-        <div className="p-6 w-1/2 h-[600px] bg-white shadow-lg rounded-lg">
-          <Bar data={chartData} options={options} />
-        </div>
-        <div className="p-6 w-1/2 h-[600px] bg-white shadow-lg rounded-lg">
-          <Bar data={chartData} options={options} />
-        </div> */}
       </div>
     </div>
   );
