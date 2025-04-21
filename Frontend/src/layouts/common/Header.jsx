@@ -26,6 +26,7 @@ import { jwtDecode } from "jwt-decode";
 import "../../assets/styles/Header.module.css";
 import { useCart } from "../../context/CartContext";
 import { useFavourite } from "../../context/FavouriteContext";
+import { toast } from "react-toastify";
 import { Truck } from "lucide-react";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -67,13 +68,14 @@ const Header = () => {
         const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000;
         if (decoded.exp < currentTime) {
-          handleLogout();
+          toast.error("Your session has expired. Please log in again.");
+          setTimeout(() => handleLogout(), 2000);
         }
       }
     };
 
     checkTokenExpiration();
-    const interval = setInterval(checkTokenExpiration, 60000); // Kiểm tra mỗi 60 giây
+    const interval = setInterval(checkTokenExpiration, 3000); // Kiểm tra mỗi 60 giây
     return () => clearInterval(interval);
   }, [token]);
 
@@ -103,8 +105,8 @@ const Header = () => {
     (response) => response,
     (error) => {
       if (error.response && error.response.status === 401) {
-        handleLogout();
-        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        toast.error("Your session has expired. Please log in again.");
+        setTimeout(() => handleLogout(), 2000);
       }
       return Promise.reject(error);
     }
@@ -424,10 +426,10 @@ const Header = () => {
           </Link>
           <div className="flex-1 flex justify-center sm:ml-10 md:ml-20 lg:ml-40">
             <Link to="/">
-              <img
+            <img
                 src="../../../public/img/logosns.png"
                 alt="Logo"
-                className="h-20 sm:h-32"
+                className="h-24 sm:h-48 mb-0"
               />
             </Link>
           </div>
@@ -452,7 +454,7 @@ const Header = () => {
                   filteredProducts.map((item) => (
                     <Link
                       to={`/products/${item.id}`}
-                      state={{ product: item.productCode }}
+                      state={{ productCode: item.productCode }}
                       key={item.id}
                       className="flex items-center p-2 hover:bg-gray-100 border-b border-gray-200"
                     >

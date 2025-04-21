@@ -1,13 +1,19 @@
 package com.example.ECommerce.Project.V1.Service.UserService;
 
 import com.cloudinary.Cloudinary;
+import com.example.ECommerce.Project.V1.DTO.AuditLogDTO;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.ChangePasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Exception.ResourceNotFoundException;
+import com.example.ECommerce.Project.V1.Model.AuditLog;
 import com.example.ECommerce.Project.V1.Model.User;
+import com.example.ECommerce.Project.V1.Repository.AuditLogRepository;
+import com.example.ECommerce.Project.V1.Repository.TokenRepository;
 import com.example.ECommerce.Project.V1.Repository.UserRepository;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
+import com.example.ECommerce.Project.V1.Service.JWTService;
+import com.example.ECommerce.Project.V1.Token.Token;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -33,6 +39,9 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper mapper;
     private final Cloudinary cloudinary;
+    private final JWTService jWTService;
+    private final TokenRepository tokenRepository;
+    private final AuditLogRepository auditLogRepository;
 
     @Value("http://localhost:8080")
     private String baseUrl;
@@ -226,6 +235,12 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(userFind);
     }
 
+    @Override
+    public List<AuditLogDTO> getUserLog() throws Exception {
+        List<AuditLog> auditLogs = auditLogRepository.findAll();
+        return mapEntityToDTO_AuditLog(auditLogs);
+    }
+
     private String extractPublicIdFromUrl(String url) {
         try {
             String[] parts = url.split("/");
@@ -264,5 +279,20 @@ public class UserServiceImpl implements IUserService {
                 .isActive(user.isEnabled())
                 .role(user.getRole() != null ? user.getRole().name() : null)
                 .build();
+    }
+
+    private List<AuditLogDTO> mapEntityToDTO_AuditLog(List<AuditLog> auditLog) {
+        List<AuditLogDTO> auditLogDTOs = new ArrayList<>();
+        for (AuditLog auditLogEntity : auditLog) {
+            AuditLogDTO dto = AuditLogDTO.builder()
+                    .username(auditLogEntity.getUser().getUsername() != null ? auditLogEntity.getUser().getUsername() : auditLogEntity.getUser().getEmail())
+                    .tableName(auditLogEntity.getTableName())
+                    .actionTime(auditLogEntity.getActionTime())
+                    .actionType(auditLogEntity.getActionType())
+                    .ipAddress(auditLogEntity.getIpAddress())
+                    .build();
+            auditLogDTOs.add(dto);
+        }
+        return auditLogDTOs;
     }
 }

@@ -14,9 +14,9 @@ public interface IAuthenticationService {
 
     ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse);
 
-    AuthenticationResponse authenticate(AuthenticationRequest request);
+    AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletRequest servletRequest);
 
-    AuthenticationResponse verifyEmail(String token);
+    AuthenticationResponse verifyEmail(String token, HttpServletRequest servletRequest);
 
     void saveUserToken(User savedUser, String jwtToken);
 
@@ -24,7 +24,7 @@ public interface IAuthenticationService {
 
     void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    void registerByGoogle(String jwt);
+    void registerByGoogle(String jwt, HttpServletRequest servletRequest);
 
     ResponseEntity<String> forgotPassword(String email, HttpServletResponse response);
 }

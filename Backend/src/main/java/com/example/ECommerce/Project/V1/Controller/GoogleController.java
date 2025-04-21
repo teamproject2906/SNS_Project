@@ -4,6 +4,7 @@ import com.example.ECommerce.Project.V1.Service.AuthenticationService.IAuthentic
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,7 +61,8 @@ public class GoogleController {
     public ResponseEntity<?> handleGoogleCallback(
             @RequestParam(value = "code", required = false) String authCode,
             @RequestParam(value = "error", required = false) String error,
-            HttpServletResponse servletResponse
+            HttpServletResponse servletResponse,
+            HttpServletRequest servletRequest
     ) {
         if (error != null) {
             return ResponseEntity.badRequest().body("Google login failed: " + error);
@@ -71,7 +73,7 @@ public class GoogleController {
 
         try {
             // Lấy JSON phản hồi từ Google (chứa access_token, id_token, ...)
-            String tokenResponse = exchangeCodeForAccessToken(authCode);
+            String tokenResponse = exchangeCodeForAccessToken(authCode, servletRequest);
 
             // Parse chuỗi JSON
             ObjectMapper mapper = new ObjectMapper();
@@ -118,7 +120,7 @@ public class GoogleController {
         }
     }
 
-    private String exchangeCodeForAccessToken(String code) throws Exception {
+    private String exchangeCodeForAccessToken(String code, HttpServletRequest servletRequest) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("client_id", googleClientId);
@@ -138,7 +140,7 @@ public class GoogleController {
         String jwt = jsonResponse.has("id_token") ? jsonResponse.get("id_token").asText() : null;
 
         if (jwt != null) {
-            authenticationService.registerByGoogle(jwt);
+            authenticationService.registerByGoogle(jwt, servletRequest);
         }
 
         return response.getBody(); // full JSON including access_token, id_token, etc.
@@ -175,7 +177,7 @@ public class GoogleController {
 //    }
 
     @PostMapping(value = "/refreshToken", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<?> refreshToken(@RequestParam("refresh_token") String refreshToken) {
+    public ResponseEntity<?> refreshToken(@RequestParam("refresh_token") String refreshToken, HttpServletRequest servletRequest) {
         RestTemplate restTemplate = new RestTemplate();
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("client_id", googleClientId);
@@ -194,7 +196,7 @@ public class GoogleController {
             JsonNode jsonResponse = objectMapper.readTree(response.getBody());
             String jwt = jsonResponse.has("id_token") ? jsonResponse.get("id_token").asText() : "No access token found";
 
-            authenticationService.registerByGoogle(jwt);
+            authenticationService.registerByGoogle(jwt, servletRequest);
             return ResponseEntity.ok(response.getBody());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

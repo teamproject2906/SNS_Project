@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,17 +38,18 @@ public class JWTService {
     public final JwtDecoder jwtDecoder; // Decoder để xác thực token RSA từ Google
 
     // 🛠 Xử lý token của hệ thống (HMAC - HS256)
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(UserDetails userDetails, String ipAddress) {
+        return generateToken(new HashMap<>(), userDetails, ipAddress);
     }
 
-    public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails, String ipAddress) {
         var user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         extractClaims.put("authorities", userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
         extractClaims.put("userId", user.getId()); // Use "userId" instead of "username"
+        extractClaims.put("ipAddress", ipAddress);
         return buildToken(extractClaims, userDetails, jwtExpiration);
     }
 
@@ -112,6 +114,38 @@ public class JWTService {
             return null;
         }
     }
+
+//    public Map<String, Object> decodeJwt(String token) throws Exception {
+//        try {
+//            // Parse the JWT and extract claims
+//            Claims claims = Jwts.parserBuilder()
+//                    .setSigningKey(getSignInKeyHMAC())
+//                    .setAllowedClockSkewSeconds(300)
+//                    .build()
+//                    .parseClaimsJws(token)
+//                    .getBody();
+//
+//            // Create a map to store extracted claims
+//            Map<String, Object> result = new HashMap<>();
+//
+//            // Extract standard claims
+//            result.put("sub", claims.getSubject());
+//            result.put("iss", claims.getIssuer());
+//            result.put("iat", claims.getIssuedAt() != null ? claims.getIssuedAt().getTime() / 1000 : null);
+//            result.put("exp", claims.getExpiration() != null ? claims.getExpiration().getTime() / 1000 : null);
+//
+//            // Extract custom claims
+//            result.put("ipAddress", claims.get("ipAddress", String.class));
+//            result.put("userId", claims.get("userId", Integer.class));
+//            result.put("authorities", claims.get("authorities", List.class));
+//
+//            return result;
+//        } catch (ExpiredJwtException e) {
+//            throw new Exception("Token has expired", e);
+//        } catch (Exception e) {
+//            throw new Exception("Invalid token", e);
+//        }
+//    }
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());

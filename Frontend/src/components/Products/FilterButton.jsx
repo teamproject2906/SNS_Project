@@ -18,7 +18,7 @@ const FilterButton = ({ products, onFilter, isOpen, onClose }) => {
       setLoading(true);
       try {
         const token = getToken();
-        const res = await axios.get("http://localhost:8080/api/categories", {
+        const res = await axios.get("http://localhost:8080/api/categories/getAll", {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log("Categories:", res.data);

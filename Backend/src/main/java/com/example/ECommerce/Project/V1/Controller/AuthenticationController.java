@@ -29,9 +29,10 @@ public class AuthenticationController {
 
     @PostMapping("/Authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request
+            @RequestBody AuthenticationRequest request,
+            HttpServletRequest servletRequest
     ){
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        return ResponseEntity.ok(authenticationService.authenticate(request, servletRequest));
     }
 
     @PostMapping("/RefreshToken")
@@ -52,8 +53,9 @@ public class AuthenticationController {
 
     @GetMapping("/register/verify")
     public AuthenticationResponse verifyEmail(
-            @RequestParam("token") String token
+            @RequestParam("token") String token,
+            HttpServletRequest servletRequest
     ) {
-        return authenticationService.verifyEmail(token);
+        return authenticationService.verifyEmail(token, servletRequest);
     }
 }

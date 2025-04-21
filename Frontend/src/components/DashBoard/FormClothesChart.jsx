@@ -18,7 +18,7 @@ const FormClothesChart = () => {
   const [modalEditIsOpen, setModalEditIsOpen] = useState(false);
   const [editFormClothes, setEditFormClothes] = useState(null);
   const [formData, setFormData] = useState({ formClothes: "" });
-  const [deleteId, setDeleteId] = useState(null);
+  // const [deleteId, setDeleteId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deactivateId, setDeactivateId] = useState(null);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
@@ -29,7 +29,7 @@ const FormClothesChart = () => {
   const handleGetFormClothes = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/formclothes", {
+      const res = await axios.get("http://localhost:8080/api/formclothes/getAll", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFormClothes(res.data);
@@ -94,7 +94,7 @@ const FormClothesChart = () => {
         formClothes.map((form) => (form.id === formData.id ? res.data : form))
       );
       closeEditModal();
-      toast.success("Cập nhật thành công!");
+      toast.success("Update form successfully!");
     } catch (error) {
       console.error("Error updating form:", error);
       toast.error(error.response?.data?.message || "Error updating form");
@@ -119,31 +119,31 @@ const FormClothesChart = () => {
       );
       setFormClothes([...formClothes, res.data]);
       closeAddModal();
-      toast.success("Thêm thành công!");
+      toast.success("Add form successfully!");
     } catch (error) {
       console.error("Error adding form:", error);
       toast.error(error.response?.data?.message || "Error adding form");
     }
   };
 
-  const confirmDelete = async () => {
-    if (!deleteId) return;
+  // const confirmDelete = async () => {
+  //   if (!deleteId) return;
 
-    try {
-      const token = getToken();
-      await axios.delete(`http://localhost:8080/api/formclothes/${deleteId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setFormClothes(formClothes.filter((form) => form.id !== deleteId));
-      toast.success("Xóa thành công!");
-    } catch (error) {
-      console.error("Lỗi khi xóa form:", error);
-      toast.error(error.response?.data?.message || "Lỗi khi xóa form");
-    } finally {
-      setIsDeleteModalOpen(false);
-      setDeleteId(null);
-    }
-  };
+  //   try {
+  //     const token = getToken();
+  //     await axios.delete(`http://localhost:8080/api/formclothes/${deleteId}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     setFormClothes(formClothes.filter((form) => form.id !== deleteId));
+  //     toast.success("Xóa thành công!");
+  //   } catch (error) {
+  //     console.error("Lỗi khi xóa form:", error);
+  //     toast.error(error.response?.data?.message || "Lỗi khi xóa form");
+  //   } finally {
+  //     setIsDeleteModalOpen(false);
+  //     setDeleteId(null);
+  //   }
+  // };
 
   const confirmDeactivate = async () => {
     if (!deactivateId) return;
@@ -161,10 +161,10 @@ const FormClothesChart = () => {
           form.id === deactivateId ? { ...form, active: false } : form
         )
       );
-      toast.success("Deactivate thành công!");
+      toast.success("Deactivate successfully!");
     } catch (error) {
       console.error("Lỗi khi deactivate form:", error);
-      toast.error(error.response?.data?.message || "Lỗi khi deactivate form");
+      toast.error(error.response?.data?.message || "Error deactivating form");
     } finally {
       setIsDeactivateModalOpen(false);
       setDeactivateId(null);
@@ -188,10 +188,10 @@ const FormClothesChart = () => {
           form.id === activateId ? { ...form, active: true } : form
         )
       );
-      toast.success("Activate thành công!");
+      toast.success("Activate successfully!");
     } catch (error) {
       console.error("Lỗi khi activate form:", error);
-      toast.error(error.response?.data?.message || "Lỗi khi activate form");
+      toast.error(error.response?.data?.message || "Error activating form");
     } finally {
       setIsActivateModalOpen(false);
       setActivateId(null);
@@ -259,7 +259,7 @@ const FormClothesChart = () => {
             className="bg-green-500 text-white px-4 py-2 rounded mr-2"
             onClick={() => openEditModal(row)}
             disabled={!row.active}
-            style={{ opacity: row.active ? 1 : 0.5 }}
+            style={{ display: row.active ? "block" : "none" }}
           >
             Edit
           </button>
@@ -310,7 +310,6 @@ const FormClothesChart = () => {
           >
             Add form
           </button>
-          nodded{" "}
         </div>
       </div>
       <DataTable
@@ -359,11 +358,11 @@ const FormClothesChart = () => {
           }
         />
       </ModalAdd>
-      <ModalDelete
+      {/* <ModalDelete
         isDeleteModalOpen={isDeleteModalOpen}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
         confirmDelete={confirmDelete}
-      />
+      /> */}
       <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}
         setIsDeactivateModalOpen={setIsDeactivateModalOpen}
