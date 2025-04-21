@@ -27,10 +27,11 @@ const ProductCard = ({ products }) => {
     const fetchProducts = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/products/productcode", {
+        const response = await axios.get("http://localhost:8080/api/products/productCode", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(response.data);
+        console.log("Products:", response.data);
       } catch (err) {
         setError(err.message);
       } finally {

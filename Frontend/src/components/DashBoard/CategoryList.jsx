@@ -28,9 +28,12 @@ const CategoryList = () => {
   const fetchCategories = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/categories", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:8080/api/categories/getAll",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCategories(res.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -263,15 +266,33 @@ const CategoryList = () => {
   };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
+    {
+      name: "ID",
+      cell: (row) => (
+        <div style={{ opacity: row.active ? 1 : 0.5 }}>{row.id}</div>
+      ),
+      sortable: true,
+    },
     {
       name: "Category Name",
-      selector: (row) => row.categoryName,
+      cell: (row) => (
+        <>
+          <div style={{ opacity: row.active ? 1 : 0.5 }}>
+            {row.categoryName ? row.categoryName : "Null"}
+          </div>
+        </>
+      ),
       sortable: true,
     },
     {
       name: "Parent Category",
-      selector: (row) => (row.parentCategory ? row.parentCategory.id : "None"),
+      cell: (row) => (
+        <>
+          <div style={{ opacity: row.active ? 1 : 0.5 }}>
+            {row.parentCategoryID ? row.parentCategoryID.categoryName : "Null"}
+          </div>
+        </>
+      ),
       sortable: true,
     },
     {
@@ -282,6 +303,7 @@ const CategoryList = () => {
             <button
               className="bg-green-500 text-white px-4 py-2 rounded mr-2"
               onClick={() => openEditModal(row)}
+              style={{ opacity: row.active ? 1 : 0.5 }}
             >
               Edit
             </button>
@@ -337,7 +359,6 @@ const CategoryList = () => {
           {
             when: (row) => !row.active,
             style: {
-              opacity: "0.5",
               backgroundColor: "#e1e1e1",
             },
           },

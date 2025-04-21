@@ -24,6 +24,8 @@ export const CartProvider = ({ children }) => {
     setUser(getUserInfo());
   }, []);
 
+  console.log("CartItem", cartItems)
+
   // Fetch cart data from API
   const fetchCart = async () => {
     if (!user || !user.userId) {
