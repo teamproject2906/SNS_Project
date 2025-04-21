@@ -26,6 +26,7 @@ import { jwtDecode } from "jwt-decode";
 import "../../assets/styles/Header.module.css";
 import { useCart } from "../../context/CartContext";
 import { useFavourite } from "../../context/FavouriteContext";
+import { Truck } from "lucide-react";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -208,7 +209,7 @@ const Header = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:8080/api/products/productcode",
+          "http://localhost:8080/api/products/productCode",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -348,6 +349,15 @@ const Header = () => {
                         >
                           <CgProfile className="mr-3 mt-1" />
                           Profile
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to={`/order`}
+                          className="w-full text-left hover:bg-gray-100 px-2 py-1 flex"
+                        >
+                          <Truck className="w-4 h-4 mr-3 mt-1" />
+                          Order
                         </Link>
                       </li>
                       <li>

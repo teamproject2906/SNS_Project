@@ -27,9 +27,12 @@ const ProductCard = ({ products }) => {
     const fetchProducts = async () => {
       try {
         const token = getToken();
-        const response = await axios.get("http://localhost:8080/api/products/productcode", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "http://localhost:8080/api/products/productCode",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setProducts(response.data);
       } catch (err) {
         setError(err.message);
@@ -103,7 +106,11 @@ const ProductCard = ({ products }) => {
             key={item.id}
             className="product-card__item border rounded-lg p-4 flex flex-col justify-between gap-5 shadow-xl"
           >
-            <Link to={`/products/${item.id}`} state={{ productCode: item.productCode }} className="flex justify-center">
+            <Link
+              to={`/products/${item.id}`}
+              state={{ productCode: item.productCode }}
+              className="flex justify-center"
+            >
               <img
                 className="product-card__image"
                 src={
