@@ -40,4 +40,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Transactional
     @Query("UPDATE Category c SET c.isActive = false WHERE c.parentCategoryID.id = :parentCategory")
     void deactivateChildCategories(@Param("parentCategory") Integer parentCategory);
+
+    @Query("SELECT c.id FROM Category c WHERE c.parentCategoryID.id = :parentCategoryID")
+    List<Integer> getListIDOfChildCategoriesByParentCategoryID(@Param("parentCategoryID") Integer parentCategoryID);
 }
