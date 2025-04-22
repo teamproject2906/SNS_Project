@@ -20,33 +20,36 @@ export const FavouriteProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(getUserInfo());
 
-
-
   // Fetch wishlist data from API
   const fetchWishlist = async () => {
-    
     if (!user || !user.userId) {
       setFavouriteItems([]);
       return;
     }
-    
+
     try {
       setLoading(true);
       const token = getToken();
-      const response = await axios.get(`http://localhost:8080/api/wishlist/user/${user.userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(
+        `http://localhost:8080/api/wishlist/user/${user.userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response.data && response.data.productIds) {
         // We need to fetch the full product details for each productId
-        const productPromises = response.data.productIds.map(productId => 
-          axios.get(`http://localhost:8080/api/products/${productId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+        const productPromises = response.data.productIds.map((productId) =>
+          axios.get(
+            `http://localhost:8080/api/products/getDetail/${productId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          )
         );
-        
+
         const productResponses = await Promise.all(productPromises);
-        const products = productResponses.map(res => res.data);
-        
+        const products = productResponses.map((res) => res.data);
+
         setFavouriteItems(products);
       } else {
         setFavouriteItems([]);
@@ -68,20 +71,20 @@ export const FavouriteProvider = ({ children }) => {
   }, []);
 
   // Add item to favourites
-  const addToFavourites = async (product) => {    
-    setUser(getUserInfo())
+  const addToFavourites = async (product) => {
+    setUser(getUserInfo());
     try {
       setLoading(true);
       const token = getToken();
-      
+
       const response = await axios.post(
         `http://localhost:8080/api/wishlist/user/${user.userId}/add/${product.id}`,
         {},
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       if (response.data) {
         // Refresh the wishlist after adding
         await fetchWishlist();
@@ -99,18 +102,18 @@ export const FavouriteProvider = ({ children }) => {
   // Remove item from favourites
   const removeFromFavourites = async (productId) => {
     if (!user || !user.userId) return;
-    
+
     try {
       setLoading(true);
       const token = getToken();
-      
+
       const response = await axios.delete(
         `http://localhost:8080/api/wishlist/user/${user.userId}/remove/${productId}`,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       if (response.data) {
         // Refresh the wishlist after removing
         await fetchWishlist();
@@ -153,10 +156,14 @@ export const FavouriteProvider = ({ children }) => {
     isInFavourites,
     getTotalFavourites,
     fetchWishlist,
-    getPriceAfterPromotion
+    getPriceAfterPromotion,
   };
 
-  return <FavouriteContext.Provider value={value}>{children}</FavouriteContext.Provider>;
+  return (
+    <FavouriteContext.Provider value={value}>
+      {children}
+    </FavouriteContext.Provider>
+  );
 };
 
 // PropTypes validation
@@ -164,4 +171,4 @@ FavouriteProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export default FavouriteContext; 
+export default FavouriteContext;

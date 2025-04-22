@@ -24,21 +24,22 @@ export const CartProvider = ({ children }) => {
     setUser(getUserInfo());
   }, []);
 
-  console.log("CartItem", cartItems)
-
   // Fetch cart data from API
   const fetchCart = async () => {
     if (!user || !user.userId) {
       setCartItems([]);
       return;
     }
-    
+
     try {
       setLoading(true);
       const token = getToken();
-      const response = await axios.get(`http://localhost:8080/api/v1/cart/${user.userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(
+        `http://localhost:8080/api/v1/cart/${user.userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response.data && response.data.items) {
         setCartItems(response.data.items);
       } else {
@@ -65,34 +66,34 @@ export const CartProvider = ({ children }) => {
       toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
       return;
     }
-    
+
     try {
       setLoading(true);
       const token = getToken();
-      
+
       // Prepare cart item data
       const cartItemData = {
         productId: product.id,
         quantity: product.quantity || 1,
         color: product.color,
-        size: product.size
+        size: product.size,
       };
-      
+
       const response = await axios.post(
         `http://localhost:8080/api/v1/cart/${user.userId}/add`,
         cartItemData,
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      
+
       if (response.data) {
         // Update local cart state with the response data
-        if (response.data.cartItems) {
-          setCartItems(response.data.cartItems);
+        if (response.data.items) {
+          setCartItems(response.data.items);
         }
         toast.success("Đã thêm sản phẩm vào giỏ hàng");
       }
@@ -111,20 +112,22 @@ export const CartProvider = ({ children }) => {
   // Remove item from cart
   const removeFromCart = async (cartItemId) => {
     if (!user || !user.userId) return;
-    
+
     try {
       setLoading(true);
       const token = getToken();
-      
+
       await axios.delete(
         `http://localhost:8080/api/v1/cart/${user.userId}/remove/${cartItemId}`,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       // Update local cart state
-      setCartItems(prevItems => prevItems.filter(item => item.id !== cartItemId));
+      setCartItems((prevItems) =>
+        prevItems.filter((item) => item.id !== cartItemId)
+      );
       toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
     } catch (err) {
       console.error("Error removing from cart:", err);
@@ -138,24 +141,24 @@ export const CartProvider = ({ children }) => {
   // Update item quantity
   const updateQuantity = async (cartItemId, quantity) => {
     if (!user || !user.userId) return;
-    
+
     if (quantity <= 0 || quantity.isNaN) {
       removeFromCart(cartItemId);
       return;
     }
-    
+
     try {
       setLoading(true);
       const token = getToken();
-      
+
       const response = await axios.put(
         `http://localhost:8080/api/v1/cart/update-quantity?userId=${user.userId}&cartItemId=${cartItemId}&quantity=${quantity}`,
         {},
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       if (response.data && response.data.cartItems) {
         setCartItems(response.data.cartItems);
       }
@@ -171,18 +174,18 @@ export const CartProvider = ({ children }) => {
   // Clear cart
   const clearCart = async () => {
     if (!user || !user.userId) return;
-    
+
     try {
       setLoading(true);
       const token = getToken();
-      
+
       await axios.delete(
         `http://localhost:8080/api/v1/cart/${user.userId}/clear`,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
+
       setCartItems([]);
       toast.success("Đã xóa tất cả sản phẩm khỏi giỏ hàng");
     } catch (err) {
@@ -204,19 +207,17 @@ export const CartProvider = ({ children }) => {
 
   // Calculate total price
   const getTotalPrice = () => {
-    return cartItems.reduce(
-      (total, item) => {
-        const priceAfterPromotion = getPriceAfterPromotion(item);
-        return total + priceAfterPromotion * item.quantity;
-      },
-      0
-    );
+    return cartItems.reduce((total, item) => {
+      const priceAfterPromotion = getPriceAfterPromotion(item);
+      return total + priceAfterPromotion * item.quantity;
+    }, 0);
   };
 
   // Calculate total items
   const getTotalItems = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
+  console.log("CartItem", cartItems);
 
   // Context value
   const value = {
@@ -230,7 +231,7 @@ export const CartProvider = ({ children }) => {
     getTotalPrice,
     getTotalItems,
     fetchCart,
-    getPriceAfterPromotion
+    getPriceAfterPromotion,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
@@ -241,4 +242,4 @@ CartProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export default CartContext; 
+export default CartContext;
