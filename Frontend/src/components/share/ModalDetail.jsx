@@ -5,7 +5,7 @@ const ModalDetail = ({ isOpen, onClose, title, children }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto max-h-[80vh] overflow-auto"
+      className="p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto max-h-[80vh] overflow-auto w-full"
       overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
     >
       <div className="max-h-[80vh] overflow-y-auto">

@@ -26,9 +26,8 @@ const ProductCard = ({ products }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const token = getToken();
         const response = await axios.get("http://localhost:8080/api/products/productCode", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: "Content-Type: application/json",
         });
         setProducts(response.data);
         console.log("Products:", response.data);

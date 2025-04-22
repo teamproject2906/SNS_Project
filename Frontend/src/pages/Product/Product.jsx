@@ -18,10 +18,12 @@ export default function Product() {
   useEffect(() => {
     const fetchedProducts = async () => {
       try {
-        const token = getToken();
-        const res = await axios.get("http://localhost:8080/api/products/productCode", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          "http://localhost:8080/api/products/productCode",
+          {
+            headers: "Content-Type: application/json",
+          }
+        );
         const safeProducts = Array.isArray(res.data) ? res.data : [];
         console.log("Fetched products:", safeProducts); // Kiểm tra dữ liệu
         setProducts(safeProducts);
@@ -101,14 +103,12 @@ export default function Product() {
         break;
       case "oldest":
         sortedProducts.sort(
-          (a, b) =>
-            new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+          (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
         );
         break;
       case "newest":
         sortedProducts.sort(
-          (a, b) =>
-            new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+          (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
         );
         break;
       case "best-selling":

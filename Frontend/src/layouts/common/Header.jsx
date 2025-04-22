@@ -168,35 +168,35 @@ const Header = () => {
       }
     }
 
-    // Handle emailToken (email verification token)
-    // if (ggCookieToken) {
-    //   const verifyEmail = async () => {
-    //     try {
-    //       const res = await axios.get(
-    //         "http://localhost:8080/Authentication/register/verify",
-    //         {
-    //           params: { token: ggCookieToken }, // Pass token as query parameter
-    //         }
-    //       );
-    //       console.log("Email verification response:", res.data);
-    //       const token = res.data.access_token;
-    //       // Optionally clear the emailToken cookie after successful verification
-    //       setToken(token);
-    //       setTokenState(token);
-    //       const decoded = jwtDecode(token);
-    //       setUser(decoded);
-    //       setUserInfo(decoded);
-    //       document.cookie =
-    //         "emailToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    //     } catch (error) {
-    //       console.error(
-    //         "Error verifying email:",
-    //         error.response ? error.response.data : error.message
-    //       );
-    //     }
-    //   };
-    //   verifyEmail();
-    // }
+    const handleVerifyEmailToken = async () => {
+      if (ggCookieToken) {
+        const verifyEmail = async () => {
+          try {
+            const res = await axios.get(
+              "http://localhost:8080/Authentication/register/verify",
+              {
+                params: { token: ggCookieToken }, // Pass token as query parameter
+              }
+            );
+            console.log("Email verification response:", res.data);
+            const token = res.data.access_token;
+            // Optionally clear the emailToken cookie after successful verification
+            setToken(token);
+            setTokenState(token);
+            document.cookie =
+              "emailToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          } catch (error) {
+            console.error(
+              "Error verifying email:",
+              error.response ? error.response.data : error.message
+            );
+          }
+        };
+        verifyEmail();
+      }
+    };
+
+    handleVerifyEmailToken();
   }, [user, setUser]);
 
   useEffect(() => {
@@ -416,7 +416,7 @@ const Header = () => {
           </Link>
           <div className="flex-1 flex justify-center sm:ml-10 md:ml-20 lg:ml-40">
             <Link to="/">
-            <img
+              <img
                 src="../../../public/img/logosns.png"
                 alt="Logo"
                 className="h-24 sm:h-48 mb-0"
