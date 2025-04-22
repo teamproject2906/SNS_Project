@@ -36,4 +36,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("SELECT DISTINCT p.productCode FROM Product p")
     List<String> getAllProductCodes();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Product p SET p.isActive = false WHERE p.category.id = :categoryId")
+    void deactivateProductsByCategoryId(@Param("categoryId") Integer categoryId);
 }

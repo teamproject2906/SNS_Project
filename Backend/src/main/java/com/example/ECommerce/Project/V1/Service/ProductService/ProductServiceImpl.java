@@ -259,7 +259,6 @@ public class ProductServiceImpl implements IProductService {
     }
 
 
-
     private List<ProductResponseDTO> convertEntityListToDTOList(List<Product> products) {
         return products.stream().map(this::convertProductEntityToDTO).collect(Collectors.toList());
     }
@@ -404,8 +403,24 @@ public class ProductServiceImpl implements IProductService {
         Product product = getProductById(id);
 
         if (product != null) {
-            repository.reActivateProduct(id);
-            entityManager.refresh(product);
+            // Activate the product
+            product.setIsActive(true);
+            repository.save(product);
+
+            Category category = product.getCategory();
+
+            // Activate the product's category
+            if (!category.getIsActive()) {
+                category.setIsActive(true);
+                categoryRepository.save(category);
+            }
+
+            // Activate the parent category if it exists and inactive
+            Category parent = category.getParentCategoryID();
+            if (parent != null) {
+                parent.setIsActive(true);
+                categoryRepository.save(parent);
+            }
         }
 
         return product;
