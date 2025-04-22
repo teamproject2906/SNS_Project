@@ -1,11 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useEffect, useState } from "react";
-import { useUser } from '../../context/UserContext';
-import { FaTrash } from 'react-icons/fa';
+import { useUser } from "../../context/UserContext";
+import { FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 function Cart() {
   // Use the cart context instead of local state
+  const searchParams = useSearchParams();
+  const payment = searchParams.get("payment");
+
   const {
     cartItems,
     updateQuantity,
@@ -14,7 +18,7 @@ function Cart() {
     loading,
     error,
     fetchCart,
-    getPriceAfterPromotion
+    getPriceAfterPromotion,
   } = useCart();
   const { user } = useUser();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -52,6 +56,12 @@ function Cart() {
       setIsUpdating(false);
     }
   };
+
+  useEffect(() => {
+    if (payment === "failure") {
+      toast.error("Thanh toán thất bại");
+    }
+  }, [payment]);
 
   // Calculate total price from context
   const total = getTotalPrice();
@@ -123,13 +133,15 @@ function Cart() {
                       <h3 className="text-xl font-semibold">
                         {item.product.productName}
                       </h3>
-                      
+
                       {/* Display color information */}
                       <p className="text-gray-600">Màu: {item.product.color}</p>
-                      
+
                       {/* Display size information */}
-                      <p className="text-gray-600">Kích thước: {item.product.sizeChart.value}</p>
-                      
+                      <p className="text-gray-600">
+                        Kích thước: {item.product.sizeChart.value}
+                      </p>
+
                       {/* Display price after promotion */}
                       {item.product.promotion && (
                         <div className="flex items-center space-x-2 mt-1">
@@ -144,7 +156,7 @@ function Cart() {
                           </span>
                         </div>
                       )}
-                      
+
                       {!item.product.promotion && (
                         <p className="text-gray-700 mt-1">
                           {item.unitPrice.toLocaleString()}₫
@@ -170,7 +182,7 @@ function Cart() {
                       <span className="text-gray-800 font-semibold">
                         {getPriceAfterPromotion(item).toLocaleString()}₫
                       </span>
-                      <button 
+                      <button
                         onClick={() => handleRemoveItem(item.id)}
                         className="ml-2 text-red-500 hover:text-red-700"
                         title="Xóa sản phẩm"
@@ -179,7 +191,11 @@ function Cart() {
                       </button>
                     </div>
                     <p className="text-gray-600 text-right">
-                      Thành tiền: {(getPriceAfterPromotion(item) * item.quantity).toLocaleString()}₫
+                      Thành tiền:{" "}
+                      {(
+                        getPriceAfterPromotion(item) * item.quantity
+                      ).toLocaleString()}
+                      ₫
                     </p>
                   </div>
                 </div>

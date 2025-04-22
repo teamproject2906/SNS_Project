@@ -1,9 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Tabs from "../../components/Orders/Tabs";
 import { OrderStatus } from "../../constants/DataConstant";
 import { Truck } from "lucide-react";
-
+import { useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 const Order = () => {
+  const searchParams = useSearchParams();
+  const payment = searchParams.get("payment");
   const [activeTab, setActiveTab] = useState("all");
 
   const title = useMemo(() => {
@@ -11,6 +14,12 @@ const Order = () => {
       ? "Trạng thái đơn hàng"
       : tabs.find((tab) => tab.id === activeTab)?.label;
   }, [activeTab]);
+
+  useEffect(() => {
+    if (payment === "success") {
+      toast.success("Thanh toán thành công");
+    }
+  }, [payment]);
 
   return (
     <div className="w-full h-full p-4 pt-5">
