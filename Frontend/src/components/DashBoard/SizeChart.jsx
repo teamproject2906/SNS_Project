@@ -427,6 +427,7 @@ const SizeChart = () => {
                 setFormData({ ...formData, sizeChartType: e.target.value })
               }
             >
+              <option value="">Select size chart type</option>
               <option value="Alphabet">ALPHABET</option>
               <option value="Numeric">NUMERIC</option>
             </select>

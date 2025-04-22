@@ -100,14 +100,12 @@ export default function Product() {
         break;
       case "oldest":
         sortedProducts.sort(
-          (a, b) =>
-            new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+          (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
         );
         break;
       case "newest":
         sortedProducts.sort(
-          (a, b) =>
-            new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+          (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
         );
         break;
       case "best-selling":
