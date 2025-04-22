@@ -26,11 +26,11 @@ const ProductCard = ({ products }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/products/productCode", {
+        const res = await axios.get("http://localhost:8080/api/products/productCode", {
           headers: "Content-Type: application/json",
         });
-        setProducts(response.data);
-        console.log("Products:", response.data);
+        setProducts(res.data);
+        console.log("Products:", res.data);
       } catch (err) {
         setError(err.message);
       } finally {

@@ -18,12 +18,9 @@ export default function Product() {
   useEffect(() => {
     const fetchedProducts = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8080/api/products/productCode",
-          {
-            headers: "Content-Type: application/json",
-          }
-        );
+        const res = await axios.get("http://localhost:8080/api/products/productCode", {
+          headers: "Content-Type: application/json",
+        });
         const safeProducts = Array.isArray(res.data) ? res.data : [];
         console.log("Fetched products:", safeProducts); // Kiểm tra dữ liệu
         setProducts(safeProducts);
