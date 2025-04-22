@@ -117,9 +117,12 @@ const HomePage = () => {
     const fetchedProducts = async () => {
       try {
         const token = getToken();
-        const res = await axios.get("http://localhost:8080/api/products/productCode", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          "http://localhost:8080/api/products/productCode",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setProduct(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -263,7 +266,7 @@ const HomePage = () => {
 
   const productSettings = {
     dots: false,
-    infinite: true,
+    infinite: product.length > 3,
     speed: 2000,
     slidesToShow: 4,
     slidesToScroll: product.length / 4,
@@ -305,7 +308,7 @@ const HomePage = () => {
   const socialSettings = {
     dots: true,
     dotsClass: "slick-dots",
-    infinite: true,
+    infinite: socialPosts.length > 2,
     lazyLoad: true,
     speed: 500,
     slidesToShow: 3,
