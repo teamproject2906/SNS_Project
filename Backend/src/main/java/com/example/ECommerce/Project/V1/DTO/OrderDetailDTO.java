@@ -30,4 +30,6 @@ public class OrderDetailDTO {
     private String orderStatus; // ID trạng thái đơn hàng
 
     private String paymentMethod; // ID phương thức thanh toán
+
+    private Integer voucherId;
 }

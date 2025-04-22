@@ -4,10 +4,7 @@ import com.example.ECommerce.Project.V1.DTO.OrderDetailDTO;
 import com.example.ECommerce.Project.V1.DTO.OrderItemDTO;
 import com.example.ECommerce.Project.V1.Exception.InvalidInputException;
 import com.example.ECommerce.Project.V1.Model.*;
-import com.example.ECommerce.Project.V1.Repository.OrderDetailRepository;
-import com.example.ECommerce.Project.V1.Repository.OrderItemRepository;
-import com.example.ECommerce.Project.V1.Repository.ProductRepository;
-import com.example.ECommerce.Project.V1.Repository.UserRepository;
+import com.example.ECommerce.Project.V1.Repository.*;
 import com.example.ECommerce.Project.V1.Service.BestSellerService;
 import com.example.ECommerce.Project.V1.Service.OrderItemService.OrderItemService;
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
@@ -43,6 +40,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private BestSellerService bestSellerService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private VoucherRepository voucherRepository;
 
     @Override
     public List<OrderDetailDTO> getAllOrders() {
@@ -167,6 +166,14 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
         orderDetail = orderDetailRepository.save(orderDetail);
 
+        Voucher voucher = voucherRepository.findById(orderDetailDTO.getVoucherId())
+                .orElseThrow(() -> new RuntimeException("Voucher not found in database"));
+        if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0) {
+            voucher.setUsageLimit(voucher.getUsageLimit() - 1);
+        } else {
+            // Xử lý trường hợp usageLimit là null hoặc đã hết lượt sử dụng
+            throw new IllegalStateException("Voucher has reached its usage limit or is invalid.");
+        }
         if(Objects.equals(orderDetailDTO.getOrderStatus(), "COMPLETED")){
             for (OrderItem orderItem : orderDetail.getOrderItems()) {
                 bestSellerService.updateBestSellerQuantity(orderItem.getProduct().getId());

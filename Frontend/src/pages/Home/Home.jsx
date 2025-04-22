@@ -116,13 +116,9 @@ const HomePage = () => {
   useEffect(() => {
     const fetchedProducts = async () => {
       try {
-        const token = getToken();
-        const res = await axios.get(
-          "http://localhost:8080/api/products/productCode",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await axios.get("http://localhost:8080/api/products/productCode", {
+          headers: "Content-Type: application/json",
+        });
         setProduct(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Error fetching products:", err);

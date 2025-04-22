@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import CommentsSection from "../../components/CommentsSection/CommentsSection";
 import axios from "axios";
-import { getToken } from "../Login/app/static";
 import { useCart } from "../../context/CartContext";
 import { useFavourite } from "../../context/FavouriteContext";
 import { toast } from "react-toastify";
@@ -40,12 +39,11 @@ const ProductDetail = () => {
       }
 
       try {
-        const token = getToken();
         // Fetch products by productCode
         const productRes = await axios.get(
           `http://localhost:8080/api/products/productCode/${productCode}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: "Content-Type: application/json",
           }
         );
 
@@ -67,7 +65,7 @@ const ProductDetail = () => {
         const imagesRes = await axios.get(
           `http://localhost:8080/api/products/images/productCode/${productCode}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: "Content-Type: application/json",
           }
         );
         setProductImages(imagesRes.data);
@@ -79,7 +77,7 @@ const ProductDetail = () => {
         const feedbackRes = await axios.get(
           `http://localhost:8080/api/feedbacks/product/${productId}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: "Content-Type: application/json",
           }
         );
         const feedbacks = feedbackRes.data;

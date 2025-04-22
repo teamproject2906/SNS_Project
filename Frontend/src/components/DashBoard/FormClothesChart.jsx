@@ -95,6 +95,7 @@ const FormClothesChart = () => {
       );
       closeEditModal();
       toast.success("Update form successfully!");
+      handleGetFormClothes();
     } catch (error) {
       console.error("Error updating form:", error);
       toast.error(error.response?.data?.message || "Error updating form");
@@ -120,6 +121,7 @@ const FormClothesChart = () => {
       setFormClothes([...formClothes, res.data]);
       closeAddModal();
       toast.success("Add form successfully!");
+      handleGetFormClothes();
     } catch (error) {
       console.error("Error adding form:", error);
       toast.error(error.response?.data?.message || "Error adding form");
