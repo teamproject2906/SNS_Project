@@ -3,6 +3,8 @@ import { useCart } from "../../../context/CartContext";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../../../pages/Login/app/static";
+import { checkoutVnPay } from "../../../services/paymentService";
+import { toast } from "react-toastify";
 
 const CheckoutSummary = () => {
   const { cartItems, getTotalPrice, getPriceAfterPromotion } = useCart();
@@ -49,6 +51,18 @@ const CheckoutSummary = () => {
       setVouchers(vouchersWithTimeLeft);
     } catch (error) {
       console.error("Error fetching vouchers:", error);
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      const response = await checkoutVnPay({
+        amount: total,
+      });
+      window.location.href = response.data.paymentUrl;
+    } catch (error) {
+      console.error("Error checking out:", error);
+      toast.error("Lỗi khi thanh toán");
     }
   };
 
@@ -143,7 +157,10 @@ const CheckoutSummary = () => {
                 </div>
               </div>
               <p className="text-lg font-bold text-gray-900 ml-4">
-                {(getPriceAfterPromotion(item) * item.quantity).toLocaleString()}₫
+                {(
+                  getPriceAfterPromotion(item) * item.quantity
+                ).toLocaleString()}
+                ₫
               </p>
             </div>
           ))}
@@ -159,11 +176,15 @@ const CheckoutSummary = () => {
           >
             <span className="text-gray-700">
               {selectedVoucher
-                ? `${selectedVoucher.voucherCode} - Giảm ${selectedVoucher.discount * 100}%`
+                ? `${selectedVoucher.voucherCode} - Giảm ${
+                    selectedVoucher.discount * 100
+                  }%`
                 : "Chọn mã giảm giá"}
             </span>
             <svg
-              className={`w-5 h-5 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+              className={`w-5 h-5 transition-transform ${
+                isDropdownOpen ? "rotate-180" : ""
+              }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -281,7 +302,10 @@ const CheckoutSummary = () => {
       </div>
 
       {/* Checkout Button */}
-      <button className="w-full bg-black text-white py-4 mt-6 text-center text-lg font-semibold rounded-lg hover:bg-gray-900 transition-all">
+      <button
+        className="w-full bg-black text-white py-4 mt-6 text-center text-lg font-semibold rounded-lg hover:bg-gray-900 transition-all"
+        onClick={handleCheckout}
+      >
         Thanh toán
       </button>
     </div>

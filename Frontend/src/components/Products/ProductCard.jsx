@@ -103,7 +103,11 @@ const ProductCard = ({ products }) => {
             key={item.id}
             className="product-card__item border rounded-lg p-4 flex flex-col justify-between gap-5 shadow-xl"
           >
-            <Link to={`/products/${item.id}`} state={{ productCode: item.productCode }} className="flex justify-center">
+            <Link
+              to={`/products/${item.id}`}
+              state={{ productCode: item.productCode }}
+              className="flex justify-center"
+            >
               <img
                 className="product-card__image"
                 src={

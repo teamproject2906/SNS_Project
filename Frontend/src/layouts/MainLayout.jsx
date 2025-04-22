@@ -4,11 +4,11 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PropTypes from "prop-types";
 
-const MainLayout = ({ children }) => {
+const MainLayout = ({ children, className }) => {
   return (
     <>
       <Header />
-      <main className="min-h-screen p-4">{children}</main>
+      <main className={`min-h-screen p-4 ${className}`}>{children}</main>
       <Footer />
       <ToastContainer
         position="top-right"
@@ -28,6 +28,7 @@ const MainLayout = ({ children }) => {
 
 MainLayout.propTypes = {
   children: PropTypes.node.isRequired,
+  className: PropTypes.string,
 };
 
 export default MainLayout;

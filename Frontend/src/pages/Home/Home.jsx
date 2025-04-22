@@ -262,7 +262,7 @@ const HomePage = () => {
 
   const productSettings = {
     dots: false,
-    infinite: true,
+    infinite: product.length > 3,
     speed: 2000,
     slidesToShow: 4,
     slidesToScroll: product.length / 4,
@@ -304,7 +304,7 @@ const HomePage = () => {
   const socialSettings = {
     dots: true,
     dotsClass: "slick-dots",
-    infinite: true,
+    infinite: socialPosts.length > 2,
     lazyLoad: true,
     speed: 500,
     slidesToShow: 3,
