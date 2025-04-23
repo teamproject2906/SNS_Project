@@ -26,6 +26,8 @@ const OrderTable = () => {
     paymentMethod: "",
   });
 
+  console.log("Order", orders);
+
   const fetchOrder = async () => {
     try {
       const token = getToken();
@@ -42,26 +44,26 @@ const OrderTable = () => {
     }
   };
 
-  const handleGetProduct = async () => {
-    try {
-      const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/products/getAll", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (Array.isArray(res.data)) {
-        setProducts(res.data);
-      } else {
-        console.error("Expected an array of products");
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Error fetching products");
-    }
-  };
+  // const handleGetProduct = async () => {
+  //   try {
+  //     const token = getToken();
+  //     const res = await axios.get("http://localhost:8080/api/products/getAll", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     if (Array.isArray(res.data)) {
+  //       setProducts(res.data);
+  //     } else {
+  //       console.error("Expected an array of products");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching products:", error);
+  //     toast.error("Error fetching products");
+  //   }
+  // };
 
   useEffect(() => {
     fetchOrder();
-    handleGetProduct();
+    // handleGetProduct();
   }, []);
 
   const getProductName = (productId) => {
@@ -222,10 +224,7 @@ const OrderTable = () => {
   const filteredOrders = orders.filter((order) => {
     const id = order.id ? order.id.toString().toLowerCase() : "";
     const userId = order.userId ? order.userId.toString().toLowerCase() : "";
-    return (
-      id.includes(searchTerm) ||
-      userId.includes(searchTerm)
-    );
+    return id.includes(searchTerm) || userId.includes(searchTerm);
   });
 
   const customStyles = {
@@ -388,27 +387,47 @@ const OrderTable = () => {
                 readOnly
               />
             </div>
-            <div className="order_items_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Order Items
-              </label>
-              <textarea
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={
-                  selectedOrder.orderItems &&
-                  selectedOrder.orderItems.length > 0
-                    ? selectedOrder.orderItems
-                        .map(
-                          (item) =>
-                            `Product: ${getProductName(
-                              item.productId
-                            )}, Quantity: ${item.quantity}`
+            <div className="field-group flex flex-col">
+              <div className="layout_header flex flex-row">
+                <label className="block text-sm font-medium text-gray-700 mb-1 ml-1 w-1/2">
+                  Product
+                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quantity
+                </label>
+              </div>
+              {selectedOrder.orderItems.map((item, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <div
+                    className="layout_body flex flex-row gap-2"
+                    key={item.id}
+                  >
+                    <input
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+                      value={item.productId}
+                      onChange={(e) =>
+                        handleOrderItemChange(
+                          index,
+                          "productId",
+                          e.target.value
                         )
-                        .join("\n")
-                    : "Not updated"
-                }
-                readOnly
-              />
+                      }
+                      key={item.id}
+                      disabled // Keep disabled if you don't want to edit productId
+                    />
+                    <input
+                      type="number"
+                      placeholder="Quantity"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleOrderItemChange(index, "quantity", e.target.value)
+                      }
+                      readOnly // Keep readOnly if you don't want to edit quantity
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
             <div className="total_amount_form">
               <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
@@ -514,29 +533,56 @@ const OrderTable = () => {
               readOnly
             />
           </div>
-          <div className="field-group">
+          <div className="field-group flex flex-col">
+            <div className="layout_header flex flex-row">
+              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1 w-1/2">
+                Product
+              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Quantity
+              </label>
+            </div>
             {formData.orderItems.map((item, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <div className="layout_body flex flex-row gap-2" key={item.id}>
+                  <input
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+                    value={item.productId}
+                    onChange={(e) =>
+                      handleOrderItemChange(index, "productId", e.target.value)
+                    }
+                    key={item.id}
+                    disabled // Keep disabled if you don't want to edit productId
+                  />
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200"
+                    value={item.quantity}
+                    onChange={(e) =>
+                      handleOrderItemChange(index, "quantity", e.target.value)
+                    }
+                    readOnly // Keep readOnly if you don't want to edit quantity
+                  />
+                </div>
+              </div>
+            ))}
+            {/* {formData.orderItems.map((item, index) => (
               <div key={index} className="flex gap-2 mb-2">
                 <div className="flex flex-col w-1/2">
                   <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
                     Product
                   </label>
 
-                  {products.map((product) => (
-                    <input
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
-                      value={product.productName}
-                      onChange={(e) =>
-                        handleOrderItemChange(
-                          index,
-                          "productId",
-                          e.target.value
-                        )
-                      }
-                      key={product.id}
-                      disabled // Keep disabled if you don't want to edit productId
-                    />
-                  ))}
+                  <input
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+                    value={item.productId}
+                    onChange={(e) =>
+                      handleOrderItemChange(index, "productId", e.target.value)
+                    }
+                    key={item.id}
+                    disabled // Keep disabled if you don't want to edit productId
+                  />
                 </div>
                 <div className="flex flex-col w-1/2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -554,7 +600,7 @@ const OrderTable = () => {
                   />
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
           <div className="field-group">
             <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
@@ -610,12 +656,12 @@ const OrderTable = () => {
               }
             >
               <option value="">Select Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="DELIVERING">Delivering</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELED">Canceled</option>
+              <option value="PENDING">PENDING</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="DELIVERING">DELIVERING</option>
+              <option value="COMPLETED">COMPLETED</option>
+              <option value="CANCELED">CANCELED</option>
             </select>
           </div>
           <div className="field-group">

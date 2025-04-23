@@ -97,6 +97,7 @@ const UserLogChart = () => {
           <span>{error}</span>
         </div>
       )}
+      <label htmlFor="userLog" className="font-bold text-2xl">User Logs</label>
 
       {/* Bảng dữ liệu */}
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
