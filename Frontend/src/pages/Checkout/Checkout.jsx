@@ -1,7 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import CheckoutForm from "../../components/Checkout/CheckoutForm/CheckoutForm";
 import CheckoutSummary from "../../components/Checkout/CheckoutSummary/CheckoutSummary";
-import { useUser } from "../../context/UserContext";
 import { useEffect, useRef } from "react";
 import { getToken } from "../Login/app/static";
 import axios from "axios";
@@ -10,7 +9,6 @@ import { createOrder } from "../../services/orderService";
 
 function Checkout() {
   const [searchParams] = useSearchParams();
-  const { user } = useUser();
 
   const payment = searchParams.get("payment");
   const orderCreatedRef = useRef(false);
@@ -29,58 +27,46 @@ function Checkout() {
   useEffect(() => {
     if (orderCreatedRef.current) return;
     const checkoutStr = localStorage.getItem("checkout");
-    if (
-      payment === "success" &&
-      user &&
-      user.id &&
-      checkoutStr &&
-      !orderCreatedRef.current
-    ) {
+    if (payment === "success" && checkoutStr && !orderCreatedRef.current) {
       const checkout = JSON.parse(checkoutStr);
       const fetchCart = async () => {
         try {
           const token = getToken();
           const response = await axios.get(
-            `http://localhost:8080/api/v1/cart/${user.id}`,
+            `http://localhost:8080/api/v1/cart/${checkout.userId}`,
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
           if (response.data && response.data.items) {
-            if (checkout.userId === response.data.userId) {
-              const responseData = response.data;
-              const payload = {
-                userId: responseData.userId,
-                orderItems: responseData.items.map((item) => ({
-                  productId: item.productId,
-                  quantity: item.quantity,
-                })),
-                totalAmount: responseData.totalAmount,
-                voucherId: checkout.voucher.id,
-                orderDate: new Date().toISOString(),
-                shippingDate: new Date(
-                  new Date().getTime() + 3 * 24 * 60 * 60 * 1000
-                ).toISOString(),
-                orderStatus: "PENDING",
-                paymentMethod: "CREDIT",
-              };
-              orderCreatedRef.current = true;
-              await handleCreateOrder(payload);
-              localStorage.removeItem("checkout");
-            } else {
-              toast.error("Không thể tải giỏ hàng");
-            }
+            const responseData = response.data;
+            const payload = {
+              userId: responseData.userId,
+              orderItems: responseData.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+              })),
+              totalAmount: responseData.totalAmount,
+              voucherId: checkout?.voucher?.id,
+              orderDate: new Date().toISOString(),
+              shippingDate: new Date(
+                new Date().getTime() + 3 * 24 * 60 * 60 * 1000
+              ).toISOString(),
+              orderStatus: "PENDING",
+              paymentMethod: "CREDIT",
+            };
+            orderCreatedRef.current = true;
+            await handleCreateOrder(payload);
+            localStorage.removeItem("checkout");
           }
         } catch (err) {
           console.error("Error fetching cart:", err);
-          if (user && user.userId) {
-            toast.error("Không thể tải giỏ hàng");
-          }
+          toast.error("Không thể tải giỏ hàng");
         }
       };
       fetchCart();
     }
-  }, [payment, user]);
+  }, [payment]);
 
   if (payment === "success") {
     return (
