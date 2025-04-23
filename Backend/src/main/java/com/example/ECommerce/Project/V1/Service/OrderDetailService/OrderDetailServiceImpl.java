@@ -166,14 +166,17 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
         orderDetail = orderDetailRepository.save(orderDetail);
 
-        Voucher voucher = voucherRepository.findById(orderDetailDTO.getVoucherId())
-                .orElseThrow(() -> new RuntimeException("Voucher not found in database"));
-        if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0) {
-            voucher.setUsageLimit(voucher.getUsageLimit() - 1);
-        } else {
-            // Xử lý trường hợp usageLimit là null hoặc đã hết lượt sử dụng
-            throw new IllegalStateException("Voucher has reached its usage limit or is invalid.");
+        if (orderDetailDTO.getVoucherId() != null) {
+            Voucher voucher = voucherRepository.findById(orderDetailDTO.getVoucherId())
+                    .orElseThrow(() -> new RuntimeException("Voucher not found in database"));
+
+            if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0) {
+                voucher.setUsageLimit(voucher.getUsageLimit() - 1);
+            } else {
+                throw new IllegalStateException("Voucher has reached its usage limit or is invalid.");
+            }
         }
+
         if(Objects.equals(orderDetailDTO.getOrderStatus(), "COMPLETED")){
             for (OrderItem orderItem : orderDetail.getOrderItems()) {
                 bestSellerService.updateBestSellerQuantity(orderItem.getProduct().getId());
