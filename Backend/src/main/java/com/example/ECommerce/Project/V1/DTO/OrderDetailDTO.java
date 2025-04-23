@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.DTO;
 
+import com.example.ECommerce.Project.V1.Model.Address;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class OrderDetailDTO {
 
     private Integer userId; // ID của người dùng
 
-    private Integer addressId;
+    private AddressDTO addressId;
 
     private String username;
 
