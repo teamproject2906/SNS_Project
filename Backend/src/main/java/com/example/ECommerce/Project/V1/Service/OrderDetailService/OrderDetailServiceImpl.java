@@ -38,10 +38,15 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Autowired
     private BestSellerService bestSellerService;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private VoucherRepository voucherRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Override
     public List<OrderDetailDTO> getAllOrders() {
@@ -156,6 +161,14 @@ public class OrderDetailServiceImpl implements OrderDetailService {
                     mapper.skip(OrderItem::setOrderDetail); // Skip set id orderdetail
                 });
         OrderDetail orderDetail = modelMapper.map(orderDetailDTO, OrderDetail.class);
+
+        // Xử lý Address nếu có
+        if (orderDetailDTO.getAddressId() != null) {
+            Optional<Address> findAddress = addressRepository.findById(orderDetailDTO.getAddressId().getId());
+            Address savedAddress = addressRepository.save(findAddress.orElse(null));
+            orderDetail.setAddressId(savedAddress);
+        }
+
         if (orderDetail.getOrderItems() == null) {
             orderDetail.setOrderItems(new ArrayList<>());
         }
@@ -177,6 +190,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
             } else {
                 throw new IllegalStateException("Voucher has reached its usage limit or is invalid.");
             }
+
+            orderDetail.setVoucher(voucher); // Gán voucher vào order
         }
 
         if(Objects.equals(orderDetailDTO.getOrderStatus(), "COMPLETED")){
