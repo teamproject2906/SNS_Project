@@ -58,6 +58,7 @@ public class AddressServiceImpl implements AddressService {
         address.setDistrict(addressDTO.getDistrict());
         address.setProvince(addressDTO.getProvince());
         address.setCountry(addressDTO.getCountry());
+        address.setPhoneNumber(addressDTO.getPhoneNumber());
         address.setIsDefault(addressDTO.getIsDefault());
 
         Address updatedAddress = addressRepository.save(address);
@@ -78,6 +79,7 @@ public class AddressServiceImpl implements AddressService {
         dto.setDistrict(address.getDistrict());
         dto.setProvince(address.getProvince());
         dto.setCountry(address.getCountry());
+        dto.setPhoneNumber(address.getPhoneNumber());
         dto.setIsDefault(address.getIsDefault());
         dto.setUserId(address.getUser().getId());
         return dto;
@@ -91,6 +93,7 @@ public class AddressServiceImpl implements AddressService {
         address.setDistrict(dto.getDistrict());
         address.setProvince(dto.getProvince());
         address.setCountry(dto.getCountry());
+        address.setPhoneNumber(dto.getPhoneNumber());
         address.setIsDefault(dto.getIsDefault());
         return address;
     }

@@ -47,15 +47,15 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     public List<OrderDetailDTO> getAllOrders() {
         return orderDetailRepository.findAll()
                 .stream()
-                .map(order -> modelMapper.map(order, OrderDetailDTO.class))
+                .map(this::convertToOrderDetailDTO)
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public OrderDetailDTO getOrderById(Integer id) {
-        OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
-        return modelMapper.map(orderDetail, OrderDetailDTO.class);
+        OrderDetail orderDetail = orderDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return convertToOrderDetailDTO(orderDetail);
     }
 
     @Override
@@ -239,5 +239,38 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     @Override
     public void deleteOrder(Integer id) {
         orderDetailRepository.deleteById(id);
+    }
+
+    private OrderDetailDTO convertToOrderDetailDTO(OrderDetail orderDetail) {
+        OrderDetailDTO dto = modelMapper.map(orderDetail, OrderDetailDTO.class);
+
+        // Gán username thủ công nếu có user liên kết
+        if (orderDetail.getUser() != null) {
+            if (orderDetail.getUser().getFirstname() != null) {
+                dto.setUsername(orderDetail.getUser().getFirstname() + " " + orderDetail.getUser().getLastname());
+            } else {
+                dto.setUsername(orderDetail.getUser().getUsername());
+            }
+        }
+
+        // Gán danh sách orderItems sau khi map thủ công để có color & size
+        List<OrderItemDTO> orderItemDTOs = orderDetail.getOrderItems().stream()
+                .map(this::convertToOrderItemDTO)
+                .collect(Collectors.toList());
+        dto.setOrderItems(orderItemDTOs);
+
+        return dto;
+    }
+
+    private OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
+        OrderItemDTO dto = modelMapper.map(orderItem, OrderItemDTO.class);
+
+        if (orderItem.getProduct() != null) {
+            dto.setColor(orderItem.getProduct().getColor());
+            dto.setProductName(orderItem.getProduct().getProductName());
+            dto.setSize(orderItem.getProduct().getSizeChart().getValue()); // giả sử SizeChart có getSize()
+        }
+
+        return dto;
     }
 }
