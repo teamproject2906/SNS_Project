@@ -121,9 +121,9 @@ const CommentsSection = ({ productId }) => {
 
     const formData = new FormData();
     formData.append('dto', JSON.stringify(dto));
-    if (newComment.file) {
-      formData.append('file', newComment.file);
-    }
+    formData.append('file', newComment.file || ''); // Explicitly handle no file
+
+    console.log('Submitting formData:', Object.fromEntries(formData)); // Debugging
 
     try {
       const response = await api.post('/api/feedbacks', formData, {

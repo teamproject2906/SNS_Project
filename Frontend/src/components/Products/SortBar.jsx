@@ -5,13 +5,13 @@ const SortBar = ({ onSort, selectedOption }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const options = [
-    { label: "Giá: Tăng dần", value: "price-asc" },
-    { label: "Giá: Giảm dần", value: "price-desc" },
-    { label: "Tên: A-Z", value: "name-asc" },
-    { label: "Tên: Z-A", value: "name-desc" },
-    { label: "Cũ nhất", value: "oldest" },
-    { label: "Mới nhất", value: "newest" },
-    { label: "Bán chạy nhất", value: "best-selling" },
+    { label: "Price: Ascending", value: "price-asc" },
+    { label: "Price: Descending", value: "price-desc" },
+    { label: "Name: A-Z", value: "name-asc" },
+    { label: "Name: Z-A", value: "name-desc" },
+    { label: "Oldest Products", value: "oldest" },
+    { label: "Latest Products", value: "newest" },
+    // { label: "Bán chạy nhất", value: "best-selling" },
   ];
 
   const toggleDropdown = () => {

@@ -9,7 +9,7 @@ import { IoFilter } from "react-icons/io5";
 export default function Product() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [sortOption, setSortOption] = useState("Sản phẩm nổi bật");
+  const [sortOption, setSortOption] = useState("All Products");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFiltered, setIsFiltered] = useState(false);
@@ -57,7 +57,7 @@ export default function Product() {
 
     setFilteredProducts(filtered);
     setIsFiltered(true);
-    setSortOption("Sản phẩm nổi bật");
+    setSortOption("All Products");
   };
 
   const handleSort = (option) => {
