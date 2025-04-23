@@ -19,6 +19,8 @@ public class OrderDetailDTO {
 
     private Integer userId; // ID của người dùng
 
+    private Integer addressId;
+
     private String username;
 
     private List<OrderItemDTO> orderItems; // Danh sách sản phẩm trong đơn hàng

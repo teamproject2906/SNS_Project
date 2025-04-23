@@ -39,6 +39,8 @@ public class OrderDetail extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private Integer addressId;
+
     @ManyToOne()
     @JoinColumn(name = "voucher_id")
     private Voucher voucher;

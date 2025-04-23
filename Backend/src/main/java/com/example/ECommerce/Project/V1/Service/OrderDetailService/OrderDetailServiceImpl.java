@@ -143,7 +143,9 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
     @Override
     public OrderDetailDTO createOrder(OrderDetailDTO orderDetailDTO) {
+
         validateOrderDetailDTO(orderDetailDTO);
+
         modelMapper.typeMap(OrderDetailDTO.class, OrderDetail.class)
                 .addMappings(mapper -> {
                     mapper.skip(OrderDetail::setId); // Skip setId
