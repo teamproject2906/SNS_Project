@@ -2,7 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import CheckoutForm from "../../components/Checkout/CheckoutForm/CheckoutForm";
 import CheckoutSummary from "../../components/Checkout/CheckoutSummary/CheckoutSummary";
 import { useUser } from "../../context/UserContext";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getToken } from "../Login/app/static";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -13,6 +13,7 @@ function Checkout() {
   const { user } = useUser();
 
   const payment = searchParams.get("payment");
+  const orderCreatedRef = useRef(false);
 
   const handleCreateOrder = async (payload) => {
     try {
@@ -24,11 +25,18 @@ function Checkout() {
       throw new Error(error);
     }
   };
-  
-  useEffect(() => {
-    if (payment === "success" && user && user.id) {
-      const checkout = JSON.parse(localStorage.getItem("checkout"));
 
+  useEffect(() => {
+    if (orderCreatedRef.current) return;
+    const checkoutStr = localStorage.getItem("checkout");
+    if (
+      payment === "success" &&
+      user &&
+      user.id &&
+      checkoutStr &&
+      !orderCreatedRef.current
+    ) {
+      const checkout = JSON.parse(checkoutStr);
       const fetchCart = async () => {
         try {
           const token = getToken();
@@ -56,7 +64,9 @@ function Checkout() {
                 orderStatus: "PENDING",
                 paymentMethod: "CREDIT",
               };
-              handleCreateOrder(payload);
+              orderCreatedRef.current = true;
+              await handleCreateOrder(payload);
+              localStorage.removeItem("checkout");
             } else {
               toast.error("Không thể tải giỏ hàng");
             }

@@ -170,6 +170,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
                 .orElseThrow(() -> new RuntimeException("Voucher not found in database"));
         if (voucher.getUsageLimit() != null && voucher.getUsageLimit() > 0) {
             voucher.setUsageLimit(voucher.getUsageLimit() - 1);
+            voucherRepository.save(voucher);
         } else {
             // Xử lý trường hợp usageLimit là null hoặc đã hết lượt sử dụng
             throw new IllegalStateException("Voucher has reached its usage limit or is invalid.");
