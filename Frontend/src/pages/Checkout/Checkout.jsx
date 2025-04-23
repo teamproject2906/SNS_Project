@@ -45,8 +45,8 @@ function Checkout() {
               orderItems: responseData.items.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
-                size: item?.color,
-                color: item?.colorChart?.value,
+                color: item?.product?.color,
+                size: item?.product?.sizeChart?.value,
               })),
               totalAmount: checkout.totalAmount,
               voucherId: checkout?.voucher?.id,

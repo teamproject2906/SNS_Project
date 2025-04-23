@@ -13,7 +13,7 @@ import java.util.List;
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
     OrderDetail findFirstByOrderByCreatedAtDesc();
 
-    @Query("SELECT o FROM OrderDetail o WHERE o.user.id = :userId AND o.orderStatus = :orderStatus")
+    @Query("SELECT o FROM OrderDetail o WHERE o.user.id = :userId AND o.orderStatus = :orderStatus ORDER BY o.createdAt DESC")
     List<OrderDetail> findByUserIdAndOrderStatus(
             @Param("userId") Integer userId,
             @Param("orderStatus") OrderStatus orderStatus

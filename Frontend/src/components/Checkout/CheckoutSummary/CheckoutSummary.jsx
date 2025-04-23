@@ -92,13 +92,15 @@ const CheckoutSummary = () => {
         });
         window.location.href = response.data.paymentUrl;
       } else {
+        console.log(cartItems);
+
         const payload = {
           userId: user.id,
           orderItems: cartItems.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
-            size: item?.color,
-            color: item?.colorChart?.value,
+            color: item?.product?.color,
+            size: item?.product?.sizeChart?.value,
           })),
           address: {
             id: address?.id,
