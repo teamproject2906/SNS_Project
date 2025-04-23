@@ -10,8 +10,6 @@ import com.example.ECommerce.Project.V1.Service.OrderItemService.OrderItemServic
 import com.example.ECommerce.Project.V1.Service.ProductService.IProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -52,8 +50,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     public List<OrderDetailDTO> getAllOrders() {
-        Sort sortByCreateAt = Sort.by(Sort.Direction.DESC, "createAt");
-        return orderDetailRepository.findAll(sortByCreateAt)
+        return orderDetailRepository.findAll()
                 .stream()
                 .map(this::convertToOrderDetailDTO)
                 .collect(Collectors.toList());
