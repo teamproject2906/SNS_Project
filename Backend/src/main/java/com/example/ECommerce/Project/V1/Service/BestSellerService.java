@@ -118,6 +118,7 @@ public class BestSellerService {
             dtos.add(BestSellerDTO.builder()
                     .id(null) // Không có BestSeller ID trong logic này, để null hoặc bỏ qua
                     .productId(productId)
+                    .productName(product.getProductName())
                     .quantitySold(quantitySold.intValue())
                     .build());
         }
@@ -141,6 +142,7 @@ public class BestSellerService {
         return BestSellerDTO.builder()
                 .id(bestSeller.getId())
                 .productId(bestSeller.getProduct().getId())
+                .productName(bestSeller.getProduct().getProductName())
                 .quantitySold(bestSeller.getQuantitySold())
                 .build();
     }

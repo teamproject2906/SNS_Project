@@ -48,6 +48,9 @@ public class Address extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String country;
 
+    @Column
+    private String phoneNumber;
+
     @Column(nullable = false, columnDefinition = "bit default 0")
     private Boolean isDefault;
 

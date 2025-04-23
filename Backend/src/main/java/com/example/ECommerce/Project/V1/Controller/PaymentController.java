@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
@@ -25,8 +25,9 @@ public class PaymentController {
     public ResponseObject<PaymentDTO.VNPayResponse> pay(HttpServletRequest request) {
         return new ResponseObject<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
     }
+
     @GetMapping("/vn-pay-callback")
-    public void payCallbackHandler(HttpServletRequest request, HttpServletResponse response) throws IOException, IOException {
+    public void payCallbackHandler(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String status = request.getParameter("vnp_ResponseCode");
 
         if ("00".equals(status)) {
@@ -35,4 +36,5 @@ public class PaymentController {
             response.sendRedirect("http://localhost:5173/cart?payment=failed");
         }
     }
+
 }

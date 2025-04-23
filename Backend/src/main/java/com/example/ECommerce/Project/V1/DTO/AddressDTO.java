@@ -11,6 +11,7 @@ public class AddressDTO {
     private String district;
     private String province;
     private String country;
+    private String phoneNumber;
     private Boolean isDefault;
     private Integer userId;
 }
