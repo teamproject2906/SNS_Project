@@ -34,7 +34,7 @@ const TotalProductChart = () => {
         <div className="layout_content_left flex flex-col">
           <div className="layout_content_number text-white text-3xl">
             {/* {formatNumber(product?.length)} */}
-            {product?.length ? formatNumber(product.length) : 0}
+            {product?.length ? formatNumber(product.length) : "Loading..."}
           </div>
           <div className="layout_content_title text-white text-lg">
             Total Products

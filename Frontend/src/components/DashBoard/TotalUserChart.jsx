@@ -35,7 +35,7 @@ const TotalUserChart = () => {
         <div className="layout_content_left flex flex-col">
           <div className="layout_content_number text-white text-3xl">
             {/* {formatNumber(user?.length)} */}
-            {user?.length ? formatNumber(user.length) : "0"}
+            {user?.length ? formatNumber(user.length) : "Loading..."}
           </div>
           <div className="layout_content_title text-white text-lg">
             Total Users

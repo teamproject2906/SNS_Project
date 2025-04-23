@@ -12,6 +12,8 @@ import { useMemo } from "react";
 import TotalUserChart from "./TotalUserChart";
 import TotalProductChart from "./TotalProductChart";
 import UserLogChart from "./UserLogChart";
+import TopProduct from "./TopProduct";
+import TotalRevenueAmount from "./TotalRevenueAmount";
 
 // Register Chart.js components
 ChartJS.register(
@@ -251,16 +253,19 @@ const ChartData = ({ orders: propOrders }) => {
     // </div>
     <div className="layout_container flex flex-col gap-5">
       <div className="layout_content flex flex-row gap-5">
-        <div className="chart_content w-1/2">
+        <div className="chart_content w-1/3">
           <TotalUserChart />
         </div>
-        <div className="chart_content w-1/2">
+        <div className="chart_content w-1/3">
           <TotalProductChart />
+        </div>
+        <div className="chart_content w-1/3">
+          <TotalRevenueAmount />
         </div>
       </div>
       <div className="layout_content flex flex-row gap-5">
         <div className="chart_content w-1/2">
-          <TotalUserChart />
+          <TopProduct />
         </div>
         <div className="chart_content w-1/2">
           <UserLogChart />
