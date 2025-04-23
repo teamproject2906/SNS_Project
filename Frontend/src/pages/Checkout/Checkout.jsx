@@ -46,7 +46,7 @@ function Checkout() {
                 productId: item.productId,
                 quantity: item.quantity,
               })),
-              totalAmount: responseData.totalAmount,
+              totalAmount: checkout.totalAmount,
               voucherId: checkout?.voucher?.id,
               orderDate: new Date().toISOString(),
               shippingDate: new Date(

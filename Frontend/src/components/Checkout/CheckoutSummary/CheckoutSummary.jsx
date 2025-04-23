@@ -93,7 +93,7 @@ const CheckoutSummary = () => {
             quantity: item.quantity,
           })),
           totalAmount: total,
-          voucherId: selectedVoucher.id,
+          voucherId: selectedVoucher?.id,
           orderStatus: "PENDING",
           paymentMethod: "COD",
           orderDate: new Date().toISOString(),
