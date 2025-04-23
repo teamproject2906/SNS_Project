@@ -10,8 +10,13 @@ import { createOrder } from "../../../services/orderService";
 
 const CheckoutSummary = () => {
   const navigate = useNavigate();
-  const { cartItems, getTotalPrice, getPriceAfterPromotion, paymentMethod } =
-    useCart();
+  const {
+    cartItems,
+    getTotalPrice,
+    getPriceAfterPromotion,
+    paymentMethod,
+    address,
+  } = useCart();
   const { user } = useUser();
   const shippingFee = 0; // Phí vận chuyển
   const [vouchers, setVouchers] = useState([]);
@@ -79,6 +84,7 @@ const CheckoutSummary = () => {
             userId: user.id,
             totalAmount: total,
             voucher: selectedVoucher,
+            address: address,
           })
         );
         const response = await checkoutVnPay({
@@ -91,7 +97,12 @@ const CheckoutSummary = () => {
           orderItems: cartItems.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
+            size: item?.color,
+            color: item?.colorChart?.value,
           })),
+          address: {
+            id: address?.id,
+          },
           totalAmount: total,
           voucherId: selectedVoucher?.id,
           orderStatus: "PENDING",

@@ -45,9 +45,14 @@ function Checkout() {
               orderItems: responseData.items.map((item) => ({
                 productId: item.productId,
                 quantity: item.quantity,
+                size: item?.color,
+                color: item?.colorChart?.value,
               })),
               totalAmount: checkout.totalAmount,
               voucherId: checkout?.voucher?.id,
+              address: {
+                id: checkout?.address?.id,
+              },
               orderDate: new Date().toISOString(),
               shippingDate: new Date(
                 new Date().getTime() + 3 * 24 * 60 * 60 * 1000

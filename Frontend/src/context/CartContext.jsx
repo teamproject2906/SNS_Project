@@ -20,6 +20,7 @@ export const CartProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [user, setUser] = useState(getUserInfo());
   const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [address, setAddress] = useState(null);
 
   useEffect(() => {
     setUser(getUserInfo());
@@ -235,6 +236,8 @@ export const CartProvider = ({ children }) => {
     getPriceAfterPromotion,
     paymentMethod,
     setPaymentMethod,
+    address,
+    setAddress,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -45,4 +45,10 @@ public class AddressController {
         addressService.deleteAddress(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAddressById(@PathVariable Integer id){
+        AddressDTO add = addressService.getAddressById(id);
+        return ResponseEntity.ok(add);
+    }
 }

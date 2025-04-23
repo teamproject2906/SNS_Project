@@ -1,8 +1,8 @@
 export const OrderStatus = {
-    PENDING: 0,
-    APPROVED: 1,
-    REJECTED: 2,
-    DELIVERING: 3,
-    COMPLETED: 4,
-    CANCELED: 5,
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+    DELIVERING: "DELIVERING",
+    COMPLETED: "COMPLETED",
+    CANCELED: "CANCELED",
 }

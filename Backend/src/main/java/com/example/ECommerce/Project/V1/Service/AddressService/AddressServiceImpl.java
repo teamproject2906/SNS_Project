@@ -37,6 +37,12 @@ public class AddressServiceImpl implements AddressService {
         return mapToDTO(savedAddress);
     }
 
+    @Override
+    public AddressDTO getAddressById(Integer id){
+        Address add = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found address with id"));
+        return mapToDTO(add);
+    }
 
     @Override
     public List<AddressDTO> getAddressesByUserId(Integer userId) {

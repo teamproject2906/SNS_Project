@@ -7,11 +7,10 @@ import AddressForm from "../../Address/AddressForm";
 import { useCart } from "../../../context/CartContext";
 
 const CheckoutForm = () => {
-  const { paymentMethod, setPaymentMethod } = useCart();
+  const { paymentMethod, setPaymentMethod, address, setAddress } = useCart();
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedAddress, setSelectedAddress] = useState(null);
   const [user, setUser] = useState(null);
   const [showAddressPopup, setShowAddressPopup] = useState(false);
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -42,7 +41,7 @@ const CheckoutForm = () => {
       // Set default address if available
       const defaultAddress = sortedAddresses.find((addr) => addr.isDefault);
       if (defaultAddress) {
-        setSelectedAddress(defaultAddress);
+        setAddress(defaultAddress);
       }
 
       setError(null);
@@ -56,7 +55,7 @@ const CheckoutForm = () => {
   };
 
   const handleAddressSelect = (address) => {
-    setSelectedAddress(address);
+    setAddress(address);
     setShowAddressPopup(false);
   };
 
@@ -112,27 +111,26 @@ const CheckoutForm = () => {
           ) : (
             <>
               {/* Selected Address Card */}
-              {selectedAddress && (
+              {address && (
                 <div className="mb-4 p-4 border border-gray-200 rounded-md">
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center">
                         <h4 className="font-medium mr-2">
-                          {selectedAddress.addressDescription}
+                          {address.addressDescription}
                         </h4>
                         <span className="text-gray-600">
-                          {selectedAddress.phoneNumber}
+                          {address.phoneNumber}
                         </span>
                       </div>
                       <p className="text-gray-600 mt-1">
-                        {selectedAddress.addressDetail}
+                        {address.addressDetail}
                       </p>
                       <p className="text-gray-600">
-                        {selectedAddress.ward}, {selectedAddress.district},{" "}
-                        {selectedAddress.province}
+                        {address.ward}, {address.district}, {address.province}
                       </p>
                       <div className="mt-2 flex gap-2">
-                        {selectedAddress.isDefault && (
+                        {address.isDefault && (
                           <span className="border border-red-400 text-red-400 px-2 py-0.5 text-xs rounded">
                             Mặc định
                           </span>
@@ -183,7 +181,7 @@ const CheckoutForm = () => {
                         <div
                           key={address.id}
                           className={`p-4 border rounded-md cursor-pointer transition-all ${
-                            selectedAddress?.id === address.id
+                            address?.id === address.id
                               ? "border-blue-500 bg-blue-50"
                               : "border-gray-200 hover:border-gray-300"
                           }`}
@@ -194,7 +192,7 @@ const CheckoutForm = () => {
                               <input
                                 type="radio"
                                 name="address"
-                                checked={selectedAddress?.id === address.id}
+                                checked={address?.id === address.id}
                                 onChange={() => handleAddressSelect(address)}
                                 className="h-4 w-4 text-blue-600"
                               />
