@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { FaBoxes } from "react-icons/fa";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { AiOutlineRise } from "react-icons/ai";
 
 const TotalRevenueAmount = () => {
-  const [totalRevenue, setTotalRevenue] = useState(null);
   const [orderAccepted, setOrderAccepted] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const formatNumber = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -16,7 +15,7 @@ const TotalRevenueAmount = () => {
   const fetchOrder = async () => {
     try {
       const token = getToken();
-      setLoading(true);
+      // setLoading(true);
       const res = await axios.get("http://localhost:8080/api/v1/order-details", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -27,9 +26,7 @@ const TotalRevenueAmount = () => {
     } catch (error) {
       console.error("Error fetching total revenue:", error);
       toast.error(error.response?.data.message);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const totalAmount = orderAccepted?.reduce((total, order) => {
@@ -55,7 +52,7 @@ const TotalRevenueAmount = () => {
         </div>
         <div className="layout_content_right">
           <div className="layout_content_icon bg-white border rounded-full p-4">
-            <FaBoxes className="text-red-400" size={28} />
+            <AiOutlineRise className="text-red-400" size={28} />
           </div>
         </div>
       </div>
