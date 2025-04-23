@@ -1,7 +1,91 @@
+import { useSearchParams } from "react-router-dom";
 import CheckoutForm from "../../components/Checkout/CheckoutForm/CheckoutForm";
 import CheckoutSummary from "../../components/Checkout/CheckoutSummary/CheckoutSummary";
+import { useUser } from "../../context/UserContext";
+import { useEffect } from "react";
+import { getToken } from "../Login/app/static";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { createOrder } from "../../services/orderService";
 
 function Checkout() {
+  const [searchParams] = useSearchParams();
+  const { user } = useUser();
+
+  const payment = searchParams.get("payment");
+
+  const handleCreateOrder = async (payload) => {
+    try {
+      const response = await createOrder(payload);
+      toast.success("Đơn hàng đã được tạo thành công");
+      return response.data;
+    } catch (error) {
+      toast.error("Lỗi khi tạo đơn hàng");
+      throw new Error(error);
+    }
+  };
+  
+  useEffect(() => {
+    if (payment === "success" && user && user.id) {
+      const checkout = JSON.parse(localStorage.getItem("checkout"));
+
+      const fetchCart = async () => {
+        try {
+          const token = getToken();
+          const response = await axios.get(
+            `http://localhost:8080/api/v1/cart/${user.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (response.data && response.data.items) {
+            if (checkout.userId === response.data.userId) {
+              const responseData = response.data;
+              const payload = {
+                userId: responseData.userId,
+                orderItems: responseData.items.map((item) => ({
+                  productId: item.productId,
+                  quantity: item.quantity,
+                })),
+                totalAmount: responseData.totalAmount,
+                voucherId: checkout.voucher.id,
+                orderDate: new Date().toISOString(),
+                shippingDate: new Date(
+                  new Date().getTime() + 3 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                orderStatus: "PENDING",
+                paymentMethod: "CREDIT",
+              };
+              handleCreateOrder(payload);
+            } else {
+              toast.error("Không thể tải giỏ hàng");
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching cart:", err);
+          if (user && user.userId) {
+            toast.error("Không thể tải giỏ hàng");
+          }
+        }
+      };
+      fetchCart();
+    }
+  }, [payment, user]);
+
+  if (payment === "success") {
+    return (
+      <div className="flex flex-col lg:flex-row justify-center items-start max-w-full mx-auto px-6 md:px-12 lg:px-16 py-10 gap-28">
+        <div className="w-full lg:w-[48%]">
+          <div className="flex flex-col items-center justify-center">
+            <h1 className="text-2xl font-bold text-green-600">
+              Đơn hàng đã được tạo thành công
+            </h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col lg:flex-row justify-center items-start max-w-full mx-auto px-6 md:px-12 lg:px-16 py-10 gap-28">
       {/* Form giao hàng */}

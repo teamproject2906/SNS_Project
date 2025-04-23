@@ -30,7 +30,7 @@ public class PaymentController {
         String status = request.getParameter("vnp_ResponseCode");
 
         if ("00".equals(status)) {
-            response.sendRedirect("http://localhost:5173/order?payment=success");
+            response.sendRedirect("http://localhost:5173/checkout?payment=success");
         } else {
             response.sendRedirect("http://localhost:5173/cart?payment=failed");
         }

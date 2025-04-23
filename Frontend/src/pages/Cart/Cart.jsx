@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 function Cart() {
   // Use the cart context instead of local state
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const payment = searchParams.get("payment");
 
   const {
