@@ -13,4 +13,5 @@ public class OrderItemDTO {
     private Integer quantity;
     private String size;
     private String color;
+    private String imageUrl;
 }

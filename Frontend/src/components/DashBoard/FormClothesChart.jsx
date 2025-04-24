@@ -5,7 +5,7 @@ import ModalAdd from "../share/ModalAdd";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import Modal from "react-modal";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import ModalDelete from "../share/ModalDelete";
 import ModalDeactivate from "../share/ModalDeactivate";
 import ModalActivate from "../share/ModalActivate";
@@ -29,9 +29,12 @@ const FormClothesChart = () => {
   const handleGetFormClothes = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/formclothes/getAll", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:8080/api/formclothes/getAll",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setFormClothes(res.data);
       console.log("Token:", token);
     } catch (error) {
@@ -294,7 +297,6 @@ const FormClothesChart = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Form Clothes</h3>
         <div className="flex flex-row gap-5">

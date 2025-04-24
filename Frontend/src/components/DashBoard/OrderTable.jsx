@@ -3,7 +3,7 @@ import DataTable from "react-data-table-component";
 import Modal from "react-modal";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import ModalDetail from "../share/ModalDetail";
 import ModalUpdate from "../share/ModalUpdate";
 import OrderDetailModal from "../Orders/OrderDetailModal";
@@ -339,7 +339,6 @@ const OrderTable = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Orders</h3>
         <div className="searchBar">

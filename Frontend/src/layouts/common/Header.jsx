@@ -47,6 +47,12 @@ const Header = () => {
   const searchDropdownRef = useRef(null);
   const navigate = useNavigate();
 
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsDropdownOpen(false);
+    }
+  };
+
   const menuAnimation = useSpring({
     opacity: isMenuOpen ? 1 : 1,
     transform: isMenuOpen ? "translateY(45%)" : "translateY(-100%)",
@@ -318,6 +324,18 @@ const Header = () => {
     if (token) fetchUserProfile(); // Chỉ gọi API nếu có token
   }, [token]); // Chỉ phụ thuộc vào token, không phụ thuộc vào user
 
+  useEffect(() => {
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   return (
     <header>
       <div className="bg-black text-white text-sm py-2">
@@ -327,7 +345,7 @@ const Header = () => {
           </span>
           <div className="flex space-x-4">
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button className="flex items-center" onClick={toggleDropdown}>
                   <img
                     src={
@@ -339,10 +357,7 @@ const Header = () => {
                   />
                 </button>
                 {isDropdownOpen && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute right-0 mt-2 bg-white shadow-md rounded-lg w-48 z-10"
-                  >
+                  <div className="absolute right-0 mt-2 bg-white shadow-md rounded-lg w-48 z-10">
                     <ul className="space-y-2 p-2 text-sm text-gray-700">
                       <li>
                         <Link

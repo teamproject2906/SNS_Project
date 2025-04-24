@@ -1,9 +1,10 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import Tabs from "../../components/Orders/Tabs";
 import { OrderStatus } from "../../constants/DataConstant";
 import { Truck } from "lucide-react";
 import useOrders from "../../hooks/useOrders";
 import { useUser } from "../../context/UserContext";
+import { DEFAULT_IMAGE } from "../../constants/ImageConstant";
 const Order = () => {
   const { user } = useUser();
   const { orders, loading, error, orderStatus, setOrderStatus, setUserId } =
@@ -40,18 +41,24 @@ const Order = () => {
                 <div className="w-full h-full flex flex-col">
                   <div className="flex flex-col">
                     {order?.orderItems.map((item) => (
-                      <Fragment key={item.id}>
-                        <div className="flex flex-row py-3 border-b-2 border-gray-200 space-x-4 items-center">
-                          <div className="flex flex-col flex-1 h-full">
-                            <h3>Tên sản phẩm: {item.productName}</h3>
-                            <p className="text-sm text-gray-500">
-                              Kích cỡ: {item.size}
-                            </p>
-                            <p className="text-sm">Màu: {item.color}</p>
-                          </div>
-                          <p className="text-sm">Số lượng x {item.quantity}</p>
+                      <div
+                        className="flex flex-row py-3 border-b-2 border-gray-200 space-x-4 items-center"
+                        key={item.id}
+                      >
+                        <img
+                          src={item.imageUrl || DEFAULT_IMAGE}
+                          alt="order"
+                          className="w-20 h-20 border-2 border-gray-200"
+                        />
+                        <div className="flex flex-col flex-1 h-full">
+                          <h3>Tên sản phẩm: {item.productName}</h3>
+                          <p className="text-sm text-gray-500">
+                            Kích cỡ: {item.size}
+                          </p>
+                          <p className="text-sm">Màu: {item.color}</p>
                         </div>
-                      </Fragment>
+                        <p className="text-sm">Số lượng x {item.quantity}</p>
+                      </div>
                     ))}
 
                     <div className="flex flex-row justify-end pt-5 items-center">

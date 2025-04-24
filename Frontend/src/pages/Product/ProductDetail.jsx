@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CommentsSection from "../../components/CommentsSection/CommentsSection";
 import axios from "axios";
 import { useCart } from "../../context/CartContext";
@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useUser } from "../../context/UserContext";
 
 const ProductDetail = () => {
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [productVariants, setProductVariants] = useState([]);
   const [productImages, setProductImages] = useState([]);
@@ -20,7 +21,7 @@ const ProductDetail = () => {
   const [imageIndex, setImageIndex] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const thumbnailsRef = useRef(null);
-  const { addToCart } = useCart();
+  const { addToCart, clearCart } = useCart();
   const { addToFavourites, removeFromFavourites, isInFavourites } =
     useFavourite();
   const { user } = useUser();
@@ -28,7 +29,6 @@ const ProductDetail = () => {
 
   const productId = window.location.pathname.split("/")[2];
   const productCode = location.state?.productCode;
-  console.log("Product code:", productCode);
 
   useEffect(() => {
     const fetchedProduct = async () => {
@@ -59,7 +59,6 @@ const ProductDetail = () => {
         setProduct(products[0]);
         // Store all variants for color/size filtering
         setProductVariants(products);
-        console.log("Products:", products);
 
         // Fetch product images
         const imagesRes = await axios.get(
@@ -73,21 +72,23 @@ const ProductDetail = () => {
           setSelectedImage(imagesRes.data[0].imageUrl);
         }
 
-        // Fetch feedback for average rating
-        const feedbackRes = await axios.get(
-          `http://localhost:8080/api/feedbacks/product/${productId}`,
-          {
-            headers: "Content-Type: application/json",
-          }
-        );
-        const feedbacks = feedbackRes.data;
-        if (feedbacks.length > 0) {
-          const totalRating = feedbacks.reduce(
-            (sum, feedback) => sum + feedback.rate,
-            0
+        if (productId) {
+          // Fetch feedback for average rating
+          const feedbackRes = await axios.get(
+            `http://localhost:8080/api/feedbacks/product/${productId}`,
+            {
+              headers: "Content-Type: application/json",
+            }
           );
-          const avgRating = totalRating / feedbacks.length;
-          setAverageRating(parseFloat(avgRating.toFixed(1)));
+          const feedbacks = feedbackRes.data;
+          if (feedbacks.length > 0) {
+            const totalRating = feedbacks.reduce(
+              (sum, feedback) => sum + feedback.rate,
+              0
+            );
+            const avgRating = totalRating / feedbacks.length;
+            setAverageRating(parseFloat(avgRating.toFixed(1)));
+          }
         } else {
           setAverageRating(0);
         }
@@ -211,6 +212,7 @@ const ProductDetail = () => {
       toast.error("Selected variant not found!");
       return;
     }
+    console.log(selectedImage || selectedVariant.imageUrl);
 
     const productToAdd = {
       id: selectedVariant.id,
@@ -227,6 +229,49 @@ const ProductDetail = () => {
 
     addToCart(productToAdd);
     toast.success("Added to cart successfully!");
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      if (!selectedColor) {
+        toast.error("Please select a color!");
+        return;
+      }
+
+      if (!selectedSize) {
+        toast.error("Please select a size!");
+        return;
+      }
+
+      // Find the variant matching selected color and size
+      const selectedVariant = productVariants.find(
+        (p) => p.color === selectedColor && p.sizeChart.value === selectedSize
+      );
+
+      if (!selectedVariant) {
+        toast.error("Selected variant not found!");
+        return;
+      }
+
+      const productToAdd = {
+        id: selectedVariant.id,
+        productName: selectedVariant.productName,
+        price: selectedVariant.promotion
+          ? selectedVariant.price -
+            selectedVariant.price * selectedVariant.promotion.discount
+          : selectedVariant.price,
+        quantity: quantity,
+        imageUrl: selectedImage || selectedVariant.imageUrl,
+        color: selectedColor,
+        size: selectedSize,
+      };
+      await clearCart();
+      await addToCart(productToAdd);
+      navigate("/checkout");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Failed to buy. Please try again.");
+    }
   };
 
   const handleToggleFavourite = () => {
@@ -517,7 +562,10 @@ const ProductDetail = () => {
           </div>
 
           <div className="mb-4 flex flex-row gap-2">
-            <button className="bg-red-500 text-white px-6 py-3 rounded-lg w-full">
+            <button
+              className="bg-red-500 text-white px-6 py-3 rounded-lg w-full"
+              onClick={handleBuyNow}
+            >
               BUY NOW
             </button>
           </div>

@@ -47,4 +47,7 @@ public class OrderItem extends BaseEntity {
 
     @Column
     private String color;
+
+    @Column
+    private String imageUrl;
 }

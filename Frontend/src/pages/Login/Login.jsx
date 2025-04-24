@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaFacebook, FaGoogle, FaLock } from "react-icons/fa";
 import axios from "axios";
 import { getToken, setToken, setUserInfo } from "./app/static";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode"; // Import thư viện decode token
 import { useUser } from "../../context/UserContext";
 
@@ -107,7 +107,6 @@ const Login = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <ToastContainer />
       <h1 className="text-xl font-bold mb-6 border-b pb-2">Login</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -184,7 +183,6 @@ const Login = () => {
 
         {/* Đăng Ký Tài Khoản */}
         <div className="p-6 shadow-lg border rounded-md">
-
           <h2 className="text-lg font-semibold mb-4">Create new account</h2>
           <p className="text-sm mb-6">
             Register an account now to make your purchases faster and easier.

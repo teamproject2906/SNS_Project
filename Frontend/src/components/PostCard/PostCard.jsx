@@ -9,6 +9,8 @@ import PostContent from "./PostContent";
 import PostActions from "./PostActions";
 import CommentSection from "./CommentSection/CommentSection";
 import LikeTooltip from "./LikeTooltip";
+import postService from "../../services/postService";
+import { toast } from "react-toastify";
 
 const PostCard = ({
   post,
@@ -55,6 +57,20 @@ const PostCard = ({
   const toggleComments = () => setShowComments(!showComments);
   const toggleLikeTooltip = () => {
     setShowLikeTooltip(true);
+  };
+
+  const handleReport = async () => {
+    try {
+      if (post?.id) {
+        await postService.reportPost(post?.id);
+        toast.success("Bài viết đã được báo cáo");
+      }
+    } catch (error) {
+      toast.error("Lỗi khi báo cáo bài viết");
+      console.error("Error reporting post:", error);
+    } finally {
+      setShowSettings(false);
+    }
   };
 
   useEffect(() => {
@@ -106,6 +122,7 @@ const PostCard = ({
         onDelete={handleDelete}
         showStatus={showStatus}
         isActive={post?.isActive}
+        onReport={handleReport}
       />
 
       <PostContent

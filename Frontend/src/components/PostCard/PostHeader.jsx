@@ -10,6 +10,7 @@ const PostHeader = ({
   toggleSettings,
   onEdit,
   onDelete,
+  onReport,
   showStatus,
   isActive,
 }) => {
@@ -25,7 +26,7 @@ const PostHeader = ({
       {showSettings && (
         <div className="absolute top-12 right-3 bg-white shadow-lg rounded-lg border p-3 w-40 z-50">
           <ul>
-            {isCurrentUser && (
+            {isCurrentUser ? (
               <>
                 <li
                   className="text-gray-700 hover:bg-gray-200 p-2 cursor-pointer"
@@ -40,10 +41,14 @@ const PostHeader = ({
                   Delete Post
                 </li>
               </>
+            ) : (
+              <li
+                className="text-gray-700 hover:bg-gray-200 p-2 cursor-pointer"
+                onClick={onReport}
+              >
+                Report
+              </li>
             )}
-            <li className="text-gray-700 hover:bg-gray-200 p-2 cursor-pointer">
-              Report
-            </li>
           </ul>
         </div>
       )}
@@ -84,6 +89,7 @@ PostHeader.propTypes = {
   onDelete: PropTypes.func.isRequired,
   showStatus: PropTypes.bool,
   isActive: PropTypes.bool,
+  onReport: PropTypes.func.isRequired,
 };
 
 export default PostHeader;

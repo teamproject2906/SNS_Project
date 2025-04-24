@@ -7,12 +7,14 @@ import { FavouriteProvider } from "./context/FavouriteContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>
-  <UserProvider>
-    <CartProvider>
-      <FavouriteProvider>
-        <App />
-      </FavouriteProvider>
-    </CartProvider>
-  </UserProvider>
+  <>
+    <UserProvider>
+      <CartProvider>
+        <FavouriteProvider>
+          <App />
+        </FavouriteProvider>
+      </CartProvider>
+    </UserProvider>
+  </>
   // </StrictMode>
 );

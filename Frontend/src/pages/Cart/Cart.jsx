@@ -219,7 +219,14 @@ function Cart() {
           <div className="mt-8 w-full">
             <Link
               to={`/checkout`}
-              className="block w-full py-3 bg-black text-white text-lg font-semibold text-center"
+              onClick={(e) => {
+                if (cartItems.length === 0) {
+                  e.preventDefault(); // chặn chuyển trang
+                }
+              }}
+              className={`block w-full py-3 bg-black text-white text-lg font-semibold text-center ${
+                cartItems.length === 0 ? "cursor-not-allowed opacity-50" : ""
+              }`}
             >
               THANH TOÁN
             </Link>

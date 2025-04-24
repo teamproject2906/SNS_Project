@@ -7,7 +7,7 @@ import ModalActivate from "../share/ModalActivate";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import Modal from "react-modal";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { to } from "@react-spring/web";
 
 Modal.setAppElement("#root");
@@ -379,7 +379,6 @@ const PromotionChart = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Promotion Chart</h3>
         <div className="flex flex-row gap-5">

@@ -1,8 +1,8 @@
-import { useState, useEffect, act } from "react";
+import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import Modal from "react-modal";
 import ModalDeactivate from "../share/ModalDeactivate";
 import ModalDetail from "../share/ModalDetail";
@@ -74,7 +74,7 @@ const PostSocial = () => {
       const res = await axios.patch(
         `http://localhost:8080/social/api/post/deactivatePost/${deactivateId}`,
         {
-            active: false
+          active: false,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -212,7 +212,6 @@ const PostSocial = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Post Management</h3>
         <div className="searchBar">
