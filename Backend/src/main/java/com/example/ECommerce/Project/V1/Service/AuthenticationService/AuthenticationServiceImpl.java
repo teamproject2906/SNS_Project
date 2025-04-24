@@ -339,14 +339,20 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     public void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest) throws BadRequestException {
 
         // Validate OTP
-        HttpSession session = servletRequest.getSession(false);
-        if (session == null) {
-            throw new BadRequestException("Session expired or not found.");
-        }
+//        HttpSession session = servletRequest.getSession(false);
+//        if (session == null) {
+//            throw new BadRequestException("Session expired or not found.");
+//        }
 
-        Object savedOtp = session.getAttribute("otp_" + request.getEmail());
-        if (savedOtp == null || !savedOtp.toString().equals(request.getOtp())) {
-            throw new BadRequestException("Invalid or expired OTP!");
+//        Object savedOtp = session.getAttribute("otp_" + request.getEmail());
+//        if (savedOtp == null || !savedOtp.toString().equals(request.getOtp())) {
+//            throw new BadRequestException("Invalid or expired OTP!");
+//        }
+        System.out.println("luc nhap" + servletRequest.getSession().getId());
+
+        String sessionOtp = (String) servletRequest.getSession().getAttribute("code_forgot");
+        if (!request.getOtp().equals(sessionOtp)) {
+            throw new BadRequestException("Invalid OTP!");
         }
 
         // Validate password
@@ -369,7 +375,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         userRepository.save(user);
 
         // Clear OTP from session
-        session.removeAttribute("otp_" + request.getEmail());
+//        session.removeAttribute("otp_" + request.getEmail());
     }
 
     @Override
@@ -388,13 +394,15 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         int otp = 100000 + new Random().nextInt(900000); // 100000 -> 999999
 
         // 2. Store OTP in session
-        HttpSession session = servletRequest.getSession(true);
-        session.setAttribute("otp_" + email, otp);
-        session.setMaxInactiveInterval(10 * 60); // 10 minutes
+//        HttpSession session = servletRequest.getSession(true);
+//        session.setAttribute("otp_" + email, otp);
+//        session.setMaxInactiveInterval(10 * 60); // 10 minutes
 
         // 3. Send email
         String subject = "Your Password Reset Code";
         emailService.sendOtp(email, subject, otp);
+        servletRequest.getSession().setAttribute("code_forgot", String.valueOf(otp));
+        System.out.println("luc nhap" + servletRequest.getSession().getId());
 
         return ResponseEntity.ok("An OTP has been sent to your email. Please check your inbox.");
     }

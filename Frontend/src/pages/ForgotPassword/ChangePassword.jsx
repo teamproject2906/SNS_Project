@@ -1,13 +1,6 @@
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { useEffect, useState } from "react";
-import {
-  getToken,
-  removeToken,
-  removeUserInfo,
-  setToken,
-  setUserInfo,
-} from "../Login/app/static";
+import { useState } from "react";
+import { getToken, removeToken, removeUserInfo } from "../Login/app/static";
 import { useUser } from "../../context/UserContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -15,72 +8,70 @@ import { useNavigate } from "react-router-dom";
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const { user, setUser } = useUser();
-  const tokenTemp = localStorage.getItem("tokenTemp");
   const navigate = useNavigate();
 
   console.log("New Password:", newPassword);
   console.log("Confirm Password:", confirmPassword);
 
-  useEffect(() => {
-    try {
-      const res = axios.get(
-        "http://localhost:8080/Authentication/register/verify",
-        {
-          params: { token: tokenTemp },
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // Thêm dòng này nếu backend có session hoặc JWT
-        }
-      );
-      res.then((data) => setToken(data.data.access_token));
-      localStorage.removeItem("tokenTemp");
-      const token = getToken();
-      console.log("Token fetched:", token);
-      console.log(res.then((data) => console.log("Data:", data)));
-    } catch (error) {
-      console.log(error);
-      toast.error("Error when get response", error);
-    }
-  }, [tokenTemp]);
+  // useEffect(() => {
+  //   try {
+  //     const res = axios.get(
+  //       "http://localhost:8080/Authentication/register/verify",
+  //       {
+  //         params: { token: tokenTemp },
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include", // Thêm dòng này nếu backend có session hoặc JWT
+  //       }
+  //     );
+  //     res.then((data) => setToken(data.data.access_token));
+  //     localStorage.removeItem("tokenTemp");
+  //     const token = getToken();
+  //     console.log("Token fetched:", token);
+  //     console.log(res.then((data) => console.log("Data:", data)));
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Error when get response", error);
+  //   }
+  // }, [tokenTemp]);
 
   const handleSubmit = async () => {
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
-
-    const token = getToken();
-    console.log("Token trong function:", token);
-
+  
     try {
-      const res = await axios.patch(
-        "http://localhost:8080/User/changeForgotPassword",
+      const res = await axios.post(
+        "http://localhost:8080/Authentication/changeForgotPassword",
         {
+          email: email,
+          otp: otp,
           newPassword: newPassword,
           confirmPassword: confirmPassword,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
+          withCredentials: true,
         }
       );
       toast.success(res.data.message || "Change password successfully");
-
-      localStorage.removeItem("REFRESH_TOKEN");
-      removeToken();
-      removeUserInfo();
     } catch (error) {
-      toast.error("Error when get response", error);
+      toast.error(error.response?.data.details || "Something went wrong");
+    } finally {
+      navigate("/login")
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -90,6 +81,30 @@ export default function ChangePassword() {
         </h2>
 
         <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Email"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              OTP Code
+            </label>
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="OTP Code"
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               New Password

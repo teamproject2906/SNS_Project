@@ -182,7 +182,7 @@ const Login = () => {
               className="flex items-center hover:underline"
             >
               <FaLock className="mr-1" />
-              Forget password
+              Forgot password
             </Link>
           </div>
           <p className="text-center text-sm mb-4 text-gray-500">

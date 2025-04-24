@@ -57,7 +57,7 @@ public class AuthenticationController {
         return authenticationService.forgotPassword(email, servletRequest, servletResponse);
     }
 
-    @PatchMapping("/changeForgotPassword")
+    @PostMapping("/changeForgotPassword")
     public ResponseMessageAPI changeForgotPassword(
             @RequestBody ChangeForgotPasswordRequest request,
             HttpServletRequest servletRequest,
