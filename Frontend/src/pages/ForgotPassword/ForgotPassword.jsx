@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     // Basic regex for email validation
@@ -30,25 +32,25 @@ export default function ForgotPassword() {
     try {
       const res = await axios.post(
         `http://localhost:8080/Authentication/ForgotPassword/${email}`,
+        {},
         {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true, // Thêm dòng này nếu backend có session hoặc JWT
+          withCredentials: true, // ✅ phải đặt ở object thứ 3
         }
+      
       );
 
-      localStorage.setItem("tokenTemp", res.data.refresh_token);
+      // localStorage.setItem("tokenTemp", res.data.refresh_token);
       console.log("Response:", res);
-      toast.success(res.data.access_token);
+      toast.success(res.data);
     } catch (error) {
       console.error("Error:", error);
-      const errorMessage =
-        error.response?.data?.message || "An error occurred. Please try again.";
-
-      toast.error(errorMessage); // Show error toast
+      toast.error(error.response.data); // Show error toast
     } finally {
       setIsLoading(false); // Reset loading state
+      navigate("/change-forgot-password");
     }
   };
 
