@@ -21,7 +21,7 @@ const ProductDetail = () => {
   const [imageIndex, setImageIndex] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const thumbnailsRef = useRef(null);
-  const { addToCart } = useCart();
+  const { addToCart, clearCart } = useCart();
   const { addToFavourites, removeFromFavourites, isInFavourites } =
     useFavourite();
   const { user } = useUser();
@@ -72,21 +72,23 @@ const ProductDetail = () => {
           setSelectedImage(imagesRes.data[0].imageUrl);
         }
 
-        // Fetch feedback for average rating
-        const feedbackRes = await axios.get(
-          `http://localhost:8080/api/feedbacks/product/${productId}`,
-          {
-            headers: "Content-Type: application/json",
-          }
-        );
-        const feedbacks = feedbackRes.data;
-        if (feedbacks.length > 0) {
-          const totalRating = feedbacks.reduce(
-            (sum, feedback) => sum + feedback.rate,
-            0
+        if (productId) {
+          // Fetch feedback for average rating
+          const feedbackRes = await axios.get(
+            `http://localhost:8080/api/feedbacks/product/${productId}`,
+            {
+              headers: "Content-Type: application/json",
+            }
           );
-          const avgRating = totalRating / feedbacks.length;
-          setAverageRating(parseFloat(avgRating.toFixed(1)));
+          const feedbacks = feedbackRes.data;
+          if (feedbacks.length > 0) {
+            const totalRating = feedbacks.reduce(
+              (sum, feedback) => sum + feedback.rate,
+              0
+            );
+            const avgRating = totalRating / feedbacks.length;
+            setAverageRating(parseFloat(avgRating.toFixed(1)));
+          }
         } else {
           setAverageRating(0);
         }
@@ -263,6 +265,7 @@ const ProductDetail = () => {
         color: selectedColor,
         size: selectedSize,
       };
+      await clearCart();
       await addToCart(productToAdd);
       navigate("/checkout");
     } catch (error) {

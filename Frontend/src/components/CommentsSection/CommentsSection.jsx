@@ -28,7 +28,8 @@ const CommentsSection = ({ productId }) => {
   const parseJwt = (token) => {
     try {
       return JSON.parse(atob(token.split(".")[1]));
-    } catch (e) {
+    } catch (error) {
+      console.error("Error parsing JWT:", error);
       return null;
     }
   };
@@ -38,7 +39,9 @@ const CommentsSection = ({ productId }) => {
 
   // Fetch feedbacks
   useEffect(() => {
-    fetchFeedbacks();
+    if (productId) {
+      fetchFeedbacks();
+    }
   }, [productId]);
 
   const fetchFeedbacks = async () => {
