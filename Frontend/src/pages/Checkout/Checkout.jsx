@@ -1,7 +1,7 @@
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import CheckoutForm from "../../components/Checkout/CheckoutForm/CheckoutForm";
 import CheckoutSummary from "../../components/Checkout/CheckoutSummary/CheckoutSummary";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getToken } from "../Login/app/static";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -12,6 +12,8 @@ function Checkout() {
 
   const payment = searchParams.get("payment");
   const orderCreatedRef = useRef(false);
+  const navigate = useNavigate();
+  const [count, setCount] = useState(10);
 
   const handleCreateOrder = async (payload) => {
     try {
@@ -73,14 +75,38 @@ function Checkout() {
     }
   }, [payment]);
 
+  useEffect(() => {
+    if (payment !== "success") return;
+
+    // Đếm ngược từ 10 đến 0, mỗi giây giảm 1
+    const interval = setInterval(() => {
+      setCount((prevCount) => {
+        if (prevCount <= 0) {
+          clearInterval(interval); // Dừng interval khi đếm về 0
+          navigate("/"); // Điều hướng về trang chủ
+          return 0;
+        }
+        return prevCount - 1;
+      });
+    }, 1000); // Cập nhật mỗi giây
+
+    return () => clearInterval(interval); // Dọn dẹp interval khi component unmount
+  }, [navigate, payment]);
+
   if (payment === "success") {
     return (
       <div className="flex flex-col lg:flex-row justify-center items-start max-w-full mx-auto px-6 md:px-12 lg:px-16 py-10 gap-28">
         <div className="w-full lg:w-[48%]">
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center gap-10">
             <h1 className="text-2xl font-bold text-green-600">
-              Đơn hàng đã được tạo thành công
+              Order has been placed successfully!
             </h1>
+            <div>
+              Redirect to home after <span className="font-semibold">{count}</span> seconds
+            </div>
+            <div className="bg-green-600 text-white py-2 px-4 rounded">
+              <button onClick={() => navigate("/")}>BACK TO HOME</button>
+            </div>
           </div>
         </div>
       </div>

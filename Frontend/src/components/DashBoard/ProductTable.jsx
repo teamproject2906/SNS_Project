@@ -45,6 +45,7 @@ const ProductTable = () => {
   const [activateId, setActivateId] = useState(null);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -474,6 +475,7 @@ const ProductTable = () => {
     }
     formDataUpload.append("productId", productId);
 
+    setLoading(true);
     try {
       const token = getToken();
       const res = await axios.post(
@@ -501,12 +503,15 @@ const ProductTable = () => {
           "Error uploading images! " + (error.response?.data?.message || "")
         );
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteAllImages = async () => {
     try {
       const token = getToken();
+      setLoading(true);
       await axios.delete(
         `http://localhost:8080/api/product-gallery/product/delete/${productId}`,
         {
@@ -518,6 +523,8 @@ const ProductTable = () => {
     } catch (error) {
       console.error("Error deleting images:", error);
       toast.error("No image to delete!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -691,7 +698,6 @@ const ProductTable = () => {
     {
       name: "Size",
       selector: (row) => (row.sizeChart.value ? row.sizeChart.value : "Null"),
-      sortable: true,
       style: { width: "100px" },
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
@@ -1400,6 +1406,7 @@ const ProductTable = () => {
         description={
           "Maximum limit of 10 images, each image size < 1MB, format: .jpg, .jpeg, .png, .webp"
         }
+        loading={loading}
       />
       <ModalDeactivate
         isDeactivateModalOpen={isDeactivateModalOpen}

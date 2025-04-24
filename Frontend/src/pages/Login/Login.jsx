@@ -6,6 +6,8 @@ import { getToken, setToken, setUserInfo } from "./app/static";
 import { toast, ToastContainer } from "react-toastify";
 import { jwtDecode } from "jwt-decode"; // Import thư viện decode token
 import { useUser } from "../../context/UserContext";
+import { IoIosEye } from "react-icons/io";
+import { IoIosEyeOff } from "react-icons/io";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -14,6 +16,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLoginUser = async (event) => {
     event.preventDefault();
@@ -105,6 +108,10 @@ const Login = () => {
     }
   };
 
+  const showPasswordHandler = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <ToastContainer />
@@ -132,19 +139,30 @@ const Login = () => {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                placeholder="Password"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              {error.password && (
-                <p className="text-red-500 text-sm mt-1">{error.password}</p>
-              )}
+              <div className="relative">
+                <label htmlFor="password" className="sr-only">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-700"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <button
+                    type="button"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                    onClick={showPasswordHandler}
+                  >
+                    {showPassword ? <IoIosEyeOff /> : <IoIosEye />}
+                  </button>
+                </span>
+                {error.password && (
+                  <p className="text-red-500 text-sm mt-1">{error.password}</p>
+                )}
+              </div>
             </div>
             <button
               aria-label="Login"
@@ -184,7 +202,6 @@ const Login = () => {
 
         {/* Đăng Ký Tài Khoản */}
         <div className="p-6 shadow-lg border rounded-md">
-
           <h2 className="text-lg font-semibold mb-4">Create new account</h2>
           <p className="text-sm mb-6">
             Register an account now to make your purchases faster and easier.

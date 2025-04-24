@@ -13,6 +13,10 @@ public class BestSellerDTO {
 
     private Integer id;         // ID của BestSeller
     private Integer productId;  // ID của Product
+    private String productCode;
+    private String productImg;
+    private String size;
+    private String color;
     private String productName;
     private Integer quantitySold; // Số lượng đã bán
 }

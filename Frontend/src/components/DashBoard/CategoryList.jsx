@@ -156,7 +156,7 @@ const CategoryList = () => {
       toast.success("Add category successfully!");
     } catch (error) {
       console.error("Error adding category:", error);
-      toast.error("Error adding category");
+      toast.error(error.response?.data.message);
     }
   };
 
@@ -268,6 +268,7 @@ const CategoryList = () => {
   const columns = [
     {
       name: "ID",
+      selector: (row) => row.id,
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>{row.id}</div>
       ),
@@ -275,6 +276,7 @@ const CategoryList = () => {
     },
     {
       name: "Category Name",
+      selector: (row) => row.categoryName,
       cell: (row) => (
         <>
           <div style={{ opacity: row.active ? 1 : 0.5 }}>
@@ -293,7 +295,6 @@ const CategoryList = () => {
           </div>
         </>
       ),
-      sortable: true,
     },
     {
       name: "Actions",

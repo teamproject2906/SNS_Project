@@ -29,6 +29,7 @@ const ModalUpload = ({
   onSubmit,
   productId,
   description,
+  loading,
 }) => {
   const handleFileChange = (e) => {
     onSubmit(e, productId);
@@ -44,21 +45,27 @@ const ModalUpload = ({
     >
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       {/* Display list of images */}
-      <div className="grid grid-cols-5 gap-2 mt-4">
-        {productImages && productImages.length > 0 ? (
-          productImages.map((img) => (
-            <img
-              key={img.id}
-              src={img.imageUrl}
-              alt="product"
-              style={{ width: "200px", height: "200px" }} // Adjusted size
-              className="w-full h-auto rounded shadow"
-            />
-          ))
-        ) : (
-          <p className="col-span-5 text-center">No images available</p>
-        )}
-      </div>
+      {loading ? (
+        <div className="justify-center items-center flex">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-900"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-5 gap-2 mt-4">
+          {productImages && productImages.length > 0 ? (
+            productImages.map((img) => (
+              <img
+                key={img.id}
+                src={img.imageUrl}
+                alt="product"
+                style={{ width: "200px", height: "200px" }} // Adjusted size
+                className="w-full h-auto rounded shadow"
+              />
+            ))
+          ) : (
+            <p className="col-span-5 text-center">No images available</p>
+          )}
+        </div>
+      )}
       <div className="flex justify-between items-center mt-4">
         <div>
           <p className="w-[70%]">{description ? description : ""}</p>
@@ -112,6 +119,7 @@ ModalUpload.propTypes = {
     })
   ).isRequired,
   description: PropTypes.string,
+  loading: PropTypes.bool,
 };
 
 export default ModalUpload;

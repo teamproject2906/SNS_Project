@@ -226,7 +226,6 @@ const ProductDetail = () => {
     };
 
     addToCart(productToAdd);
-    toast.success("Added to cart successfully!");
   };
 
   const handleToggleFavourite = () => {
@@ -318,7 +317,7 @@ const ProductDetail = () => {
                 <img
                   src={selectedImage || product.imageUrl}
                   alt={product.productName}
-                  className="w-full h-full rounded-lg border-2 border-gray-400"
+                  className="w-full h-full rounded-lg border-2 border-gray-300 object-cover"
                   style={{ maxHeight: "500px", objectFit: "contain" }}
                 />
               </div>

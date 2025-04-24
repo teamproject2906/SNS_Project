@@ -275,6 +275,7 @@ const PromotionChart = () => {
   const columns = [
     {
       name: "ID",
+      selector: (row) => row.id,
       cell: (row) => (
         <>
           <div style={{ opacity: row.active ? 1 : 0.5 }}>{row.id}</div>
@@ -302,6 +303,7 @@ const PromotionChart = () => {
     },
     {
       name: "Discount",
+      selector: (row) => row.discount,
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
           {row.discount * 100 + "%"}
@@ -325,10 +327,10 @@ const PromotionChart = () => {
           {row.description}
         </p>
       ),
-      sortable: true,
     },
     {
       name: "Start Date",
+      selector: (row) => row.startDate,
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
           {formatDate(row.startDate)}
@@ -338,6 +340,7 @@ const PromotionChart = () => {
     },
     {
       name: "End Date",
+      selector: (row) => row.endDate,
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>
           {formatDate(row.endDate)}

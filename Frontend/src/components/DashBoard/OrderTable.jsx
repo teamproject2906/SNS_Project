@@ -386,7 +386,7 @@ const OrderTable = () => {
             </label>
             <input
               type="number"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
               value={formData.userId}
               onChange={(e) =>
                 setFormData({ ...formData, userId: e.target.value })
@@ -407,18 +407,18 @@ const OrderTable = () => {
               <div key={index} className="flex gap-2 mb-2">
                 <div className="layout_body flex flex-row gap-2" key={item.id}>
                   <input
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
                     value={item.productId}
                     onChange={(e) =>
                       handleOrderItemChange(index, "productId", e.target.value)
                     }
                     key={item.id}
-                    disabled // Keep disabled if you don't want to edit productId
+                    readOnly
                   />
                   <input
                     type="number"
                     placeholder="Quantity"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200"
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
                     value={item.quantity}
                     onChange={(e) =>
                       handleOrderItemChange(index, "quantity", e.target.value)
@@ -469,7 +469,7 @@ const OrderTable = () => {
             </label>
             <input
               type="number"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
               value={formData.totalAmount}
               onChange={(e) =>
                 setFormData({ ...formData, totalAmount: e.target.value })
@@ -483,7 +483,7 @@ const OrderTable = () => {
             </label>
             <input
               type="date"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
               value={formData.orderDate}
               onChange={(e) =>
                 setFormData({ ...formData, orderDate: e.target.value })
@@ -497,7 +497,7 @@ const OrderTable = () => {
             </label>
             <input
               type="date"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
               value={formData.shippingDate}
               onChange={(e) =>
                 setFormData({ ...formData, shippingDate: e.target.value })
@@ -531,7 +531,7 @@ const OrderTable = () => {
             </label>
             <input
               type="text"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
               value={formData.paymentMethod}
               onChange={(e) =>
                 setFormData({ ...formData, paymentMethod: e.target.value })
