@@ -92,12 +92,12 @@ export const CartProvider = ({ children }) => {
         if (response.data.items) {
           setCartItems(response.data.items);
         }
-        toast.success("Đã thêm sản phẩm vào giỏ hàng");
+        toast.success("Added to cart successfully!");
       }
     } catch (err) {
       console.error("Error adding to cart:", err);
       setError(err.message);
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
+      toast.error(err.response?.data.message || "Không thể thêm sản phẩm vào giỏ hàng");
     } finally {
       setLoading(false);
     }

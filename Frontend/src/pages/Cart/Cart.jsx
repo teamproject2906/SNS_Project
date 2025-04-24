@@ -53,7 +53,7 @@ function Cart() {
 
   useEffect(() => {
     if (payment === "failure") {
-      toast.error("Thanh toán thất bại");
+      toast.error("Payment failed!");
     }
   }, [payment]);
 
@@ -71,12 +71,12 @@ function Cart() {
   if (error) {
     return (
       <div className="container mx-auto px-6 py-8 text-center">
-        <p className="text-xl text-red-500">Có lỗi xảy ra: {error}</p>
+        <p className="text-xl text-red-500">Error: {error}</p>
         <button
           onClick={fetchCart}
           className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         >
-          Thử lại
+          Try again
         </button>
       </div>
     );
@@ -86,10 +86,10 @@ function Cart() {
     return (
       <div className="container mx-auto px-6 py-8 text-center">
         <p className="text-xl text-gray-500 mb-4">
-          Vui lòng đăng nhập để xem giỏ hàng
+          Please log in to access your cart.
         </p>
         <Link to="/login" className="text-blue-600 hover:underline">
-          Đăng nhập
+          Log in
         </Link>
       </div>
     );
@@ -99,24 +99,24 @@ function Cart() {
     <div className="container mx-auto px-6 py-8">
       <div className="flex justify-between space-x-8">
         <div className="w-3/5">
-          <h1 className="text-2xl font-bold mb-8 text-center">Giỏ hàng</h1>
+          <h1 className="text-2xl font-bold mb-8 text-center">Cart</h1>
           <hr className="mb-10" />
           {loading ? (
             <div className="container mx-auto px-6 py-8 text-center">
-              <p className="text-xl">Đang tải giỏ hàng...</p>
+              <p className="text-xl">Loading...</p>
             </div>
           ) : (
             <div className="space-y-6">
               {cartItems.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-xl text-gray-500 mb-4">
-                    Giỏ hàng của bạn đang trống
+                    Cart is empty
                   </p>
                   <Link
                     to="/products"
                     className="text-blue-600 hover:underline"
                   >
-                    Tiếp tục mua sắm
+                    Continue shopping
                   </Link>
                 </div>
               ) : (
@@ -138,12 +138,12 @@ function Cart() {
 
                         {/* Display color information */}
                         <p className="text-gray-600">
-                          Màu: {item.product.color}
+                          Color: {item.product.color}
                         </p>
 
                         {/* Display size information */}
                         <p className="text-gray-600">
-                          Kích thước: {item.product.sizeChart.value}
+                          Size: {item.product.sizeChart.value}
                         </p>
 
                         {/* Display price after promotion */}
@@ -195,7 +195,7 @@ function Cart() {
                         </button>
                       </div>
                       <p className="text-gray-600 text-right">
-                        Thành tiền:{" "}
+                        Total:{" "}
                         {(
                           getPriceAfterPromotion(item) * item.quantity
                         ).toLocaleString()}
@@ -209,16 +209,16 @@ function Cart() {
           )}
         </div>
         <div className="w-2/5 bg-white p-8 shadow-lg">
-          <h2 className="text-2xl font-bold mb-6">Thông tin</h2>
+          <h2 className="text-2xl font-bold mb-6">Information</h2>
           <div className="mb-6">
-            <p className="text-gray-600">Tạm tính</p>
+            <p className="text-gray-600">Estimated total cost</p>
             <p className="text-xl font-semibold">{total.toLocaleString()}₫</p>
           </div>
           <div className="mb-6">
-            <p className="text-gray-600">Chưa bao gồm phí vận chuyển</p>
+            <p className="text-gray-600">Not including shipping</p>
           </div>
           <div>
-            <p className="text-xl font-semibold">Tổng tiền</p>
+            <p className="text-xl font-semibold">Total cost</p>
             <p className="text-2xl font-bold">{total.toLocaleString()}₫</p>
           </div>
           <div className="mt-8 w-full">
@@ -233,13 +233,13 @@ function Cart() {
                 cartItems.length === 0 ? "cursor-not-allowed opacity-50" : ""
               }`}
             >
-              THANH TOÁN
+              CHECK OUT
             </Link>
             <Link
               to="/products"
               className="block w-full py-3 mt-4 border border-gray-400 text-gray-600 text-lg text-center"
             >
-              TIẾP TỤC MUA HÀNG
+              CONTINUE SHOPPING
             </Link>
           </div>
         </div>
