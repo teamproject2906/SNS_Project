@@ -429,7 +429,7 @@ const CommentsSection = ({ productId }) => {
               <>
                 <div className="flex items-center gap-3">
                   <img
-                    src={comment.userAvatar || "https://i.pravatar.cc/300"}
+                    src={comment.userAvatar || "https://pro-bel.com/wp-content/uploads/2019/11/blank-avatar-1-450x450.png"}
                     alt="User avatar"
                     className="w-10 h-10 rounded-full"
                   />

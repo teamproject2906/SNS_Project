@@ -81,31 +81,31 @@ const CheckoutForm = () => {
   return (
     <div className="w-100">
       {/* Thông tin giao hàng */}
-      <h2 className="text-xl font-semibold mb-4">Thông tin giao hàng</h2>
+      <h2 className="text-xl font-semibold mb-4">Order Information</h2>
 
       {!user ? (
         <div className="mb-6 p-4 bg-gray-50 rounded-md">
           <p className="text-sm text-gray-600 mb-3">
-            Bạn cần{" "}
+            You need{" "}
             <Link to="/login" className="text-blue-600 font-medium">
-              đăng nhập
+              login
             </Link>{" "}
-            để sử dụng địa chỉ đã lưu
+            to choose address to checkout
           </p>
         </div>
       ) : loading ? (
-        <div className="text-center py-4">Đang tải địa chỉ...</div>
+        <div className="text-center py-4">Address loading...</div>
       ) : error ? (
         <div className="text-red-500 py-4">{error}</div>
       ) : (
         <div className="mb-6">
-          <h3 className="text-lg font-medium mb-3">Địa chỉ giao hàng</h3>
+          <h3 className="text-lg font-medium mb-3">Shipping Address</h3>
 
           {addresses.length === 0 ? (
             <div className="mb-4 p-4 border border-gray-200 rounded-md">
-              <p className="text-gray-600 mb-2">Bạn chưa có địa chỉ nào</p>
+              <p className="text-gray-600 mb-2">You do not have any address</p>
               <Link to="/my-address" className="text-blue-600 hover:underline">
-                Thêm địa chỉ mới
+                Add new address
               </Link>
             </div>
           ) : (
@@ -132,7 +132,7 @@ const CheckoutForm = () => {
                       <div className="mt-2 flex gap-2">
                         {address.isDefault && (
                           <span className="border border-red-400 text-red-400 px-2 py-0.5 text-xs rounded">
-                            Mặc định
+                            Default
                           </span>
                         )}
                       </div>
@@ -141,7 +141,7 @@ const CheckoutForm = () => {
                       onClick={toggleAddressPopup}
                       className="text-blue-600 hover:underline text-sm"
                     >
-                      Thay đổi
+                      Change
                     </button>
                   </div>
                 </div>
@@ -153,7 +153,7 @@ const CheckoutForm = () => {
                   <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-lg font-medium">
-                        Chọn địa chỉ giao hàng
+                        Choose shipping address
                       </h3>
                       <button
                         onClick={toggleAddressPopup}
@@ -216,7 +216,7 @@ const CheckoutForm = () => {
                               <div className="mt-2 flex gap-2">
                                 {address.isDefault && (
                                   <span className="border border-red-400 text-red-400 px-2 py-0.5 text-xs rounded">
-                                    Mặc định
+                                    Default
                                   </span>
                                 )}
                               </div>
@@ -230,7 +230,7 @@ const CheckoutForm = () => {
                               }}
                               className="text-blue-600 hover:underline text-sm"
                             >
-                              Cập nhật
+                              Update
                             </button>
                           </div>
                         </div>
@@ -242,7 +242,7 @@ const CheckoutForm = () => {
                         to="/my-address"
                         className="text-blue-600 hover:underline flex items-center"
                       >
-                        <span>Quản lý địa chỉ</span>
+                        <span>Manage address</span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="h-4 w-4 ml-1"
@@ -263,7 +263,7 @@ const CheckoutForm = () => {
                         onClick={toggleAddressPopup}
                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                       >
-                        Xong
+                        Done
                       </button>
                     </div>
                   </div>
@@ -277,8 +277,8 @@ const CheckoutForm = () => {
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-lg font-medium">
                         {addressToEdit
-                          ? "Cập nhật địa chỉ"
-                          : "Thêm địa chỉ mới"}
+                          ? "Update new address"
+                          : "Add new address"}
                       </h3>
                       <button
                         onClick={handleAddressFormClose}
@@ -318,7 +318,7 @@ const CheckoutForm = () => {
 
       {/* Phương thức thanh toán */}
       <h2 className="text-xl font-semibold mt-6 mb-4">
-        Phương thức thanh toán
+        Payment Method
       </h2>
       <div className="space-y-3">
         <label className="flex items-center space-x-2">
@@ -330,7 +330,7 @@ const CheckoutForm = () => {
             onChange={() => setPaymentMethod("COD")}
             className="w-4 h-4"
           />
-          <span>Thanh toán khi nhận hàng</span>
+          <span>COD (Cash on Delivery)</span>
         </label>
         <label className="flex items-center space-x-2">
           <input
@@ -348,7 +348,7 @@ const CheckoutForm = () => {
       {/* Link giỏ hàng */}
       <div className="mt-6">
         <Link to="/cart" className="text-blue-600 text-sm">
-          ← Giỏ hàng
+          ← Cart
         </Link>
       </div>
     </div>
