@@ -68,10 +68,10 @@ const CheckoutSummary = () => {
   const handleCreateOrder = async (payload) => {
     try {
       await createOrder(payload);
-      toast.success("Đơn hàng đã được tạo thành công");
+      toast.success("Order created successfully");
       navigate("/order");
     } catch (error) {
-      toast.error("Lỗi khi tạo đơn hàng");
+      toast.error("Error creating order");
       throw new Error(error);
     }
   };
@@ -148,22 +148,22 @@ const CheckoutSummary = () => {
   // Copy voucher code to clipboard
   const handleCopyCode = (code) => {
     navigator.clipboard.writeText(code);
-    alert("Đã sao chép mã: " + code);
+    alert("Copied voucher code: " + code);
   };
 
   return (
     <div className="w-full bg-white shadow-lg p-8 rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">Tóm tắt đơn hàng</h2>
+      <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
 
       {/* Products */}
       {cartItems.length === 0 ? (
         <div className="text-center py-4 border-b pb-6">
-          <p className="text-gray-500">Giỏ hàng của bạn đang trống</p>
+          <p className="text-gray-500">Your cart is empty</p>
           <Link
             to="/cart"
             className="text-blue-600 hover:underline mt-2 inline-block"
           >
-            Quay lại giỏ hàng
+            Back to cart
           </Link>
         </div>
       ) : (
@@ -184,13 +184,13 @@ const CheckoutSummary = () => {
                     {item.product.productName}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Màu: {item.product.color}
+                    Color: {item.product.color}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Kích thước: {item.product.sizeChart.value}
+                    Size: {item.product.sizeChart.value}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Số lượng: {item.quantity}
+                    Quantity: {item.quantity}
                   </p>
                   {item.product.promotion && (
                     <div className="flex items-center mt-1 space-x-2">
@@ -235,7 +235,7 @@ const CheckoutSummary = () => {
                 ? `${selectedVoucher.voucherCode} - Giảm ${
                     selectedVoucher.discount * 100
                   }%`
-                : "Chọn mã giảm giá"}
+                : "Choose voucher"}
             </span>
             <svg
               className={`w-5 h-5 transition-transform ${
@@ -259,7 +259,7 @@ const CheckoutSummary = () => {
                 className="p-4 text-base text-gray-700 hover:bg-gray-50 cursor-pointer border-b border-gray-100"
                 onClick={() => handleSelectVoucher(null)}
               >
-                Không sử dụng mã giảm giá
+                Not using voucher
               </li>
               {vouchers.map((voucher) => (
                 <li
@@ -289,19 +289,19 @@ const CheckoutSummary = () => {
                               handleCopyCode(voucher.voucherCode);
                             }}
                           >
-                            Sao chép
+                            Copy
                           </button>
                         )}
                       </div>
                       <div className="text-sm text-gray-500">
                         {voucher.timeLeft.isExpired ? (
-                          <span className="text-red-500">Hết hạn</span>
+                          <span className="text-red-500">Expire</span>
                         ) : (
-                          `Hết hạn sau ${voucher.timeLeft.days} ngày`
+                          `Expire in ${voucher.timeLeft.days} days`
                         )}
                       </div>
                       <p className="text-xs text-gray-600 mt-1">
-                        {"Áp dụng tại thanh toán"}
+                        {"Applicable to all products"}
                       </p>
                     </div>
                     <span
@@ -311,7 +311,7 @@ const CheckoutSummary = () => {
                           : "text-green-600"
                       }`}
                     >
-                      Giảm {voucher.discount * 100}%
+                      Discount {voucher.discount * 100}%
                     </span>
                   </div>
                 </li>
@@ -322,14 +322,14 @@ const CheckoutSummary = () => {
         {selectedVoucher && !selectedVoucher.timeLeft.isExpired && (
           <div className="mt-3 flex items-center justify-between bg-green-50 p-3 rounded-lg">
             <p className="text-sm text-green-700">
-              Đã áp dụng voucher {selectedVoucher.voucherCode} - Giảm{" "}
+              Applied voucher {selectedVoucher.voucherCode} - Discount{" "}
               {selectedVoucher.discount * 100}%
             </p>
             <button
               className="text-sm text-blue-600 hover:text-blue-800"
               onClick={() => handleCopyCode(selectedVoucher.voucherCode)}
             >
-              Sao chép mã
+              Copy voucher code
             </button>
           </div>
         )}
@@ -338,13 +338,13 @@ const CheckoutSummary = () => {
       {/* Subtotal & Total */}
       <div className="mt-6 text-base text-gray-700 space-y-4">
         <div className="flex justify-between">
-          <span className="text-gray-600">Tạm tính</span>
+          <span className="text-gray-600">Estimated total cost</span>
           <span className="font-semibold text-gray-900">
             {subtotal.toLocaleString()}₫
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Phí vận chuyển</span>
+          <span className="text-gray-600">Shipping cost</span>
           <span className="font-semibold text-gray-900">
             {shippingFee.toLocaleString()}₫
           </span>
@@ -353,7 +353,7 @@ const CheckoutSummary = () => {
 
       {/* Total */}
       <div className="flex justify-between mt-6 text-xl font-bold text-gray-900">
-        <span>Tổng cộng</span>
+        <span>Total</span>
         <span>{total.toLocaleString()}₫</span>
       </div>
 
@@ -362,7 +362,7 @@ const CheckoutSummary = () => {
         className="w-full bg-black text-white py-4 mt-6 text-center text-lg font-semibold rounded-lg hover:bg-gray-900 transition-all"
         onClick={handleCheckout}
       >
-        Thanh toán
+        Check out
       </button>
     </div>
   );

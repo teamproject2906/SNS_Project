@@ -33,7 +33,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchedProduct = async () => {
       if (!productCode) {
-        setError("Mã sản phẩm không tồn tại");
+        setError("Product code not found");
         setLoading(false);
         return;
       }
@@ -52,7 +52,7 @@ const ProductDetail = () => {
           ? productRes.data
           : [productRes.data];
         if (!products.length || !products[0].price) {
-          throw new Error("Dữ liệu sản phẩm không hợp lệ hoặc thiếu giá");
+          throw new Error("Product data or price not valid");
         }
 
         // Set primary product (first in array)
