@@ -4,8 +4,10 @@ import com.example.ECommerce.Project.V1.DTO.BestSellerDTO;
 import com.example.ECommerce.Project.V1.Model.BestSeller;
 import com.example.ECommerce.Project.V1.Model.OrderStatus;
 import com.example.ECommerce.Project.V1.Model.Product;
+import com.example.ECommerce.Project.V1.Model.ProductGallery;
 import com.example.ECommerce.Project.V1.Repository.BestSellerRepository;
 import com.example.ECommerce.Project.V1.Repository.OrderItemRepository;
+import com.example.ECommerce.Project.V1.Repository.ProductGalleryRepository;
 import com.example.ECommerce.Project.V1.Repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ public class BestSellerService {
 
     @Autowired
     private OrderItemRepository orderItemRepository;
+    @Autowired
+    private ProductGalleryRepository productGalleryRepository;
 
     /**
      * Tạo hoặc lấy BestSeller cho một Product
@@ -139,9 +143,16 @@ public class BestSellerService {
      * Chuyển đổi từ BestSeller sang BestSellerDTO
      */
     private BestSellerDTO convertToDTO(BestSeller bestSeller) {
+
+        ProductGallery productGallery = productGalleryRepository.getProductGalleryByIdAndMinSortOrder(bestSeller.getProduct().getId());
+
         return BestSellerDTO.builder()
                 .id(bestSeller.getId())
                 .productId(bestSeller.getProduct().getId())
+                .productCode(bestSeller.getProduct().getProductCode())
+                .productImg(productGallery.getImageUrl())
+                .size(bestSeller.getProduct().getSizeChart().getValue())
+                .color(bestSeller.getProduct().getColor())
                 .productName(bestSeller.getProduct().getProductName())
                 .quantitySold(bestSeller.getQuantitySold())
                 .build();

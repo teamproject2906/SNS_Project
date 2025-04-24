@@ -22,10 +22,6 @@ export const CartProvider = ({ children }) => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [address, setAddress] = useState(null);
 
-  useEffect(() => {
-    setUser(getUserInfo());
-  }, []);
-
   // Fetch cart data from API
   const fetchCart = async () => {
     if (!user || !user.userId) {
@@ -34,8 +30,9 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      setLoading(true);
+   
       const token = getToken();
+    
       const response = await axios.get(
         `http://localhost:8080/api/v1/cart/${user.userId}`,
         {
@@ -52,8 +49,6 @@ export const CartProvider = ({ children }) => {
       if (user && user.userId) {
         toast.error("Không thể tải giỏ hàng");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -109,7 +104,7 @@ export const CartProvider = ({ children }) => {
   };
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [ user ]);
 
   // Remove item from cart
   const removeFromCart = async (cartItemId) => {
@@ -150,7 +145,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      setLoading(true);
+      
       const token = getToken();
 
       const response = await axios.put(
@@ -168,8 +163,6 @@ export const CartProvider = ({ children }) => {
       console.error("Error updating quantity:", err);
       setError(err.message);
       toast.error("Không thể cập nhật số lượng sản phẩm");
-    } finally {
-      setLoading(false);
     }
   };
 

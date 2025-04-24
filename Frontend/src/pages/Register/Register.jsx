@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { setToken, setUserInfo } from "../Login/app/static";
 import { jwtDecode } from "jwt-decode";
 import { useUser } from "../../context/UserContext";
+import { IoIosEye } from "react-icons/io";
+import { IoIosEyeOff } from "react-icons/io";
 
 const Register = () => {
   const { setUser } = useUser(); // Lấy setUser để cập nhật thông tin user
@@ -14,6 +16,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async () => {
@@ -140,6 +143,10 @@ const Register = () => {
     }
   };
 
+  const showPasswordHandler = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-xl font-bold mb-6 border-b-2 border-black pb-2">
@@ -176,15 +183,27 @@ const Register = () => {
             )}
           </div>
           <div className="mb-6">
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full border rounded px-4 py-3 shadow-md"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {error.password && (
-              <p className="text-red-500 text-sm mt-1">{error.password}</p>
-            )}
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full border rounded px-4 py-3 shadow-md"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+              />
+              <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <button
+                  type="button"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                  onClick={showPasswordHandler}
+                >
+                  {showPassword ? <IoIosEyeOff /> : <IoIosEye />}
+                </button>
+              </span>
+              {error.password && (
+                <p className="text-red-500 text-sm mt-1">{error.password}</p>
+              )}
+            </div>
           </div>
           <button
             aria-label="Register"

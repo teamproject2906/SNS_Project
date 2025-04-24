@@ -224,7 +224,6 @@ const UserTable = () => {
     {
       name: "Role",
       selector: (row) => row.role,
-      sortable: true,
       cell: (row) => {
         let bgColorClass = "";
         switch (row.role) {

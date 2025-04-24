@@ -23,6 +23,8 @@ const OrderDetailModal = ({ open, onClose, orderId }) => {
     }
   }, [open, orderId]);
 
+  console.log("Order:", order);
+
   if (!open) return null;
 
   return (

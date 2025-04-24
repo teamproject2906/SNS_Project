@@ -232,7 +232,7 @@ const PostSocial = () => {
       <ModalDetail
         isOpen={modalDetailIsOpen}
         onClose={closeDetailModal}
-        title="User Posts"
+        title="Detail Posts"
       >
         <div className="space-y-4">
           {viewPosts.length > 0 ? (
