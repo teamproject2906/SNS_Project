@@ -6,12 +6,14 @@ import { getToken } from "../Login/app/static";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { createOrder } from "../../services/orderService";
+import { useCart } from "../../context/CartContext";
 
 function Checkout() {
   const [searchParams] = useSearchParams();
 
   const payment = searchParams.get("payment");
   const orderCreatedRef = useRef(false);
+  const { clearCart } = useCart();
   const navigate = useNavigate();
   const [count, setCount] = useState(10);
 
@@ -19,6 +21,7 @@ function Checkout() {
     try {
       const response = await createOrder(payload);
       toast.success("Đơn hàng đã được tạo thành công");
+      await clearCart();
       return response.data;
     } catch (error) {
       toast.error("Lỗi khi tạo đơn hàng");

@@ -114,9 +114,9 @@ const CheckoutSummary = () => {
             new Date().getTime() + 3 * 24 * 60 * 60 * 1000
           ).toISOString(),
         };
-        handleCreateOrder(payload);
+        await handleCreateOrder(payload);
+        await clearCart();
       }
-      await clearCart();
     } catch (error) {
       console.error("Error checking out:", error);
     }
