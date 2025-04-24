@@ -14,6 +14,7 @@ import TotalProductChart from "./TotalProductChart";
 import UserLogChart from "./UserLogChart";
 import TopProduct from "./TopProduct";
 import TotalRevenueAmount from "./TotalRevenueAmount";
+import RevenueInMonth from "./RevenueInMonth";
 
 // Register Chart.js components
 ChartJS.register(
@@ -269,6 +270,11 @@ const ChartData = ({ orders: propOrders }) => {
         </div>
         <div className="chart_content w-1/2">
           <UserLogChart />
+        </div>
+      </div>
+      <div className="layout_content">
+        <div className="chart_content w-full">
+          <RevenueInMonth />
         </div>
       </div>
     </div>

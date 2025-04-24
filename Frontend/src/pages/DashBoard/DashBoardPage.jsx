@@ -10,6 +10,7 @@ import FormClothesChart from "../../components/DashBoard/FormClothesChart";
 import VoucherTable from "../../components/DashBoard/VoucherTable";
 import ChartData from "../../components/DashBoard/ChartData";
 import PromotionChart from "../../components/DashBoard/PromotionChart.";
+import PostSocial from "../../components/DashBoard/PostSocial";
 
 const DashBoardPage = () => {
   const [activeTab, setActiveTab] = useState(() => {
@@ -51,6 +52,7 @@ const DashBoardPage = () => {
         {activeTab === "promotion" && <PromotionChart />}
         {activeTab === "voucher" && <VoucherTable />}
         {activeTab === "chart" && <ChartData />}
+        {activeTab === "socialPost" && <PostSocial />}
       </div>
     </div>
   );

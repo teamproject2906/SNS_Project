@@ -18,7 +18,7 @@ const TopProduct = () => {
         }
       );
       // Limit to top 5 products
-      setProducts(res.data.slice(0, 5));
+      setProducts(res.data.slice(0, 3));
       if (res.data.length > 0) {
         setProductId(res.data[0].productId);
       }
