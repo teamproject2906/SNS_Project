@@ -47,6 +47,7 @@ function Checkout() {
                 quantity: item.quantity,
                 color: item?.product?.color,
                 size: item?.product?.sizeChart?.value,
+                imageUrl: item?.imageUrl,
               })),
               totalAmount: checkout.totalAmount,
               voucherId: checkout?.voucher?.id,

@@ -3,7 +3,6 @@ import axios from "axios";
 import SortBar from "../../components/Products/SortBar";
 import ProductCard from "../../components/Products/ProductCard";
 import FilterButton from "../../components/Products/FilterButton";
-import { getToken } from "../../pages/Login/app/static";
 import { IoFilter } from "react-icons/io5";
 
 export default function Product() {
@@ -18,11 +17,13 @@ export default function Product() {
   useEffect(() => {
     const fetchedProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/products/productCode", {
-          headers: "Content-Type: application/json",
-        });
+        const res = await axios.get(
+          "http://localhost:8080/api/products/productCode",
+          {
+            headers: "Content-Type: application/json",
+          }
+        );
         const safeProducts = Array.isArray(res.data) ? res.data : [];
-        console.log("Fetched products:", safeProducts); // Kiểm tra dữ liệu
         setProducts(safeProducts);
         setFilteredProducts(safeProducts);
       } catch (err) {

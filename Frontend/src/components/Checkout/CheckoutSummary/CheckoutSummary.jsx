@@ -100,6 +100,7 @@ const CheckoutSummary = () => {
             quantity: item.quantity,
             color: item?.product?.color,
             size: item?.product?.sizeChart?.value,
+            imageUrl: item?.imageUrl,
           })),
           address: {
             id: address?.id,

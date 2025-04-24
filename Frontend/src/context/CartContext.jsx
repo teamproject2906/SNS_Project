@@ -48,7 +48,6 @@ export const CartProvider = ({ children }) => {
         setCartItems([]);
       }
     } catch (err) {
-      console.error("Error fetching cart:", err);
       setError(err.message);
       if (user && user.userId) {
         toast.error("Không thể tải giỏ hàng");
@@ -79,6 +78,7 @@ export const CartProvider = ({ children }) => {
         quantity: product.quantity || 1,
         color: product.color,
         size: product.size,
+        imageUrl: product.imageUrl,
       };
 
       const response = await axios.post(
