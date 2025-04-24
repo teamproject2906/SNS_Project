@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import ModalDetail from "../share/ModalDetail";
 import ModalUpdate from "../share/ModalUpdate";
+import OrderDetailModal from "../Orders/OrderDetailModal";
 
 Modal.setAppElement("#root");
 
@@ -25,8 +26,6 @@ const OrderTable = () => {
     orderStatus: "",
     paymentMethod: "",
   });
-
-  console.log("Order", orders);
 
   const fetchOrder = async () => {
     try {
@@ -358,149 +357,11 @@ const OrderTable = () => {
         pagination
         customStyles={customStyles}
       />
-      <ModalDetail
-        isOpen={modalDetailIsOpen}
+      <OrderDetailModal
+        open={modalDetailIsOpen}
         onClose={closeDetailModal}
-        title="Order Detail"
-      >
-        {selectedOrder ? (
-          <div className="space-y-4">
-            <div className="id_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Order ID
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={selectedOrder.id || "Not updated"}
-                readOnly
-              />
-            </div>
-            <div className="user_id_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                User ID
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={selectedOrder.userId || "Not updated"}
-                readOnly
-              />
-            </div>
-            <div className="field-group flex flex-col">
-              <div className="layout_header flex flex-row">
-                <label className="block text-sm font-medium text-gray-700 mb-1 ml-1 w-1/2">
-                  Product
-                </label>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Quantity
-                </label>
-              </div>
-              {selectedOrder.orderItems.map((item, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <div
-                    className="layout_body flex flex-row gap-2"
-                    key={item.id}
-                  >
-                    <input
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200 ml-1"
-                      value={item.productId}
-                      onChange={(e) =>
-                        handleOrderItemChange(
-                          index,
-                          "productId",
-                          e.target.value
-                        )
-                      }
-                      key={item.id}
-                      disabled // Keep disabled if you don't want to edit productId
-                    />
-                    <input
-                      type="number"
-                      placeholder="Quantity"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transition duration-200"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleOrderItemChange(index, "quantity", e.target.value)
-                      }
-                      readOnly // Keep readOnly if you don't want to edit quantity
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="total_amount_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Total Amount
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={
-                  selectedOrder.totalAmount
-                    ? `${formatPrice(selectedOrder.totalAmount)}đ`
-                    : "Not updated"
-                }
-                readOnly
-              />
-            </div>
-            <div className="order_date_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Order Date
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={
-                  selectedOrder.orderDate
-                    ? formatDate(selectedOrder.orderDate)
-                    : "Not updated"
-                }
-                readOnly
-              />
-            </div>
-            <div className="shipping_date_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Shipping Date
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={
-                  selectedOrder.shippingDate
-                    ? formatDate(selectedOrder.shippingDate)
-                    : "Not updated"
-                }
-                readOnly
-              />
-            </div>
-            <div className="order_status_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Order Status
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={selectedOrder.orderStatus || "Not updated"}
-                readOnly
-              />
-            </div>
-            <div className="payment_method_form">
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Payment Method
-              </label>
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 ml-1"
-                value={selectedOrder.paymentMethod || "Not updated"}
-                readOnly
-              />
-            </div>
-          </div>
-        ) : (
-          <p>No order selected</p>
-        )}
-      </ModalDetail>
+        orderId={selectedOrder?.id}
+      />
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}
