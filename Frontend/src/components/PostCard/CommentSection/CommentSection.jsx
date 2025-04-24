@@ -167,7 +167,7 @@ const CommentSection = ({
                     onSubmit={() => handleUpdateComment(reply.id)}
                     onCancel={handleCancelEdit}
                     isSubmitting={isLoading}
-                    placeholder="Chỉnh sửa bình luận..."
+                    placeholder="Edit comment..."
                   />
                 </div>
               ) : (
@@ -204,11 +204,11 @@ const CommentSection = ({
           >
             {isExpanded ? (
               <>
-                <BsChevronUp className="inline" /> Thu gọn phản hồi
+                <BsChevronUp className="inline" /> Collapse reply
               </>
             ) : (
               <>
-                <BsChevronDown className="inline" /> Xem {hiddenCount} phản hồi
+                <BsChevronDown className="inline" /> View {hiddenCount} reply
               </>
             )}
           </button>
@@ -229,7 +229,7 @@ const CommentSection = ({
     if (!commentsList || !commentsList.length) {
       return (
         <p className="text-gray-500 text-center py-4">
-          Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
+          No comments yet. Be the first to comment!
         </p>
       );
     }
@@ -252,7 +252,7 @@ const CommentSection = ({
                 onSubmit={() => handleUpdateComment(comment.id)}
                 onCancel={handleCancelEdit}
                 isSubmitting={isLoading}
-                placeholder="Chỉnh sửa bình luận..."
+                placeholder="Edit comment..."
               />
             </div>
           ) : (
@@ -295,7 +295,7 @@ const CommentSection = ({
           setCommentText={setNewComment}
           onSubmit={handleSubmitComment}
           isSubmitting={isLoading}
-          placeholder="Viết bình luận của bạn..."
+          placeholder="Write your comment..."
         />
       </div>
       {error && (

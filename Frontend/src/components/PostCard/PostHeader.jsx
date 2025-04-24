@@ -57,7 +57,7 @@ const PostHeader = ({
       </div>
       <div className="ml-3 flex items-center">
         <h2 className="font-semibold text-xl text-gray-800">
-          {fullName || "(Người dùng chưa đặt tên)"}
+          {fullName || "(User has not set a name)"}
         </h2>
       </div>
 
@@ -67,7 +67,7 @@ const PostHeader = ({
             isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
           }`}
         >
-          {isActive ? "Đang hiển thị" : "Đã xóa"}
+          {isActive ? "Displaying..." : "Deleted"}
         </div>
       )}
     </div>

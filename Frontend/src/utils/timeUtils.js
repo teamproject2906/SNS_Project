@@ -7,12 +7,12 @@ export const getTimeAgo = (timestamp) => {
   const days = Math.floor(diffInSeconds / 86400);
 
   if (diffInSeconds < 60) {
-    return 'Vừa xong';
+    return "Just now";
   } else if (minutes < 60) {
-    return `${minutes} phút trước`;
+    return `${minutes} minutes ago`;
   } else if (hours < 24) {
-    return `${hours} giờ trước`;
+    return `${hours} hours ago`;
   } else {
-    return `${days} ngày trước`;
+    return `${days} days ago`;
   }
 };

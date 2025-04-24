@@ -43,7 +43,7 @@ const PostActions = ({
         disabled={isSubmitting}
       >
         <FaRegComment className="w-6 h-6" />
-        <span className="ml-2">{commentCount} bình luận</span>
+        <span className="ml-2">{commentCount} comment</span>
       </button>
     </div>
   );

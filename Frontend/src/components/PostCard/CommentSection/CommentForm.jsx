@@ -29,9 +29,7 @@ const CommentForm = ({
           className="w-full p-2 border rounded-lg text-sm"
           placeholder={
             placeholder ||
-            (isEditing
-              ? "Chỉnh sửa bình luận của bạn..."
-              : "Viết bình luận của bạn...")
+            (isEditing ? "Edit your comment..." : "Write your comment...")
           }
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
@@ -45,7 +43,7 @@ const CommentForm = ({
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              Hủy
+              Cancel
             </button>
           )}
           <button

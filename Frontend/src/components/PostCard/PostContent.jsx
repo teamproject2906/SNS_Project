@@ -48,7 +48,7 @@ const PostContent = ({
         onChange={(e) => setEditedContent(e.target.value)}
         rows="4"
         disabled={isSubmitting}
-        placeholder="Nội dung bài viết..."
+        placeholder="Post content..."
       />
 
       <div className="mt-3">
@@ -78,7 +78,7 @@ const PostContent = ({
                 disabled={isSubmitting}
               />
               <FaImage className="mx-auto h-8 w-8 mb-2" />
-              <span>Thêm hình ảnh</span>
+              <span>Add image</span>
             </label>
           </div>
         )}
@@ -90,14 +90,14 @@ const PostContent = ({
           onClick={handleCancel}
           disabled={isSubmitting}
         >
-          Hủy
+          Cancel
         </button>
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
           onClick={handleSave}
           disabled={isSubmitting || !editedContent.trim()}
         >
-          {isSubmitting ? "Đang lưu..." : "Lưu"}
+          {isSubmitting ? "Saving..." : "Save"}
         </button>
       </div>
     </div>

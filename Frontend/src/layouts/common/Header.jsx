@@ -284,7 +284,7 @@ const Header = () => {
         const userId = decodedToken?.userId;
 
         if (!userId) {
-          throw new Error("Không thể xác định thông tin người dùng");
+          throw new Error("Unable to retrieve user information");
         }
 
         const response = await axios.get(

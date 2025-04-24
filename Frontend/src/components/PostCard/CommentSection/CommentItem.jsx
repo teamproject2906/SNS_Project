@@ -59,7 +59,7 @@ const CommentItem = ({
                     onClick={() => {
                       if (
                         window.confirm(
-                          "Bạn có chắc chắn muốn xóa bình luận này?"
+                          "Are you sure you want to delete this comment?"
                         )
                       ) {
                         onDeleteComment(comment.id);
@@ -81,7 +81,7 @@ const CommentItem = ({
                 <span>
                   {comment.createdAt
                     ? getTimeAgo(new Date(comment.createdAt).getTime())
-                    : "Vừa xong"}
+                    : "Just now"}
                 </span>
               </div>
               <button
@@ -92,7 +92,7 @@ const CommentItem = ({
                 <FaRegComment
                   className={`${level > 0 ? "w-3 h-3" : "w-3.5 h-3.5"}`}
                 />
-                <span>Trả lời</span>
+                <span>Reply</span>
               </button>
             </div>
           </div>
@@ -102,10 +102,10 @@ const CommentItem = ({
               <div className="bg-gray-50 rounded-lg border border-gray-200">
                 <div className="border-b border-gray-200">
                   <p className="text-xs text-gray-600">
-                    Trả lời bình luận của{" "}
+                    Reply to{" "}
                     <span className="font-semibold">
                       {comment?.firstName + " " + comment?.lastName ||
-                        "(Người dùng chưa đặt tên)"}
+                        "(Unnamed user)"}
                     </span>
                   </p>
                 </div>
@@ -123,7 +123,7 @@ const CommentItem = ({
                       onPostReply(comment.id, level + 1, comment.userId)
                     }
                     onCancel={() => onReply(null)}
-                    placeholder="Viết câu trả lời của bạn..."
+                    placeholder="Write your answer..."
                   />
                 </div>
               </div>
