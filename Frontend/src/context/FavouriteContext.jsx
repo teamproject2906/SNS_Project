@@ -58,7 +58,7 @@ export const FavouriteProvider = ({ children }) => {
       console.error("Error fetching wishlist:", err);
       setError(err.message);
       if (user && user.userId) {
-        toast.error("Không thể tải danh sách yêu thích");
+        toast.error("Error fetching wishlist!");
       }
     } finally {
       setLoading(false);
@@ -88,12 +88,12 @@ export const FavouriteProvider = ({ children }) => {
       if (response.data) {
         // Refresh the wishlist after adding
         await fetchWishlist();
-        toast.success("Đã thêm sản phẩm vào danh sách yêu thích");
+        toast.success("Added to wishlist successfully!");
       }
     } catch (err) {
       console.error("Error adding to wishlist:", err);
       setError(err.message);
-      toast.error("Không thể thêm sản phẩm vào danh sách yêu thích");
+      toast.error("Error adding to wishlist!");
     } finally {
       setLoading(false);
     }
@@ -117,12 +117,12 @@ export const FavouriteProvider = ({ children }) => {
       if (response.data) {
         // Refresh the wishlist after removing
         await fetchWishlist();
-        toast.success("Đã xóa sản phẩm khỏi danh sách yêu thích");
+        toast.success("Removed from wishlist successfully!");
       }
     } catch (err) {
       console.error("Error removing from wishlist:", err);
       setError(err.message);
-      toast.error("Không thể xóa sản phẩm khỏi danh sách yêu thích");
+      toast.error("Error removing from wishlist!");
     } finally {
       setLoading(false);
     }

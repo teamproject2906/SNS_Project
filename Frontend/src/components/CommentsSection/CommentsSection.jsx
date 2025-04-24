@@ -3,6 +3,8 @@ import api from "../../pages/Login/app/api";
 import { useUser } from "../../context/UserContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { FaPen } from "react-icons/fa";
+import { RiDeleteBinFill } from "react-icons/ri";
 
 const CommentsSection = ({ productId }) => {
   const [token, setTokenState] = useState(
@@ -441,13 +443,13 @@ const CommentsSection = ({ productId }) => {
                         onClick={() => handleEdit(comment)}
                         className="text-blue-500 hover:underline"
                       >
-                        Edit
+                        <FaPen size={22}/>
                       </button>
                       <button
                         onClick={() => handleDelete(comment.id)}
                         className="text-red-500 hover:underline"
                       >
-                        Delete
+                        <RiDeleteBinFill size={25} />
                       </button>
                     </div>
                   )}
