@@ -6,7 +6,7 @@ import ModalDeactivate from "../share/ModalDeactivate";
 import ModalActivate from "../share/ModalActivate";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
@@ -330,7 +330,6 @@ const CategoryList = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Category List</h3>
         <div className="flex flex-row gap-5">

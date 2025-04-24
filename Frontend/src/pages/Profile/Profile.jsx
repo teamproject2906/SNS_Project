@@ -13,7 +13,7 @@ import {
   FaUser,
 } from "react-icons/fa";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const [user, setUser] = useState({
@@ -438,7 +438,6 @@ const Profile = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-6">
       <div className="max-w-3xl w-full bg-white p-10 rounded-lg border shadow-md">
-        <ToastContainer />
         {/* Header */}
         <div className="flex justify-between space-x-6 border-b border-black pb-6 mb-6">
           <div className="flex items-center space-x-6">
@@ -483,12 +482,6 @@ const Profile = () => {
               label="Email"
               value={user.email}
             />
-            <button
-              className="font-bold text-lg text-blue-500 hover:text-blue-700"
-              onClick={() => setIsEditingEmail(true)}
-            >
-              Edit
-            </button>
           </div>
 
           <div className="flex justify-between border-b border-black pb-3">

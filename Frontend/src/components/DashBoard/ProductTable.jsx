@@ -5,7 +5,7 @@ import ModalAdd from "../share/ModalAdd";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
 import Modal from "react-modal";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import ModalDeactivate from "../share/ModalDeactivate";
 import ModalUpload from "../share/ModalUpload";
 import ModalActivate from "../share/ModalActivate";
@@ -69,9 +69,12 @@ const ProductTable = () => {
   const handleGetCategory = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/categories/getAll", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:8080/api/categories/getAll",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCategories(res.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -96,9 +99,12 @@ const ProductTable = () => {
   const handleGetFormClothes = async () => {
     try {
       const token = getToken();
-      const res = await axios.get("http://localhost:8080/api/formclothes/getAll", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:8080/api/formclothes/getAll",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setFormClothes(res.data);
     } catch (error) {
       console.error("Error fetching formClothes:", error);
@@ -135,7 +141,9 @@ const ProductTable = () => {
       id: product.sizeChart.id,
       value: "",
     };
-    const formCloth = formClothes.find((f) => f.id === product.formClothes.id) || {
+    const formCloth = formClothes.find(
+      (f) => f.id === product.formClothes.id
+    ) || {
       id: product.formClothes.id,
       formClothes: "",
     };
@@ -172,7 +180,9 @@ const ProductTable = () => {
       id: product.sizeChart.id,
       value: "N/A",
     };
-    const formCloth = formClothes.find((f) => f.id === product.formClothes.id) || {
+    const formCloth = formClothes.find(
+      (f) => f.id === product.formClothes.id
+    ) || {
       id: product.formClothes.id,
       formClothes: "N/A",
     };
@@ -679,7 +689,8 @@ const ProductTable = () => {
     },
     {
       name: "Quantity",
-      selector: (row) => (row.quantityInventory ? row.quantityInventory : "Null"),
+      selector: (row) =>
+        row.quantityInventory ? row.quantityInventory : "Null",
       sortable: true,
       style: { width: "100px" },
       cell: (row) => (
@@ -753,7 +764,6 @@ const ProductTable = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Product Chart</h3>
         <div className="flex flex-row gap-5">

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +16,6 @@ const Register = () => {
   const [error, setError] = useState({});
   const navigate = useNavigate();
 
-
   const handleRegister = async () => {
     const newError = {};
 
@@ -33,7 +31,7 @@ const Register = () => {
     //   // setLoading(false);
     //   // return;
     //   newError.email = "Invalid email format";
-    // } 
+    // }
 
     if (password.length < 8) {
       // toast.error("Mật khâu phải nhất 9 ky tự!");
@@ -144,7 +142,6 @@ const Register = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <ToastContainer />
       <h1 className="text-xl font-bold mb-6 border-b-2 border-black pb-2">
         Register
       </h1>

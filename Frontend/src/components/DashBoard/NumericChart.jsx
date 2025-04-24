@@ -4,7 +4,7 @@ import ModalUpdate from "../share/ModalUpdate";
 import ModalAdd from "../share/ModalAdd";
 import { getToken } from "../../pages/Login/app/static";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import ModalDelete from "../share/ModalDelete";
 
 const NumericChart = () => {
@@ -168,7 +168,6 @@ const NumericChart = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className="flex justify-between my-4">
         <h3 className="text-lg font-semibold">Numeric Chart</h3>
         <button

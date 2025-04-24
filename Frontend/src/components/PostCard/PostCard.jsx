@@ -60,15 +60,16 @@ const PostCard = ({
   };
 
   const handleReport = async () => {
-    setShowSettings(false);
     try {
       if (post?.id) {
         await postService.reportPost(post?.id);
+        toast.success("Bài viết đã được báo cáo");
       }
-      toast.success("Bài viết đã được báo cáo");
     } catch (error) {
       toast.error("Lỗi khi báo cáo bài viết");
       console.error("Error reporting post:", error);
+    } finally {
+      setShowSettings(false);
     }
   };
 
