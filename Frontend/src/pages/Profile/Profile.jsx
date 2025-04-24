@@ -66,7 +66,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!token) {
-        setError("Bạn chưa đăng nhập");
+        setError("You are not logged in");
         setLoading(false);
         return;
       }
@@ -77,7 +77,7 @@ const Profile = () => {
         const userId = decodedToken?.userId;
 
         if (!userId) {
-          throw new Error("Không thể xác định thông tin người dùng");
+          throw new Error("Unable to identify user information");
         }
 
         const response = await axios.get(
@@ -126,7 +126,7 @@ const Profile = () => {
         setLoading(false);
       } catch (error) {
         console.error("Lỗi khi lấy thông tin người dùng:", error);
-        setError("Không thể lấy thông tin người dùng. Vui lòng thử lại sau.");
+        setError("Unable to retrieve user information. Please try again later");
         setLoading(false);
       }
     };
@@ -150,7 +150,7 @@ const Profile = () => {
   // Thêm hàm xử lý upload avatar
   const handleSaveAvatar = async () => {
     if (!selectedFile) {
-      toast.error("Vui lòng chọn ảnh");
+      toast.error("Please select an image");
       return;
     }
 
@@ -159,7 +159,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Không thể xác định thông tin người dùng");
+        toast.error("Unable to identify user information");
         return;
       }
 
@@ -183,9 +183,9 @@ const Profile = () => {
       });
 
       setIsEditingAvatar(false);
-      toast.success("Cập nhật ảnh đại diện thành công");
+      toast.success("Profile picture updated successfully");
     } catch (error) {
-      toast.error("Lỗi khi cập nhật ảnh đại diện!");
+      toast.error("Error updating profile picture!");
       console.error("Lỗi:", error);
     }
   };
@@ -197,7 +197,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Không thể xác định thông tin người dùng");
+        toast.error("Unable to determine user information");
         return;
       }
 
@@ -217,7 +217,7 @@ const Profile = () => {
         }
       );
 
-      toast.success("Chỉnh sửa thành công");
+      toast.success("Edit successfully");
 
       setUser({
         ...response.data,
@@ -230,7 +230,7 @@ const Profile = () => {
 
       setIsEditing(false);
     } catch (error) {
-      toast.error("Cập nhật thông tin thất bại");
+      toast.error("Update information failed");
       console.error("Lỗi khi cập nhật thông tin:", error);
     }
   };
@@ -242,7 +242,7 @@ const Profile = () => {
 
   const submitChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error("Mật khẩu mới và xác nhận không khớp!");
+      toast.error("New password and confirmed password do not match!");
       return;
     }
 
@@ -251,7 +251,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Không thể xác định thông tin người dùng");
+        toast.error("Unable to identify user information");
         return;
       }
 
@@ -266,7 +266,7 @@ const Profile = () => {
         }
       );
 
-      toast.success("Đổi mật khẩu thành công");
+      toast.success("Password changed successfully");
       setIsChangingPassword(false);
       setPasswordData({
         currentPassword: "",
@@ -275,7 +275,7 @@ const Profile = () => {
       });
     } catch (error) {
       console.error("Lỗi khi đổi mật khẩu:", error);
-      toast.error("Đổi mật khẩu thất bại!");
+      toast.error("Password change failed!");
     }
   };
 
@@ -285,7 +285,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Không thể xác định thông tin người dùng");
+        toast.error("Unable to identify user information");
         return;
       }
 
@@ -306,9 +306,9 @@ const Profile = () => {
       });
 
       setIsEditingEmail(false);
-      toast.success("Chỉnh sửa email thành công");
+      toast.success("Email updated successfully");
     } catch (error) {
-      toast.error("Lỗi khi cập nhật email!");
+      toast.error("Error updating email!");
       console.error("Lỗi:", error);
     }
   };
@@ -319,7 +319,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Không thể xác định thông tin người dùng");
+        toast.error("Unable to identify user information");
         return;
       }
 
@@ -340,9 +340,9 @@ const Profile = () => {
       });
 
       setIsEditingPhone(false);
-      toast.success("Chỉnh sửa số điện thoại thành công");
+      toast.success("Phone number updated successfully");
     } catch (error) {
-      toast.error("Lỗi khi cập nhật số điện thoại!");
+      toast.error("Error updating phone number!");
       console.error("Lỗi:", error);
     }
   };
@@ -353,7 +353,7 @@ const Profile = () => {
       const userId = decodedToken?.userId;
 
       if (!userId) {
-        toast.error("Không thể xác định thông tin người dùng");
+        toast.error("Unable to identify user information");
         return;
       }
 
@@ -374,9 +374,9 @@ const Profile = () => {
       });
 
       setIsEditingUsername(false);
-      toast.success("Chỉnh sửa tên người dùng thành công");
+      toast.success("Username updated successfully");
     } catch (error) {
-      toast.error("Lỗi khi cập nhật tên người dùng!");
+      toast.error("Error updating username!");
       console.error("Lỗi:", error);
     }
   };
@@ -387,7 +387,7 @@ const Profile = () => {
   //       const userId = decodedToken?.userId;
 
   //       if (!userId) {
-  //         toast.error("Không thể xác định thông tin người dùng");
+  //         toast.error("Unable to identify user information");
   //         return;
   //       }
   //       console.log(editedRole);
@@ -422,7 +422,7 @@ const Profile = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-xl">Đang tải thông tin...</p>
+        <p className="text-xl">Loading information...</p>
       </div>
     );
   }
@@ -470,7 +470,7 @@ const Profile = () => {
               className="bg-red-600 text-white px-4 py-2 rounded-md text-sm flex items-center space-x-2 hover:bg-red-700 transition"
             >
               <FaKey />
-              <span>Đổi mật khẩu</span>
+              <span>Change password</span>
             </button>
           </div>
         </div>
@@ -494,7 +494,7 @@ const Profile = () => {
           <div className="flex justify-between border-b border-black pb-3">
             <ProfileField
               icon={<FaPhone />}
-              label="Số điện thoại"
+              label="Phone number"
               value={user.phoneNumber}
             />
             <button
@@ -507,18 +507,18 @@ const Profile = () => {
 
           <ProfileField
             icon={<FaTransgender />}
-            label="Giới tính"
-            value={user.gender ? "Nam" : "Nữ"}
+            label="Gender"
+            value={user.gender ? "Male" : "Female"}
           />
 
           <ProfileField
             icon={<FaBirthdayCake />}
-            label="Ngày sinh"
+            label="Date of birth"
             value={user.dob}
           />
           <ProfileField
             icon={<FaInfoCircle />}
-            label="Mô tả"
+            label="Description"
             value={user.bio}
           />
         </div>
@@ -530,7 +530,7 @@ const Profile = () => {
             className="flex items-center space-x-2 bg-black text-white px-5 py-2 rounded-md text-lg font-medium hover:opacity-80 transition"
           >
             <FaEdit />
-            <span>Chỉnh sửa hồ sơ</span>
+            <span>Edit profile</span>
           </button>
         </div>
       </div>
@@ -540,7 +540,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Chỉnh sửa hồ sơ</h2>
+              <h2 className="text-xl font-semibold">Edit profile</h2>
               <button
                 onClick={() => setIsEditing(false)}
                 className="text-red-500 hover:text-red-700"
@@ -552,34 +552,34 @@ const Profile = () => {
             {/* Form chỉnh sửa */}
             <div className="space-y-4 mt-4">
               <InputField
-                label="Họ"
+                label="Last name"
                 name="firstname"
                 value={editedUser.firstname}
                 onChange={handleChange}
               />
               <InputField
-                label="Tên"
+                label="First name"
                 name="lastname"
                 value={editedUser.lastname}
                 onChange={handleChange}
               />
               <InputField
-                label="Ngày sinh"
+                label="Date of birth"
                 name="dob"
                 type="date"
                 value={editedUser.dob}
                 onChange={handleChange}
               />
               <InputField
-                label="Giới tính"
+                label="Gender"
                 name="gender"
                 type="select"
                 value={editedUser.gender}
                 onChange={handleChange}
-                options={{ 1: "Nam", 0: "Nữ" }}
+                options={{ 1: "Male", 0: "Female" }}
               />
               <InputField
-                label="Mô tả"
+                label="Description"
                 name="bio"
                 value={editedUser.bio}
                 onChange={handleChange}
@@ -591,14 +591,14 @@ const Profile = () => {
                   onClick={() => setIsEditing(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Lưu</span>
+                  <span>Save</span>
                 </button>
               </div>
             </div>
@@ -611,7 +611,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Đổi mật khẩu</h2>
+              <h2 className="text-xl font-semibold">Change password</h2>
               <button
                 onClick={() => setIsChangingPassword(false)}
                 className="text-red-500 hover:text-red-700"
@@ -623,21 +623,21 @@ const Profile = () => {
             {/* Form nhập mật khẩu */}
             <div className="space-y-4 mt-4">
               <InputField
-                label="Mật khẩu hiện tại"
+                label="Current Password"
                 name="currentPassword"
                 type="password"
                 value={passwordData.currentPassword}
                 onChange={handleChangePassword}
               />
               <InputField
-                label="Mật khẩu mới"
+                label="New Password"
                 name="newPassword"
                 type="password"
                 value={passwordData.newPassword}
                 onChange={handleChangePassword}
               />
               <InputField
-                label="Xác nhận mật khẩu"
+                label="Confirm Password"
                 name="confirmPassword"
                 type="password"
                 value={passwordData.confirmPassword}
@@ -650,14 +650,14 @@ const Profile = () => {
                   onClick={() => setIsChangingPassword(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   onClick={submitChangePassword}
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Xác nhận</span>
+                  <span>Confirm</span>
                 </button>
               </div>
             </div>
@@ -670,7 +670,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Chỉnh sửa Email</h2>
+              <h2 className="text-xl font-semibold">Edit Email</h2>
               <button
                 onClick={() => setIsEditingEmail(false)}
                 className="text-red-500 hover:text-red-700"
@@ -695,14 +695,14 @@ const Profile = () => {
                   onClick={() => setIsEditingEmail(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   onClick={handleSaveEmail}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Lưu</span>
+                  <span>Save</span>
                 </button>
               </div>
             </div>
@@ -715,7 +715,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Chỉnh sửa Số điện thoại</h2>
+              <h2 className="text-xl font-semibold">Edit phone number</h2>
               <button
                 onClick={() => setIsEditingPhone(false)}
                 className="text-red-500 hover:text-red-700"
@@ -727,7 +727,7 @@ const Profile = () => {
             {/* Form nhập số điện thoại */}
             <div className="space-y-4 mt-4">
               <InputField
-                label="Số điện thoại"
+                label="Phone Number"
                 name="phoneNumber"
                 type="tel"
                 value={editedPhone}
@@ -740,14 +740,14 @@ const Profile = () => {
                   onClick={() => setIsEditingPhone(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   onClick={handleSavePhone}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Lưu</span>
+                  <span>Save</span>
                 </button>
               </div>
             </div>
@@ -760,9 +760,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">
-                Chỉnh sửa Tên người dùng
-              </h2>
+              <h2 className="text-xl font-semibold">Edit username</h2>
               <button
                 onClick={() => setIsEditingUsername(false)}
                 className="text-red-500 hover:text-red-700"
@@ -774,7 +772,7 @@ const Profile = () => {
             {/* Form nhập username */}
             <div className="space-y-4 mt-4">
               <InputField
-                label="Tên người dùng"
+                label="Username"
                 name="username"
                 type="text"
                 value={editedUsername}
@@ -787,14 +785,14 @@ const Profile = () => {
                   onClick={() => setIsEditingUsername(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   onClick={handleSaveUsername}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Lưu</span>
+                  <span>Save</span>
                 </button>
               </div>
             </div>
@@ -834,7 +832,7 @@ const Profile = () => {
 	                  onClick={() => setIsEditingRole(false)}
 	                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
 	                >
-	                  Hủy
+	                  Cancel
 	                </button>
 	                <button
 	                  onClick={handleSaveRole}
@@ -855,7 +853,7 @@ const Profile = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
-              <h2 className="text-xl font-semibold">Thay đổi ảnh đại diện</h2>
+              <h2 className="text-xl font-semibold">Change profile picture</h2>
               <button
                 onClick={() => setIsEditingAvatar(false)}
                 className="text-red-500 hover:text-red-700"
@@ -884,7 +882,7 @@ const Profile = () => {
                   onClick={() => fileInputRef.current.click()}
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 >
-                  Chọn ảnh
+                  Select image
                 </button>
               </div>
 
@@ -894,14 +892,14 @@ const Profile = () => {
                   onClick={() => setIsEditingAvatar(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   onClick={handleSaveAvatar}
                   className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center space-x-2"
                 >
                   <FaSave />
-                  <span>Lưu</span>
+                  <span>Save</span>
                 </button>
               </div>
             </div>
@@ -919,7 +917,7 @@ const ProfileField = ({ icon, label, value }) => (
     <div className="flex-1">
       <span className="text-lg font-medium text-black">{label}</span>
       <p className="text-xl font-light text-black">
-        {value || "Chưa cập nhật"}
+        {value || "Not updated yet"}
       </p>
     </div>
   </div>
