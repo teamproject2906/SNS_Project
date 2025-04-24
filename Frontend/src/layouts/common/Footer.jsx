@@ -96,11 +96,11 @@ const Footer = () => {
       {/* Danh mục */}
       <div className="container mx-auto px-4 mt-8">
         <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 text-center text-sm font-semibold">
-          <li>Xu hướng</li>
+          <li>Trend</li>
           <li>Best Seller</li>
-          <li>Khuyến mãi</li>
-          <li>Tin tức</li>
-          <li>Liên hệ</li>
+          <li>Discount</li>
+          <li>News</li>
+          <li>Contact</li>
         </ul>
       </div>
     </footer>

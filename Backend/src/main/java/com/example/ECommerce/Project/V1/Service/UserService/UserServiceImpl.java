@@ -67,21 +67,40 @@ public class UserServiceImpl implements IUserService {
             throw new IllegalArgumentException("Password must be between 8 and 50 characters");
         }
 
-        if(!passwordEncoder.matches(request.getCurrentPassword(), userFind.getPassword())) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), userFind.getPassword())) {
             throw new BadCredentialsException("Wrong password");
         }
 
-        if(!request.getNewPassword().equals(request.getConfirmPassword())) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new BadCredentialsException("Passwords and Confirm Passwords do not match");
+        }
+
+        // ✅ Kiểm tra mật khẩu mới không được trùng với mật khẩu hiện tại
+        if (passwordEncoder.matches(request.getNewPassword(), userFind.getPassword())) {
+            throw new IllegalArgumentException("New password must be different from the current password");
         }
 
         userFind.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(userFind);
     }
 
+
     @Override
     public UserDTO updateUserInfo(UserDTO userDTO, Integer userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
+
+        // Regex chỉ cho phép chữ cái và khoảng trắng
+        String nameRegex = "^[a-zA-Z\\s]+$";
+
+        if (!userDTO.getFirstname().matches(nameRegex)) {
+            throw new IllegalArgumentException("Firstname must not contain special characters");
+        }
+
+        if (!userDTO.getLastname().matches(nameRegex)) {
+            throw new IllegalArgumentException("Lastname must not contain special characters");
+        }
+
         user.setFirstname(userDTO.getFirstname());
         user.setLastname(userDTO.getLastname());
         user.setDob(userDTO.getDob());
@@ -89,9 +108,11 @@ public class UserServiceImpl implements IUserService {
         user.setBio(userDTO.getBio());
         user.setUpdatedBy(user.getUsername());
         user.setUpdatedAt(LocalDateTime.now());
+
         User userSaved = userRepository.save(user);
         return mapper.map(userSaved, UserDTO.class);
     }
+
 
     @Override
     public Integer findUserIdByUsername(UserDTO userDTO, String username) {
@@ -139,13 +160,24 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserDTO changePhoneNumber(UserDTO userDTO, Integer userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
-        user.setPhoneNumber(userDTO.getPhoneNumber());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
+
+        String phoneNumber = userDTO.getPhoneNumber();
+
+        // Kiểm tra số điện thoại: chỉ chứa chữ số và độ dài tối đa 10
+        if (phoneNumber == null || !phoneNumber.matches("^\\d{1,10}$")) {
+            throw new IllegalArgumentException("Phone number must be numeric and contain at most 10 digits");
+        }
+
+        user.setPhoneNumber(phoneNumber);
         user.setUpdatedBy(user.getUsername());
         user.setUpdatedAt(LocalDateTime.now());
+
         User userSaved = userRepository.save(user);
         return mapper.map(userSaved, UserDTO.class);
     }
+
 
     @Override
     public UserDTO getUserProfile(Integer userId) {

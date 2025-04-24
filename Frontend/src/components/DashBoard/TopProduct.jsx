@@ -57,15 +57,13 @@ const TopProduct = () => {
     fetchImage();
   }, [productId]);
 
+  console.log("Images:", images);
+
   return (
     <div className="container mx-auto">
       <h2 className="font-bold text-2xl mb-4">Top Product</h2>
       <ul className="space-y-4">
         {products?.map((item) => {
-          const firstImage = images.find(
-            (img) => img.product.id === item.productId
-          );
-
           return (
             <li
               key={item.id}
@@ -75,20 +73,18 @@ const TopProduct = () => {
                 {item.productId}
               </div>
               <div className="flex-shrink-0 mx-4">
-                {firstImage ? (
-                  <img
-                    src={firstImage.imageUrl}
-                    alt={item.productName}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
-                    No Image
-                  </div>
-                )}
+                <img
+                  src={item.productImg}
+                  alt={item.productName}
+                  className="w-20 h-20 object-cover rounded-lg"
+                />
               </div>
-              <div className="flex-grow text-gray-800 font-medium">
-                {item.productName}
+              <div className="flex-grow">
+                <div className="flex-grow text-gray-800 font-medium">
+                  {item.productName}
+                </div>
+                <div className=" text-gray-600">Size: {item.size}</div>
+                <div className=" text-gray-600">Color: {item.color}</div>
               </div>
               <div className="flex-shrink-0 text-gray-600">
                 {item.quantitySold} sold

@@ -109,7 +109,7 @@ const routes = [
     path: "/checkout",
     element: (
       <MainLayout>
-        <Breadcrumb />
+        
         <Checkout />
       </MainLayout>
     ),

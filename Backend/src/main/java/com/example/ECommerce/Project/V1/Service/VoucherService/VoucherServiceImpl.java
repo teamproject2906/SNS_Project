@@ -52,6 +52,10 @@ public class VoucherServiceImpl implements IVoucherService{
     @Override
     public VoucherDTO createVoucher(VoucherDTO voucherDTO) {
 
+        if (!(voucherRepository.findByVoucherCodeContaining(voucherDTO.getVoucherCode()).isEmpty())) {
+            throw new IllegalArgumentException("Voucher code already exists.");
+        }
+
         validateVoucher(voucherDTO);
 
         var voucher = Voucher.builder()
@@ -95,10 +99,6 @@ public class VoucherServiceImpl implements IVoucherService{
     }
 
     private void validateVoucher(VoucherDTO voucherDTO) {
-        if (!(voucherRepository.findByVoucherCodeContaining(voucherDTO.getVoucherCode()).isEmpty())) {
-            throw new IllegalArgumentException("Voucher code already exists.");
-        }
-
         // Validate usage limit > 0
         if (voucherDTO.getUsageLimit() <= 0) {
             throw new IllegalArgumentException("Usage limit must be greater than 0.");

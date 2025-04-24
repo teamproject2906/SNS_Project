@@ -265,6 +265,7 @@ const SizeChart = () => {
   const columns = [
     {
       name: "ID",
+      selector: (row) => row.id,
       cell: (row) => (
         <div style={{ opacity: row.active ? 1 : 0.5 }}>{row.id}</div>
       ),
@@ -272,6 +273,7 @@ const SizeChart = () => {
     },
     {
       name: "Size Type",
+      selector: (row) => row.sizeChartType,
       cell: (row) => (
         <>
           <div style={{ opacity: row.active ? 1 : 0.5 }}>
@@ -288,7 +290,6 @@ const SizeChart = () => {
           <div style={{ opacity: row.active ? 1 : 0.5 }}>{row.value}</div>
         </>
       ),
-      sortable: true,
     },
     {
       name: "Actions",
