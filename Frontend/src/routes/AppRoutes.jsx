@@ -97,15 +97,6 @@ const routes = [
     ),
   },
   {
-    path: "/order",
-    element: (
-      <MainLayout className="p-0 bg-[#f5f5f5]">
-        {/* <Breadcrumb /> */}
-        <Order />
-      </MainLayout>
-    ),
-  },
-  {
     path: "/favourite",
     element: (
       <MainLayout>
@@ -144,6 +135,15 @@ const routes = [
     element: (
       <MainLayout>
         <Setting />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/order",
+    element: (
+      <MainLayout className="p-0 bg-[#f5f5f5]">
+        {/* <Breadcrumb /> */}
+        <Order />
       </MainLayout>
     ),
   },

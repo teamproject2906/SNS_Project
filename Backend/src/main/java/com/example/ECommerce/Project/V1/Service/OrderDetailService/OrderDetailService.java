@@ -10,9 +10,7 @@ import java.util.UUID;
 public interface OrderDetailService {
     List<OrderDetailDTO> getAllOrders();
     OrderDetailDTO getOrderById(Integer id);
-
-    List<OrderDetail> getOrdersByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus);
-
+    List<OrderDetailDTO> getOrdersByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus);
     OrderDetailDTO createOrder(OrderDetailDTO orderDetailDTO);
     OrderDetailDTO updateOrder(Integer id, OrderDetailDTO orderDetailDTO);
     void deleteOrder(Integer id);

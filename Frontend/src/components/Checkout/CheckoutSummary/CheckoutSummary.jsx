@@ -1,13 +1,23 @@
 import { useEffect, useState, useRef } from "react";
 import { useCart } from "../../../context/CartContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../../../pages/Login/app/static";
 import { checkoutVnPay } from "../../../services/paymentService";
 import { toast } from "react-toastify";
+import { useUser } from "../../../context/UserContext";
+import { createOrder } from "../../../services/orderService";
 
 const CheckoutSummary = () => {
-  const { cartItems, getTotalPrice, getPriceAfterPromotion } = useCart();
+  const navigate = useNavigate();
+  const {
+    cartItems,
+    getTotalPrice,
+    getPriceAfterPromotion,
+    paymentMethod,
+    address,
+  } = useCart();
+  const { user } = useUser();
   const shippingFee = 0; // Phí vận chuyển
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -54,15 +64,60 @@ const CheckoutSummary = () => {
     }
   };
 
+  const handleCreateOrder = async (payload) => {
+    try {
+      await createOrder(payload);
+      toast.success("Đơn hàng đã được tạo thành công");
+      navigate("/order");
+    } catch (error) {
+      toast.error("Lỗi khi tạo đơn hàng");
+      throw new Error(error);
+    }
+  };
+
   const handleCheckout = async () => {
     try {
-      const response = await checkoutVnPay({
-        amount: total,
-      });
-      window.location.href = response.data.paymentUrl;
+      if (paymentMethod === "CREDIT") {
+        localStorage.setItem(
+          "checkout",
+          JSON.stringify({
+            userId: user.id,
+            totalAmount: total,
+            voucher: selectedVoucher,
+            address: address,
+          })
+        );
+        const response = await checkoutVnPay({
+          amount: total,
+        });
+        window.location.href = response.data.paymentUrl;
+      } else {
+        console.log(cartItems);
+
+        const payload = {
+          userId: user.id,
+          orderItems: cartItems.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            color: item?.product?.color,
+            size: item?.product?.sizeChart?.value,
+          })),
+          address: {
+            id: address?.id,
+          },
+          totalAmount: total,
+          voucherId: selectedVoucher?.id,
+          orderStatus: "PENDING",
+          paymentMethod: "COD",
+          orderDate: new Date().toISOString(),
+          shippingDate: new Date(
+            new Date().getTime() + 3 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        };
+        handleCreateOrder(payload);
+      }
     } catch (error) {
       console.error("Error checking out:", error);
-      toast.error("Lỗi khi thanh toán");
     }
   };
 

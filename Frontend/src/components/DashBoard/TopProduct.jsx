@@ -17,7 +17,8 @@ const TopProduct = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setProducts(res.data);
+      // Limit to top 5 products
+      setProducts(res.data.slice(0, 3));
       if (res.data.length > 0) {
         setProductId(res.data[0].productId);
       }
@@ -57,49 +58,45 @@ const TopProduct = () => {
   }, [productId]);
 
   return (
-    <div className="container mx-auto rounded-xl">
-      <label htmlFor="my-modal" className="btn font-bold text-2xl">
-        Top Product
-      </label>
-      <table className="w-full border-collapse rounded-xl">
-        <thead className="">
-          <tr className="">
-            <th className="p-4 text-left font-semibold">ID</th>
-            <th className="p-4 text-left font-semibold">Image</th>
-            <th className="p-4 text-left font-semibold">Product Name</th>
-            <th className="p-4 text-left font-semibold">Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products?.map((item) => {
-            const firstImage = images.find(
-              (img) => img.product.id === item.productId
-            );
+    <div className="container mx-auto">
+      <h2 className="font-bold text-2xl mb-4">Top Product</h2>
+      <ul className="space-y-4">
+        {products?.map((item) => {
+          const firstImage = images.find(
+            (img) => img.product.id === item.productId
+          );
 
-            return (
-              <tr
-                key={item.id}
-                className="border-gray-200 shadow-xl rounded-xl"
-              >
-                <td className="p-4 text-gray-600">{item.productId}</td>
-                <td className="p-4">
-                  {firstImage && (
-                    <img
-                      src={firstImage.imageUrl}
-                      alt={item.productName}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
-                  )}
-                </td>
-                <td className="p-4 text-gray-800 font-medium">
-                  {item.productName}
-                </td>
-                <td className="p-4 text-gray-600">{item.quantitySold}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+          return (
+            <li
+              key={item.id}
+              className="flex items-center bg-white shadow-md rounded-lg p-4 hover:bg-gray-50 transition"
+            >
+              <div className="flex-shrink-0 w-12 text-gray-600 font-semibold">
+                {item.productId}
+              </div>
+              <div className="flex-shrink-0 mx-4">
+                {firstImage ? (
+                  <img
+                    src={firstImage.imageUrl}
+                    alt={item.productName}
+                    className="w-20 h-20 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                    No Image
+                  </div>
+                )}
+              </div>
+              <div className="flex-grow text-gray-800 font-medium">
+                {item.productName}
+              </div>
+              <div className="flex-shrink-0 text-gray-600">
+                {item.quantitySold} sold
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };

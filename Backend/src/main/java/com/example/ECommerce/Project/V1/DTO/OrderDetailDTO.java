@@ -20,7 +20,7 @@ public class OrderDetailDTO {
 
     private Integer userId; // ID của người dùng
 
-    private AddressDTO addressId;
+    private AddressDTO address;
 
     private String username;
 

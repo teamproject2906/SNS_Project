@@ -64,7 +64,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public List<OrderDetail> getOrdersByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus) {
+    public List<OrderDetailDTO> getOrdersByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus) {
         if (userId == null || userId.describeConstable().isEmpty()) {
             throw new IllegalArgumentException("userId cannot be null");
         }
@@ -82,7 +82,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("User not found with userId: " + userId);
         }
-        return orderDetailRepository.findByUserIdAndOrderStatus(userId, orderStatus);
+        List<OrderDetail> orders = orderDetailRepository.findByUserIdAndOrderStatus(userId, orderStatus);
+
+        // Chuyển sang DTO
+        return orders.stream()
+                .map(order -> modelMapper.map(order, OrderDetailDTO.class))
+                .collect(Collectors.toList());
     }
 
     public void validateOrderDetailDTO(OrderDetailDTO orderDetailDTO) {
@@ -163,10 +168,10 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         OrderDetail orderDetail = modelMapper.map(orderDetailDTO, OrderDetail.class);
 
         // Xử lý Address nếu có
-        if (orderDetailDTO.getAddressId() != null) {
-            Optional<Address> findAddress = addressRepository.findById(orderDetailDTO.getAddressId().getId());
-            Address savedAddress = addressRepository.save(findAddress.orElse(null));
-            orderDetail.setAddressId(savedAddress);
+        if (orderDetailDTO.getAddress() != null) {
+            Address findAddress = addressRepository.findById(orderDetailDTO.getAddress().getId())
+                    .orElseThrow(() -> new RuntimeException("Address not found"));
+            orderDetail.setAddress(findAddress);
         }
 
         if (orderDetail.getOrderItems() == null) {

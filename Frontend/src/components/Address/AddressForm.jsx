@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select';
-import addressDataRaw from './dvhcvn.json';
-import { addressService } from '../../services/addressService';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import Select from "react-select";
+import addressDataRaw from "./dvhcvn.json";
+import { addressService } from "../../services/addressService";
+import { toast } from "react-toastify";
 
 // Convert data to react-select format
 const addressData = addressDataRaw.data.map((province) => ({
@@ -19,17 +19,21 @@ const addressData = addressDataRaw.data.map((province) => ({
   })),
 }));
 
-const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) => {
-  console.log(initialData);
-  
+const AddressForm = ({
+  onClose,
+  onSubmit,
+  initialData,
+  isNewAddress,
+  userId,
+}) => {
   const [formData, setFormData] = useState({
-    addressDescription: '',
-    phoneNumber: '',
+    addressDescription: "",
+    phoneNumber: "",
     province: null,
     district: null,
     ward: null,
-    addressDetail: '',
-    country: 'Vietnam',
+    addressDetail: "",
+    country: "Vietnam",
     isDefault: false,
   });
 
@@ -38,17 +42,24 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
     if (initialData) {
       // Map backend data to form fields if needed
       const mappedData = {
-        country: 'Vietnam',
-        addressDescription: initialData.addressDescription || initialData.fullName || '',
-        phoneNumber: initialData.phoneNumber || '',
-        addressDetail: initialData.addressDetail || initialData.address || '',
+        country: "Vietnam",
+        addressDescription:
+          initialData.addressDescription || initialData.fullName || "",
+        phoneNumber: initialData.phoneNumber || "",
+        addressDetail: initialData.addressDetail || initialData.address || "",
         isDefault: initialData.isDefault || false,
       };
 
       // Find province, district, and ward objects
-      const province = addressData.find(p => p.label === (initialData.province || ''));
-      const district = province?.districts.find(d => d.label === (initialData.district || ''));
-      const ward = district?.wards.find(w => w.label === (initialData.ward || ''));
+      const province = addressData.find(
+        (p) => p.label === (initialData.province || "")
+      );
+      const district = province?.districts.find(
+        (d) => d.label === (initialData.district || "")
+      );
+      const ward = district?.wards.find(
+        (w) => w.label === (initialData.ward || "")
+      );
 
       setFormData({
         ...mappedData,
@@ -82,21 +93,29 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === "isDefault") {
+      if (initialData && initialData?.isDefault === true) {
+        alert(
+          "To remove this default address, please select a new default address."
+        );
+        return;
+      }
+    }
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
   const handleSelectChange = (name, selectedOption) => {
-    if (name === 'province') {
+    if (name === "province") {
       setFormData({
         ...formData,
         province: selectedOption,
         district: null,
         ward: null,
       });
-    } else if (name === 'district') {
+    } else if (name === "district") {
       setFormData({
         ...formData,
         district: selectedOption,
@@ -109,43 +128,43 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!formData.addressDescription.trim()) {
-      alert('Please enter your full name');
+      alert("Please enter your full name");
       return;
     }
     if (!formData.phoneNumber.trim()) {
-      alert('Please enter your phone number');
+      alert("Please enter your phone number");
       return;
     }
     if (!formData.province) {
-      alert('Please select a province');
+      alert("Please select a province");
       return;
     }
     if (!formData.district) {
-      alert('Please select a district');
+      alert("Please select a district");
       return;
     }
     if (!formData.ward) {
-      alert('Please select a ward');
+      alert("Please select a ward");
       return;
     }
     if (!formData.addressDetail.trim()) {
-      alert('Please enter your detailed address');
+      alert("Please enter your detailed address");
       return;
     }
 
     // Map form data to backend format
     const addressData = {
       userId: userId,
-      country: 'Vietnam',
+      country: "Vietnam",
       addressDescription: formData.addressDescription,
       phoneNumber: formData.phoneNumber,
       addressDetail: formData.addressDetail,
-      province: formData.province?.label || '',
-      district: formData.district?.label || '',
-      ward: formData.ward?.label || '',
+      province: formData.province?.label || "",
+      district: formData.district?.label || "",
+      ward: formData.ward?.label || "",
       isDefault: formData.isDefault,
     };
 
@@ -162,19 +181,21 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
       if (onSubmit) {
         onSubmit();
       }
-      
+
       // Close the form
       onClose();
     } catch (error) {
-      console.error('Error saving address:', error);
-      toast.error(isNewAddress ? "Failed to add address" : "Failed to update address");
+      console.error("Error saving address:", error);
+      toast.error(
+        isNewAddress ? "Failed to add address" : "Failed to update address"
+      );
     }
   };
 
   return (
     <div className="address-form-container">
       <h2 className="text-xl font-semibold mb-4">
-        {isNewAddress ? 'Add New Address' : 'Update Address'}
+        {isNewAddress ? "Add New Address" : "Update Address"}
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="form-row flex space-x-4 mb-4">
@@ -207,7 +228,7 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
           <Select
             options={addressData}
             placeholder="Select Province/City"
-            onChange={(option) => handleSelectChange('province', option)}
+            onChange={(option) => handleSelectChange("province", option)}
             value={formData.province}
             required
           />
@@ -218,7 +239,7 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
           <Select
             options={getDistricts()}
             placeholder="Select District"
-            onChange={(option) => handleSelectChange('district', option)}
+            onChange={(option) => handleSelectChange("district", option)}
             value={formData.district}
             isDisabled={!formData.province}
             required
@@ -230,7 +251,7 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
           <Select
             options={getWards()}
             placeholder="Select Ward"
-            onChange={(option) => handleSelectChange('ward', option)}
+            onChange={(option) => handleSelectChange("ward", option)}
             value={formData.ward}
             isDisabled={!formData.district}
             required
@@ -250,15 +271,17 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
         </div>
 
         <div className="form-group mb-4">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              name="isDefault"
-              checked={formData.isDefault}
-              onChange={handleInputChange}
-              className="mr-2"
-            />
-            Set as default address
+          <label className="flex items-center space-x-2">
+            <label className="switch">
+              <input
+                type="checkbox"
+                name="isDefault"
+                checked={formData.isDefault}
+                onChange={handleInputChange}
+              />
+              <span className="slider round"></span>
+            </label>
+            <p>Set as default address</p>
           </label>
         </div>
 
@@ -274,7 +297,7 @@ const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress, userId }) =
             type="submit"
             className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
           >
-            {isNewAddress ? 'Add Address' : 'Update Address'}
+            {isNewAddress ? "Add Address" : "Update Address"}
           </button>
         </div>
       </form>

@@ -9,8 +9,8 @@ import { FaChartLine } from "react-icons/fa";
 import { FaHistory } from "react-icons/fa";
 import { FaRulerCombined } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
+import { BsPostcardHeartFill } from "react-icons/bs";
 import {
-  getUserInfo,
   removeToken,
   removeUserInfo,
   setToken,
@@ -254,6 +254,7 @@ const SideBar = ({
             { tab: "voucher", icon: <BiSolidDiscount />, label: "Voucher" },
             { tab: "orders", icon: <FaHistory />, label: "Orders" },
             { tab: "formClothes", icon: <GiClothes />, label: "Form Clothes" },
+            { tab: "socialPost", icon: <BsPostcardHeartFill />, label: "Social Post" },
           ].map((item) => (
             <button
               key={item.tab}

@@ -26,8 +26,22 @@ public class AddressServiceImpl implements AddressService {
         User user = userRepository.findById(addressDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         address.setUser(user);
+
+        // Nếu địa chỉ mới được set là mặc định
+        if (addressDTO.getIsDefault()) {
+            // Cập nhật tất cả các địa chỉ khác của user thành không mặc định
+            addressRepository.resetDefaultAddresses(user.getId());
+        }
+
         Address savedAddress = addressRepository.save(address);
         return mapToDTO(savedAddress);
+    }
+
+    @Override
+    public AddressDTO getAddressById(Integer id){
+        Address add = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found address with id"));
+        return mapToDTO(add);
     }
 
     @Override
@@ -51,6 +65,11 @@ public class AddressServiceImpl implements AddressService {
     public AddressDTO updateAddress(Integer id, AddressDTO addressDTO) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found"));
+
+        // Nếu chuyển từ không mặc định -> mặc định
+        if (!address.getIsDefault() && addressDTO.getIsDefault()) {
+            addressRepository.resetDefaultAddresses(address.getUser().getId());
+        }
 
         address.setAddressDescription(addressDTO.getAddressDescription());
         address.setAddressDetail(addressDTO.getAddressDetail());

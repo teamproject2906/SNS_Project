@@ -39,8 +39,11 @@ public class OrderDetail extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne()
-    private Address addressId;
+//    Dùng manyToOne 1 người dùng có thể order nhiều lần về đchi của nó
+
+    @ManyToOne()
+    @JoinColumn(name = "address_id")
+    private Address address;
 
     @ManyToOne()
     @JoinColumn(name = "voucher_id")

@@ -74,7 +74,7 @@ public class OrderDetailController {
         try {
             // Convert orderStatus string to OrderStatus enum (case-insensitive)
             OrderStatus status = OrderStatus.valueOf(orderStatus.toUpperCase());
-            List<OrderDetail> orders = orderDetailService.getOrdersByUserIdAndOrderStatus(userId, status);
+            List<OrderDetailDTO> orders = orderDetailService.getOrdersByUserIdAndOrderStatus(userId, status);
             return ResponseEntity.ok(orders);
         } catch (IllegalArgumentException e) {
             // Handle invalid enum value or service validation errors
