@@ -16,6 +16,7 @@ const CheckoutSummary = () => {
     getPriceAfterPromotion,
     paymentMethod,
     address,
+    clearCart,
   } = useCart();
   const { user } = useUser();
   const shippingFee = 0; // Phí vận chuyển
@@ -92,8 +93,6 @@ const CheckoutSummary = () => {
         });
         window.location.href = response.data.paymentUrl;
       } else {
-        console.log(cartItems);
-
         const payload = {
           userId: user.id,
           orderItems: cartItems.map((item) => ({
@@ -116,6 +115,7 @@ const CheckoutSummary = () => {
         };
         handleCreateOrder(payload);
       }
+      await clearCart();
     } catch (error) {
       console.error("Error checking out:", error);
     }
