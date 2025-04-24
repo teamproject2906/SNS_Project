@@ -76,13 +76,13 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
 
     // Kiểm tra token trước khi gửi
     if (!token) {
-      toast.error("Bạn cần đăng nhập để đăng bài");
+      toast.error("You need to log in to post");
       return;
     }
 
     try {
       setIsLoading(true);
-      toast.info("Đang xử lý bài viết của bạn...");
+      toast.info("Processing your post...");
 
       // Log thông tin user cho debug
       console.log("Posting as user:", {
@@ -95,7 +95,9 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
         // Kiểm tra kích thước ảnh
         if (selectedImage.size > 5 * 1024 * 1024) {
           // 5MB
-          toast.warning("Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB");
+          toast.warning(
+            "Image size is too large. Please select an image under 5MB"
+          );
           setIsLoading(false);
           return;
         }
@@ -110,7 +112,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
         await postService.createPost(postData);
       }
 
-      toast.success("Đăng bài thành công!");
+      toast.success("Post published successfully!");
 
       // Reset form
       setContentText("");
@@ -125,7 +127,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
     } catch (error) {
       console.error("Error creating post:", error);
       // Xử lý lỗi chi tiết
-      let errorMessage = "Có lỗi xảy ra khi đăng bài";
+      let errorMessage = "An error occurred while posting";
 
       if (error.response) {
         // Lỗi từ server
@@ -133,13 +135,13 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
         console.log("Error status:", error.response.status);
 
         if (error.response.status === 401) {
-          errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại";
+          errorMessage = "Login session has expired. Please log in again";
         } else if (error.response.data?.message) {
           errorMessage = error.response.data.message;
         }
       } else if (error.request) {
         // Yêu cầu đã được gửi nhưng không nhận được phản hồi
-        errorMessage = "Không thể kết nối đến máy chủ";
+        errorMessage = "Unable to connect to the server";
       }
 
       toast.error(errorMessage);
@@ -162,7 +164,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
       <div className="bg-white rounded-2xl w-full max-w-[600px] mx-auto shadow-md">
         {/* Header */}
         <div className="flex justify-center items-center p-3 border-b border-gray-200 relative">
-          <h3 className="text-base font-semibold">Loop mới</h3>
+          <h3 className="text-base font-semibold">New loop</h3>
           <div className="absolute right-3 cursor-pointer" onClick={onClose}>
             <CgClose className="w-5 h-5" />
           </div>
@@ -180,7 +182,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
           <div className="flex-1">
             <div className="font-semibold text-base mb-3">{username}</div>
             <textarea
-              placeholder="Có gì mới?"
+              placeholder="What's new?"
               value={contentText}
               onChange={(e) => setContentText(e.target.value)}
               rows={4}
@@ -215,7 +217,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
         {/* Footer */}
         <div className="px-4 py-3 flex justify-between items-center border-t border-gray-200">
           <div className="text-gray-600 text-xs">
-            Người theo dõi bạn có thể trả lời và trích dẫn
+            Your followers can reply and quote
           </div>
           <button
             onClick={handleSubmit}
@@ -226,7 +228,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
             }`}
             disabled={!contentText.trim() || isLoading}
           >
-            {isLoading ? "Đang đăng..." : "Đăng"}
+            {isLoading ? "Posting..." : "Post"}
           </button>
         </div>
       </div>

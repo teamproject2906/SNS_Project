@@ -46,7 +46,7 @@ const SearchPopup = ({ isOpen, onClose, onPostSelect }) => {
         setPosts(data);
       } catch (error) {
         console.error("Error fetching posts:", error);
-        toast.error("Không thể tải bài viết");
+        toast.error("Unable to load the post");
         setPosts([]);
       } finally {
         setLoading(false);
@@ -68,7 +68,7 @@ const SearchPopup = ({ isOpen, onClose, onPostSelect }) => {
               <FaSearch className="text-gray-500 mr-3" />
               <input
                 type="text"
-                placeholder="Tìm kiếm bài viết..."
+                placeholder="Search for posts..."
                 className="w-full outline-none bg-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -86,20 +86,20 @@ const SearchPopup = ({ isOpen, onClose, onPostSelect }) => {
         {/* Content */}
         <div className="p-6 overflow-y-auto h-[calc(90vh-80px)]">
           {loading ? (
-            <div className="text-center py-8">Đang tải...</div>
+            <div className="text-center py-8">Loading...</div>
           ) : posts.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               {debouncedQuery.trim() === ""
-                ? "Không có bài viết nào"
-                : "Không tìm thấy bài viết phù hợp"}
+                ? "No posts available"
+                : "No matching posts found"}
             </div>
           ) : (
             <>
               <div className="text-xs text-gray-500 mb-4 bg-gray-100 p-2 rounded-lg">
                 <p>
-                  Lưu ý: Admin có thể xem cả bài viết đã xóa (dấu đỏ) và chưa
-                  xóa (dấu xanh). Người dùng thường chỉ xem được bài viết chưa
-                  xóa.
+                  Note: Admin can view both deleted posts (red mark) and
+                  non-deleted posts (green mark). Regular users can typically
+                  only view non-deleted posts.
                 </p>
               </div>
               <div className="space-y-4">

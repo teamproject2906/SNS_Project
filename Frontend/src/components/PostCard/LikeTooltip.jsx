@@ -10,13 +10,13 @@ const LikeTooltip = React.forwardRef(
         className="absolute top-full left-0 mt-2 bg-white shadow-xl rounded-lg p-3 w-64 z-50 border border-gray-200"
       >
         <h4 className="font-semibold text-gray-700 mb-2 pb-1 border-b">
-          Lượt thích ({likes})
+          Likes ({likes})
         </h4>
 
         {loadingLikers ? (
           <div className="py-3 text-center text-gray-500">
             <span className="inline-block animate-spin mr-2">⟳</span>
-            Đang tải...
+            Loading...
           </div>
         ) : likersList.length > 0 ? (
           <ul className="max-h-60 overflow-y-auto">
@@ -29,14 +29,14 @@ const LikeTooltip = React.forwardRef(
                 />
                 <span className="text-sm font-medium">{liker.fullName}</span>
                 {currentUserId === liker.userID && (
-                  <span className="ml-auto text-xs text-blue-500">Bạn</span>
+                  <span className="ml-auto text-xs text-blue-500">Your</span>
                 )}
               </li>
             ))}
           </ul>
         ) : (
           <p className="py-3 text-center text-gray-500">
-            Chưa có lượt thích nào
+            No likes yet
           </p>
         )}
       </div>

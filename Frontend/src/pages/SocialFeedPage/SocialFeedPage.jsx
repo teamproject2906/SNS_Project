@@ -23,8 +23,8 @@ const SocialFeedPage = () => {
       setError(null);
     } catch (error) {
       console.error("Error fetching posts:", error);
-      setError("Không thể tải bài viết");
-      toast.error("Không thể tải bài viết");
+      setError("Unable to load the post");
+      toast.error("Unable to load the post");
     } finally {
       setLoading(false);
     }
@@ -43,10 +43,10 @@ const SocialFeedPage = () => {
       } else {
         console.error("Post data invalid:", post);
         setError(
-          "Không tìm thấy bài viết. Bài viết có thể đã bị xóa hoặc ID không hợp lệ."
+          "Post not found. The post may have been deleted or the ID is invalid."
         );
         toast.error(
-          "Không tìm thấy bài viết. Bài viết có thể đã bị xóa hoặc ID không hợp lệ.",
+          "Post not found. The post may have been deleted or the ID is invalid.",
           {
             autoClose: 5000,
           }
@@ -60,8 +60,8 @@ const SocialFeedPage = () => {
       console.error(`Error fetching post with ID ${id}:`, error);
       const errorMessage =
         error.response?.status === 404
-          ? "Không tìm thấy bài viết. Bài viết có thể đã bị xóa."
-          : "Không thể tải bài viết. Vui lòng thử lại sau.";
+          ? "Post not found. The post may have been deleted."
+          : "Unable to load the post. Please try again later.";
 
       setError(errorMessage);
       toast.error(errorMessage, {
@@ -115,12 +115,12 @@ const SocialFeedPage = () => {
         fetchPosts();
       }
 
-      toast.success("Cập nhật bài viết thành công");
+      toast.success("Post updated successfully");
       return updatedPost;
     } catch (error) {
       console.error("Error updating post:", error);
       toast.error(
-        "Cập nhật bài viết thất bại: " +
+        "Post update failed: " +
           (error.response?.data?.message || error.message)
       );
       throw error;
@@ -142,10 +142,10 @@ const SocialFeedPage = () => {
         fetchPosts();
       }
 
-      toast.success("Ẩn bài viết thành công");
+      toast.success("Post hidden successfully");
     } catch (error) {
       console.error("Error hiding post:", error);
-      toast.error("Ẩn bài viết thất bại");
+      toast.error("Failed to hide the post");
     }
   };
 
