@@ -3,15 +3,7 @@ package com.example.ECommerce.Project.V1.Mailing;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -60,6 +52,7 @@ public class DefaultEmailService implements EmailService {
         emailSender.send(message);
     }
 
+    @Override
     public void sendOtp(String email, String body, Integer randomNumber) {
         String[] parts = Integer.toString(randomNumber).split("(?<=.)");
         LocalDate currentDate = LocalDate.now();

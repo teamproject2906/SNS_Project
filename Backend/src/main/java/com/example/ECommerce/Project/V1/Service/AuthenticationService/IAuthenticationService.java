@@ -3,16 +3,18 @@ package com.example.ECommerce.Project.V1.Service.AuthenticationService;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationRequest;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResponse;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.RegisterRequest;
+import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.Model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 
 public interface IAuthenticationService {
 
-    ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse);
+    ResponseEntity<String> register(RegisterRequest request, HttpServletRequest servletRequest, HttpServletResponse servletResponse);
 
     AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletRequest servletRequest);
 
@@ -26,5 +28,7 @@ public interface IAuthenticationService {
 
     void registerByGoogle(String jwt, HttpServletRequest servletRequest);
 
-    ResponseEntity<String> forgotPassword(String email, HttpServletResponse response);
+    void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest) throws BadRequestException;
+
+    ResponseEntity<String> forgotPassword(String email, HttpServletRequest request, HttpServletResponse response);
 }

@@ -3,6 +3,7 @@ package com.example.ECommerce.Project.V1.Service.AuthenticationService;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationRequest;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResponse;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.RegisterRequest;
+import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
 import com.example.ECommerce.Project.V1.Mailing.AccountVerificationEmailContext;
 import com.example.ECommerce.Project.V1.Mailing.EmailService;
 import com.example.ECommerce.Project.V1.Model.AuditLog;
@@ -22,7 +23,9 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,6 +41,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 @Service
@@ -60,7 +64,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private AuditLogRepository auditLogRepository;
 
     @Override
-    public ResponseEntity<String> register(RegisterRequest request, HttpServletResponse servletResponse) {
+    public ResponseEntity<String> register(RegisterRequest request, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 
         validateRequestRegister(request);
 
@@ -332,38 +336,106 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public ResponseEntity<String> forgotPassword(String email, HttpServletResponse response){
+    public void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest) throws BadRequestException {
+
+        // Validate OTP
+        HttpSession session = servletRequest.getSession(false);
+        if (session == null) {
+            throw new BadRequestException("Session expired or not found.");
+        }
+
+        Object savedOtp = session.getAttribute("otp_" + request.getEmail());
+        if (savedOtp == null || !savedOtp.toString().equals(request.getOtp())) {
+            throw new BadRequestException("Invalid or expired OTP!");
+        }
+
+        // Validate password
+        if (request.getNewPassword().length() < 8 || request.getNewPassword().length() > 50) {
+            throw new IllegalArgumentException("Password must be between 8 and 50 characters.");
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BadCredentialsException("Passwords and Confirm Password do not match.");
+        }
+
+        // Find user by email
+        User user = userRepository.findByEmail(request.getEmail());
+        if (user == null) {
+            throw new BadRequestException("No user found with the provided email.");
+        }
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        // Clear OTP from session
+        session.removeAttribute("otp_" + request.getEmail());
+    }
+
+    @Override
+    public ResponseEntity<String> forgotPassword(String email, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new IllegalArgumentException("Invalid email format.");
         }
 
         User savedUser = userRepository.findByEmail(email);
-        var secureToken = secureTokenService.createToken();
-        secureToken.setUser(savedUser);
-        secureTokenService.saveSecureToken(secureToken);
-
-        // Prepare and send verification email
-        AccountVerificationEmailContext emailContext = new AccountVerificationEmailContext();
-        emailContext.init(savedUser);
-        emailContext.setToken(secureToken.getToken());
-
-        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
-        emailToken.setHttpOnly(false);
-        emailToken.setSecure(false);
-        emailToken.setPath("/");
-        emailToken.setMaxAge(3600);
-        emailToken.setAttribute("SameSite", "Lax");
-        response.addCookie(emailToken);
-
-        String baseUrl = "http://localhost:5173";
-        emailContext.buildVerificationUrl(baseUrl, secureToken.getToken());
-
-        try {
-            emailService.sendMail(emailContext);
-            return ResponseEntity.ok("We have send to your email a verification, please check have a check and complete your registration!");
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send verification email", e);
+        if (savedUser == null) {
+            throw new IllegalArgumentException("Email not found.");
         }
+
+        // 1. Generate 6-digit OTP
+        int otp = 100000 + new Random().nextInt(900000); // 100000 -> 999999
+
+        // 2. Store OTP in session
+        HttpSession session = servletRequest.getSession(true);
+        session.setAttribute("otp_" + email, otp);
+        session.setMaxInactiveInterval(10 * 60); // 10 minutes
+
+        // 3. Send email
+        String subject = "Your Password Reset Code";
+        emailService.sendOtp(email, subject, otp);
+
+        return ResponseEntity.ok("An OTP has been sent to your email. Please check your inbox.");
     }
+
+
+//    @Override
+//    public ResponseEntity<String> forgotPassword(String email, HttpServletRequest servletRequest, HttpServletResponse servletResponse){
+//
+//        if (!EMAIL_PATTERN.matcher(email).matches()) {
+//            throw new IllegalArgumentException("Invalid email format.");
+//        }
+//
+//        User savedUser = userRepository.findByEmail(email);
+//        var secureToken = secureTokenService.createToken();
+//        secureToken.setUser(savedUser);
+//        secureTokenService.saveSecureToken(secureToken);
+//
+//        // Prepare and send verification email
+//        AccountVerificationEmailContext emailContext = new AccountVerificationEmailContext();
+//        emailContext.init(savedUser);
+//        emailContext.setToken(secureToken.getToken());
+//
+////        Cookie emailToken = new Cookie("emailToken", secureToken.getToken());
+////        emailToken.setHttpOnly(false);
+////        emailToken.setSecure(false);
+////        emailToken.setPath("/");
+////        emailToken.setMaxAge(3600);
+////        emailToken.setAttribute("SameSite", "Lax");
+////        response.addCookie(emailToken);
+//
+////        String cookie = String.format("emailTokenForGG=%s; Max-Age=3600; Path=/; SameSite=Lax", secureToken.getToken());
+////        servletResponse.setHeader("Set-Cookie", cookie);
+//
+////        String baseUrl = "http://localhost:5173";
+////        emailContext.buildVerificationUrl(baseUrl, secureToken.getToken());
+//
+//        try {
+//            emailService.sendMail(emailContext);
+//            return ResponseEntity.ok("We have send to your email a verification, please check have a check and complete your registration!");
+//        } catch (MessagingException e) {
+//            throw new RuntimeException("Failed to send verification email", e);
+//        }
+//    }
 }

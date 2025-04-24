@@ -15,6 +15,7 @@ import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.example.ECommerce.Project.V1.Service.JWTService;
 import com.example.ECommerce.Project.V1.Token.Token;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
@@ -230,42 +231,42 @@ public class UserServiceImpl implements IUserService {
         return mapper.map(user, UserDTO.class);
     }
 
-    @Override
-    public void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException {
-
-        String sessionOtp = (String) servletRequest.getSession().getAttribute("code_forgot");
-
-        if (!request.getOtp().equals(sessionOtp)) {
-            throw new BadRequestException("Invalid OTP!");
-        }
-
-        Integer userId;
-
-        if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
-            Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
-
-            if (userIdClaim instanceof Number number) {
-                userId = number.intValue();
-            } else {
-                throw new IllegalArgumentException("Invalid userId claim in JWT");
-            }
-        } else {
-            throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
-        }
-
-        User userFind = userRepository.findUserById(userId);
-
-        if (request.getConfirmPassword().length() < 8 || request.getConfirmPassword().length() > 50) {
-            throw new IllegalArgumentException("Password must be between 8 and 50 characters");
-        }
-
-        if(!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new BadCredentialsException("Passwords and Confirm Passwords do not match");
-        }
-
-        userFind.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(userFind);
-    }
+//    @Override
+//    public void changeForgotPassword(ChangeForgotPasswordRequest request, HttpServletRequest servletRequest, Principal connectedUser) throws BadRequestException {
+//
+//        String sessionOtp = (String) servletRequest.getSession().getAttribute("code_forgot");
+//
+//        if (!request.getOtp().equals(sessionOtp)) {
+//            throw new BadRequestException("Invalid OTP!");
+//        }
+//
+//        Integer userId;
+//
+//        if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
+//            Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
+//
+//            if (userIdClaim instanceof Number number) {
+//                userId = number.intValue();
+//            } else {
+//                throw new IllegalArgumentException("Invalid userId claim in JWT");
+//            }
+//        } else {
+//            throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
+//        }
+//
+//        User userFind = userRepository.findUserById(userId);
+//
+//        if (request.getConfirmPassword().length() < 8 || request.getConfirmPassword().length() > 50) {
+//            throw new IllegalArgumentException("Password must be between 8 and 50 characters");
+//        }
+//
+//        if(!request.getNewPassword().equals(request.getConfirmPassword())) {
+//            throw new BadCredentialsException("Passwords and Confirm Passwords do not match");
+//        }
+//
+//        userFind.setPassword(passwordEncoder.encode(request.getNewPassword()));
+//        userRepository.save(userFind);
+//    }
 
     @Override
     public List<AuditLogDTO> getUserLog() throws Exception {

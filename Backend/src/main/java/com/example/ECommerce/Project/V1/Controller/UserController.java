@@ -37,20 +37,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/changeForgotPassword")
-    public ResponseMessageAPI changeForgotPassword(
-            @RequestBody ChangeForgotPasswordRequest request,
-            HttpServletRequest servletRequest,
-            Principal connectedUser
-    ) throws BadRequestException {
-        userService.changeForgotPassword(request, servletRequest, connectedUser);
-        return ResponseMessageAPI.builder()
-                .message("Change password successfully")
-                .status(HttpStatus.OK)
-                .success(true)
-                .build();
-    }
-
     @PutMapping("/update/{userId}")
     public ResponseEntity<?> updateUserInfo(
             @RequestBody UserDTO userDTO,
