@@ -274,6 +274,12 @@ public class UserServiceImpl implements IUserService {
         return mapEntityToDTO_AuditLog(auditLogs);
     }
 
+    @Override
+    public Integer findUserIdByMail(String email) {
+        User user = userRepository.findByEmail(email);
+        return user.getId();
+    }
+
     private String extractPublicIdFromUrl(String url) {
         try {
             String[] parts = url.split("/");
