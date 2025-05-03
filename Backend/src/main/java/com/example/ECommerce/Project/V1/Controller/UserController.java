@@ -47,6 +47,13 @@ public class UserController {
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
+    @GetMapping("/findUserIdByMail/{email}")
+    public Integer findUserIdByMail(
+            @PathVariable String email
+    ){
+        return userService.findUserIdByMail(email);
+    }
+
     @PatchMapping("/findUserId/{username}")
     public Integer findUsername(
             @Valid @RequestBody UserDTO userDTO,

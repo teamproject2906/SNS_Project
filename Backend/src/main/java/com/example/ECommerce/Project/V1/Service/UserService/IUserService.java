@@ -38,4 +38,6 @@ public interface IUserService {
    UserDTO setUserRole(@Valid UserDTO userDTO, Integer userId);
 
     List<AuditLogDTO> getUserLog() throws Exception;
+
+   Integer findUserIdByMail(String email);
 }
