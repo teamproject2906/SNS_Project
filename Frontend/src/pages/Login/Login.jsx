@@ -8,12 +8,16 @@ import { jwtDecode } from "jwt-decode"; // Import thư viện decode token
 import { useUser } from "../../context/UserContext";
 import { IoIosEye } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";
+import { useCart } from "../../context/CartContext";
+import { useFavourite } from "../../context/FavouriteContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { setUser } = useUser(); // Lấy setUser để cập nhật thông tin user
   const navigate = useNavigate();
+  const { setUser: setUserCart } = useCart();
+  const { setUser: setUserWishlist } = useFavourite();
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -68,6 +72,8 @@ const Login = () => {
           position: "top-right",
         });
         // Điều hướng theo role
+        setUserCart(decodedUser);
+        setUserWishlist(decodedUser);
         if (res.data.role === "ADMIN") {
           navigate("/dashboard");
         } else {

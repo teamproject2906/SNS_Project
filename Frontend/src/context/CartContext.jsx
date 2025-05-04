@@ -30,9 +30,8 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-   
       const token = getToken();
-    
+
       const response = await axios.get(
         `http://localhost:8080/api/v1/cart/${user.userId}`,
         {
@@ -97,14 +96,18 @@ export const CartProvider = ({ children }) => {
     } catch (err) {
       console.error("Error adding to cart:", err);
       setError(err.message);
-      toast.error(err.response?.data.message || "Không thể thêm sản phẩm vào giỏ hàng");
+      toast.error(
+        err.response?.data.message || "Không thể thêm sản phẩm vào giỏ hàng"
+      );
     } finally {
       setLoading(false);
     }
   };
   useEffect(() => {
-    fetchCart();
-  }, [ user ]);
+    if (user?.userId) {
+      fetchCart();
+    }
+  }, [user]);
 
   // Remove item from cart
   const removeFromCart = async (cartItemId) => {
@@ -145,7 +148,6 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      
       const token = getToken();
 
       const response = await axios.put(
@@ -212,7 +214,14 @@ export const CartProvider = ({ children }) => {
   const getTotalItems = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
-  console.log("CartItem", cartItems);
+
+  const clearCartLocal = () => {
+    localStorage.removeItem("cart");
+    setCartItems([]);
+    setUser(null);
+    setError(null);
+    setLoading(false);
+  };
 
   // Context value
   const value = {
@@ -222,7 +231,7 @@ export const CartProvider = ({ children }) => {
     addToCart,
     removeFromCart,
     updateQuantity,
-    clearCart,
+    clearCartLocal,
     getTotalPrice,
     getTotalItems,
     fetchCart,
@@ -231,6 +240,7 @@ export const CartProvider = ({ children }) => {
     setPaymentMethod,
     address,
     setAddress,
+    setUser,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

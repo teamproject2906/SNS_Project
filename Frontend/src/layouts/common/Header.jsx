@@ -40,8 +40,8 @@ const Header = () => {
   const [token, setTokenState] = useState(
     localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
   ); // Thêm state cho token
-  const { cartItems } = useCart();
-  const { favouriteItems } = useFavourite();
+  const { cartItems, clearCartLocal } = useCart();
+  const { favouriteItems, clearFavourite } = useFavourite();
 
   const dropdownRef = useRef(null);
   const searchDropdownRef = useRef(null);
@@ -132,6 +132,8 @@ const Header = () => {
       removeToken();
       removeUserInfo();
       localStorage.removeItem("user");
+      clearCartLocal();
+      clearFavourite();
 
       // Cập nhật trạng thái
       setTokenState(null);

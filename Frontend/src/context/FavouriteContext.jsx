@@ -67,8 +67,10 @@ export const FavouriteProvider = ({ children }) => {
 
   // Fetch wishlist on component mount
   useEffect(() => {
-    fetchWishlist();
-  }, []);
+    if (user?.userId) {
+      fetchWishlist();
+    }
+  }, [user?.userId]);
 
   // Add item to favourites
   const addToFavourites = async (product) => {
@@ -146,6 +148,13 @@ export const FavouriteProvider = ({ children }) => {
     return favouriteItems.length;
   };
 
+  const clearFavourite = () => {
+    setFavouriteItems([]);
+    setUser(null);
+    setError(null);
+    setLoading(false);
+  };
+
   // Context value
   const value = {
     favouriteItems,
@@ -157,6 +166,8 @@ export const FavouriteProvider = ({ children }) => {
     getTotalFavourites,
     fetchWishlist,
     getPriceAfterPromotion,
+    clearFavourite,
+    setUser,
   };
 
   return (
