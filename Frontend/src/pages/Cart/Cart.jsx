@@ -97,8 +97,8 @@ function Cart() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className="flex justify-between space-x-8">
-        <div className="w-3/5">
+      <div className="flex flex-col md:flex-row justify-between md:space-x-8">
+        <div className="w-full md:w-3/5">
           <h1 className="text-2xl font-bold mb-8 text-center">Cart</h1>
           <hr className="mb-10" />
           {loading ? (
@@ -109,9 +109,7 @@ function Cart() {
             <div className="space-y-6">
               {cartItems.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-xl text-gray-500 mb-4">
-                    Cart is empty
-                  </p>
+                  <p className="text-xl text-gray-500 mb-4">Cart is empty</p>
                   <Link
                     to="/products"
                     className="text-blue-600 hover:underline"
@@ -208,7 +206,7 @@ function Cart() {
             </div>
           )}
         </div>
-        <div className="w-2/5 bg-white p-8 shadow-lg">
+        <div className="w-full md:w-2/5 bg-white p-8 shadow-lg">
           <h2 className="text-2xl font-bold mb-6">Information</h2>
           <div className="mb-6">
             <p className="text-gray-600">Estimated total cost</p>

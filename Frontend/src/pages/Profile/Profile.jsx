@@ -73,8 +73,7 @@ const Profile = () => {
 
       try {
         setLoading(true);
-        const decodedToken = parseJwt(token);
-        const userId = decodedToken?.userId;
+        const userId = JSON.parse(localStorage.getItem("user")).id;
 
         if (!userId) {
           throw new Error("Unable to identify user information");
@@ -155,8 +154,7 @@ const Profile = () => {
     }
 
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -193,8 +191,7 @@ const Profile = () => {
   // Gửi yêu cầu cập nhật API
   const handleSave = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to determine user information");
@@ -247,8 +244,7 @@ const Profile = () => {
     }
 
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -281,8 +277,7 @@ const Profile = () => {
 
   const handleSaveEmail = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -315,8 +310,7 @@ const Profile = () => {
 
   const handleSavePhone = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -349,8 +343,7 @@ const Profile = () => {
 
   const handleSaveUsername = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");

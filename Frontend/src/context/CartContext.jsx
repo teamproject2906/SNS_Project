@@ -1,7 +1,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { getToken, getUserInfo } from "../pages/Login/app/static";
+import { getToken } from "../pages/Login/app/static";
 import { toast } from "react-toastify";
 
 // Create the context
@@ -18,13 +18,13 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(getUserInfo());
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [address, setAddress] = useState(null);
 
   // Fetch cart data from API
   const fetchCart = async () => {
-    if (!user || !user.userId) {
+    if (!user || !user.id) {
       setCartItems([]);
       return;
     }
@@ -33,7 +33,7 @@ export const CartProvider = ({ children }) => {
       const token = getToken();
 
       const response = await axios.get(
-        `http://localhost:8080/api/v1/cart/${user.userId}`,
+        `http://localhost:8080/api/v1/cart/${user.id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -45,7 +45,7 @@ export const CartProvider = ({ children }) => {
       }
     } catch (err) {
       setError(err.message);
-      if (user && user.userId) {
+      if (user && user.id) {
         toast.error("Không thể tải giỏ hàng");
       }
     }
@@ -55,9 +55,9 @@ export const CartProvider = ({ children }) => {
 
   // Add item to cart
   const addToCart = async (product) => {
-    setUser(getUserInfo());
-
-    if (!user || !user.userId) {
+    setUser(JSON.parse(localStorage.getItem("user")));
+    console.log(user);
+    if (!user || !user.id) {
       toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
       return;
     }
@@ -76,7 +76,7 @@ export const CartProvider = ({ children }) => {
       };
 
       const response = await axios.post(
-        `http://localhost:8080/api/v1/cart/${user.userId}/add`,
+        `http://localhost:8080/api/v1/cart/${user.id}/add`,
         cartItemData,
         {
           headers: {
@@ -104,21 +104,21 @@ export const CartProvider = ({ children }) => {
     }
   };
   useEffect(() => {
-    if (user?.userId) {
+    if (user?.id) {
       fetchCart();
     }
   }, [user]);
 
   // Remove item from cart
   const removeFromCart = async (cartItemId) => {
-    if (!user || !user.userId) return;
+    if (!user || !user.id) return;
 
     try {
       setLoading(true);
       const token = getToken();
 
       await axios.delete(
-        `http://localhost:8080/api/v1/cart/${user.userId}/remove/${cartItemId}`,
+        `http://localhost:8080/api/v1/cart/${user.id}/remove/${cartItemId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -140,7 +140,7 @@ export const CartProvider = ({ children }) => {
 
   // Update item quantity
   const updateQuantity = async (cartItemId, quantity) => {
-    if (!user || !user.userId) return;
+    if (!user || !user.id) return;
 
     if (quantity <= 0 || quantity.isNaN) {
       removeFromCart(cartItemId);
@@ -151,7 +151,7 @@ export const CartProvider = ({ children }) => {
       const token = getToken();
 
       const response = await axios.put(
-        `http://localhost:8080/api/v1/cart/update-quantity?userId=${user.userId}&cartItemId=${cartItemId}&quantity=${quantity}`,
+        `http://localhost:8080/api/v1/cart/update-quantity?userId=${user.id}&cartItemId=${cartItemId}&quantity=${quantity}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -170,18 +170,15 @@ export const CartProvider = ({ children }) => {
 
   // Clear cart
   const clearCart = async () => {
-    if (!user || !user.userId) return;
+    if (!user || !user.id) return;
 
     try {
       setLoading(true);
       const token = getToken();
 
-      await axios.delete(
-        `http://localhost:8080/api/v1/cart/${user.userId}/clear`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`http://localhost:8080/api/v1/cart/${user.id}/clear`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setCartItems([]);
       toast.success("Đã xóa tất cả sản phẩm khỏi giỏ hàng");

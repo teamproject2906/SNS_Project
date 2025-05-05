@@ -33,8 +33,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
     if (token) {
       const fetchUserProfile = async () => {
         try {
-          const decodedToken = parseJwt(token);
-          const userId = decodedToken?.userId;
+          const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
           if (!userId) return;
 

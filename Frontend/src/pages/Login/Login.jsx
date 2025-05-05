@@ -54,7 +54,7 @@ const Login = () => {
         { username, password }
       );
 
-      if (res.data && res.data.access_token) {
+      if (res.data && res.data.access_token && res.data.user) {
         const token = res.data.access_token;
         setToken(`${token}`); // Lưu token với định dạng Bearer
         console.log("Token: " + token);
@@ -65,7 +65,7 @@ const Login = () => {
         setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
 
         console.log("Decoded User:", decodedUser);
-        setUser(decodedUser); // Cập nhật thông tin user trong Context
+        setUser(res.data.user); // Cập nhật thông tin user trong Context
 
         toast.success("Login successful", {
           autoClose: 1000,

@@ -1,5 +1,5 @@
 export const AUTH_KEY = "AUTH_TOKEN";
-export const USER_KEY = "USER_KEY";
+export const USER_KEY = "user";
 
 export const setObjectByKey = (KEY, VAL) => {
   localStorage.setItem(KEY, JSON.stringify(VAL));

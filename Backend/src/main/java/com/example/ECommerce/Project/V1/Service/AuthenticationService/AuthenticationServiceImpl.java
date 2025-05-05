@@ -4,6 +4,7 @@ import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationRequ
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.AuthenticationResponse;
 import com.example.ECommerce.Project.V1.DTO.AuthenticationDTO.RegisterRequest;
 import com.example.ECommerce.Project.V1.DTO.ChangeForgotPasswordRequest;
+import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.Mailing.AccountVerificationEmailContext;
 import com.example.ECommerce.Project.V1.Mailing.EmailService;
 import com.example.ECommerce.Project.V1.Model.AuditLog;
@@ -26,6 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -62,6 +64,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
     @Autowired
     private AuditLogRepository auditLogRepository;
+    @Autowired
+    private ModelMapper mapper;
 
     @Override
     public ResponseEntity<String> register(RegisterRequest request, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
@@ -192,6 +196,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .role(user.getRole())
+                .user(mapper.map(user, UserDTO.class))
                 .build();
     }
 

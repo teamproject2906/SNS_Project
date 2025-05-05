@@ -275,9 +275,9 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Integer findUserIdByMail(String email) {
+    public UserDTO findUserIdByMail(String email) {
         User user = userRepository.findByEmail(email);
-        return user.getId();
+        return mapper.map(user, UserDTO.class);
     }
 
     private String extractPublicIdFromUrl(String url) {

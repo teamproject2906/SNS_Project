@@ -1,7 +1,7 @@
 import { FaUser } from "react-icons/fa";
 import { MdDiscount } from "react-icons/md";
 import { BiCategory, BiSolidDiscount } from "react-icons/bi";
-import { IoLogOutOutline, IoSettingsOutline } from "react-icons/io5";
+import { IoLogOutOutline } from "react-icons/io5";
 import { GiClothes } from "react-icons/gi";
 import { BsBoxSeamFill } from "react-icons/bs";
 import { HiMenuAlt3 } from "react-icons/hi"; // Icon cho nút toggle
@@ -86,8 +86,7 @@ const SideBar = ({
 
       try {
         setLoading(true);
-        const decodedToken = parseJwt(token);
-        const userId = decodedToken?.userId;
+        const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
         if (!userId) {
           throw new Error("Không thể xác định thông tin người dùng");
@@ -176,7 +175,7 @@ const SideBar = ({
   return (
     <div
       className={`min-h-screen bg-white shadow-lg transition-all duration-300 flex flex-col justify-between ${
-        isSidebarOpen ? "w-1/5" : "w-[8%]"
+        isSidebarOpen ? "w-[260px]" : "w-[80px] md:w-[100px]"
       }`}
     >
       <div>
@@ -254,7 +253,11 @@ const SideBar = ({
             { tab: "voucher", icon: <BiSolidDiscount />, label: "Voucher" },
             { tab: "orders", icon: <FaHistory />, label: "Orders" },
             { tab: "formClothes", icon: <GiClothes />, label: "Form Clothes" },
-            { tab: "socialPost", icon: <BsPostcardHeartFill />, label: "Social Post" },
+            {
+              tab: "socialPost",
+              icon: <BsPostcardHeartFill />,
+              label: "Social Post",
+            },
           ].map((item) => (
             <button
               key={item.tab}

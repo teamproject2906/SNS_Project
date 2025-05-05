@@ -22,7 +22,7 @@ export const FavouriteProvider = ({ children }) => {
 
   // Fetch wishlist data from API
   const fetchWishlist = async () => {
-    if (!user || !user.userId) {
+    if (!user || !user.id) {
       setFavouriteItems([]);
       return;
     }
@@ -31,7 +31,7 @@ export const FavouriteProvider = ({ children }) => {
       setLoading(true);
       const token = getToken();
       const response = await axios.get(
-        `http://localhost:8080/api/wishlist/user/${user.userId}`,
+        `http://localhost:8080/api/wishlist/user/${user.id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -57,7 +57,7 @@ export const FavouriteProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching wishlist:", err);
       setError(err.message);
-      if (user && user.userId) {
+      if (user && user.id) {
         toast.error("Error fetching wishlist!");
       }
     } finally {
@@ -67,10 +67,10 @@ export const FavouriteProvider = ({ children }) => {
 
   // Fetch wishlist on component mount
   useEffect(() => {
-    if (user?.userId) {
+    if (user?.id) {
       fetchWishlist();
     }
-  }, [user?.userId]);
+  }, [user?.id]);
 
   // Add item to favourites
   const addToFavourites = async (product) => {
@@ -80,7 +80,7 @@ export const FavouriteProvider = ({ children }) => {
       const token = getToken();
 
       const response = await axios.post(
-        `http://localhost:8080/api/wishlist/user/${user.userId}/add/${product.id}`,
+        `http://localhost:8080/api/wishlist/user/${user.id}/add/${product.id}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -103,14 +103,14 @@ export const FavouriteProvider = ({ children }) => {
 
   // Remove item from favourites
   const removeFromFavourites = async (productId) => {
-    if (!user || !user.userId) return;
+    if (!user || !user.id) return;
 
     try {
       setLoading(true);
       const token = getToken();
 
       const response = await axios.delete(
-        `http://localhost:8080/api/wishlist/user/${user.userId}/remove/${productId}`,
+        `http://localhost:8080/api/wishlist/user/${user.id}/remove/${productId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

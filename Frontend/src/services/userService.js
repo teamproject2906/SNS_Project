@@ -37,6 +37,15 @@ export const userService = {
 		}
 	},
 
+	getUserProfileByEmail: async (email) => {
+		try {
+			const response = await api.get(`/User/findUserIdByMail/${email}`);
+			return response.data;
+		} catch (error) {
+			console.error("Error fetching user profile:", error);
+			return null;
+		}
+	},
 	// Search user by username
 	searchUserByUsername: async (keyword) => {
 		try {

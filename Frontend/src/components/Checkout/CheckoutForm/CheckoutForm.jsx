@@ -20,7 +20,7 @@ const CheckoutForm = () => {
     const userInfo = getUserInfo();
     if (userInfo) {
       setUser(userInfo);
-      fetchAddresses(userInfo.userId);
+      fetchAddresses(userInfo.id);
     }
   }, []);
 
@@ -317,9 +317,7 @@ const CheckoutForm = () => {
       )}
 
       {/* Phương thức thanh toán */}
-      <h2 className="text-xl font-semibold mt-6 mb-4">
-        Payment Method
-      </h2>
+      <h2 className="text-xl font-semibold mt-6 mb-4">Payment Method</h2>
       <div className="space-y-3">
         <label className="flex items-center space-x-2">
           <input

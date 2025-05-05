@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import userService from "../services/userService";
 
 const UserContext = createContext();
 
@@ -9,9 +10,25 @@ export const UserProvider = ({ children }) => {
     return token && storedUser ? JSON.parse(storedUser) : null;
   });
 
+  const fetchUser = async () => {
+    try {
+      const response = await userService.getUserProfileByEmail(user.email);
+      localStorage.setItem("user", JSON.stringify(response));
+      setUser(response);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
+  console.log(user);
+
   useEffect(() => {
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      if (!user?.id && user?.email) {
+        fetchUser();
+      } else {
+        localStorage.setItem("user", JSON.stringify(user));
+      }
     } else {
       localStorage.removeItem("user");
     }

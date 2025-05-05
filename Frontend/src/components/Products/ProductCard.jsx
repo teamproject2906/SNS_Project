@@ -18,6 +18,7 @@ const ProductCard = ({ products }) => {
     useFavourite();
   const { addToCart } = useCart();
   const { user } = useUser();
+  console.log(user);
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -26,9 +27,12 @@ const ProductCard = ({ products }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/products/productCode", {
-          headers: "Content-Type: application/json",
-        });
+        const res = await axios.get(
+          "http://localhost:8080/api/products/productCode",
+          {
+            headers: "Content-Type: application/json",
+          }
+        );
         setProducts(res.data);
         console.log("Products:", res.data);
       } catch (err) {
@@ -97,7 +101,7 @@ const ProductCard = ({ products }) => {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="product-card grid grid-cols-4 gap-6">
+      <div className="product-card grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentItems.map((item) => (
           <div
             key={item.id}

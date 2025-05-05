@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @GetMapping("/findUserIdByMail/{email}")
-    public Integer findUserIdByMail(
+    public UserDTO findUserIdByMail(
             @PathVariable String email
     ){
         return userService.findUserIdByMail(email);
