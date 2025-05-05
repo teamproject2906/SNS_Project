@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaFacebook, FaGoogle, FaLock } from "react-icons/fa";
+import { FaGoogle, FaLock } from "react-icons/fa";
 import axios from "axios";
-import { getToken, setToken, setUserInfo } from "./app/static";
+import { setToken, setUserInfo } from "./app/static";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode"; // Import thư viện decode token
 import { useUser } from "../../context/UserContext";
 import { IoIosEye } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";

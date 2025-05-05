@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import userService from "../services/userService";
 import { useCart } from "./CartContext";
 import { useFavourite } from "./FavouriteContext";
+import PropTypes from "prop-types";
 
 const UserContext = createContext();
 
@@ -47,3 +48,7 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUser = () => useContext(UserContext);
+
+UserProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
