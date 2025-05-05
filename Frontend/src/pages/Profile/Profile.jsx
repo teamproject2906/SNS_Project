@@ -429,23 +429,29 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-6">
-      <div className="max-w-3xl w-full bg-white p-10 rounded-lg border shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-white p-0 md:p-6">
+      <div className="max-w-3xl w-full bg-white p-4 md:p-10 rounded-lg border shadow-md">
         {/* Header */}
         <div className="flex justify-between space-x-6 border-b border-black pb-6 mb-6">
           <div className="flex items-center space-x-6">
-            <img
-              className="w-28 h-28 rounded-full object-cover border-2 border-black cursor-pointer"
-              src={user.avatar}
-              alt="User Avatar"
-              onClick={() => setIsEditingAvatar(true)}
-            />
             <div>
-              <h2 className="text-3xl font-light text-black uppercase tracking-wide">
+              <img
+                className="w-28 h-28 rounded-full object-cover border-2 border-black cursor-pointer"
+                src={user.avatar}
+                alt="User Avatar"
+                onClick={() => setIsEditingAvatar(true)}
+              />
+            </div>
+            <div>
+              <h2 className=" text-lg md:text-3xl font-light text-black uppercase tracking-wide line-clamp-3">
+                {user.firstname} {user.lastname} {user.firstname}{" "}
+                {user.lastname}
+                {user.firstname} {user.lastname}
+                {user.firstname} {user.lastname}
                 {user.firstname} {user.lastname}
               </h2>
               <div className="flex items-center">
-                <p className="text-md font-medium text-black">
+                <p className="text-sm md:text-md font-medium text-black">
                   @{user.username}
                 </p>
                 {/* <button
@@ -524,7 +530,7 @@ const Profile = () => {
       {/* Popup chỉnh sửa */}
       {isEditing && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Edit profile</h2>
               <button
@@ -595,7 +601,7 @@ const Profile = () => {
       {/* Popup Change Password */}
       {isChangingPassword && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Change password</h2>
               <button
@@ -654,7 +660,7 @@ const Profile = () => {
       {/* Popup Edit Email */}
       {isEditingEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Edit Email</h2>
               <button
@@ -699,7 +705,7 @@ const Profile = () => {
       {/* Popup Edit Phone */}
       {isEditingPhone && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Edit phone number</h2>
               <button

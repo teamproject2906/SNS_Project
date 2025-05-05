@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import userService from "../services/userService";
+import { useCart } from "./CartContext";
+import { useFavourite } from "./FavouriteContext";
 
 const UserContext = createContext();
 
@@ -10,17 +12,20 @@ export const UserProvider = ({ children }) => {
     return token && storedUser ? JSON.parse(storedUser) : null;
   });
 
+  const { setUser: setCartUser } = useCart();
+  const { setUser: setWishlistUser } = useFavourite();
+
   const fetchUser = async () => {
     try {
       const response = await userService.getUserProfileByEmail(user.email);
       localStorage.setItem("user", JSON.stringify(response));
       setUser(response);
+      setCartUser(response);
+      setWishlistUser(response);
     } catch (error) {
       console.error("Error fetching user profile:", error);
     }
   };
-
-  console.log(user);
 
   useEffect(() => {
     if (user) {

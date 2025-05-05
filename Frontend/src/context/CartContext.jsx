@@ -58,7 +58,6 @@ export const CartProvider = ({ children }) => {
     setUser(JSON.parse(localStorage.getItem("user")));
     console.log(user);
     if (!user || !user.id) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
       return;
     }
 
@@ -107,7 +106,7 @@ export const CartProvider = ({ children }) => {
     if (user?.id) {
       fetchCart();
     }
-  }, [user]);
+  }, [user?.id]);
 
   // Remove item from cart
   const removeFromCart = async (cartItemId) => {

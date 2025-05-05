@@ -61,10 +61,8 @@ const Login = () => {
         console.log("user info:", res.data);
 
         // Giải mã token để lấy thông tin user
-        const decodedUser = jwtDecode(token);
-        setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
+        setUserInfo(res.data.user); // Lưu thông tin user vào localStorage
 
-        console.log("Decoded User:", decodedUser);
         setUser(res.data.user); // Cập nhật thông tin user trong Context
 
         toast.success("Login successful", {
@@ -72,8 +70,8 @@ const Login = () => {
           position: "top-right",
         });
         // Điều hướng theo role
-        setUserCart(decodedUser);
-        setUserWishlist(decodedUser);
+        setUserCart(res.data.user);
+        setUserWishlist(res.data.user);
         if (res.data.role === "ADMIN") {
           navigate("/dashboard");
         } else {

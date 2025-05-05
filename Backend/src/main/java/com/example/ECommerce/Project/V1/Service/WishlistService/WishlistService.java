@@ -1,6 +1,7 @@
 package com.example.ECommerce.Project.V1.Service.WishlistService;
 
 import com.example.ECommerce.Project.V1.DTO.WishlistDTO;
+import com.example.ECommerce.Project.V1.Model.User;
 import com.example.ECommerce.Project.V1.Model.Wishlist;
 import com.example.ECommerce.Project.V1.Model.Product;
 import com.example.ECommerce.Project.V1.Repository.WishlistRepository;
@@ -33,10 +34,14 @@ public class WishlistService implements WishlistServiceInterface {
     }
     @Override
     public WishlistDTO getWishlistByUserId(Integer userId) {
-        Wishlist wishlist = wishlistRepository.findAll().stream()
-                .filter(w -> w.getUser().getId().equals(userId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Wishlist not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
+        Wishlist wishlist = wishlistRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    Wishlist newWishlist = new Wishlist();
+                    newWishlist.setUser(user);
+                    newWishlist.setProducts(new ArrayList<>());
+                    return wishlistRepository.save(newWishlist);
+                });
         return mapToDTO(wishlist);
     }
 
@@ -44,6 +49,7 @@ public class WishlistService implements WishlistServiceInterface {
     public WishlistDTO addProductToWishlist(Integer userId, Integer productId) {
         // Kiểm tra user và sản phẩm có tồn tại không
         var user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
         var product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
 
         // Tìm wishlist của user, nếu không có thì khởi tạo mới

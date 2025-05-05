@@ -19,6 +19,7 @@ export const FavouriteProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(getUserInfo());
+  console.log(user);
 
   // Fetch wishlist data from API
   const fetchWishlist = async () => {
