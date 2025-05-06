@@ -1,8 +1,19 @@
 import Header from "./common/Header";
 import Footer from "./common/Footer";
 import PropTypes from "prop-types";
+import { useEffect } from "react";
+import { useCart } from "../context/CartContext";
+import { useFavourite } from "../context/FavouriteContext";
 
 const MainLayout = ({ children, className }) => {
+  const { fetchCart } = useCart();
+  const { fetchWishlist } = useFavourite();
+
+  useEffect(() => {
+    fetchCart();
+    fetchWishlist();
+  }, []);
+
   return (
     <>
       <Header />

@@ -61,7 +61,21 @@ public class CartService implements ICartService {
 
     @Override
     public CartDTO getCartByUserId(int userId) {
-        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Cart cart = cartRepository.findByUserId(userId).orElseGet(() -> {
+            Cart newCart = new Cart();
+            newCart.setUser(currentUser);
+            newCart.setTotalAmount(0.0);
+            newCart.setItems(new ArrayList<>()); // 🔒 đảm bảo không null
+            return cartRepository.save(newCart);
+        });
+
+        // 🔒 fallback nếu cart có nhưng items lại null (dữ liệu từ DB)
+        if (cart.getItems() == null) {
+            cart.setItems(new ArrayList<>());
+        }
 
         List<CartItemDTO> cartItemDTOs = cart.getItems().stream()
                 .map(item -> new CartItemDTO(
@@ -76,6 +90,7 @@ public class CartService implements ICartService {
 
         return new CartDTO(cart.getId(), userId, cartItemDTOs, cart.getTotalAmount());
     }
+
 
     @Override
     public CartDTO clearCart(Integer userId) {
@@ -116,8 +131,14 @@ public class CartService implements ICartService {
         if (quantity <= 0) {
             throw new InvalidInputException("Quantity must be greater than 0");
         }
-        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        Optional<CartItem> existingCartItem = cart.getItems().stream()
+
+        List<CartItem> items = cart.getItems();
+        if (items == null) {
+            items = new ArrayList<>();
+            cart.setItems(items);
+        }
+
+        Optional<CartItem> existingCartItem = items.stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst();
 

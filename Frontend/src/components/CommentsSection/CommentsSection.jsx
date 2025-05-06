@@ -36,8 +36,7 @@ const CommentsSection = ({ productId }) => {
     }
   };
 
-  const decodedToken = parseJwt(token);
-  const userId = decodedToken?.userId;
+  const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
   // Fetch feedbacks
   useEffect(() => {
@@ -428,7 +427,10 @@ const CommentsSection = ({ productId }) => {
               <>
                 <div className="flex items-center gap-3">
                   <img
-                    src={comment.userAvatar || "https://pro-bel.com/wp-content/uploads/2019/11/blank-avatar-1-450x450.png"}
+                    src={
+                      comment.userAvatar ||
+                      "https://pro-bel.com/wp-content/uploads/2019/11/blank-avatar-1-450x450.png"
+                    }
                     alt="User avatar"
                     className="w-10 h-10 rounded-full"
                   />
@@ -442,7 +444,7 @@ const CommentsSection = ({ productId }) => {
                         onClick={() => handleEdit(comment)}
                         className="text-black hover:underline"
                       >
-                        <FaPen size={22}/>
+                        <FaPen size={22} />
                       </button>
                       <button
                         onClick={() => handleDelete(comment.id)}

@@ -27,27 +27,12 @@ public class CommentServiceImpl implements ICommentService {
    private final CommentRepository commentRepository;
    private final ModelMapper mapper;
 
-   private User getCurrentUser(Principal connectedUser) {
-      int userId;
-
-      if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
-         Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
-
-         if (userIdClaim instanceof Number number) {
-            userId = number.intValue();
-         } else {
-            throw new IllegalArgumentException("Invalid userId claim in JWT");
-         }
-      } else {
-         throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
-      }
-
-      return userRepository.findUserById(userId);
-   }
-
    @Override
    public CommentDTO addComment(CommentDTO commentDTO, Principal currentUser) {
-      User userFind = getCurrentUser(currentUser);
+      User userFind = userRepository.findUserById(commentDTO.getUserId());
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
       Post postFind = postRepository.findPostById(commentDTO.getPostId());
 
       Comment replyComment = null;
@@ -87,7 +72,10 @@ public class CommentServiceImpl implements ICommentService {
 
    @Override
    public CommentDTO updateComment(CommentDTO commentDTO, Integer cmtId, Principal currentUser) {
-      User userFind = getCurrentUser(currentUser);
+      User userFind = userRepository.findUserById(commentDTO.getUserId());
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
       Post postFind = postRepository.findPostById(commentDTO.getPostId());
       var cmtFind = commentRepository.findById(cmtId)
             .orElseThrow(() -> new ResourceNotFoundException("Not found with comment ID"));
@@ -116,7 +104,10 @@ public class CommentServiceImpl implements ICommentService {
 
    @Override
    public void deactivateComment(CommentDTO commentDTO, Integer cmtId, Principal currentUser) {
-      User userFind = getCurrentUser(currentUser);
+      User userFind = userRepository.findUserById(commentDTO.getUserId());
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
 
       Comment cmtFind = commentRepository.findById(cmtId)
               .orElseThrow(() -> new ResourceNotFoundException("Not found with comment ID"));

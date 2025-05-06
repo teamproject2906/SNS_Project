@@ -4,9 +4,11 @@ import { postService } from "../../services/postService";
 import { toast } from "react-toastify";
 import PostCard from "../PostCard";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext";
 
 const SearchPopup = ({ isOpen, onClose, onPostSelect }) => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,9 @@ const SearchPopup = ({ isOpen, onClose, onPostSelect }) => {
           data = await postService.getRandomPosts();
         } else {
           // Nếu có query, tìm kiếm bài viết
-          data = await postService.searchPosts(debouncedQuery);
+          data = await postService.searchPosts(debouncedQuery, {
+            userId: user?.id,
+          });
         }
 
         // Đảm bảo data luôn là một mảng

@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaFacebook, FaGoogle, FaLock } from "react-icons/fa";
+import { FaGoogle, FaLock } from "react-icons/fa";
 import axios from "axios";
-import { getToken, setToken, setUserInfo } from "./app/static";
+import { setToken, setUserInfo } from "./app/static";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode"; // Import thư viện decode token
 import { useUser } from "../../context/UserContext";
 import { IoIosEye } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";
+import { useCart } from "../../context/CartContext";
+import { useFavourite } from "../../context/FavouriteContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { setUser } = useUser(); // Lấy setUser để cập nhật thông tin user
   const navigate = useNavigate();
+  const { setUser: setUserCart } = useCart();
+  const { setUser: setUserWishlist } = useFavourite();
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,24 +53,24 @@ const Login = () => {
         { username, password }
       );
 
-      if (res.data && res.data.access_token) {
+      if (res.data && res.data.access_token && res.data.user) {
         const token = res.data.access_token;
         setToken(`${token}`); // Lưu token với định dạng Bearer
         console.log("Token: " + token);
         console.log("user info:", res.data);
 
         // Giải mã token để lấy thông tin user
-        const decodedUser = jwtDecode(token);
-        setUserInfo(decodedUser); // Lưu thông tin user vào localStorage
+        setUserInfo(res.data.user); // Lưu thông tin user vào localStorage
 
-        console.log("Decoded User:", decodedUser);
-        setUser(decodedUser); // Cập nhật thông tin user trong Context
+        setUser(res.data.user); // Cập nhật thông tin user trong Context
 
         toast.success("Login successful", {
           autoClose: 1000,
           position: "top-right",
         });
         // Điều hướng theo role
+        setUserCart(res.data.user);
+        setUserWishlist(res.data.user);
         if (res.data.role === "ADMIN" || res.data.role === "MODERATOR" || res.data.role === "STAFF") {
           navigate("/dashboard");
         } else {

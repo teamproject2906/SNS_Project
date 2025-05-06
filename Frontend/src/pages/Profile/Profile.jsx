@@ -62,6 +62,9 @@ const Profile = () => {
     }
   };
 
+  const decodedToken = parseJwt(token);
+  const userId = decodedToken?.userId;
+
   // Lấy thông tin user từ backend khi component mount
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -73,8 +76,7 @@ const Profile = () => {
 
       try {
         setLoading(true);
-        const decodedToken = parseJwt(token);
-        const userId = decodedToken?.userId;
+        const userId = JSON.parse(localStorage.getItem("user")).id;
 
         if (!userId) {
           throw new Error("Unable to identify user information");
@@ -155,8 +157,7 @@ const Profile = () => {
     }
 
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -193,8 +194,7 @@ const Profile = () => {
   // Gửi yêu cầu cập nhật API
   const handleSave = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to determine user information");
@@ -230,7 +230,9 @@ const Profile = () => {
 
       setIsEditing(false);
     } catch (error) {
-      toast.error("Update information failed");
+      toast.error(
+        error?.response?.data?.message || "Update information failed"
+      );
       console.error("Lỗi khi cập nhật thông tin:", error);
     }
   };
@@ -247,8 +249,7 @@ const Profile = () => {
     }
 
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -281,8 +282,7 @@ const Profile = () => {
 
   const handleSaveEmail = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -315,8 +315,7 @@ const Profile = () => {
 
   const handleSavePhone = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -349,8 +348,7 @@ const Profile = () => {
 
   const handleSaveUsername = async () => {
     try {
-      const decodedToken = parseJwt(token);
-      const userId = decodedToken?.userId;
+      const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!userId) {
         toast.error("Unable to identify user information");
@@ -436,23 +434,27 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-6">
-      <div className="max-w-3xl w-full bg-white p-10 rounded-lg border shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-white p-0 md:p-6">
+      <div className="max-w-3xl w-full bg-white p-4 md:p-10 rounded-lg border shadow-md">
         {/* Header */}
         <div className="flex justify-between space-x-6 border-b border-black pb-6 mb-6">
           <div className="flex items-center space-x-6">
-            <img
-              className="w-28 h-28 rounded-full object-cover border-2 border-black cursor-pointer"
-              src={user.avatar}
-              alt="User Avatar"
-              onClick={() => setIsEditingAvatar(true)}
-            />
             <div>
-              <h2 className="text-3xl font-light text-black uppercase tracking-wide">
+              <div className="w-28 h-28">
+                <img
+                  className="rounded-full object-cover border-2 border-black cursor-pointer"
+                  src={user.avatar}
+                  alt="User Avatar"
+                  onClick={() => setIsEditingAvatar(true)}
+                />
+              </div>
+            </div>
+            <div>
+              <h2 className=" text-lg md:text-3xl font-light text-black uppercase tracking-wide line-clamp-3">
                 {user.firstname} {user.lastname}
               </h2>
               <div className="flex items-center">
-                <p className="text-md font-medium text-black">
+                <p className="text-sm md:text-md font-medium text-black">
                   @{user.username}
                 </p>
                 {/* <button
@@ -463,15 +465,17 @@ const Profile = () => {
               </div>
             </div>
           </div>
-          <div className="inline">
-            <button
-              onClick={() => setIsChangingPassword(true)}
-              className="bg-red-600 text-white px-4 py-2 rounded-md text-sm flex items-center space-x-2 hover:bg-red-700 transition"
-            >
-              <FaKey />
-              <span>Change password</span>
-            </button>
-          </div>
+          {userId && (
+            <div className="inline">
+              <button
+                onClick={() => setIsChangingPassword(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-md text-sm flex items-center space-x-2 hover:bg-red-700 transition"
+              >
+                <FaKey />
+                <span>Change password</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Thông tin cá nhân */}
@@ -531,7 +535,7 @@ const Profile = () => {
       {/* Popup chỉnh sửa */}
       {isEditing && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Edit profile</h2>
               <button
@@ -602,7 +606,7 @@ const Profile = () => {
       {/* Popup Change Password */}
       {isChangingPassword && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Change password</h2>
               <button
@@ -661,7 +665,7 @@ const Profile = () => {
       {/* Popup Edit Email */}
       {isEditingEmail && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Edit Email</h2>
               <button
@@ -706,7 +710,7 @@ const Profile = () => {
       {/* Popup Edit Phone */}
       {isEditingPhone && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-4/5 md:w-1/3">
             <div className="flex justify-between items-center border-b pb-3">
               <h2 className="text-xl font-semibold">Edit phone number</h2>
               <button

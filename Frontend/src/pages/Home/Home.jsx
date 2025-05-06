@@ -5,21 +5,21 @@ import "slick-carousel/slick/slick-theme.css";
 import BackgroundImage from "../../assets/images/Homepage Background.png";
 import "../../assets/styles/HomePage.module.css";
 import { Link } from "react-router-dom";
-import { getToken } from "../Login/app/static";
 import axios from "axios";
 import { postService } from "../../services/postService";
 import { userService } from "../../services/userService";
 import { toast } from "react-toastify";
 import { commentService } from "../../services/commentService";
+import useResponsive from "../../hooks/useResponsive";
 
 const HomePage = () => {
+  const { isMobile, isTablet } = useResponsive();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [socialPosts, setSocialPosts] = useState([]);
   const [loadingSocialPosts, setLoadingSocialPosts] = useState(true);
-  const [socialPostsError, setSocialPostsError] = useState(null);
 
   // Dữ liệu mẫu fallback để dùng khi không lấy được dữ liệu từ API
   const fallbackSocialPosts = [
@@ -116,9 +116,12 @@ const HomePage = () => {
   useEffect(() => {
     const fetchedProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/products/productCode", {
-          headers: "Content-Type: application/json",
-        });
+        const res = await axios.get(
+          "http://localhost:8080/api/products/productCode",
+          {
+            headers: "Content-Type: application/json",
+          }
+        );
         setProduct(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -230,9 +233,9 @@ const HomePage = () => {
                   avatarUrl ||
                   (post.user
                     ? generateUserAvatar(post.user)
-                    : `https://i.pravatar.cc/100?img=${getAvatarSeed(
+                    : `https://i.pravatar.cc/100?img=${
                         post.userId || post.id
-                      )}`),
+                      }`),
                 username: post.user || "Người dùng",
                 userId: post.userId || post.id,
               };
@@ -244,10 +247,8 @@ const HomePage = () => {
           // Sử dụng dữ liệu mẫu nếu không có posts
           setSocialPosts(fallbackSocialPosts);
         }
-        setSocialPostsError(null);
       } catch (error) {
         console.error("Error fetching social posts:", error);
-        setSocialPostsError(error.message);
         setSocialPosts(fallbackSocialPosts); // Fallback to sample data
         toast.error("Error fetching social posts", {
           autoClose: 3000,
@@ -259,13 +260,13 @@ const HomePage = () => {
 
     fetchSocialPosts();
   }, []);
-
+  const showProduct = isMobile ? 1 : isTablet ? 2 : 4;
   const productSettings = {
     dots: false,
-    infinite: product.length > 3,
-    speed: 2000,
-    slidesToShow: 4,
-    slidesToScroll: product.length / 4,
+    infinite: product.length > showProduct - 1,
+    speed: 3000,
+    slidesToShow: showProduct,
+    slidesToScroll: product.length / showProduct,
     centerMode: true, // Enable center alignment
     centerPadding: "10px", // Adjust padding around the center slide
     // nextArrow: <NextArrow />,
@@ -301,14 +302,16 @@ const HomePage = () => {
     // ],
   };
 
+  const showSocial = isMobile ? 1 : isTablet ? 2 : 3;
   const socialSettings = {
     dots: true,
     dotsClass: "slick-dots",
-    infinite: socialPosts.length > 2,
+    infinite: socialPosts.length > showSocial - 1,
     lazyLoad: true,
     speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: Math.ceil(socialPosts.length / 3),
+    slidesToShow: showSocial,
+    centerMode: true,
+    slidesToScroll: socialPosts.length / showSocial,
     arrows: false,
     beforeChange: (_, next) => setCurrentSlide(next), // Update current slide
     appendDots: (dots) => (
@@ -336,7 +339,8 @@ const HomePage = () => {
           height: "10px",
           borderRadius: "50%",
           backgroundColor:
-            index >= currentSlide / 3 && index < currentSlide / 3 + 1
+            index >= currentSlide / showSocial &&
+            index < currentSlide / showSocial + 1
               ? "black"
               : "white", // Highlight dots for the current slide
           transition: "background-color 0.3s ease",
@@ -681,6 +685,5 @@ const HomePage = () => {
     </div>
   );
 };
-console.log("HomePage rendered");
 
 export default HomePage;

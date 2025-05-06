@@ -40,8 +40,8 @@ const Header = () => {
   const [token, setTokenState] = useState(
     localStorage.getItem("AUTH_TOKEN")?.replace(/^"|"$/g, "")
   ); // Thêm state cho token
-  const { cartItems } = useCart();
-  const { favouriteItems } = useFavourite();
+  const { cartItems, clearCartLocal } = useCart();
+  const { favouriteItems, clearFavourite } = useFavourite();
 
   const dropdownRef = useRef(null);
   const searchDropdownRef = useRef(null);
@@ -132,6 +132,8 @@ const Header = () => {
       removeToken();
       removeUserInfo();
       localStorage.removeItem("user");
+      clearCartLocal();
+      clearFavourite();
 
       // Cập nhật trạng thái
       setTokenState(null);
@@ -286,8 +288,7 @@ const Header = () => {
 
       try {
         setLoading(true);
-        const decodedToken = parseJwt(token);
-        const userId = decodedToken?.userId;
+        const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
         if (!userId) {
           throw new Error("Unable to retrieve user information");
@@ -357,7 +358,7 @@ const Header = () => {
                   />
                 </button>
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 bg-white shadow-md rounded-lg w-48 z-10">
+                  <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 bg-white shadow-md rounded-lg w-48 z-10">
                     <ul className="space-y-2 p-2 text-sm text-gray-700">
                       <li>
                         <Link
@@ -444,7 +445,7 @@ const Header = () => {
               <img
                 src="../../../public/img/logosns.png"
                 alt="Logo"
-                className="h-24 sm:h-48 mb-0"
+                className="h-10 md:h-48 mb-0"
               />
             </Link>
           </div>
@@ -496,42 +497,39 @@ const Header = () => {
               </div>
             )}
           </div>
-          <button
-            className="text-gray-800 md:hidden"
-            onClick={toggleMenu}
-            aria-label="Toggle navigation"
-          >
-            {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-          </button>
-        </div>
-      </div>
 
-      <div className="mt-8">
-        <animated.div
-          style={menuAnimation}
-          className={`absolute top-0 left-0 w-full z-10 md:relative md:top-auto md:left-auto md:w-auto md:z-auto ${
-            isMenuOpen ? "block" : "hidden"
-          } md:flex md:justify-center`}
-        >
-          <div className="container mx-auto px-4">
-            <nav>
-              <ul className="flex flex-col md:flex-row md:justify-center md:space-x-6 space-y-4 md:space-y-0 text-sm font-semibold text-black">
-                <li>
-                  <Link to="/" className="hover:underline">
-                    HOME
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/social" className="hover:underline">
-                    SOCIAL
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/products" className="hover:underline">
-                    PRODUCTS
-                  </Link>
-                </li>
-                {/* <li>
+          <div className="md:hidden relative">
+            <button
+              className="text-gray-800 md:hidden"
+              onClick={toggleMenu}
+              aria-label="Toggle navigation"
+            >
+              {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+            </button>
+            {isMenuOpen && (
+              <animated.div
+                style={menuAnimation}
+                className={`absolute top-0 right-0 z-30`}
+              >
+                <div className="container mx-auto px-4">
+                  <nav>
+                    <ul className="flex flex-col md:flex-row md:justify-center md:space-x-6 space-y-4 md:space-y-0 text-sm font-semibold text-black">
+                      <li>
+                        <Link to="/" className="hover:underline">
+                          HOME
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/social" className="hover:underline">
+                          SOCIAL
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/products" className="hover:underline">
+                          PRODUCTS
+                        </Link>
+                      </li>
+                      {/* <li>
                   <Link to="/tshirt" className="hover:underline">
                     T-SHIRT
                   </Link>
@@ -561,10 +559,34 @@ const Header = () => {
                     SHORTS
                   </Link>
                 </li> */}
-              </ul>
-            </nav>
+                    </ul>
+                  </nav>
+                </div>
+              </animated.div>
+            )}
           </div>
-        </animated.div>
+        </div>
+        <div className="container mx-auto px-4 mt-8 hidden md:block">
+          <nav>
+            <ul className="flex flex-col md:flex-row md:justify-center md:space-x-6 space-y-4 md:space-y-0 text-sm font-semibold text-black">
+              <li>
+                <Link to="/" className="hover:underline">
+                  HOME
+                </Link>
+              </li>
+              <li>
+                <Link to="/social" className="hover:underline">
+                  SOCIAL
+                </Link>
+              </li>
+              <li>
+                <Link to="/products" className="hover:underline">
+                  PRODUCTS
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </header>
   );

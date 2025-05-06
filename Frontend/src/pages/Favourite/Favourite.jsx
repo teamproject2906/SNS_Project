@@ -5,8 +5,15 @@ import { useUser } from "../../context/UserContext";
 
 function Favourite() {
   // Use the favourite context
-  const { favouriteItems, removeFromFavourites, loading, error, fetchWishlist, getPriceAfterPromotion } = useFavourite();
-  
+  const {
+    favouriteItems,
+    removeFromFavourites,
+    loading,
+    error,
+    fetchWishlist,
+    getPriceAfterPromotion,
+  } = useFavourite();
+
   // Use the user context
   const { user } = useUser();
 
@@ -53,8 +60,8 @@ function Favourite() {
     return (
       <div className="container mx-auto px-6 py-8 text-center">
         <p className="text-xl text-red-500">Error: {error}</p>
-        <button 
-          onClick={fetchWishlist} 
+        <button
+          onClick={fetchWishlist}
           className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         >
           Try Again
@@ -181,4 +188,4 @@ function Favourite() {
   );
 }
 
-export default Favourite; 
+export default Favourite;

@@ -1,5 +1,6 @@
 package com.example.ECommerce.Project.V1.DTO.AuthenticationDTO;
 
+import com.example.ECommerce.Project.V1.DTO.UserDTO;
 import com.example.ECommerce.Project.V1.RoleAndPermission.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -19,4 +20,6 @@ public class AuthenticationResponse {
     private String refreshToken;
 
     private Role role;
+
+    private UserDTO user;
 }

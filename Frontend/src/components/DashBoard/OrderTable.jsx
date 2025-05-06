@@ -361,6 +361,8 @@ const OrderTable = () => {
         onClose={closeDetailModal}
         orderId={selectedOrder?.id}
       />
+
+      {/* Modal Edit Order */}
       <ModalUpdate
         isOpen={modalEditIsOpen}
         onClose={closeEditModal}

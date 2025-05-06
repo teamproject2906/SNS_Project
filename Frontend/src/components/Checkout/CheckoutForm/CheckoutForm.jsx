@@ -1,33 +1,36 @@
 import { useState, useEffect } from "react";
 import { addressService } from "../../../services/addressService";
-import { getUserInfo } from "../../../pages/Login/app/static";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import AddressForm from "../../Address/AddressForm";
 import { useCart } from "../../../context/CartContext";
+import { useUser } from "../../../context/UserContext";
 
 const CheckoutForm = () => {
   const { paymentMethod, setPaymentMethod, address, setAddress } = useCart();
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
   const [showAddressPopup, setShowAddressPopup] = useState(false);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addressToEdit, setAddressToEdit] = useState(null);
+  const { user } = useUser();
 
   useEffect(() => {
-    const userInfo = getUserInfo();
-    if (userInfo) {
-      setUser(userInfo);
-      fetchAddresses(userInfo.userId);
+    if (user?.id) {
+      fetchAddresses(user.id);
     }
-  }, []);
+  }, [user?.id]);
+  console.log(user);
 
-  const fetchAddresses = async (userId) => {
+  const fetchAddresses = async () => {
     try {
       setLoading(true);
-      const data = await addressService.getAllAddresses(userId);
+      if (!user.id) {
+        toast.error("User info not found!");
+        return;
+      }
+      const data = await addressService.getAllAddresses(user.id);
 
       // Sort addresses to put default address first
       const sortedAddresses = [...data].sort((a, b) => {
@@ -71,11 +74,6 @@ const CheckoutForm = () => {
   const handleAddressFormClose = () => {
     setShowAddressForm(false);
     setAddressToEdit(null);
-  };
-
-  const handleAddressFormSubmit = () => {
-    // Refresh addresses after form submission
-    fetchAddresses(user.userId);
   };
 
   return (
@@ -303,10 +301,9 @@ const CheckoutForm = () => {
 
                     <AddressForm
                       initialData={addressToEdit}
-                      onSubmit={handleAddressFormSubmit}
+                      onSubmit={fetchAddresses}
                       onClose={handleAddressFormClose}
                       isNewAddress={!addressToEdit}
-                      userId={user.userId}
                     />
                   </div>
                 </div>
@@ -317,9 +314,7 @@ const CheckoutForm = () => {
       )}
 
       {/* Phương thức thanh toán */}
-      <h2 className="text-xl font-semibold mt-6 mb-4">
-        Payment Method
-      </h2>
+      <h2 className="text-xl font-semibold mt-6 mb-4">Payment Method</h2>
       <div className="space-y-3">
         <label className="flex items-center space-x-2">
           <input

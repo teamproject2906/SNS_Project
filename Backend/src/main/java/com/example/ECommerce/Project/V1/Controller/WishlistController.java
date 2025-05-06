@@ -20,12 +20,8 @@ public class WishlistController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<WishlistDTO> getWishlistByUserId(@PathVariable Integer userId) {
-        try {
             WishlistDTO wishlistDTO = wishlistService.getWishlistByUserId(userId);
             return new ResponseEntity<>(wishlistDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
     }
 
     @PostMapping("/user/{userId}/add/{productId}")

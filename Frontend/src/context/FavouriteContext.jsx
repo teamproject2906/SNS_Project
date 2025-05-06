@@ -19,11 +19,11 @@ export const FavouriteProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(getUserInfo());
+  console.log(user);
 
   // Fetch wishlist data from API
   const fetchWishlist = async () => {
-    console.log("User:", user);
-    if (!user || !user.userId) {
+    if (!user || !user.id) {
       setFavouriteItems([]);
       return;
     }
@@ -33,7 +33,7 @@ export const FavouriteProvider = ({ children }) => {
       setLoading(true);
       const token = getToken();
       const response = await axios.get(
-        `http://localhost:8080/api/wishlist/user/${user.userId}`,
+        `http://localhost:8080/api/wishlist/user/${user.id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -69,8 +69,10 @@ export const FavouriteProvider = ({ children }) => {
 
   // Fetch wishlist on component mount
   useEffect(() => {
-    fetchWishlist();
-  }, []);
+    if (user?.id) {
+      fetchWishlist();
+    }
+  }, [user?.id]);
 
   // Add item to favourites
   const addToFavourites = async (product) => {
@@ -96,7 +98,7 @@ export const FavouriteProvider = ({ children }) => {
       }
   
       const response = await axios.post(
-        `http://localhost:8080/api/wishlist/user/${currentUser.userId}/add/${product.id}`,
+        `http://localhost:8080/api/wishlist/user/${currentUser.id}/add/${product.id}`,
         { productId: product.id },
         {
           headers: {
@@ -121,14 +123,14 @@ export const FavouriteProvider = ({ children }) => {
 
   // Remove item from favourites
   const removeFromFavourites = async (productId) => {
-    if (!user || !user.userId) return;
+    if (!user || !user.id) return;
 
     try {
       setLoading(true);
       const token = getToken();
 
       const response = await axios.delete(
-        `http://localhost:8080/api/wishlist/user/${user.userId}/remove/${productId}`,
+        `http://localhost:8080/api/wishlist/user/${user.id}/remove/${productId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -166,6 +168,13 @@ export const FavouriteProvider = ({ children }) => {
     return favouriteItems.length;
   };
 
+  const clearFavourite = () => {
+    setFavouriteItems([]);
+    setUser(null);
+    setError(null);
+    setLoading(false);
+  };
+
   // Context value
   const value = {
     favouriteItems,
@@ -177,6 +186,8 @@ export const FavouriteProvider = ({ children }) => {
     getTotalFavourites,
     fetchWishlist,
     getPriceAfterPromotion,
+    clearFavourite,
+    setUser,
   };
 
   return (

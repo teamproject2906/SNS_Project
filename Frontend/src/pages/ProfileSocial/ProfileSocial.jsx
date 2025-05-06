@@ -15,7 +15,9 @@ const ProfileSocial = () => {
   const [posts, setPosts] = useState([]);
 
   const name = useMemo(() => {
-    return userProfile?.firstname?.toString()?.trim() &&
+    return userProfile?.firstname &&
+      userProfile?.firstname?.toString()?.trim() &&
+      userProfile?.lastname &&
       userProfile?.lastname?.toString()?.trim() !== ""
       ? userProfile?.firstname + " " + userProfile?.lastname
       : userProfile?.username;
@@ -45,18 +47,23 @@ const ProfileSocial = () => {
   const handlePostUpdate = async (postId, newContent, imageFile) => {
     try {
       let updatedPost;
-
+      if (!user?.id) {
+        toast.error("User info not found!");
+        return;
+      }
       // Nếu có imageFile, sử dụng API updatePostWithImage
       if (imageFile !== undefined) {
         updatedPost = await postService.updatePostWithImage(
           postId,
           newContent,
-          imageFile
+          imageFile,
+          user?.id
         );
       } else {
         // Nếu chỉ cập nhật content, sử dụng API updatePost thông thường
         updatedPost = await postService.updatePost(postId, {
           content: newContent,
+          userId: user?.id,
         });
       }
 
@@ -77,8 +84,13 @@ const ProfileSocial = () => {
 
   const handlePostDelete = async (postId) => {
     try {
+      if (!user?.id) {
+        toast.error("User info not found!");
+        return;
+      }
       await postService.deactivatePost(postId, {
         active: false,
+        userId: user?.id,
       });
 
       fetchPosts();
@@ -95,8 +107,7 @@ const ProfileSocial = () => {
     if (token) {
       const fetchUserProfile = async () => {
         try {
-          const decodedToken = parseJwt(token);
-          const userId = decodedToken?.userId;
+          const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
           if (!userId) return;
 

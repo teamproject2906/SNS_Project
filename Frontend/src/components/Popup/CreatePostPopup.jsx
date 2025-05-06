@@ -33,8 +33,7 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
     if (token) {
       const fetchUserProfile = async () => {
         try {
-          const decodedToken = parseJwt(token);
-          const userId = decodedToken?.userId;
+          const userId = JSON.parse(localStorage.getItem("user"))?.id;
 
           if (!userId) return;
 
@@ -80,6 +79,11 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
       return;
     }
 
+    if (!user?.id) {
+      toast.error("User info not found!");
+      return;
+    }
+
     try {
       setIsLoading(true);
       toast.info("Processing your post...");
@@ -102,12 +106,17 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
           return;
         }
         // Sử dụng phương thức createPostWithImage để upload ảnh và tạo post
-        await postService.createPostWithImage(contentText, selectedImage);
+        await postService.createPostWithImage(
+          contentText,
+          selectedImage,
+          user?.id
+        );
       } else {
         // Nếu không có ảnh, tạo post bình thường
         const postData = {
           content: contentText,
           active: true,
+          userId: user?.id,
         };
         await postService.createPost(postData);
       }
@@ -154,8 +163,10 @@ const CreatePostPopup = ({ isOpen, onClose, onPostCreated }) => {
 
   const userAvatar = userProfile?.avatar || user?.avatar || DEFAULT_AVATAR;
   const username =
+    userProfile?.firstname &&
     userProfile?.firstname?.toString()?.trim() &&
-    userProfile?.firstname?.toString()?.trim() !== ""
+    userProfile?.lastname &&
+    userProfile?.lastname?.toString()?.trim() !== ""
       ? userProfile?.firstname + " " + userProfile?.lastname
       : userProfile?.username + " (Full name has not been set yet)";
 

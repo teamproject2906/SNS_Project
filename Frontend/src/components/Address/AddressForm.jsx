@@ -4,6 +4,7 @@ import Select from "react-select";
 import addressDataRaw from "./dvhcvn.json";
 import { addressService } from "../../services/addressService";
 import { toast } from "react-toastify";
+import { getUserInfo } from "../../pages/Login/app/static";
 
 // Convert data to react-select format
 const addressData = addressDataRaw.data.map((province) => ({
@@ -19,13 +20,8 @@ const addressData = addressDataRaw.data.map((province) => ({
   })),
 }));
 
-const AddressForm = ({
-  onClose,
-  onSubmit,
-  initialData,
-  isNewAddress,
-  userId,
-}) => {
+const AddressForm = ({ onClose, onSubmit, initialData, isNewAddress }) => {
+  const userInfo = getUserInfo();
   const [formData, setFormData] = useState({
     addressDescription: "",
     phoneNumber: "",
@@ -157,7 +153,7 @@ const AddressForm = ({
 
     // Map form data to backend format
     const addressData = {
-      userId: userId,
+      userId: userInfo?.id,
       country: "Vietnam",
       addressDescription: formData.addressDescription,
       phoneNumber: formData.phoneNumber,
@@ -169,17 +165,22 @@ const AddressForm = ({
     };
 
     try {
-      if (isNewAddress) {
-        await addressService.addAddress(addressData);
-        toast.success("Address added successfully");
+      if (userInfo?.id) {
+        if (isNewAddress) {
+          await addressService.addAddress(addressData);
+          toast.success("Address added successfully");
+          if (onSubmit) {
+            onSubmit();
+          }
+        } else {
+          await addressService.updateAddress(initialData.id, addressData);
+          toast.success("Address updated successfully");
+          if (onSubmit) {
+            onSubmit();
+          }
+        }
       } else {
-        await addressService.updateAddress(initialData.id, addressData);
-        toast.success("Address updated successfully");
-      }
-
-      // Call the onSubmit callback to refresh addresses in parent components
-      if (onSubmit) {
-        onSubmit();
+        toast.error("User info not found!");
       }
 
       // Close the form

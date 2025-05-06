@@ -92,15 +92,15 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found along with given ID!"));
 
         // Regex chỉ cho phép chữ cái và khoảng trắng
-        String nameRegex = "^[a-zA-Z\\s]+$";
-
-        if (!userDTO.getFirstname().matches(nameRegex)) {
-            throw new IllegalArgumentException("Firstname must not contain special characters");
-        }
-
-        if (!userDTO.getLastname().matches(nameRegex)) {
-            throw new IllegalArgumentException("Lastname must not contain special characters");
-        }
+//        String nameRegex = "^[a-zA-Z\\s]+$";
+//
+//        if (!userDTO.getFirstname().matches(nameRegex)) {
+//            throw new IllegalArgumentException("Firstname must not contain special characters");
+//        }
+//
+//        if (!userDTO.getLastname().matches(nameRegex)) {
+//            throw new IllegalArgumentException("Lastname must not contain special characters");
+//        }
 
         user.setFirstname(userDTO.getFirstname());
         user.setLastname(userDTO.getLastname());
@@ -275,9 +275,9 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Integer findUserIdByMail(String email) {
+    public UserDTO findUserIdByMail(String email) {
         User user = userRepository.findByEmail(email);
-        return user.getId();
+        return mapper.map(user, UserDTO.class);
     }
 
     private String extractPublicIdFromUrl(String url) {

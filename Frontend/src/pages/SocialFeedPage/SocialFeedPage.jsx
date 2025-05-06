@@ -5,9 +5,11 @@ import { toast } from "react-toastify";
 import { useParams, useNavigate } from "react-router-dom";
 import PostCard from "../../components/PostCard";
 import Sidebar from "../../components/Social/Sidebar";
+import { useUser } from "../../context/UserContext";
 
 const SocialFeedPage = () => {
   const { id: postId } = useParams(); // Lấy ID bài đăng từ URL nếu có
+  const { user } = useUser();
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,18 +93,24 @@ const SocialFeedPage = () => {
   const handlePostUpdate = async (postId, newContent, imageFile) => {
     try {
       let updatedPost;
+      if (!user?.id) {
+        toast.error("User info not found!");
+        return;
+      }
 
       // Nếu có imageFile, sử dụng API updatePostWithImage
       if (imageFile !== undefined) {
         updatedPost = await postService.updatePostWithImage(
           postId,
           newContent,
-          imageFile
+          imageFile,
+          user?.id
         );
       } else {
         // Nếu chỉ cập nhật content, sử dụng API updatePost thông thường
         updatedPost = await postService.updatePost(postId, {
           content: newContent,
+          userId: user?.id,
         });
       }
 
@@ -129,8 +137,13 @@ const SocialFeedPage = () => {
 
   const handlePostDelete = async (postId) => {
     try {
+      if (!user?.id) {
+        toast.error("User info not found!");
+        return;
+      }
       await postService.deactivatePost(postId, {
         active: false,
+        userId: user?.id,
       });
 
       // Xử lý sau khi xóa thành công

@@ -30,24 +30,6 @@ public class PostServiceImpl implements IPostService {
    private final CommentRepository commentRepository;
    private final ReportRepository reportRepository;
 
-   private User getCurrentUser(Principal connectedUser) {
-      int userId;
-
-      if (connectedUser instanceof JwtAuthenticationToken jwtToken) {
-         Object userIdClaim = jwtToken.getToken().getClaims().get("userId");
-
-         if (userIdClaim instanceof Number number) {
-            userId = number.intValue();
-         } else {
-            throw new IllegalArgumentException("Invalid userId claim in JWT");
-         }
-      } else {
-         throw new IllegalArgumentException("Unsupported principal type: " + connectedUser.getClass().getName());
-      }
-
-      return userRepository.findUserById(userId);
-   }
-
    @Override
    public PostDTO createPost(PostDTO post, Principal connectedUser) {
       // Validate content
@@ -56,7 +38,7 @@ public class PostServiceImpl implements IPostService {
       }
 
       // Get current user
-      User userFind = getCurrentUser(connectedUser);
+      User userFind = userRepository.findUserById(post.getUserId());
       if (userFind == null) {
          throw new ResourceNotFoundException("User not found");
       }
@@ -86,7 +68,11 @@ public class PostServiceImpl implements IPostService {
    @Override
    public PostDTO updatePost(PostDTO post, UUID postId, Principal connectedUser) {
 
-      User userFind = getCurrentUser(connectedUser);
+      // Get current user
+      User userFind = userRepository.findUserById(post.getUserId());
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
 
       Post updatedPost = postRepository.findById(postId)
             .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
@@ -110,7 +96,11 @@ public class PostServiceImpl implements IPostService {
    @Override
    public void deactivatePost(PostDTO post, UUID postId, Principal connectedUser) {
 
-      User userFind = getCurrentUser(connectedUser);
+      // Get current user
+      User userFind = userRepository.findUserById(post.getUserId());
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
 
       Post updatedPost = postRepository.findById(postId)
             .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
@@ -224,11 +214,15 @@ public class PostServiceImpl implements IPostService {
 
 
    @Override
-   public List<PostDTO> searchPostByTitle(String content, Principal connectedUser) {
+   public List<PostDTO> searchPostByTitle(String content, Integer userId, Principal connectedUser) {
       List<Post> posts;
       // Kiểm tra vai trò của người dùng
       if (connectedUser != null) {
-         User userFind = getCurrentUser(connectedUser);
+         // Get current user
+         User userFind = userRepository.findUserById(userId);
+         if (userFind == null) {
+            throw new ResourceNotFoundException("User not found");
+         }
          boolean isAdmin = userFind.getRole() == Role.ADMIN;
 
          // Admin có thể xem tất cả các bài post (cả active và inactive)
@@ -272,9 +266,13 @@ public class PostServiceImpl implements IPostService {
    }
 
    @Override
-   public void likeOrDislikePost(UUID postId, Principal connectedUser) {
+   public void likeOrDislikePost(UUID postId, Integer userId, Principal connectedUser) {
 
-      User userFind = getCurrentUser(connectedUser);
+      // Get current user
+      User userFind = userRepository.findUserById(userId);
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
 
       Post post = postRepository.findPostById(postId);
       var findUserLikePost = likeRepository.findUserLikeByUserAndPost(userFind, post);
@@ -290,8 +288,12 @@ public class PostServiceImpl implements IPostService {
    }
 
    @Override
-   public void reportOrUnreportPost(UUID postId, Principal connectedUser) {
-      User userFind = getCurrentUser(connectedUser);
+   public void reportOrUnreportPost(UUID postId, Integer userId, Principal connectedUser) {
+      // Get current user
+      User userFind = userRepository.findUserById(userId);
+      if (userFind == null) {
+         throw new ResourceNotFoundException("User not found");
+      }
 
       Post post = postRepository.findPostById(postId);
       var findUserReportPost = reportRepository.findUserReportByUserAndPost(userFind, post);

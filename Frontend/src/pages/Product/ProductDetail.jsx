@@ -344,13 +344,13 @@ const ProductDetail = () => {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className="flex">
+      <div className="flex flex-col md:flex-row gap-10">
         {/* Phần hình ảnh sản phẩm */}
-        <div className="w-1/2">
-          <div className="imageLayout flex flex-row justify-center gap-10">
+        <div className="w-full md:w-1/2">
+          <div className="imageLayout flex flex-col-reverse md:flex-row justify-center gap-10">
             <div
               ref={thumbnailsRef}
-              className="thumbnails flex overflow-y-auto flex-col max-h-[500px] gap-1"
+              className="thumbnails flex flex-row md:flex-col overflow-auto gap-1"
               style={{ scrollbarWidth: "none" }}
             >
               {productImages.map((image, index) => (
@@ -358,7 +358,7 @@ const ProductDetail = () => {
                   key={image.id}
                   src={image.imageUrl}
                   alt="Thumbnail"
-                  className={`w-20 h-[80px] rounded-lg cursor-pointer border-2 object-cover ${
+                  className={`w-20 h-20 rounded-lg cursor-pointer border-2 object-cover ${
                     selectedImage === image.imageUrl
                       ? "border-black"
                       : "border-gray-300"
@@ -368,12 +368,11 @@ const ProductDetail = () => {
               ))}
             </div>
             <div className="main-image mb-4 relative">
-              <div className="flex justify-center w-[500px] h-[500px] min-h-[500px] min-w-[500px]">
+              <div className="flex justify-center w-full aspect-square">
                 <img
                   src={selectedImage || product.imageUrl}
                   alt={product.productName}
                   className="w-full h-full rounded-lg border-2 border-gray-300 object-cover"
-                  style={{ maxHeight: "500px", objectFit: "contain" }}
                 />
               </div>
               <button
@@ -393,7 +392,7 @@ const ProductDetail = () => {
         </div>
 
         {/* Phần thông tin sản phẩm */}
-        <div className="w-1/2 flex flex-col justify-between">
+        <div className="w-full md:w-1/2 flex flex-col justify-between">
           <div className="mb-4">
             <h1 className="text-3xl font-bold">
               {product.productName}

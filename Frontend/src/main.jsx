@@ -8,13 +8,13 @@ import { FavouriteProvider } from "./context/FavouriteContext.jsx";
 createRoot(document.getElementById("root")).render(
   // <StrictMode>
   <>
-    <UserProvider>
-      <CartProvider>
-        <FavouriteProvider>
+    <CartProvider>
+      <FavouriteProvider>
+        <UserProvider>
           <App />
-        </FavouriteProvider>
-      </CartProvider>
-    </UserProvider>
+        </UserProvider>
+      </FavouriteProvider>
+    </CartProvider>
   </>
   // </StrictMode>
 );

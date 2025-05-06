@@ -19,7 +19,7 @@ const AddressManagement = () => {
     const userInfo = getUserInfo();
     if (userInfo) {
       setUser(userInfo);
-      fetchAddresses(userInfo.userId);
+      fetchAddresses(userInfo.id);
     }
   }, []);
 
@@ -30,7 +30,7 @@ const AddressManagement = () => {
       setAddresses(data);
       setError(null);
     } catch (error) {
-      console.error('Error fetching addresses:', error);
+      console.error("Error fetching addresses:", error);
       setError("Failed to fetch addresses");
       toast.error("Failed to load addresses");
     } finally {
@@ -58,7 +58,7 @@ const AddressManagement = () => {
 
   const handleSaveAddress = () => {
     // Refresh addresses after form submission
-    fetchAddresses(user.userId);
+    fetchAddresses(user.id);
   };
 
   const handleSetDefault = async (address) => {
@@ -68,13 +68,13 @@ const AddressManagement = () => {
       // Since there's no direct API for setting default, we'll update the address
       const updatedAddress = {
         ...address,
-        isDefault: true
+        isDefault: true,
       };
       await addressService.updateAddress(address.id, updatedAddress);
       toast.success("Default address updated");
-      fetchAddresses(user.userId);
+      fetchAddresses(user.id);
     } catch (error) {
-      console.error('Error setting default address:', error);
+      console.error("Error setting default address:", error);
       toast.error("Failed to set default address");
     }
   };
@@ -84,16 +84,20 @@ const AddressManagement = () => {
       try {
         await addressService.deleteAddress(addressId);
         toast.success("Address deleted successfully");
-        fetchAddresses(user.userId);
+        fetchAddresses(user.id);
       } catch (error) {
-        console.error('Error deleting address:', error);
+        console.error("Error deleting address:", error);
         toast.error("Failed to delete address");
       }
     }
   };
 
   if (!user) {
-    return <div className="text-center py-8">Please log in to manage your addresses</div>;
+    return (
+      <div className="text-center py-8">
+        Please log in to manage your addresses
+      </div>
+    );
   }
 
   if (loading) {
@@ -127,10 +131,12 @@ const AddressManagement = () => {
         ) : (
           addresses.map((address) => (
             <div key={address.id} className="border-b pb-4 mb-4">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-5">
                 <div>
                   <div className="flex items-center">
-                    <h3 className="font-medium mr-2">{address.addressDescription}</h3>
+                    <h3 className="font-medium mr-2">
+                      {address.addressDescription}
+                    </h3>
                     <span className="text-gray-600">{address.phoneNumber}</span>
                   </div>
                   <p className="text-gray-600 mt-1">{address.addressDetail}</p>
@@ -191,7 +197,6 @@ const AddressManagement = () => {
               onSubmit={handleSaveAddress}
               initialData={currentAddress}
               isNewAddress={isNewAddress}
-              userId={user.userId}
             />
           </div>
         </div>

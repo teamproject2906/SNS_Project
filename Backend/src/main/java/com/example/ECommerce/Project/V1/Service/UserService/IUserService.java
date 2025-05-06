@@ -39,5 +39,5 @@ public interface IUserService {
 
     List<AuditLogDTO> getUserLog() throws Exception;
 
-   Integer findUserIdByMail(String email);
+   UserDTO findUserIdByMail(String email);
 }
