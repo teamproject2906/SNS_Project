@@ -497,6 +497,7 @@ const Header = () => {
               </div>
             )}
           </div>
+
           <div className="md:hidden relative">
             <button
               className="text-gray-800 md:hidden"
@@ -564,6 +565,27 @@ const Header = () => {
               </animated.div>
             )}
           </div>
+        </div>
+        <div className="container mx-auto px-4 mt-8 hidden md:block">
+          <nav>
+            <ul className="flex flex-col md:flex-row md:justify-center md:space-x-6 space-y-4 md:space-y-0 text-sm font-semibold text-black">
+              <li>
+                <Link to="/" className="hover:underline">
+                  HOME
+                </Link>
+              </li>
+              <li>
+                <Link to="/social" className="hover:underline">
+                  SOCIAL
+                </Link>
+              </li>
+              <li>
+                <Link to="/products" className="hover:underline">
+                  PRODUCTS
+                </Link>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </header>
