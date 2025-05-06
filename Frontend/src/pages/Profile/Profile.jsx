@@ -227,7 +227,9 @@ const Profile = () => {
 
       setIsEditing(false);
     } catch (error) {
-      toast.error("Update information failed");
+      toast.error(
+        error?.response?.data?.message || "Update information failed"
+      );
       console.error("Lỗi khi cập nhật thông tin:", error);
     }
   };
@@ -435,19 +437,17 @@ const Profile = () => {
         <div className="flex justify-between space-x-6 border-b border-black pb-6 mb-6">
           <div className="flex items-center space-x-6">
             <div>
-              <img
-                className="w-28 h-28 rounded-full object-cover border-2 border-black cursor-pointer"
-                src={user.avatar}
-                alt="User Avatar"
-                onClick={() => setIsEditingAvatar(true)}
-              />
+              <div className="w-28 h-28">
+                <img
+                  className="rounded-full object-cover border-2 border-black cursor-pointer"
+                  src={user.avatar}
+                  alt="User Avatar"
+                  onClick={() => setIsEditingAvatar(true)}
+                />
+              </div>
             </div>
             <div>
               <h2 className=" text-lg md:text-3xl font-light text-black uppercase tracking-wide line-clamp-3">
-                {user.firstname} {user.lastname} {user.firstname}{" "}
-                {user.lastname}
-                {user.firstname} {user.lastname}
-                {user.firstname} {user.lastname}
                 {user.firstname} {user.lastname}
               </h2>
               <div className="flex items-center">

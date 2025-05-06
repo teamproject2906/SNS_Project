@@ -58,7 +58,7 @@ const AddressManagement = () => {
 
   const handleSaveAddress = () => {
     // Refresh addresses after form submission
-    fetchAddresses(user.userId);
+    fetchAddresses(user.id);
   };
 
   const handleSetDefault = async (address) => {
@@ -72,7 +72,7 @@ const AddressManagement = () => {
       };
       await addressService.updateAddress(address.id, updatedAddress);
       toast.success("Default address updated");
-      fetchAddresses(user.userId);
+      fetchAddresses(user.id);
     } catch (error) {
       console.error("Error setting default address:", error);
       toast.error("Failed to set default address");
@@ -84,7 +84,7 @@ const AddressManagement = () => {
       try {
         await addressService.deleteAddress(addressId);
         toast.success("Address deleted successfully");
-        fetchAddresses(user.userId);
+        fetchAddresses(user.id);
       } catch (error) {
         console.error("Error deleting address:", error);
         toast.error("Failed to delete address");
@@ -197,7 +197,6 @@ const AddressManagement = () => {
               onSubmit={handleSaveAddress}
               initialData={currentAddress}
               isNewAddress={isNewAddress}
-              userId={user.userId}
             />
           </div>
         </div>
