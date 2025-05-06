@@ -12,12 +12,21 @@ import com.example.ECommerce.Project.V1.Service.ProductGalleryService.IProductGa
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +42,8 @@ public class ProductServiceImpl implements IProductService {
     private final ProductRepository productRepository;
     @Autowired
     private IProductGalleryService productGalleryService;
+    @Autowired
+    private RestTemplate restTemplate;
 
     public ProductServiceImpl(ProductRepository repository, SizeChartRepository sizeChartRepository, FormClothesRepository formClothesRepository, CategoryRepository categoryRepository, EntityManager entityManager, ProductRepository productRepository, IProductGalleryService productGalleryService) {
         this.repository = repository;
@@ -285,6 +296,66 @@ public class ProductServiceImpl implements IProductService {
         return convertEntityListToDTOList(productRepository.findAll());
     }
 
+    // Gửi hình ảnh tới app.py và lấy danh sách ProductCode
+    @Override
+    public List<String> searchProductCodesByImage(MultipartFile file) throws IOException {
+        String appPyUrl = "http://localhost:5000/search";
+
+        // Chuẩn bị dữ liệu gửi tới app.py
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", new ByteArrayResource(file.getBytes()) {
+            @Override
+            public String getFilename() {
+                return file.getOriginalFilename();
+            }
+        });
+
+        // Thiết lập header
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        // Gửi yêu cầu tới app.py
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<String[]> response = restTemplate.postForEntity(appPyUrl, requestEntity, String[].class);
+
+        // Debug: In trạng thái và nội dung phản hồi
+        System.out.println("Response Status: " + response.getStatusCode());
+        System.out.println("Response Body: " + (response.getBody() != null ? String.join(", ", response.getBody()) : "null"));
+
+        // Kiểm tra phản hồi từ app.py
+        if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
+            throw new RuntimeException("Failed to get product codes from app.py. Status: " + response.getStatusCode() +
+                    ", Body: " + (response.getBody() != null ? String.join(", ", response.getBody()) : "null"));
+        }
+
+        // Chuyển đổi mảng String từ response thành List<String>
+        List<String> productCodes = new ArrayList<>();
+        if (response.getBody() != null) {
+            for (String code : response.getBody()) {
+                if (code != null && !code.isEmpty()) {
+                    productCodes.add(code);
+                }
+            }
+
+        // Debug
+        System.out.println("Extracted Product Codes: " + productCodes);
+
+        return productCodes.isEmpty() ? new ArrayList<>() : productCodes;
+    }
+
+    // Tìm kiếm sản phẩm dựa trên list ProductCode
+    @Override
+    public List<ProductResponseDTO> searchProductsByProductCodes(List<String> productCodes) {
+        List<ProductResponseDTO> listProductDTO = new ArrayList<>();
+        for(String productCode : productCodes) {
+            Product specificProduct = repository.findSpecificProductByProductCode(productCode)
+                    .orElseThrow(() -> new IllegalArgumentException("Product with productCode " + productCode + " not found"));
+            listProductDTO.add(convertProductEntityToDTO(specificProduct));
+        }
+
+        return listProductDTO;
+    }
+
     @Override
     public List<ProductResponseDTO> getAllProductsUsingProductCode(){
         List<String> listProductCode = repository.getAllProductCodes();
@@ -294,7 +365,32 @@ public class ProductServiceImpl implements IProductService {
                     .orElseThrow(() -> new IllegalArgumentException("Product with productCode " + productCode + " not found"));
             listProductDTO.add(convertProductEntityToDTO(specificProduct));
         }
-        return  listProductDTO;
+        return listProductDTO;
+    }
+
+    @Override
+    public void exportProductCodeAndImageToCSV() {
+        List<String> productCodes = repository.getAllProductCodes();
+
+        String outputPath = "D:/Major FPT/Semester 9 (Graduation Thesis)/Clothes Classification EfficientNetB0/Dataset/product_images.csv";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
+            writer.write("ProductCode,ProductImage");
+            writer.newLine();
+
+            for (String code : productCodes) {
+                Product product = repository.findSpecificProductByProductCode(code)
+                        .orElseThrow(() -> new IllegalArgumentException("Product with code " + code + " not found"));
+
+                String imageUrl = productGalleryService.getProductGalleryByIdAndMinSortOrder(product.getId());
+                writer.write(code + "," + imageUrl);
+                writer.newLine();
+            }
+
+            System.out.println("✅ CSV export successful: " + outputPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
