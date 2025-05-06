@@ -4,6 +4,7 @@ import SortBar from "../../components/Products/SortBar";
 import ProductCard from "../../components/Products/ProductCard";
 import FilterButton from "../../components/Products/FilterButton";
 import { IoFilter } from "react-icons/io5";
+import { IoImageOutline } from "react-icons/io5";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
@@ -129,23 +130,72 @@ export default function Product() {
     setModalIsOpen(false);
   };
 
+  const handleImageSearch = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        'http://localhost:8080/api/products/search-by-image',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+        setProducts(response.data);
+        setFilteredProducts(response.data);
+        setIsFiltered(true);
+      } else {
+        console.log('No similar products found');
+        setError('No similar products found');
+      }
+    } catch (err) {
+      console.error('Error searching by image:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-row justify-between">
-        <div className="filterBtn">
-          <button
-            onClick={openModal}
-            className="px-4 py-2 rounded flex flex-row items-center gap-2 cursor-pointer bg-gray-200 hover:bg-gray-300"
-          >
-            <IoFilter className="text-2xl" />
-            <label>FILTER</label>
-          </button>
-          <FilterButton
-            products={products}
-            onFilter={handleFilter}
-            isOpen={modalIsOpen}
-            onClose={closeModal}
-          />
+        <div className="flex gap-2">
+          <div className="filterBtn">
+            <button
+              onClick={openModal}
+              className="px-4 py-2 rounded flex flex-row items-center gap-2 cursor-pointer bg-gray-200 hover:bg-gray-300"
+            >
+              <IoFilter className="text-2xl" />
+              <label>FILTER</label>
+            </button>
+            <FilterButton
+              products={products}
+              onFilter={handleFilter}
+              isOpen={modalIsOpen}
+              onClose={closeModal}
+            />
+          </div>
+          <div className="imageSearchBtn">
+            <label className="px-4 py-2 rounded flex flex-row items-center gap-2 cursor-pointer bg-gray-200 hover:bg-gray-300">
+              <IoImageOutline className="text-2xl" />
+              <span>SEARCH BY IMAGE</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageSearch}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
         <div className="sortBar">
           <SortBar onSort={handleSort} selectedOption={sortOption} />

@@ -58,14 +58,14 @@ public class ProductServiceImpl implements IProductService {
     private void validateProductCode(String productCode, ProductRepository repository) {
         if (productCode == null || productCode.isBlank()) {
             throw new InvalidInputException("Product code cannot be blank");
-        } else if(productCode.length() > 20) {
+        } else if (productCode.length() > 20) {
             throw new InvalidInputException("Product code cannot longer than 20 characters");
         }
     }
 
     // Validate product name
     private void validateProductName(String productName) {
-        if(productName == null || productName.isBlank()) {
+        if (productName == null || productName.isBlank()) {
             throw new InvalidInputException("Product name cannot be blank");
         } else if (productName.length() > 100) {
             throw new InvalidInputException("Product name cannot longer than 100 characters");
@@ -74,16 +74,16 @@ public class ProductServiceImpl implements IProductService {
 
     // Validate product price
     private void validateProductPrice(Double price) {
-        if(price == null) {
+        if (price == null) {
             throw new InvalidInputException("Price cannot be blank");
-        } else if(price <= 0) {
+        } else if (price <= 0) {
             throw new InvalidInputException("Price must be greater than 0");
         }
     }
 
     // Validate color
     private void validateProductColor(String productColor) {
-        if(productColor == null || productColor.isBlank()) {
+        if (productColor == null || productColor.isBlank()) {
             throw new InvalidInputException("Product color cannot be blank");
         } else if (productColor.length() > 50) {
             throw new InvalidInputException("Product color cannot longer than 50 characters");
@@ -92,7 +92,7 @@ public class ProductServiceImpl implements IProductService {
 
     // Validate material
     private void validateMaterial(String material) {
-        if(material == null || material.isBlank()) {
+        if (material == null || material.isBlank()) {
             throw new InvalidInputException("Material cannot be blank");
         } else if (material.length() > 50) {
             throw new InvalidInputException("Product material cannot longer than 50 characters");
@@ -101,23 +101,23 @@ public class ProductServiceImpl implements IProductService {
 
     // Validate description
     private void validateProductDescription(String productDescription) {
-        if(productDescription == null || productDescription.isBlank()) {
+        if (productDescription == null || productDescription.isBlank()) {
             throw new InvalidInputException("Product description cannot be blank");
         }
     }
 
     // Validate product inventory
     private void validateProductInventory(Integer productInventory) {
-        if(productInventory == null) {
+        if (productInventory == null) {
             throw new InvalidInputException("Product inventory cannot be blank");
-        } else if(productInventory < 0) {
+        } else if (productInventory < 0) {
             throw new InvalidInputException("Product inventory must be greater than 0");
         }
     }
 
     private void validateSizeChart(SizeChart sizeChart, SizeChartRepository repository) {
         // Validate sizeChart ID (ensure it is not null or empty)
-        if(sizeChart == null || sizeChart.getId() == null ) {
+        if (sizeChart == null || sizeChart.getId() == null) {
             throw new InvalidInputException("Size chart ID cannot be null");
         }
 
@@ -130,7 +130,7 @@ public class ProductServiceImpl implements IProductService {
 
     private void validateFormClothes(FormClothes formClothes, FormClothesRepository repository) {
         // Validate formClothes ID (ensure it is not null or empty)
-        if(formClothes == null || formClothes.getId() == null ) {
+        if (formClothes == null || formClothes.getId() == null) {
             throw new InvalidInputException("Form clothes ID cannot be null");
         }
 
@@ -143,7 +143,7 @@ public class ProductServiceImpl implements IProductService {
 
     private void validateCategory(Category category, CategoryRepository repository) {
         // Validate formClothes ID (ensure it is not null or empty)
-        if(category == null || category.getId() == null ) {
+        if (category == null || category.getId() == null) {
             throw new InvalidInputException("Category ID cannot be null");
         }
 
@@ -336,18 +336,18 @@ public class ProductServiceImpl implements IProductService {
                     productCodes.add(code);
                 }
             }
+        }
 
-        // Debug
+        // Debug clmm
         System.out.println("Extracted Product Codes: " + productCodes);
-
         return productCodes.isEmpty() ? new ArrayList<>() : productCodes;
     }
 
     // Tìm kiếm sản phẩm dựa trên list ProductCode
     @Override
-    public List<ProductResponseDTO> searchProductsByProductCodes(List<String> productCodes) {
+    public List<ProductResponseDTO> searchProductsByProductCodes (List < String > productCodes) {
         List<ProductResponseDTO> listProductDTO = new ArrayList<>();
-        for(String productCode : productCodes) {
+        for (String productCode : productCodes) {
             Product specificProduct = repository.findSpecificProductByProductCode(productCode)
                     .orElseThrow(() -> new IllegalArgumentException("Product with productCode " + productCode + " not found"));
             listProductDTO.add(convertProductEntityToDTO(specificProduct));
@@ -357,10 +357,10 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<ProductResponseDTO> getAllProductsUsingProductCode(){
+    public List<ProductResponseDTO> getAllProductsUsingProductCode () {
         List<String> listProductCode = repository.getAllProductCodes();
         List<ProductResponseDTO> listProductDTO = new ArrayList<>();
-        for(String productCode : listProductCode){
+        for (String productCode : listProductCode) {
             Product specificProduct = repository.findSpecificProductByProductCode(productCode)
                     .orElseThrow(() -> new IllegalArgumentException("Product with productCode " + productCode + " not found"));
             listProductDTO.add(convertProductEntityToDTO(specificProduct));
@@ -369,7 +369,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public void exportProductCodeAndImageToCSV() {
+    public void exportProductCodeAndImageToCSV () {
         List<String> productCodes = repository.getAllProductCodes();
 
         String outputPath = "D:/Major FPT/Semester 9 (Graduation Thesis)/Clothes Classification EfficientNetB0/Dataset/product_images.csv";
@@ -394,36 +394,36 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public Page<Product> getProducts(int page, int size, String sortBy, Sort.Direction sortDirection) {
+    public Page<Product> getProducts ( int page, int size, String sortBy, Sort.Direction sortDirection){
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
         return productRepository.findAll(pageable);
     }
 
 
     @Override
-    public Product getProductById(Integer id) {
+    public Product getProductById (Integer id){
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id: " + id + " not found!"));
     }
     @Override
-    public ProductResponseDTO getProductDTOById(Integer id){
+    public ProductResponseDTO getProductDTOById (Integer id){
         return convertProductEntityToDTO(getProductById(id));
     }
 
 
     @Override
-    public List<ProductResponseDTO> getProductByProductCode(String productCode) {
+    public List<ProductResponseDTO> getProductByProductCode (String productCode){
         List<Product> productListWithCode = repository.findProductByProductCode(productCode);
         return convertEntityListToDTOList(productListWithCode);
     }
 
     @Override
-    public List<Product> getProductByName(String name) {
+    public List<Product> getProductByName (String name){
         return repository.findProductsByProductNameContainingIgnoreCase(name);
     }
 
     @Override
-    public Product updateProductById(Integer id, Product product) {
+    public Product updateProductById (Integer id, Product product){
         Product updatingProduct = getProductById(id);
 
         if (updatingProduct != null) {
@@ -478,14 +478,14 @@ public class ProductServiceImpl implements IProductService {
             }
 
             // Save the updated object
-             repository.save(updatingProduct);
+            repository.save(updatingProduct);
         }
 
         return updatingProduct;
     }
 
     @Override
-    public void deleteProductById(Integer id) {
+    public void deleteProductById (Integer id){
         Product product = getProductById(id);
 
         if (product != null) {
@@ -495,7 +495,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional
-    public Product reActivateProductById(Integer id) {
+    public Product reActivateProductById (Integer id){
         Product product = getProductById(id);
 
         if (product != null) {
@@ -521,12 +521,13 @@ public class ProductServiceImpl implements IProductService {
 
         return product;
     }
+
     @Override
     public void updateProductForOrder (Integer id, Integer orderQuantity){
-        Product product =  getProductById(id);
+        Product product = getProductById(id);
 
-        if(product != null){
-            product.setQuantityInventory(product.getQuantityInventory()- orderQuantity);
+        if (product != null) {
+            product.setQuantityInventory(product.getQuantityInventory() - orderQuantity);
             repository.save(product);
         }
     }
