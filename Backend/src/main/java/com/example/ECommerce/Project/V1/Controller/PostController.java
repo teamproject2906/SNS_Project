@@ -57,6 +57,7 @@ public class PostController {
    public ResponseEntity<?> createPostWithImage(
          @RequestParam("file") MultipartFile file,
          @RequestParam("content") String content,
+         @RequestParam("userId") Integer userId,
          Principal connectedUser) {
       try {
          logger.info("Creating post with image, content: {}", content);
@@ -69,6 +70,7 @@ public class PostController {
          PostDTO postDTO = PostDTO.builder()
                .content(content)
                .imageUrl(imageUrl)
+                 .userId(userId)
                .isActive(true)
                .build();
 
@@ -110,6 +112,7 @@ public class PostController {
    public ResponseEntity<?> updatePostWithImage(
          @RequestParam(value = "file", required = false) MultipartFile file,
          @RequestParam("content") String content,
+         @RequestParam("userId") Integer userId,
          @PathVariable UUID postId,
          Principal connectedUser) {
       try {
@@ -129,6 +132,7 @@ public class PostController {
          PostDTO postDTO = PostDTO.builder()
                .content(content)
                .imageUrl(imageUrl)
+                 .userId(userId)
                .build();
 
          // 4. Gọi service để cập nhật bài đăng
@@ -171,15 +175,17 @@ public class PostController {
    @GetMapping("/searchPost/{content}")
    public ResponseEntity<List<PostDTO>> getPostsByTitle(
          @PathVariable String content,
+         @RequestParam(required = true) Integer userId,
          Principal connectedUser) {
-      return ResponseEntity.ok(postService.searchPostByTitle(content, connectedUser));
+      return ResponseEntity.ok(postService.searchPostByTitle(content, userId, connectedUser));
    }
 
    @PostMapping("/likePost/{postId}")
    public ResponseEntity<ResponseMessageAPI> likePost(
          @PathVariable UUID postId,
+         @RequestBody Integer userId,
          Principal connectedUser) {
-      postService.likeOrDislikePost(postId, connectedUser);
+      postService.likeOrDislikePost(postId, userId, connectedUser);
       ResponseMessageAPI responseMessageAPI = ResponseMessageAPI.builder()
             .message("Like/Dislike post successfully")
             .status(HttpStatus.OK)
@@ -191,9 +197,10 @@ public class PostController {
    @PostMapping("/reportPost/{postId}")
    public ResponseEntity<ResponseMessageAPI> reportPost(
            @PathVariable UUID postId,
+           @RequestBody Integer userId,
            Principal connectedUser
    ) {
-      postService.reportOrUnreportPost(postId, connectedUser);
+      postService.reportOrUnreportPost(postId, userId, connectedUser);
       ResponseMessageAPI responseMessageAPI = ResponseMessageAPI.builder()
               .message("Report/Un-report post successfully")
               .status(HttpStatus.OK)

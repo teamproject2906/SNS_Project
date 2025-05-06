@@ -33,7 +33,7 @@ export const postService = {
   },
 
   // Upload ảnh và tạo bài viết thông qua backend
-  createPostWithImage: async (content, imageFile) => {
+  createPostWithImage: async (content, imageFile, userId) => {
     try {
       console.log("Creating post with image using backend API...");
 
@@ -41,7 +41,7 @@ export const postService = {
       const formData = new FormData();
       formData.append("file", imageFile);
       formData.append("content", content);
-
+      formData.append("userId", userId);
       // Gọi API backend để upload ảnh và tạo bài đăng
       const response = await api.post(
         "/social/api/post/createPostWithImage",
@@ -92,14 +92,14 @@ export const postService = {
   },
 
   // Update post with image
-  updatePostWithImage: async (postId, content, imageFile) => {
+  updatePostWithImage: async (postId, content, imageFile, userId) => {
     try {
       console.log("Updating post with image, postId:", postId);
 
       // Tạo FormData chứa thông tin bài đăng và file ảnh (nếu có)
       const formData = new FormData();
       formData.append("content", content);
-
+      formData.append("userId", userId);
       // Chỉ thêm file vào formData nếu có chọn ảnh mới
       if (imageFile) {
         formData.append("file", imageFile);
@@ -137,14 +137,17 @@ export const postService = {
     return response.data;
   },
 
-  searchPosts: async (query) => {
+  searchPosts: async (query, params) => {
     try {
       // Nếu query trống hoặc undefined, trả về mảng rỗng
       if (!query || query.trim() === "") {
         return [];
       }
 
-      const response = await api.get(`/social/api/post/searchPost/${query}`);
+      const response = await api.get(
+        `/social/api/post/searchPost/${query}`,
+        { params }
+      );
       return response.data;
     } catch (error) {
       console.error("Error searching posts:", error);
@@ -154,22 +157,22 @@ export const postService = {
   },
 
   // Like/Unlike a post (Backend chỉ có một endpoint xử lý cả like và unlike)
-  likePost: async (postId) => {
+  likePost: async (postId, body) => {
     try {
-      const response = await api.post(`/social/api/post/likePost/${postId}`);
+      const response = await api.post(`/social/api/post/likePost/${postId}`, body);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error);
     }
   },
 
   // Unlike a post (Sử dụng cùng endpoint với likePost vì backend dùng toggle)
-  unlikePost: async (postId) => {
+  unlikePost: async (postId, body) => {
     try {
       // Backend sử dụng cùng một endpoint cho cả like và unlike (toggle)
-      return await postService.likePost(postId);
+      return await postService.likePost(postId, body);
     } catch (error) {
-      throw error;
+      throw new Error(error);
     }
   },
 

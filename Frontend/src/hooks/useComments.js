@@ -3,7 +3,7 @@ import { commentService } from "../services/commentService";
 import { toast } from "react-toastify";
 import { buildCommentTree } from "../utils/commentUtils";
 
-export const useComments = (postId) => {
+export const useComments = (postId, userId) => {
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [replyText, setReplyText] = useState({});
@@ -82,6 +82,7 @@ export const useComments = (postId) => {
           content: content.trim(),
           postId,
           commentReplyId: parentId,
+          userId,
           active: true,
         };
 
@@ -110,6 +111,7 @@ export const useComments = (postId) => {
         const response = await commentService.updateComment(commentId, {
           content,
           postId,
+          userId,
           active: true,
         });
 
@@ -136,6 +138,7 @@ export const useComments = (postId) => {
         setIsLoading(true);
         await commentService.deleteComment(commentId, {
           postId,
+          userId,
           active: false,
         });
         await loadComments(); // Reload để có cấu trúc mới nhất

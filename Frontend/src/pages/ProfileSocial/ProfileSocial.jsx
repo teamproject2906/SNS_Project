@@ -15,7 +15,9 @@ const ProfileSocial = () => {
   const [posts, setPosts] = useState([]);
 
   const name = useMemo(() => {
-    return userProfile?.firstname?.toString()?.trim() &&
+    return userProfile?.firstname &&
+      userProfile?.firstname?.toString()?.trim() &&
+      userProfile?.lastname &&
       userProfile?.lastname?.toString()?.trim() !== ""
       ? userProfile?.firstname + " " + userProfile?.lastname
       : userProfile?.username;
@@ -45,13 +47,17 @@ const ProfileSocial = () => {
   const handlePostUpdate = async (postId, newContent, imageFile) => {
     try {
       let updatedPost;
-
+      if (!userProfile?.id) {
+        toast.error("User info not found!");
+        return;
+      }
       // Nếu có imageFile, sử dụng API updatePostWithImage
       if (imageFile !== undefined) {
         updatedPost = await postService.updatePostWithImage(
           postId,
           newContent,
-          imageFile
+          imageFile,
+          userProfile?.id
         );
       } else {
         // Nếu chỉ cập nhật content, sử dụng API updatePost thông thường
@@ -77,8 +83,13 @@ const ProfileSocial = () => {
 
   const handlePostDelete = async (postId) => {
     try {
+      if (!userProfile?.id) {
+        toast.error("User info not found!");
+        return;
+      }
       await postService.deactivatePost(postId, {
         active: false,
+        userId: userProfile?.id,
       });
 
       fetchPosts();

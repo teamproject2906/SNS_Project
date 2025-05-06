@@ -24,7 +24,10 @@ const PostCard = ({
   const [showSettings, setShowSettings] = React.useState(false);
   const [showLikeTooltip, setShowLikeTooltip] = React.useState(false);
   const likeTooltipRef = useRef(null);
-  const { commentCount, isLoading: commentsLoading } = useComments(post?.id);
+  const { commentCount, isLoading: commentsLoading } = useComments(
+    post?.id,
+    user?.id
+  );
   const [localCommentCount, setLocalCommentCount] =
     React.useState(commentCount);
 
@@ -51,7 +54,7 @@ const PostCard = ({
     loadLikeStatus,
     toggleLike,
     fetchLikers,
-  } = useLikes(post?.id, post?.likes, post?.isLiked);
+  } = useLikes(post?.id, post?.likes, post?.isLiked, user?.id);
 
   const toggleSettings = () => setShowSettings(!showSettings);
   const toggleComments = () => setShowComments(!showComments);

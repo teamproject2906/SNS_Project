@@ -63,7 +63,7 @@ export const usePost = (post, onPostUpdate, onPostDelete) => {
       console.error("Error updating post:", error);
       toast.error(
         "Không thể cập nhật bài viết: " +
-          (error.response?.data?.message || error.message)
+        (error.response?.data?.message || error.message)
       );
     } finally {
       setIsSubmitting(false);

@@ -42,7 +42,7 @@ const CommentSection = ({
     comments: commentsList,
     isLoading,
     addComment,
-  } = useComments(postId);
+  } = useComments(postId, currentUserId);
 
   const [newComment, setNewComment] = useState("");
   const [editingComment, setEditingComment] = useState(null);

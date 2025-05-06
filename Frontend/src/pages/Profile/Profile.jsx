@@ -62,6 +62,9 @@ const Profile = () => {
     }
   };
 
+  const decodedToken = parseJwt(token);
+  const userId = decodedToken?.userId;
+
   // Lấy thông tin user từ backend khi component mount
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -462,15 +465,17 @@ const Profile = () => {
               </div>
             </div>
           </div>
-          <div className="inline">
-            <button
-              onClick={() => setIsChangingPassword(true)}
-              className="bg-red-600 text-white px-4 py-2 rounded-md text-sm flex items-center space-x-2 hover:bg-red-700 transition"
-            >
-              <FaKey />
-              <span>Change password</span>
-            </button>
-          </div>
+          {userId && (
+            <div className="inline">
+              <button
+                onClick={() => setIsChangingPassword(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-md text-sm flex items-center space-x-2 hover:bg-red-700 transition"
+              >
+                <FaKey />
+                <span>Change password</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Thông tin cá nhân */}

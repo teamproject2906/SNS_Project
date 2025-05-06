@@ -21,9 +21,9 @@ public interface IPostService {
 
    PostDTO getPostById(UUID postId);
 
-   List<PostDTO> searchPostByTitle(String title, Principal connectedUser);
+   List<PostDTO> searchPostByTitle(String title, Integer userId, Principal connectedUser);
 
-   void likeOrDislikePost(UUID postId, Principal connectedUser);
+   void likeOrDislikePost(UUID postId, Integer userId, Principal connectedUser);
 
-    void reportOrUnreportPost(UUID postId, Principal connectedUser);
+    void reportOrUnreportPost(UUID postId, Integer userId, Principal connectedUser);
 }

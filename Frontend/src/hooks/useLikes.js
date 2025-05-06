@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { postService } from "../services/postService";
 import { toast } from "react-toastify";
 
-export const useLikes = (postId, initialLikes = 0, initialIsLiked = false) => {
+export const useLikes = (postId, initialLikes = 0, initialIsLiked = false, userId) => {
   const [likes, setLikes] = useState(initialLikes);
   const [liked, setLiked] = useState(initialIsLiked);
   const [likersList, setLikersList] = useState([]);
@@ -27,12 +27,16 @@ export const useLikes = (postId, initialLikes = 0, initialIsLiked = false) => {
   const toggleLike = useCallback(async () => {
     try {
       if (!postId) return;
+      if (!userId) {
+        toast.error("User info not found!");
+        return;
+      }
 
       if (liked) {
-        await postService.unlikePost(postId);
+        await postService.unlikePost(postId, userId);
         setLikes((prev) => prev - 1);
       } else {
-        await postService.likePost(postId);
+        await postService.likePost(postId, userId);
         setLikes((prev) => prev + 1);
       }
       setLiked((prev) => !prev);
