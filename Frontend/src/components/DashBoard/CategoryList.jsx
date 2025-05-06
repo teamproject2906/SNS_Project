@@ -155,8 +155,8 @@ const CategoryList = () => {
       fetchCategories();
       toast.success("Add category successfully!");
     } catch (error) {
-      console.error("Error adding category:", error);
-      toast.error("Error adding category");
+      console.error("Error adding category:", error.response.data.message);
+      toast.error(error.response.data.message);
     }
   };
 

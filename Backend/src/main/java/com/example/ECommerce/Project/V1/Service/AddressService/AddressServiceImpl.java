@@ -26,6 +26,15 @@ public class AddressServiceImpl implements AddressService {
         User user = userRepository.findById(addressDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         address.setUser(user);
+        if (address.getIsDefault()) {
+            // Tìm tất cả địa chỉ của user có isDefault = true
+            List<Address> existingDefaultAddresses = addressRepository.findByUserIdAndIsDefault(user.getId(), true);
+            // Đặt isDefault = false cho các địa chỉ cũ
+            existingDefaultAddresses.forEach(addr -> {
+                addr.setIsDefault(false);
+                addressRepository.save(addr);
+            });
+        }
         Address savedAddress = addressRepository.save(address);
         return mapToDTO(savedAddress);
     }
@@ -36,6 +45,13 @@ public class AddressServiceImpl implements AddressService {
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public AddressDTO getAddressById(Integer id){
+        Address add = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found address with id"));
+        return mapToDTO(add);
     }
 
     @Override
@@ -59,6 +75,16 @@ public class AddressServiceImpl implements AddressService {
         address.setProvince(addressDTO.getProvince());
         address.setCountry(addressDTO.getCountry());
         address.setIsDefault(addressDTO.getIsDefault());
+
+        if (address.getIsDefault()) {
+            // Tìm tất cả địa chỉ của user có isDefault = true
+            List<Address> existingDefaultAddresses = addressRepository.findByUserIdAndIsDefault(id, true);
+            // Đặt isDefault = false cho các địa chỉ cũ
+            existingDefaultAddresses.forEach(addr -> {
+                addr.setIsDefault(false);
+                addressRepository.save(addr);
+            });
+        }
 
         Address updatedAddress = addressRepository.save(address);
         return mapToDTO(updatedAddress);

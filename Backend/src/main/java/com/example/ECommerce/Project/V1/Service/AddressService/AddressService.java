@@ -7,6 +7,9 @@ import java.util.List;
 public interface AddressService {
     AddressDTO createAddress(AddressDTO addressDTO);
     List<AddressDTO> getAddressesByUserId(Integer userId);
+
+    AddressDTO getAddressById(Integer id);
+
     AddressDTO getDefaultAddress(Integer userId);
     AddressDTO updateAddress(Integer id, AddressDTO addressDTO);
     void deleteAddress(Integer id);
