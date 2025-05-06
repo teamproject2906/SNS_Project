@@ -338,7 +338,7 @@ public class ProductServiceImpl implements IProductService {
             }
         }
 
-        // Debug
+        // Debug clmm
         System.out.println("Extracted Product Codes: " + productCodes);
         return productCodes.isEmpty() ? new ArrayList<>() : productCodes;
     }
