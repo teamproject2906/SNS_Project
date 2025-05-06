@@ -1,6 +1,5 @@
 package com.example.ECommerce.Project.V1.Controller;
 
-import com.example.ECommerce.Project.V1.Config.TextFileHelper;
 import com.example.ECommerce.Project.V1.DTO.ProductResponseDTO;
 import com.example.ECommerce.Project.V1.Model.Product;
 import com.example.ECommerce.Project.V1.Model.ProductGallery;
@@ -12,10 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.access.IpAddressAuthorizationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -62,6 +61,33 @@ public class ProductController {
         if (products.isEmpty()) return new ResponseEntity<>("There is no product. Please add new one.",HttpStatus.OK);
 
         return new ResponseEntity<>(productService.getAllProducts(),HttpStatus.OK);
+    }
+
+    // API tìm kiếm sản phẩm bằng hình ảnh
+    @PostMapping("/search-by-image")
+    public ResponseEntity<Object> searchProductsByImage(@RequestParam("file") MultipartFile file) {
+        try {
+            // Gửi hình ảnh tới app.py và lấy danh sách ProductCode
+            List<String> productCodes = productService.searchProductCodesByImage(file);
+            System.out.println("tesst: " + productCodes);
+
+            // Nếu không tìm thấy ProductCode
+            if (productCodes.isEmpty()) {
+                return new ResponseEntity<>("No similar products found.", HttpStatus.OK);
+            }
+
+            // Tìm kiếm sản phẩm dựa trên list ProductCode
+            List<ProductResponseDTO> products = productService.searchProductsByProductCodes(productCodes);
+
+            // Nếu không có sản phẩm nào trong database
+            if (products.isEmpty()) {
+                return new ResponseEntity<>("No products found for the given product codes.", HttpStatus.OK);
+            }
+
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Error processing image: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/productCode")
@@ -137,5 +163,16 @@ public class ProductController {
         productService.deleteProductById(productId);
 
         return new ResponseEntity<>("Product deactive successfully",HttpStatus.OK);
+    }
+
+    @GetMapping("/export-image-csv")
+    public ResponseEntity<String> exportProductImagesCSV() {
+        try {
+            productService.exportProductCodeAndImageToCSV();
+            return ResponseEntity.ok("✅ Export thành công: file CSV đã được tạo tại thư mục dataset.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ Lỗi khi export CSV: " + e.getMessage());
+        }
     }
 }
