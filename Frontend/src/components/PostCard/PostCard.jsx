@@ -65,7 +65,7 @@ const PostCard = ({
   const handleReport = async () => {
     try {
       if (post?.id) {
-        await postService.reportPost(post?.id);
+        await postService.reportPost(post?.id, user?.id);
         toast.success("Bài viết đã được báo cáo");
       }
     } catch (error) {

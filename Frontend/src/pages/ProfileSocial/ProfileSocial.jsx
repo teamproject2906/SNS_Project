@@ -47,7 +47,7 @@ const ProfileSocial = () => {
   const handlePostUpdate = async (postId, newContent, imageFile) => {
     try {
       let updatedPost;
-      if (!userProfile?.id) {
+      if (!user?.id) {
         toast.error("User info not found!");
         return;
       }
@@ -57,12 +57,13 @@ const ProfileSocial = () => {
           postId,
           newContent,
           imageFile,
-          userProfile?.id
+          user?.id
         );
       } else {
         // Nếu chỉ cập nhật content, sử dụng API updatePost thông thường
         updatedPost = await postService.updatePost(postId, {
           content: newContent,
+          userId: user?.id,
         });
       }
 
@@ -83,13 +84,13 @@ const ProfileSocial = () => {
 
   const handlePostDelete = async (postId) => {
     try {
-      if (!userProfile?.id) {
+      if (!user?.id) {
         toast.error("User info not found!");
         return;
       }
       await postService.deactivatePost(postId, {
         active: false,
-        userId: userProfile?.id,
+        userId: user?.id,
       });
 
       fetchPosts();

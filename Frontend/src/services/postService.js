@@ -246,9 +246,12 @@ export const postService = {
     }
   },
 
-  reportPost: async (postId) => {
+  reportPost: async (postId, body) => {
     try {
-      const response = await api.post(`/social/api/post/reportPost/${postId}`);
+      const response = await api.post(
+        `/social/api/post/reportPost/${postId}`,
+        body
+      );
       return response.data;
     } catch (error) {
       throw new Error(error);
