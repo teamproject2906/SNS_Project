@@ -20,11 +20,11 @@ function Checkout() {
   const handleCreateOrder = async (payload) => {
     try {
       const response = await createOrder(payload);
-      toast.success("Đơn hàng đã được tạo thành công");
+      toast.success("Order created successfully");
       await clearCart();
       return response.data;
     } catch (error) {
-      toast.error("Lỗi khi tạo đơn hàng");
+      toast.error("Error creating order");
       throw new Error(error);
     }
   };
@@ -72,7 +72,7 @@ function Checkout() {
           }
         } catch (err) {
           console.error("Error fetching cart:", err);
-          toast.error("Không thể tải giỏ hàng");
+          toast.error("Error fetching cart!");
         }
       };
       fetchCart();

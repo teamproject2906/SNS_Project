@@ -88,6 +88,48 @@ const UserLogChart = () => {
     setCurrentPage(page);
   };
 
+  // Hàm tạo danh sách các trang hiển thị
+  const getPaginationItems = () => {
+    const maxPagesToShow = 6; // Số trang tối đa hiển thị (bao gồm dấu chấm lửng)
+    const pages = [];
+
+    if (totalPages <= maxPagesToShow) {
+      // Nếu tổng số trang <= 6, hiển thị tất cả
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Hiển thị trang đầu
+      pages.push(1);
+
+      // Tính toán phạm vi trang xung quanh currentPage
+      const leftBound = Math.max(2, currentPage - 1);
+      const rightBound = Math.min(totalPages - 1, currentPage + 1);
+
+      // Thêm dấu chấm lửng nếu cần (giữa trang 1 và leftBound)
+      if (leftBound > 2) {
+        pages.push("...");
+      }
+
+      // Thêm các trang xung quanh currentPage
+      for (let i = leftBound; i <= rightBound; i++) {
+        pages.push(i);
+      }
+
+      // Thêm dấu chấm lửng nếu cần (giữa rightBound và trang cuối)
+      if (rightBound < totalPages - 1) {
+        pages.push("...");
+      }
+
+      // Hiển thị trang cuối
+      if (totalPages > 1) {
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
   return (
     <div className="text-wrap overflow-hidden ellipsis max-h-svh">
       {/* Thông báo lỗi */}
@@ -97,7 +139,9 @@ const UserLogChart = () => {
           <span>{error}</span>
         </div>
       )}
-      <label htmlFor="userLog" className="font-bold text-2xl">User Logs</label>
+      <label htmlFor="userLog" className="font-bold text-2xl">
+        User Logs
+      </label>
 
       {/* Bảng dữ liệu */}
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -150,9 +194,9 @@ const UserLogChart = () => {
             ) : (
               <tbody className="divide-y divide-gray-200">
                 {/* Dữ liệu user log trên trang hiện tại */}
-                {currentLogs.map((log) => (
+                {currentLogs.map((log, index) => (
                   <tr
-                    key={log.username}
+                    key={index}
                     className="hover:bg-pink-50 transition-colors duration-200"
                   >
                     <td className="px-6 py-4 text-sm text-gray-700">
@@ -171,13 +215,11 @@ const UserLogChart = () => {
           </table>
         </div>
 
-        {/* Phân trang */}
         {!loading && userLog.length > 0 && (
           <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-t border-gray-200">
             {/* Thông tin số trang */}
             <div className="text-sm text-gray-600">
-              Showing {" "}
-              {endIndex > userLog.length ? userLog.length : endIndex} of{" "}
+              Show {endIndex > userLog.length ? userLog.length : endIndex} of{" "}
               {userLog.length} entries
             </div>
 
@@ -197,8 +239,15 @@ const UserLogChart = () => {
               </button>
 
               {/* Số trang */}
-              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                (page) => (
+              {getPaginationItems().map((page, index) =>
+                page === "..." ? (
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="px-3 py-1 text-sm text-gray-600"
+                  >
+                    ...
+                  </span>
+                ) : (
                   <button
                     key={page}
                     onClick={() => handlePageClick(page)}

@@ -63,12 +63,12 @@ const ProfileSocial = () => {
       // Ngược lại, tải lại tất cả các post
       fetchPosts();
 
-      toast.success("Cập nhật bài viết thành công");
+      toast.success("Update post successfully");
       return updatedPost;
     } catch (error) {
       console.error("Error updating post:", error);
       toast.error(
-        "Cập nhật bài viết thất bại: " +
+        "Error updating post: " +
           (error.response?.data?.message || error.message)
       );
       throw error;
@@ -83,10 +83,10 @@ const ProfileSocial = () => {
 
       fetchPosts();
 
-      toast.success("Ẩn bài viết thành công");
+      toast.success("Delete post successfully");
     } catch (error) {
-      console.error("Error hiding post:", error);
-      toast.error("Ẩn bài viết thất bại");
+      console.error("Error deleting post:", error);
+      toast.error("Failed to delete the post");
     }
   };
 

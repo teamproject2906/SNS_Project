@@ -47,7 +47,7 @@ export const CartProvider = ({ children }) => {
     } catch (err) {
       setError(err.message);
       if (user && user.userId) {
-        toast.error("Không thể tải giỏ hàng");
+        toast.error("Can't fetch cart");
       }
     }
   };
@@ -59,7 +59,7 @@ export const CartProvider = ({ children }) => {
     setUser(getUserInfo());
 
     if (!user || !user.userId) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+      toast.error("Please login to add product to cart!");
       return;
     }
 
@@ -97,7 +97,7 @@ export const CartProvider = ({ children }) => {
     } catch (err) {
       console.error("Error adding to cart:", err);
       setError(err.message);
-      toast.error(err.response?.data.message || "Không thể thêm sản phẩm vào giỏ hàng");
+      toast.error(err.response?.data.message || "Error adding to cart!");
     } finally {
       setLoading(false);
     }
@@ -125,11 +125,11 @@ export const CartProvider = ({ children }) => {
       setCartItems((prevItems) =>
         prevItems.filter((item) => item.id !== cartItemId)
       );
-      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+      toast.success("Removed from cart successfully!");
     } catch (err) {
       console.error("Error removing from cart:", err);
       setError(err.message);
-      toast.error("Không thể xóa sản phẩm khỏi giỏ hàng");
+      toast.error("Error removing from cart!");
     } finally {
       setLoading(false);
     }
@@ -162,7 +162,7 @@ export const CartProvider = ({ children }) => {
     } catch (err) {
       console.error("Error updating quantity:", err);
       setError(err.message);
-      toast.error("Không thể cập nhật số lượng sản phẩm");
+      toast.error("Error updating quantity!");
     }
   };
 
@@ -182,11 +182,11 @@ export const CartProvider = ({ children }) => {
       );
 
       setCartItems([]);
-      toast.success("Đã xóa tất cả sản phẩm khỏi giỏ hàng");
+      toast.success("Cart cleared successfully!");
     } catch (err) {
       console.error("Error clearing cart:", err);
       setError(err.message);
-      toast.error("Không thể xóa giỏ hàng");
+      toast.error("Error clearing cart!");
     } finally {
       setLoading(false);
     }
