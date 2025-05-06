@@ -44,7 +44,7 @@ function Favourite() {
   if (loading) {
     return (
       <div className="container mx-auto px-6 py-8 text-center">
-        <p className="text-xl">Đang tải danh sách yêu thích...</p>
+        <p className="text-xl">Loading...</p>
       </div>
     );
   }
@@ -52,12 +52,12 @@ function Favourite() {
   if (error) {
     return (
       <div className="container mx-auto px-6 py-8 text-center">
-        <p className="text-xl text-red-500">Có lỗi xảy ra: {error}</p>
+        <p className="text-xl text-red-500">Error: {error}</p>
         <button 
           onClick={fetchWishlist} 
           className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         >
-          Thử lại
+          Try Again
         </button>
       </div>
     );
@@ -66,9 +66,9 @@ function Favourite() {
   if (!user) {
     return (
       <div className="container mx-auto px-6 py-8 text-center">
-        <p className="text-xl text-gray-500 mb-4">Vui lòng đăng nhập để xem danh sách yêu thích</p>
+        <p className="text-xl text-gray-500 mb-4">Please login to view your wishlist!</p>
         <Link to="/login" className="text-blue-600 hover:underline">
-          Đăng nhập
+          Login
         </Link>
       </div>
     );
@@ -80,22 +80,22 @@ function Favourite() {
     {showConfirmation && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-          <h3 className="text-xl font-semibold mb-4">Xác nhận xóa</h3>
+          <h3 className="text-xl font-semibold mb-4">Remove product</h3>
           <p className="text-gray-600 mb-6">
-            Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?
+            Are you sure you want to remove this product from your wishlist?
           </p>
           <div className="flex justify-end space-x-4">
             <button
               onClick={handleCancelRemove}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100"
             >
-              Hủy
+              Cancel
             </button>
             <button
               onClick={handleConfirmRemove}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
-              Xóa
+              Confirm
             </button>
           </div>
         </div>
@@ -103,14 +103,14 @@ function Favourite() {
     )}
 
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8 text-center">Danh sách yêu thích</h1>
+      <h1 className="text-2xl font-bold mb-8 text-center">Wishlist</h1>
       <hr className="mb-10" />
       <div className="space-y-6">
         {favouriteItems.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-xl text-gray-500 mb-4">Danh sách yêu thích của bạn đang trống</p>
+            <p className="text-xl text-gray-500 mb-4">Your wishlist is empty</p>
             <Link to="/products" className="text-blue-600 hover:underline">
-              Tiếp tục mua sắm
+              Continue Shopping
             </Link>
           </div>
         ) : (
@@ -156,7 +156,7 @@ function Favourite() {
                   state={{ productCode: product.productCode }}
                   className="px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors"
                 >
-                  Xem chi tiết sản phẩm
+                  Detail Product
                 </Link>
                 <button
                   onClick={() => handleRemoveClick(product.id)}

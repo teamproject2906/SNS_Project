@@ -28,7 +28,7 @@ export const useComments = (postId) => {
       }
     } catch (error) {
       console.error("Error loading comments:", error);
-      toast.error("Không thể tải bình luận");
+      toast.error("Loading comments failed");
     } finally {
       setIsLoading(false);
     }
@@ -58,12 +58,12 @@ export const useComments = (postId) => {
 
         if (response) {
           await loadComments();
-          toast.success("Đã thêm bình luận thành công");
+          toast.success("Comment added successfully");
           return response;
         }
       } catch (error) {
         console.error("Error adding comment:", error);
-        toast.error("Không thể thêm bình luận");
+        toast.error("Error adding comment");
         throw error;
       } finally {
         setIsLoading(false);
@@ -88,12 +88,12 @@ export const useComments = (postId) => {
         const response = await commentService.createComment(replyData);
         if (response) {
           await loadComments();
-          toast.success("Đã thêm phản hồi thành công");
+          toast.success("Reply added successfully");
           return response;
         }
       } catch (error) {
         console.error("Error adding reply:", error);
-        toast.error("Không thể thêm phản hồi");
+        toast.error("Error adding reply");
       } finally {
         setIsLoading(false);
       }
@@ -116,11 +116,11 @@ export const useComments = (postId) => {
         if (response) {
           await loadComments(); // Reload để có cấu trúc mới nhất
           setEditingComment(null);
-          toast.success("Đã cập nhật bình luận");
+          toast.success("Updated comment successfully");
         }
       } catch (error) {
         console.error("Error updating comment:", error);
-        toast.error("Không thể cập nhật bình luận");
+        toast.error("Error updating comment");
       } finally {
         setIsLoading(false);
       }
@@ -139,10 +139,10 @@ export const useComments = (postId) => {
           active: false,
         });
         await loadComments(); // Reload để có cấu trúc mới nhất
-        toast.success("Đã xóa bình luận");
+        toast.success("Deleted comment successfully");
       } catch (error) {
         console.error("Error deleting comment:", error);
-        toast.error("Không thể xóa bình luận");
+        toast.error("Error deleting comment");
       } finally {
         setIsLoading(false);
       }

@@ -68,7 +68,7 @@ const Login = () => {
           position: "top-right",
         });
         // Điều hướng theo role
-        if (res.data.role === "ADMIN") {
+        if (res.data.role === "ADMIN" || res.data.role === "MODERATOR" || res.data.role === "STAFF") {
           navigate("/dashboard");
         } else {
           navigate("/");
@@ -100,10 +100,10 @@ const Login = () => {
       if (res.data && res.data.auth_url) {
         window.location.href = res.data.auth_url; // Chuyển hướng đến Google
       } else {
-        toast.error("Không tìm thấy URL chuyển hướng!");
+        toast.error("Redirect URL not found!");
       }
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi đăng nhập với Google!");
+      toast.error("An error occurred while signing in with Google!");
       console.error(error);
     }
   };

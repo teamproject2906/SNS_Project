@@ -43,7 +43,7 @@ const ProductCard = ({ products }) => {
 
   const handleAddToCart = (product) => {
     if (!user) {
-      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
+      toast.error("Please login to add product to cart!");
       return;
     }
 
@@ -65,7 +65,7 @@ const ProductCard = ({ products }) => {
   const handleToggleFavourite = (product) => {
     if (!user) {
       toast.error(
-        "Vui lòng đăng nhập để thêm sản phẩm vào danh sách yêu thích"
+        "Please login to add product to wishlist!"
       );
       return;
     }
@@ -166,10 +166,10 @@ const ProductCard = ({ products }) => {
               </div>
               <div className="product-card__actions flex flex-row gap-2">
                 <button
-                  className="bg-blue-500 text-white py-2 px-4 rounded w-full"
+                  className="bg-black text-white py-2 px-4 rounded w-full font-bold"
                   onClick={() => handleAddToCart(item)}
                 >
-                  Add to cart
+                  ADD TO CART
                 </button>
                 <button
                   className={`favoriteBtn ${
@@ -202,7 +202,7 @@ const ProductCard = ({ products }) => {
                 onClick={() => handlePageChange(page)}
                 className={`px-4 py-2 rounded ${
                   currentPage === page
-                    ? "bg-blue-500 text-white"
+                    ? "bg-black text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >

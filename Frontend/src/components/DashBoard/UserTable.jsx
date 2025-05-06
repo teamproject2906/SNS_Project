@@ -73,10 +73,10 @@ const UserTable = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(users.map((u) => (u.id === id ? res.data : u)));
-      toast.success("Cập nhật vai trò thành công!");
+      toast.success("Set role successfully!");
     } catch (error) {
-      console.error("Lỗi khi set role:", error);
-      toast.error("Lỗi khi set role");
+      console.error("Error setting role:", error);
+      toast.error("Error setting role");
     }
   };
 
@@ -110,10 +110,10 @@ const UserTable = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(users.map((u) => (u.id === banId ? res.data : u)));
-      toast.success("Ban user thành công!");
+      toast.success("Ban user successfully!");
     } catch (error) {
-      console.error("Lỗi khi ban user:", error);
-      toast.error("Lỗi khi ban user");
+      console.error("Error ban user:", error);
+      toast.error("Error ban user");
     } finally {
       setIsBanModalOpen(false);
       setBanId(null);
@@ -129,10 +129,10 @@ const UserTable = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(users.map((u) => (u.id === UnbanId ? res.data : u)));
-      toast.success("Unban user thành công!");
+      toast.success("Unban user successfully!");
     } catch (error) {
-      console.error("Lỗi khi unban user:", error);
-      toast.error("Lỗi khi unban user");
+      console.error("Error unban user:", error);
+      toast.error("Error unban user");
     } finally {
       setIsUnbanModalOpen(false);
       setUnbanId(null);

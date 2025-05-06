@@ -40,7 +40,7 @@ export const usePost = (post, onPostUpdate, onPostDelete) => {
 
   const handleSave = useCallback(async () => {
     if (!editedContent.trim()) {
-      toast.error("Nội dung bài viết không được để trống");
+      toast.error("Post content cannot be empty");
       return;
     }
 
@@ -58,11 +58,11 @@ export const usePost = (post, onPostUpdate, onPostDelete) => {
       const imageFile = imagePreview === null ? undefined : selectedImage;
       await onPostUpdate(post.id, editedContent, imageFile);
       setIsEditing(false);
-      toast.success("Bài viết đã được cập nhật");
+      toast.success("Update post successfully!");
     } catch (error) {
       console.error("Error updating post:", error);
       toast.error(
-        "Không thể cập nhật bài viết: " +
+        "Error updating post: " +
           (error.response?.data?.message || error.message)
       );
     } finally {
@@ -86,10 +86,10 @@ export const usePost = (post, onPostUpdate, onPostDelete) => {
     try {
       setIsSubmitting(true);
       await onPostDelete(post.id);
-      toast.success("Bài viết đã được xóa");
+      toast.success("Delete post successfully!");
     } catch (error) {
       console.error("Error deleting post:", error);
-      toast.error("Không thể xóa bài viết");
+      toast.error("Error deleting post");
     } finally {
       setIsSubmitting(false);
     }
