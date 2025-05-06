@@ -23,10 +23,12 @@ const CommentItem = ({
   const indentLevel = Math.min(level, 3); // tối đa 3 cấp
   const marginLeft = indentLevel * 24; // 16px mỗi cấp
   const name =
+    comment?.firstName &&
+    comment?.lastName &&
     comment?.firstName?.toString()?.trim() &&
     comment?.firstName?.toString()?.trim() !== ""
       ? comment?.firstName + " " + comment?.lastName
-      : comment?.username + " (Full name has not been set yet)";
+      : comment?.username;
 
   return (
     <div

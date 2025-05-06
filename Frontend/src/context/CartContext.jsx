@@ -51,6 +51,12 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  useEffect(() => {
+    if (user?.id) {
+      fetchCart();
+    }
+  }, [user?.id]);
+
   // Fetch cart on component mount and when user changes
 
   // Add item to cart
@@ -102,11 +108,6 @@ export const CartProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (user?.id) {
-      fetchCart();
-    }
-  }, [user?.id]);
 
   // Remove item from cart
   const removeFromCart = async (cartItemId) => {

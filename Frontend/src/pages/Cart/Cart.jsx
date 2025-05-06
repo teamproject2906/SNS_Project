@@ -20,6 +20,7 @@ function Cart() {
     fetchCart,
     getPriceAfterPromotion,
   } = useCart();
+
   const { user } = useUser();
   const [isUpdating, setIsUpdating] = useState(false);
 

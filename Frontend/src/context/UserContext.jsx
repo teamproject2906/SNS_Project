@@ -18,11 +18,11 @@ export const UserProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const response = await userService.getUserProfileByEmail(user.email);
-      localStorage.setItem("user", JSON.stringify(response));
-      setUser(response);
-      setCartUser(response);
-      setWishlistUser(response);
+      const userInfo = await userService.getUserProfileByEmail(user.email);
+      localStorage.setItem("user", JSON.stringify(userInfo));
+      setUser(userInfo);
+      setCartUser(userInfo);
+      setWishlistUser(userInfo);
     } catch (error) {
       console.error("Error fetching user profile:", error);
     }
