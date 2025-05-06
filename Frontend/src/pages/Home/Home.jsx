@@ -250,7 +250,7 @@ const HomePage = () => {
       } catch (error) {
         console.error("Error fetching social posts:", error);
         setSocialPosts(fallbackSocialPosts); // Fallback to sample data
-        toast.error("Không thể tải dữ liệu bài đăng xã hội", {
+        toast.error("Error fetching social posts", {
           autoClose: 3000,
         });
       } finally {

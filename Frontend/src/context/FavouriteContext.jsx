@@ -27,8 +27,9 @@ export const FavouriteProvider = ({ children }) => {
       setFavouriteItems([]);
       return;
     }
-
+    console.log("Userdmm:", user);
     try {
+      
       setLoading(true);
       const token = getToken();
       const response = await axios.get(
@@ -58,7 +59,7 @@ export const FavouriteProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching wishlist:", err);
       setError(err.message);
-      if (user && user.id) {
+      if (!user && !user.userId) {
         toast.error("Error fetching wishlist!");
       }
     } finally {
@@ -75,28 +76,46 @@ export const FavouriteProvider = ({ children }) => {
 
   // Add item to favourites
   const addToFavourites = async (product) => {
-    setUser(getUserInfo());
+   
+    const currentUser = getUserInfo();
+    console.log("Current user:", currentUser);
+    console.log("Product:", product);
+    if (!currentUser || !currentUser.userId) {
+      toast.error("Please log in to add to wishlist!");
+      return;
+    }
+    if (!product || !product.id) {
+      toast.error("Invalid product!");
+      return;
+    }
+  
     try {
       setLoading(true);
       const token = getToken();
-
+      if (!token) {
+        toast.error("Authentication token is missing!");
+        return;
+      }
+  
       const response = await axios.post(
-        `http://localhost:8080/api/wishlist/user/${user.id}/add/${product.id}`,
-        {},
+        `http://localhost:8080/api/wishlist/user/${currentUser.id}/add/${product.id}`,
+        { productId: product.id },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
       );
-
+  
       if (response.data) {
-        // Refresh the wishlist after adding
         await fetchWishlist();
         toast.success("Added to wishlist successfully!");
       }
     } catch (err) {
-      console.error("Error adding to wishlist:", err);
+      console.error("Error adding to wishlist:", err.response?.data);
       setError(err.message);
-      toast.error("Error adding to wishlist!");
+      toast.error(err.response?.data?.message || "Error adding to wishlist!");
     } finally {
       setLoading(false);
     }

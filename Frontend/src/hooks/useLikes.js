@@ -42,7 +42,7 @@ export const useLikes = (postId, initialLikes = 0, initialIsLiked = false, userI
       setLiked((prev) => !prev);
     } catch (error) {
       console.error("Error toggling like:", error);
-      toast.error("Không thể thực hiện thao tác");
+      toast.error("Cannot toggle like");
     }
   }, [postId, liked]);
 
@@ -58,7 +58,7 @@ export const useLikes = (postId, initialLikes = 0, initialIsLiked = false, userI
       }
     } catch (error) {
       console.error("Error fetching likers:", error);
-      toast.error("Không thể tải danh sách người thích");
+      toast.error("Error fetching likers");
     } finally {
       setLoadingLikers(false);
     }

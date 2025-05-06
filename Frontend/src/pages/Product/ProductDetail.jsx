@@ -198,6 +198,11 @@ const ProductDetail = () => {
       return;
     }
 
+    if (product.quantityInventory === 0) {
+      toast.error("Out of stock!");
+      return;
+    }
+
     if (!selectedSize) {
       toast.error("Please select a size!");
       return;
@@ -234,6 +239,11 @@ const ProductDetail = () => {
     try {
       if (!selectedColor) {
         toast.error("Please select a color!");
+        return;
+      }
+
+      if (product.quantityInventory === 0) {
+        toast.error("Out of stock!");
         return;
       }
 
@@ -350,7 +360,7 @@ const ProductDetail = () => {
                   alt="Thumbnail"
                   className={`w-20 h-20 rounded-lg cursor-pointer border-2 object-cover ${
                     selectedImage === image.imageUrl
-                      ? "border-blue-500"
+                      ? "border-black"
                       : "border-gray-300"
                   }`}
                   onClick={() => handleImageSelect(image.imageUrl, index)}
@@ -552,7 +562,7 @@ const ProductDetail = () => {
               </button>
             </div>
             <button
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg w-full"
+              className="bg-black text-white px-6 py-3 rounded-lg w-full font-bold"
               onClick={handleAddToCart}
             >
               ADD TO CART
@@ -561,7 +571,7 @@ const ProductDetail = () => {
 
           <div className="mb-4 flex flex-row gap-2">
             <button
-              className="bg-red-500 text-white px-6 py-3 rounded-lg w-full"
+              className="bg-red-500 text-white px-6 py-3 rounded-lg w-full font-bold"
               onClick={handleBuyNow}
             >
               BUY NOW

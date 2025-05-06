@@ -385,7 +385,6 @@ const CommentsSection = ({ productId }) => {
                           const half = x < rect.width / 2;
                           handleEditRatingHover(half ? star - 0.5 : star);
                         }}
-                        A
                         onMouseLeave={() => handleEditRatingLeave()}
                         onClick={() =>
                           handleEditRatingClick(editHoverRating || star - 0.5)
@@ -443,7 +442,7 @@ const CommentsSection = ({ productId }) => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(comment)}
-                        className="text-blue-500 hover:underline"
+                        className="text-black hover:underline"
                       >
                         <FaPen size={22} />
                       </button>
@@ -451,7 +450,7 @@ const CommentsSection = ({ productId }) => {
                         onClick={() => handleDelete(comment.id)}
                         className="text-red-500 hover:underline"
                       >
-                        <RiDeleteBinFill size={25} />
+                        <RiDeleteBinFill size={28} />
                       </button>
                     </div>
                   )}

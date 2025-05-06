@@ -137,7 +137,7 @@ const VoucherTable = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       closeEditModal();
-      toast.success("Cập nhật voucher thành công!");
+      toast.success("Update voucher successfully!");
       handleGetVouchers();
     } catch (error) {
       console.error("Error updating voucher:", error);
@@ -163,7 +163,7 @@ const VoucherTable = () => {
       );
       setVouchers([...vouchers, res.data]);
       closeAddModal();
-      toast.success("Thêm voucher thành công!");
+      toast.success("Add voucher successfully!");
       handleGetVouchers();
     } catch (error) {
       console.error("Error adding voucher:", error.response?.data || error);
@@ -197,7 +197,7 @@ const VoucherTable = () => {
     } catch (error) {
       console.error("Error deactivating voucher:", error);
       toast.error(
-        error.response?.data?.message || "Lỗi khi vô hiệu hóa voucher"
+        error.response?.data?.message || "Error deactivating voucher"
       );
     } finally {
       setIsDeactivateModalOpen(false);

@@ -45,7 +45,7 @@ const ProductTable = () => {
   const [activateId, setActivateId] = useState(null);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -248,7 +248,7 @@ const ProductTable = () => {
       setProductImages(res.data);
     } catch (error) {
       console.error("Error fetching images:", error);
-      toast.error("Lỗi khi lấy ảnh sản phẩm!");
+      toast.error("Error fetching images");
     }
 
     setModalUploadIsOpen(true);
@@ -326,7 +326,7 @@ const ProductTable = () => {
       );
       closeEditModal();
       handleGetProduct();
-      toast.success("Cập nhật thành công!");
+      toast.success("Update product successfully!");
     } catch (error) {
       toast.error(error.response?.data?.message || "Error updating product");
     }
@@ -399,8 +399,8 @@ const ProductTable = () => {
       );
       toast.success("Deactivate successfully!");
     } catch (error) {
-      console.error("Lỗi khi deactivate product:", error);
-      toast.error("Lỗi khi deactivate product");
+      console.error("Error deactivating product:", error);
+      toast.error("Error deactivating product");
     } finally {
       setIsDeactivateModalOpen(false);
       setDeactivateId(null);
@@ -426,8 +426,8 @@ const ProductTable = () => {
       );
       toast.success("Activate successfully!");
     } catch (error) {
-      console.error("Lỗi khi activate product:", error);
-      toast.error("Lỗi khi activate product");
+      console.error("Error activating product:", error);
+      toast.error("Error activating product");
     } finally {
       setIsActivateModalOpen(false);
       setActivateId(null);

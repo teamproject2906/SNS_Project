@@ -66,10 +66,10 @@ const PostCard = ({
     try {
       if (post?.id) {
         await postService.reportPost(post?.id, user?.id);
-        toast.success("Bài viết đã được báo cáo");
+        toast.success("This post has been reported");
       }
     } catch (error) {
-      toast.error("Lỗi khi báo cáo bài viết");
+      toast.error("Error reporting post");
       console.error("Error reporting post:", error);
     } finally {
       setShowSettings(false);
