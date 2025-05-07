@@ -141,6 +141,8 @@ public class PostServiceImpl implements IPostService {
                      .totalReported(totalReports)
                      .userId(userFind.getId())
                      .userAvatar(userFind.getAvatar())
+                       .createdAt(post.getCreatedAt())
+                       .updatedAt(post.getUpdatedAt())
                      .build();
             })
             .collect(Collectors.toList());
@@ -173,6 +175,8 @@ public class PostServiceImpl implements IPostService {
               .totalReported(totalReports)
             .userId(userFind.getId())
             .userAvatar(userFind.getAvatar())
+              .createdAt(post.getCreatedAt())
+              .updatedAt(post.getUpdatedAt())
             .build();
    }
 
@@ -208,6 +212,8 @@ public class PostServiceImpl implements IPostService {
                  .totalReported(totalReports)
                  .userId(userFind.getId())
                  .userAvatar(userFind.getAvatar())
+                 .createdAt(post.getCreatedAt())
+                 .updatedAt(post.getUpdatedAt())
                  .build();
       }).collect(Collectors.toList());
    }
@@ -260,6 +266,8 @@ public class PostServiceImpl implements IPostService {
                      .totalReported(totalReports)
                      .userId(userFind.getId())
                      .userAvatar(userFind.getAvatar())
+                       .createdAt(post.getCreatedAt())
+                       .updatedAt(post.getUpdatedAt())
                      .build();
             })
             .collect(Collectors.toList());

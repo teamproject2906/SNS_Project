@@ -1,5 +1,6 @@
-export const getTimeAgo = (timestamp) => {
+export const getTimeAgo = (date) => {
   const now = Date.now();
+  const timestamp = new Date(date).getTime();
   const diffInSeconds = Math.floor((now - timestamp) / 1000);
 
   const minutes = Math.floor(diffInSeconds / 60);
@@ -12,7 +13,13 @@ export const getTimeAgo = (timestamp) => {
     return `${minutes} minutes ago`;
   } else if (hours < 24) {
     return `${hours} hours ago`;
-  } else {
+  } else if (days < 6) {
     return `${days} days ago`;
+  } else {
+    return `${new Date(timestamp).toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })}`;
   }
 };

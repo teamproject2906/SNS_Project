@@ -1,8 +1,10 @@
 import PropTypes from "prop-types";
 import { CiSettings } from "react-icons/ci";
 import { DEFAULT_AVATAR } from "../../constants/ImageConstant";
+import { getTimeAgo } from "../../utils/timeUtils";
 
 const PostHeader = ({
+  createdAt,
   userAvatar,
   fullName,
   isCurrentUser,
@@ -60,10 +62,13 @@ const PostHeader = ({
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="ml-3 flex items-center">
+      <div className="ml-3 flex flex-col items-start justify-center">
         <h2 className="font-semibold text-xl text-gray-800">
           {fullName || "(User has not set a name)"}
         </h2>
+        {createdAt && (
+          <span className="text-gray-500 text-sm">{getTimeAgo(createdAt)}</span>
+        )}
       </div>
 
       {showStatus && isActive !== undefined && (
@@ -90,6 +95,7 @@ PostHeader.propTypes = {
   showStatus: PropTypes.bool,
   isActive: PropTypes.bool,
   onReport: PropTypes.func.isRequired,
+  createdAt: PropTypes.string,
 };
 
 export default PostHeader;

@@ -113,6 +113,7 @@ const PostCard = ({
       className={`bg-white rounded-xl shadow-lg mb-4 relative w-full ${className}`}
     >
       <PostHeader
+        createdAt={post?.createdAt}
         userAvatar={post?.userAvatar}
         fullName={
           post?.user?.trim() ||
@@ -189,6 +190,7 @@ PostCard.propTypes = {
     likes: PropTypes.number,
     isLiked: PropTypes.bool,
     isActive: PropTypes.bool,
+    createdAt: PropTypes.string,
   }).isRequired,
   onPostUpdate: PropTypes.func.isRequired,
   onPostDelete: PropTypes.func.isRequired,
