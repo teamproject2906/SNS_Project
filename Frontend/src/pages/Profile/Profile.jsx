@@ -341,7 +341,9 @@ const Profile = () => {
       setIsEditingPhone(false);
       toast.success("Phone number updated successfully");
     } catch (error) {
-      toast.error("Error updating phone number!");
+      toast.error(
+        error?.response?.data?.message || "Error updating phone number!"
+      );
       console.error("Lỗi:", error);
     }
   };

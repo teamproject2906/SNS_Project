@@ -122,8 +122,6 @@ const SocialFeedPage = () => {
         // Ngược lại, tải lại tất cả các post
         fetchPosts();
       }
-
-      toast.success("Post updated successfully");
       return updatedPost;
     } catch (error) {
       console.error("Error updating post:", error);
@@ -154,8 +152,6 @@ const SocialFeedPage = () => {
         // Ngược lại, tải lại tất cả các post
         fetchPosts();
       }
-
-      toast.success("Post hidden successfully");
     } catch (error) {
       console.error("Error hiding post:", error);
       toast.error("Failed to hide the post");
