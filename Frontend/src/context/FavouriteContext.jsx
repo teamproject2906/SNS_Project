@@ -29,7 +29,6 @@ export const FavouriteProvider = ({ children }) => {
     }
     console.log("Userdmm:", user);
     try {
-      
       setLoading(true);
       const token = getToken();
       const response = await axios.get(
@@ -76,11 +75,8 @@ export const FavouriteProvider = ({ children }) => {
 
   // Add item to favourites
   const addToFavourites = async (product) => {
-   
     const currentUser = getUserInfo();
-    console.log("Current user:", currentUser);
-    console.log("Product:", product);
-    if (!currentUser || !currentUser.userId) {
+    if (!currentUser || !currentUser.id) {
       toast.error("Please log in to add to wishlist!");
       return;
     }
@@ -88,7 +84,7 @@ export const FavouriteProvider = ({ children }) => {
       toast.error("Invalid product!");
       return;
     }
-  
+
     try {
       setLoading(true);
       const token = getToken();
@@ -96,21 +92,20 @@ export const FavouriteProvider = ({ children }) => {
         toast.error("Authentication token is missing!");
         return;
       }
-  
+
       const response = await axios.post(
         `http://localhost:8080/api/wishlist/user/${currentUser.id}/add/${product.id}`,
         { productId: product.id },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-  
+
       if (response.data) {
         await fetchWishlist();
-        toast.success("Added to wishlist successfully!");
       }
     } catch (err) {
       console.error("Error adding to wishlist:", err.response?.data);
@@ -139,7 +134,6 @@ export const FavouriteProvider = ({ children }) => {
       if (response.data) {
         // Refresh the wishlist after removing
         await fetchWishlist();
-        toast.success("Removed from wishlist successfully!");
       }
     } catch (err) {
       console.error("Error removing from wishlist:", err);

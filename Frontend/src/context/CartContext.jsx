@@ -62,7 +62,6 @@ export const CartProvider = ({ children }) => {
   // Add item to cart
   const addToCart = async (product) => {
     setUser(JSON.parse(localStorage.getItem("user")));
-    console.log(user);
     if (!user || !user.id) {
       toast.error("Please login to add product to cart!");
       return;
@@ -129,7 +128,6 @@ export const CartProvider = ({ children }) => {
       setCartItems((prevItems) =>
         prevItems.filter((item) => item.id !== cartItemId)
       );
-      toast.success("Removed from cart successfully!");
     } catch (err) {
       console.error("Error removing from cart:", err);
       setError(err.message);
@@ -182,7 +180,6 @@ export const CartProvider = ({ children }) => {
       });
 
       setCartItems([]);
-      toast.success("Cart cleared successfully!");
     } catch (err) {
       console.error("Error clearing cart:", err);
       setError(err.message);

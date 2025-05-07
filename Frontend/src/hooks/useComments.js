@@ -58,7 +58,6 @@ export const useComments = (postId, userId) => {
 
         if (response) {
           await loadComments();
-          toast.success("Comment added successfully");
           return response;
         }
       } catch (error) {
@@ -89,7 +88,6 @@ export const useComments = (postId, userId) => {
         const response = await commentService.createComment(replyData);
         if (response) {
           await loadComments();
-          toast.success("Reply added successfully");
           return response;
         }
       } catch (error) {
@@ -118,7 +116,6 @@ export const useComments = (postId, userId) => {
         if (response) {
           await loadComments(); // Reload để có cấu trúc mới nhất
           setEditingComment(null);
-          toast.success("Updated comment successfully");
         }
       } catch (error) {
         console.error("Error updating comment:", error);
@@ -142,7 +139,6 @@ export const useComments = (postId, userId) => {
           active: false,
         });
         await loadComments(); // Reload để có cấu trúc mới nhất
-        toast.success("Deleted comment successfully");
       } catch (error) {
         console.error("Error deleting comment:", error);
         toast.error("Error deleting comment");

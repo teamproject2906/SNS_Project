@@ -70,7 +70,6 @@ const ProfileSocial = () => {
       // Ngược lại, tải lại tất cả các post
       fetchPosts();
 
-      toast.success("Update post successfully");
       return updatedPost;
     } catch (error) {
       console.error("Error updating post:", error);
@@ -94,8 +93,6 @@ const ProfileSocial = () => {
       });
 
       fetchPosts();
-
-      toast.success("Delete post successfully");
     } catch (error) {
       console.error("Error deleting post:", error);
       toast.error("Failed to delete the post");
