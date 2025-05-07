@@ -63,7 +63,7 @@ const Profile = () => {
   };
 
   const decodedToken = parseJwt(token);
-  const userId = decodedToken?.userId;
+  const userIdStorage = decodedToken?.userId;
 
   // Lấy thông tin user từ backend khi component mount
   useEffect(() => {
@@ -467,7 +467,7 @@ const Profile = () => {
               </div>
             </div>
           </div>
-          {userId && (
+          {userIdStorage && (
             <div className="inline">
               <button
                 onClick={() => setIsChangingPassword(true)}

@@ -205,8 +205,7 @@ export const postService = {
       if (!token)
         return { isLiked: false, likesCount: response.totalLiked || 0 };
 
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      const currentUserId = decodedToken?.userId;
+      const currentUserId = JSON.parse(localStorage.getItem("user"))?.id;
 
       if (!currentUserId)
         return { isLiked: false, likesCount: response.totalLiked || 0 };

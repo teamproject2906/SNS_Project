@@ -82,7 +82,7 @@ const CommentItem = ({
                 <BsClock className="w-3.5 h-3.5" />
                 <span>
                   {comment.createdAt
-                    ? getTimeAgo(new Date(comment.createdAt).getTime())
+                    ? getTimeAgo(comment.createdAt)
                     : "Just now"}
                 </span>
               </div>
